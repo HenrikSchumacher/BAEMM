@@ -1,0 +1,3 @@
+[submodule "Repulsor"]
+	path = Repulsor
+	url = git@github.com:HenrikSchumacher/Repulsor.git
