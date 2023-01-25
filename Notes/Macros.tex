@@ -1,0 +1,333 @@
+% !TEX root = Main.tex
+
+\definecolor{RoyalBlue}{RGB}{0,32,96}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{BrickRed}{RGB}{203, 65, 84}
+
+
+\newcommand{\Pol}{{\operatorname{Pol}}}
+\newcommand{\hPol}{\overline{\Pol}}
+\newcommand{\epol}{\Pol_3(n;\vec{1})}
+\newcommand{\ephr}{\widehat{\Pol}_3(n;\vec{1})}
+\newcommand{\PolHat}{\widehat{\Pol}(n)}
+
+\newcommand{\stateSpaceLong}{\Pol_d(n;\vec{r})}
+\newcommand{\positionSpace}{\cP}
+\newcommand{\edgeSpace}{\Pol}
+%\newcommand{\edgeSpace}{\ConstrainedMfld}
+\newcommand{\positionQuotient}{\widehat{\positionSpace}}
+\newcommand{\edgeQuotient}{\widehat{\edgeSpace}}
+%\newcommand{\edgeQuotient}{\BaseMfld}
+\newcommand{\st}{\mid}
+
+\newcommand{\stateSpace}{\edgeSpace}
+
+\newcommand{\QuotienMap}{\pi}
+\newcommand{\QuotientMap}{\QuotienMap}
+
+\newcommand{\Measure}{\mu}
+\newcommand{\ConstrainedMeasure}{\nu}
+\newcommand{\ConstrainedQuotientMeasure}{\widehat{\nu}}
+%\newcommand{\ConstrainedMfld}{\mathcal{N}}
+\newcommand{\ConstrainedMfld}{\edgeSpace}
+
+\newcommand{\Arm}{{\operatorname{Arm}}}
+\newcommand{\Mfld}{\Arm}
+%\newcommand{\Mfld}{\mathcal{S}}
+%\newcommand{\BaseMfld}{\mathcal{B}}
+\newcommand{\BaseMfld}{\edgeQuotient}
+\newcommand{\Frob}{\mathrm{Frob}}
+
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\vect}{\operatorname{vec}}
+\newcommand{\card}{\#}
+
+\newcommand{\SO}{\mathrm{SO}}
+
+\newcommand{\BlockDiagMat}[2]{%
+\begin{pmatrix}
+	#1
+	&0
+	&\cdots
+	& 0
+	\\
+	0
+	&\ddots		
+	&\ddots		
+	&\vdots
+	\\
+	\vdots 
+	&\ddots
+	&\ddots	
+	&0
+	\\
+	0
+	& \cdots	
+	&0
+	& 
+	#2
+\end{pmatrix}%
+}
+\newcommand{\BlockVecMat}[2]{%
+\begin{pmatrix}
+	#1
+	\\
+	\vdots
+	\\
+	#2
+\end{pmatrix}%
+}
+%\newcommand{\BlockDiagMat}[2]{%
+%\begin{pmatrix}
+%	#1
+%	&0
+%	&\cdots
+%	&\cdots 	
+%	& 0
+%	\\
+%	0
+%	&\ddots		
+%	&\ddots		
+%	&	
+%	&\vdots
+%	\\
+%	\vdots 
+%	&\ddots
+%	&\ddots
+%	&\ddots	
+%	&\vdots
+%	\\
+%	\vdots 
+%	&	
+%	&\ddots
+%	&\ddots	
+%	&0
+%	\\
+%	0
+%	& \cdots
+%	& \cdots	
+%	&0
+%	& 
+%	#2
+%	\end{pmatrix}%
+%}
+
+\newcommand{\MeritFun}{f}
+
+%\newcommand{\ext}[1]{\bar{#1}}
+\newcommand{\ext}[1]{#1}
+\newcommand{\regparam}{\alpha}
+\newcommand{\DouadyEarle}{E}
+
+\newcommand{\Shift}{\sigma}
+\DeclareMathOperator{\artanh}{artanh}
+
+\newcommand{\Henrik}[1]{{\color{ForestGreen}{#1}}}
+\newcommand{\HenrikSpeaking}[1]{{\color{ForestGreen}{\emph{#1}}}}
+\newcommand{\Jason}[1]{{\color{RoyalBlue}{#1}}}
+\newcommand{\JasonSpeaking}[1]{{\color{RoyalBlue}{\emph{#1}}}}
+
+\newcommand{\mymathcal}[1]{\mathcal{#1}}
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+
+
+\newcommand{\Angle}[2]{\measuredangle(#1,#2)}
+\newcommand{\bigAngle}[2]{\measuredangle \big( #1,#2 \big)}
+\newcommand{\BigAngle}[2]{\measuredangle \Big( #1,#2 \Big)}
+
+
+\newcommand{\OpenBall}[2]{B(#1;#2)}
+\newcommand{\ClosedBall}[2]{\bar B(#1;#2)}
+\newcommand{\bigClosedBall}[2]{\bar B \,\bigparen{#1;#2}}
+\newcommand{\BigClosedBall}[2]{\bar B \,\Bigparen{#1;#2}}
+
+\newcommand{\AmbDim}{d} % dimension of ambient space
+\newcommand{\AmbSpace}{{\R^\AmbDim}}
+
+\newcommand{\Sphere}{\mathbb{S}}
+%\newcommand{\Sphere}{\mathbb{S}^{\AmbDim-1}}
+\newcommand{\Disk}{\mathbb{B}}
+\newcommand{\UnitTangent}{\operatorname{UT}}
+\newcommand{\TangentBundle}{\operatorname{T}}
+
+\DeclareDocumentCommand{\Hess}{ O{} }{\operatorname{Hess}_{#1}}
+
+\newcommand{\nospaceperiod}{\makebox[0pt][l]{\,.}}
+\newcommand{\nospacecomma}{\makebox[0pt][l]{\,.}}
+
+
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Mean}{\operatorname{Mean}}
+	
+\newcommand{\qand}{\quad \text{and} \quad}
+\newcommand{\qqand}{\qquad \text{and} \qquad}
+
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\DeclareMathOperator{\argmin}{arg\,min}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\Lip}{Lip}
+\newcommand{\converges}[1]{\stackrel{#1}{\longrightarrow}}
+
+%\newcommand{\transp}{\intercal}
+\newcommand{\transp}{^{\mathsf{T\!}}}
+\newcommand{\adj}{^{*\!}}
+\newcommand{\dual}{'^{\!}}
+\newcommand{\ddual}{''^{\!}}
+\newcommand{\pinv}{^{\dagger\!}}
+
+\newcommand{\cA}{{\mymathcal{A}}}
+\newcommand{\cB}{{\mymathcal{B}}}
+\newcommand{\cC}{{\mymathcal{C}}}
+\newcommand{\cD}{{\mymathcal{D}}}
+\newcommand{\cE}{{\mymathcal{E}}}
+\newcommand{\cF}{{\mymathcal{F}}}
+\newcommand{\cG}{{\mymathcal{G}}}
+\newcommand{\cH}{{\mymathcal{H}}}
+\newcommand{\cI}{{\mymathcal{I}}}
+\newcommand{\cJ}{{\mymathcal{J}}}
+\newcommand{\cK}{{\mymathcal{K}}}
+\newcommand{\cL}{{\mymathcal{L}}}
+\newcommand{\cM}{{\mymathcal{M}}}
+\newcommand{\cN}{{\mymathcal{N}}}
+\newcommand{\cO}{{\mymathcal{O}}}
+\newcommand{\cP}{{\mymathcal{P}}}
+\newcommand{\cQ}{{\mymathcal{Q}}}
+\newcommand{\cR}{{\mymathcal{R}}}
+\newcommand{\cS}{{\mymathcal{S}}}
+\newcommand{\cT}{{\mymathcal{T}}}
+\newcommand{\cU}{{\mymathcal{U}}}
+\newcommand{\cV}{{\mymathcal{V}}}
+\newcommand{\cW}{{\mymathcal{W}}}
+\newcommand{\cX}{{\mymathcal{X}}}
+\newcommand{\cY}{{\mymathcal{Y}}}
+\newcommand{\cZ}{{\mymathcal{Z}}}
+
+
+
+%\newcommand{\SO}{\operatorname{SO}}
+
+\newcommand{\closure}{\operatorname{cl}}
+\newcommand{\opening}{\operatorname{op}}
+\newcommand{\co}{\colon \!\!}
+\newcommand{\cl}{\closure}
+\newcommand{\op}{\opening}
+
+
+\DeclareMathOperator{\Laplacian}{\Delta}
+%\newcommand{\dd}{{\operatorname{d}}}
+\newcommand*{\dd}{\mathop{}\!\mathrm{d}}
+
+\newcommand{\at}{|}
+\newcommand{\At}{\big|}
+
+
+
+\newcommand{\ii}{{\operatorname{i}}}
+\newcommand{\jj}{{\operatorname{j}}}
+\newcommand{\kk}{{\operatorname{k}}}
+\newcommand{\ee}{{\operatorname{e}}}
+\newcommand{\lamda}{{\lambda}}
+\newcommand{\vu}{{\nu}}
+\newcommand{\ceq}{\coloneqq}
+\newcommand{\qec}{\eqqcolon}
+\newcommand{\R}{{\mathbb{R}}}
+\newcommand{\C}{{\mathbb{C}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{{\mathbb{Z}}}
+\newcommand{\Q}{{\mathbb{Q}}}
+\newcommand{\HH}{{\mathbb{H}}}
+\newcommand{\PP}{{\mathbb{P}}}
+\newcommand{\K}{{\mathbb{K}}}
+\newcommand{\F}{{\mathbb{F}}}
+
+\DeclareMathOperator{\id}{id}
+
+
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert} %absolute value
+\newcommand{\nabs}[1]{\lvert{#1}\rvert} %absolute value
+\newcommand{\bigabs}[1]{\big\lvert{#1}\big\rvert} %absolute value
+\newcommand{\Bigabs}[1]{\Big\lvert{#1}\Big\rvert} %absolute value
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\nnorm}[1]{\lVert{#1}\rVert}
+\newcommand{\bignorm}[1]{\big\lVert{#1}\big\rVert}
+\newcommand{\Bignorm}[1]{\Big\lVert{#1}\Big\rVert}
+
+\newcommand{\seminorm}[1]{\left[#1\right]}
+\newcommand{\nseminorm}[1]{[{#1}]}
+\newcommand{\bigseminorm}[1]{\big[{#1}\big]}
+\newcommand{\Bigseminorm}[1]{\Big[{#1}\Big]}
+
+\newcommand{\scale}{\operatorname{sc}}
+\newcommand{\stereo}{\operatorname{st}}
+
+\newcommand{\innerprod}[1]{\left\langle#1\right\rangle}
+\newcommand{\ninnerprod}[1]{\langle{#1}\rangle}
+\newcommand{\biginnerprod}[1]{\big\langle{#1}\big\rangle}
+\newcommand{\Biginnerprod}[1]{\Big\langle{#1}\Big\rangle}
+
+\newcommand{\paren}[1]{\left(#1\right)}
+\newcommand{\nparen}[1]{(#1)}
+\newcommand{\bigparen}[1]{\big(#1\big)}
+\newcommand{\biggparen}[1]{\bigg(#1\bigg)}
+\newcommand{\Bigparen}[1]{\Big(#1\Big)}
+\newcommand{\Biggparen}[1]{\Bigg(#1\Bigg)}
+
+\newcommand{\brackets}[1]{\left[#1\right]}
+\newcommand{\nbrackets}[1]{[#1]}
+\newcommand{\bigbrackets}[1]{\big[#1\big]}
+\newcommand{\biggbrackets}[1]{\bigg[#1\bigg]}
+\newcommand{\Bigbrackets}[1]{\Big[#1\Big]}
+\newcommand{\Biggbrackets}[1]{\Bigg[#1\Bigg]}
+
+%\newcommand{\intervaloo}[1]{\left]#1\right[}
+%\newcommand{\intervalco}[1]{\left[#1\right[}
+%\newcommand{\intervalcc}[1]{\left[#1\right]}
+%\newcommand{\intervaloc}[1]{\left]#1\right]}
+%\newcommand{\nintervaloo}[1]{{(#1)}}
+%\newcommand{\nintervalco}[1]{{[#1)}}
+%\newcommand{\nintervalcc}[1]{{[#1]}}
+%\newcommand{\nintervaloc}[1]{{(#1]}}
+%\newcommand{\bigintervaloo}[1]{{\big]#1\big[}}
+%\newcommand{\bigintervalco}[1]{{\big[#1\big[}}
+%\newcommand{\bigintervalcc}[1]{{\big[#1\big]}}
+%\newcommand{\bigintervaloc}[1]{{\big]#1\big]}}
+
+
+\newcommand{\intervaloo}[1]{\left(#1\right)}
+\newcommand{\intervalco}[1]{\left[#1\right)}
+\newcommand{\intervalcc}[1]{\left[#1\right]}
+\newcommand{\intervaloc}[1]{\left(#1\right]}
+\newcommand{\nintervaloo}[1]{{(#1)}}
+\newcommand{\nintervalco}[1]{{[#1)}}
+\newcommand{\nintervalcc}[1]{{[#1]}}
+\newcommand{\nintervaloc}[1]{{(#1]}}
+\newcommand{\bigintervaloo}[1]{{\big(#1\big)}}
+\newcommand{\bigintervalco}[1]{{\big[#1\big)}}
+\newcommand{\bigintervalcc}[1]{{\big[#1\big]}}
+\newcommand{\bigintervaloc}[1]{{\big(#1\big]}}
+
+
+\DeclareMathOperator{\Imag}{{\mathfrak{Im}}}
+\DeclareMathOperator{\Real}{{\mathfrak{Re}}}
+\DeclareMathOperator{\Ima}{im}
+\DeclareMathOperator{\ima}{im}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\supp}{supp}   %support
+\DeclareMathOperator{\diam}{diam}  %Diameter
+\DeclareMathOperator{\dist}{dist}  %Distance
+\DeclareMathOperator{\End}{End}    %Endomorphisms
+\DeclareMathOperator{\Hom}{Hom}    %Homomorphisms
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\pr}{pr}
+\DeclareMathOperator{\grad}{grad}  
+\DeclareMathOperator{\diver}{div}  
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\vol}{{\operatorname{vol}}}
+\newcommand{\dvol}{\mathrm{d}\vol}
+\newcommand{\pull}{\#}
+\newcommand{\push}{\#}
+
+\newcommand{\Span}{\mathrm{span}}
+\newcommand{\Stab}{\mathrm{stab}}
