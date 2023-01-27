@@ -13,9 +13,11 @@ namespace BAEMM
     {
     public:
         
-        using Int        = uint;
+        using Int        = uint32_t;
         using Real       = float;
         using Complex    = std::complex<Real>;
+        
+        using UInt        = uint32_t;
         
         using NS::StringEncoding::UTF8StringEncoding;
         
@@ -69,50 +71,62 @@ namespace BAEMM
         {
             tic(ClassName());
             const Int size  =     n * sizeof(Real);
-            const Int size3 = 3 * n * sizeof(Real);
+            const Int size4 = 4 * n * sizeof(Real);
             
             areas      = device->newBuffer(size,  MTL::ResourceStorageModeManaged);
-            mid_points = device->newBuffer(size3, MTL::ResourceStorageModeManaged);
-            normals    = device->newBuffer(size3, MTL::ResourceStorageModeManaged);
+            mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
+            normals    = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
             
             mut<Real> areas_      = static_cast<Real *>(     areas->contents());
             mut<Real> mid_points_ = static_cast<Real *>(mid_points->contents());
             mut<Real> normals_    = static_cast<Real *>(   normals->contents());
             
-            Tiny::Vector<3,Real,uint> x;
-            Tiny::Vector<3,Real,uint> y;
-            Tiny::Vector<3,Real,uint> z;
+            Tiny::Vector<4,Real,Int> x;
+            Tiny::Vector<4,Real,Int> y;
+            Tiny::Vector<4,Real,Int> z;
+            Tiny::Vector<4,Real,Int> nu;
             
-            Tiny::Vector<3,Real,uint> nu;
-            
-            for( uint i = 0; i < n; ++i )
+            // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
+            for( Int i = 0; i < n; ++i )
             {
-                x.Read( vertex_coords.data(triangles(i,0)) );
-                y.Read( vertex_coords.data(triangles(i,1)) );
-                z.Read( vertex_coords.data(triangles(i,2)) );
-
-                mid_points_[3*i+0] = third * ( x[0] + y[0] + z[0] );
-                mid_points_[3*i+1] = third * ( x[1] + y[1] + z[1] );
-                mid_points_[3*i+2] = third * ( x[2] + y[2] + z[2] );
+                x[0] = vertex_coords(triangles(i,0),0);
+                x[1] = vertex_coords(triangles(i,0),1);
+                x[2] = vertex_coords(triangles(i,0),2);
                 
-                y -= x;
-                z -= x;
-
+                y[0] = vertex_coords(triangles(i,1),0);
+                y[1] = vertex_coords(triangles(i,1),1);
+                y[2] = vertex_coords(triangles(i,1),2);
+                
+                z[0] = vertex_coords(triangles(i,2),0);
+                z[1] = vertex_coords(triangles(i,2),1);
+                z[2] = vertex_coords(triangles(i,2),2);
+                
+                mid_points_[4*i+0] = third * ( x[0] + y[0] + z[0] );
+                mid_points_[4*i+1] = third * ( x[1] + y[1] + z[1] );
+                mid_points_[4*i+2] = third * ( x[2] + y[2] + z[2] );
+                mid_points_[4*i+3] = 0;
+                
+                y[0] -= x[0]; y[1] -= x[1]; y[2] -= x[2];
+                z[0] -= x[0]; z[1] -= x[1]; z[2] -= x[2];
+                
                 nu[0] = y[1] * z[2] - y[2] * z[1];
                 nu[1] = y[2] * z[0] - y[0] * z[2];
                 nu[2] = y[0] * z[1] - y[1] * z[0];
 
-                const Real a = nu.Norm();
+                const Real a = std::sqrt( nu[0] * nu[0] + nu[1] * nu[1] + nu[2] * nu[2] );
                 areas_[i] = a;
 
                 nu /= a;
 
-                nu.Write( &normals_[3*i] );
+                normals_[4*i+0] = nu[0];
+                normals_[4*i+1] = nu[1];
+                normals_[4*i+2] = nu[2];
+                normals_[4*i+3] = zero;
             }
             
                  areas->didModifyRange({0,size });
-            mid_points->didModifyRange({0,size3});
-               normals->didModifyRange({0,size3});
+            mid_points->didModifyRange({0,size4});
+               normals->didModifyRange({0,size4});
 
             command_queue = device->newCommandQueue();
             
@@ -136,7 +150,7 @@ namespace BAEMM
             const std::string * param_types,    // types of compile-time parameters (converted to string)
             const std::string * param_names,    // name of compile-time parameters
             const std::string * param_vals,     // values of compile-time parameters (converted to string)
-            uint  param_count                   // number of compile-time parameters
+            Int  param_count                   // number of compile-time parameters
         )
         {
             tic("CreatePipeline(" + fun_fullname + ")");
@@ -144,7 +158,7 @@ namespace BAEMM
             std::stringstream full_code;
             
             // Create compile-time constant. Will be prependend to code string.
-            for( uint i = 0; i < param_count; ++i )
+            for( Int i = 0; i < param_count; ++i )
             {
                 full_code << "constant constexpr " << param_types[i] << " " << param_names[i] << " = " << param_vals[i] <<";\n";
             }
@@ -155,9 +169,15 @@ namespace BAEMM
             
             NS::Error *error = nullptr;
             
+            MTL::CompileOptions * opt = MTL::CompileOptions::alloc();
+            
+            opt->init();
+            
+            opt->setFastMathEnabled(true);
+            
             MTL::Library * lib = device->newLibrary(
                 code_NS_String,
-                nullptr, // <-- crucial for distinguishing from the function that loads from file
+                opt, // <-- crucial for distinguishing from the function that loads from file
                 &error
             );
             
@@ -208,105 +228,149 @@ namespace BAEMM
             toc("CreatePipeline(" + fun_fullname + ")");
         }
         
-    public:
         
-        void Neumann_to_Dirichlet(
-            const MTL::Buffer * Re_Y,
-            const MTL::Buffer * Im_Y,
-                  MTL::Buffer * Re_X,
-                  MTL::Buffer * Im_X,
-            const float kappa,
-            const float kappa_step,
-            const uint chunk_size,
-            const uint n_waves
+        
+//        MTL::ComputePipelineState * pipeline = GetPipelineState(
+//              "Helmholtz__Neumann_to_Dirichlet",
+//              std::string(
+//#include "Neumann_to_Dirichlet.metal"
+//              ),
+//              {"uint","uint"},
+//              {"chunk_size","n_waves"},
+//              {chunk_size,n_waves}
+//          );
+        
+        MTL::ComputePipelineState * GetPipelineState(
+            const std::string & fun_name,       // name of function in code string
+            const std::string & code,           // string of actual Metal code
+            const std::vector<std::string> & param_types,    // types of compile-time parameters (converted to string)
+            const std::vector<std::string> & param_names,    // name of compile-time parameters
+            const std::vector<std::string> & param_vals     // values of compile-time parameters
         )
         {
-            tic(ClassName()+"::Neumann_to_Dirichlet(...,"+ToString(chunk_size)+","+ToString(n_waves)+")");
+            std::stringstream fun_fullname_stream;
             
-            std::string fun_name = "Helmholtz__Neumann_to_Dirichlet";
+            fun_fullname_stream << fun_name;
             
-            const std::string template_types [2] = {"uint","uint"};
-            const std::string template_names [2] = {"chunk_size","n_waves"};
-            const std::string template_vals  [2] = {ToString(chunk_size),ToString(n_waves)};
+            for( const auto & s : param_vals )
+            {
+                fun_fullname_stream << "_" << s;
+            }
             
-            std::string fun_fullname = fun_name+"_"+template_vals[0]+"_"+template_vals[1];
+            std::string fun_fullname = fun_fullname_stream.str();
+            
+            std::string tag = "GetPipelineState(" + fun_fullname + ")";
+            
+            tic(tag);
             
             if( pipelines.count(fun_fullname) == 0 )
             {
-                // Calling this function for the first time; we have to compile it first.
+                std::stringstream full_code;
                 
-                CreatePipelineState(
-                    fun_name,
-                    fun_fullname,
-                    std::string(
-#include "Helmholtz.metal"
-                    ),
-                    template_types,template_names,template_vals,2
+                
+                if( param_types.size() != param_names.size() )
+                {
+                    eprint("CreatePipeline: param_types.size() != param_names.size().");
+                    toc(tag);
+                    return nullptr;
+                }
+                
+                
+                if( param_types.size() != param_vals.size() )
+                {
+                    eprint("CreatePipeline: param_types.size() != param_vals.size().");
+                    toc(tag);
+                    return nullptr;
+                }
+                
+                size_t param_count = param_types.size();
+                
+                // Create compile-time constant. Will be prependend to code string.
+                for( size_t i = 0; i < param_count; ++i )
+                {
+                    full_code << "constant constexpr " << param_types[i] << " " << param_names[i] << " = " << param_vals[i] <<";\n";
+                }
+                
+                full_code << code;
+                
+                NS::String * code_NS_String = NS::String::string(full_code.str().c_str(), UTF8StringEncoding);
+                
+                NS::Error *error = nullptr;
+                
+                MTL::Library * lib = device->newLibrary(
+                    code_NS_String,
+                    nullptr, // <-- crucial for distinguishing from the function that loads from file
+                    &error
                 );
-            }            
-            
-            MTL::ComputePipelineState * pipeline = pipelines[fun_fullname];
-            
-            assert( pipeline != nullptr );
-            
-            // Now we can proceed to set up the MTL::CommandBuffer.
-
-            // Create a command buffer to hold commands.
-            MTL::CommandBuffer * command_buffer = command_queue->commandBuffer();
-            assert( command_buffer != nullptr );
-
-            // Create an encoder that translates our command to something the
-            // device understands
-            MTL::ComputeCommandEncoder * compute_encoder = command_buffer->computeCommandEncoder();
-            assert( compute_encoder != nullptr );
-
-            // Encode the pipeline state object and its parameters.
-            compute_encoder->setComputePipelineState( pipeline );
-
-            // Place data in encoder
-            compute_encoder->setBuffer(mid_points, 0 ,0 );
-            compute_encoder->setBuffer(Re_Y,       0, 1 );
-            compute_encoder->setBuffer(Im_Y,       0, 2 );
-            compute_encoder->setBuffer(Re_X,       0, 3 );
-            compute_encoder->setBuffer(Im_X,       0, 4 );
-            
-            compute_encoder->setBytes(&kappa,      sizeof(float),       5);
-            compute_encoder->setBytes(&kappa_step, sizeof(float),       6);
-            compute_encoder->setBytes(&n,          sizeof(NS::Integer), 7);
-
-            const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
-            
-            if(chunk_size != max_threads)
-            {
-                wprint(ClassName()+"::Neumann_to_Dirichlet: chunk_size != max_threads");
+                
+                if( lib == nullptr )
+                {
+                    std::cout << "Failed to compile library from string for function "
+                    << fun_fullname << ", error "
+                    << error->description()->utf8String() << std::endl;
+//                    std::exit(-1);
+                    
+                    return nullptr;
+                }
+                
+                bool found = false;
+                
+                // Go through all functions in the library to find ours.
+                for( NS::UInteger i = 0; i < lib->functionNames()->count(); ++i )
+                {
+                    found = true;
+                    
+                    auto name_nsstring = lib->functionNames()->object(i)->description();
+                    
+                    if( fun_name == name_nsstring->utf8String() )
+                    {
+                        // This MTL::Function object is needed only temporarily.
+                        MTL::Function * fun = lib->newFunction(name_nsstring);
+                        
+                        // Create pipeline from function.
+                        pipelines[fun_fullname] = device->newComputePipelineState(fun, &error);
+                        
+                        if( pipelines[fun_fullname] == nullptr )
+                        {
+                            std::cout << "Failed to created pipeline state object for "
+                            << fun_name << ", error "
+                            << error->description()->utf8String() << std::endl;
+                            return nullptr;
+                        }
+                    }
+                }
+                
+                if( found )
+                {
+                    print(std::string("CreatePipeline: Found Metal kernel ") + fun_name +".");
+                    toc(tag);
+                    return pipelines[fun_fullname];
+                }
+                else
+                {
+                    eprint(std::string("CreatePipeline: Did not find Metal kernel ") + fun_name +" in source code.");
+                    toc(tag);
+                    return nullptr;
+                }
             }
-            
-            MTL::Size threads_per_threadgroup (max_threads, 1, 1);
-            MTL::Size threadgroups_per_grid   (
-                (n+threads_per_threadgroup.width-1)/threads_per_threadgroup.width, 1, 1
-            );
-
-            // Encode the compute command.
-            compute_encoder->dispatchThreadgroups(threadgroups_per_grid, threads_per_threadgroup);
-            
-            // Signal that we have encoded all we want.
-            compute_encoder->endEncoding();
-            
-            // Encode synchronization of return buffers.
-            MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
-            assert( blit_command_encoder != nullptr );
-            
-            blit_command_encoder->synchronizeResource(Re_X);
-            blit_command_encoder->synchronizeResource(Im_X);
-            blit_command_encoder->endEncoding();
-            
-            
-            // Execute the command buffer.
-            command_buffer->commit();
-            command_buffer->waitUntilCompleted();
-            
-            toc(ClassName()+"::Neumann_to_Dirichlet(...,"+ToString(chunk_size)+","+ToString(n_waves)+")");
+            else
+            {
+                toc(tag);
+                return pipelines[fun_fullname];
+            }
         }
+
+        
+#include "Neumann_to_Dirichlet.hpp"
+        
+#include "Neumann_to_Dirichlet2.hpp"
+        
+        
+//#include "Neumann_to_Dirichlet_C.hpp"
+        
+#include "AddReduce.hpp"
+        
+//#include "GEMM2.hpp"
         
     public:
         

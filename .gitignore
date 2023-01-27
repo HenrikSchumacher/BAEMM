@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+# Compiled Metal libraries
+*.metallib
+*.air
+
+# TEX files
+
+*.aux
+*.log
+*.synctex.gz
+

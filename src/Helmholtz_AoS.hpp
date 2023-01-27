@@ -244,7 +244,7 @@ namespace BAEMM
                             {
                                 const Int j_global = j_base + j;
                                 
-                                const Real delta = static_cast<Real>(i_global==j_global);
+                                const Real delta_ij = static_cast<Real>(i_global==j_global);
                                 
                                 if constexpr ( copy_y )
                                 {
@@ -277,9 +277,9 @@ namespace BAEMM
                                     }
                                 }
                                 
-                                const Real r = z.Norm() + delta;
+                                const Real r = z.Norm();
                                 
-                                const Real r_inv = one_over_four_pi * (one-delta) / r;
+                                const Real r_inv = one_over_four_pi * (one-delta_ij)/(r + delta_ij);
                                 
                                 A[i][j] = std::exp( Complex(0,kappa * r) ) * r_inv;
                                 
