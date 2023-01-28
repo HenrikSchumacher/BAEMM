@@ -75,7 +75,7 @@ void SetElement(Matrix A, uint row, uint col, float value)
     return Asub;
 }
 
-[[kernel]] void GEMM_NVidea(
+[[kernel]] void GEMM_RM_NVidea(
     const constant uint  & M            [[buffer(0)]],
     const constant uint  & N            [[buffer(1)]],
     const constant uint  & K            [[buffer(2)]],

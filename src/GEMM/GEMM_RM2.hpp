@@ -52,10 +52,10 @@ public:
 
 //        const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
         
-        MTL::Size threads_per_threadgroup ( 32, 32, 1 );
+        MTL::Size threads_per_threadgroup ( 16, 16, 1 );
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(N, static_cast<Int>(threads_per_threadgroup.width  )),
-            DivideRoundUp(M, static_cast<Int>(threads_per_threadgroup.height )),
+            DivideRoundUp(N, 4 * static_cast<Int>(threads_per_threadgroup.width  )),
+            DivideRoundUp(M, 4 * static_cast<Int>(threads_per_threadgroup.height )),
             1
         );
         
@@ -101,5 +101,6 @@ public:
             command_buffer->waitUntilCompleted();
         }
     }
+
 
 

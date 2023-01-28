@@ -51,10 +51,10 @@ int main(int argc, const char * argv[])
     valprint("thread_count",thread_count);
 
 
-    const UInt M = 4*1024;
-    const UInt N = 4*1024;
-    const UInt K = 4*1024;
-    
+    const UInt M = 16*1024;
+    const UInt N = 64;
+    const UInt K = 16*1024;
+
     MTL::Buffer * A = device->newBuffer(
         M * K * sizeof(Float), MTL::ResourceStorageModeManaged
     );
@@ -94,7 +94,7 @@ int main(int argc, const char * argv[])
 
     std::fill( C_, &C_[M*N], static_cast<Float>(0) );
     
-    constexpr UInt repetitions = 1;
+    constexpr UInt repetitions = 10;
     double time;
     
     const double Tflops = 2. * M * N * K * repetitions * std::pow(10.,-12);
@@ -141,6 +141,7 @@ int main(int argc, const char * argv[])
         print("");
     };
     
+    capella.GEMM_CM(M, N, K, alpha, A, B, beta, C, 16, 16 );
     tic("capella.GEMM_CM");
     for( UInt r = 0; r < repetitions; ++r )
     {
@@ -170,16 +171,27 @@ int main(int argc, const char * argv[])
     dump(C_True_MaxNorm);
     print("");
     
+//    capella.GEMM_RM_NVidea(M, N, K, alpha, A, B, beta, C, 16 );
+//    tic("capella.GEMM_RM_NVidea");
+//    for( UInt r = 0; r < repetitions; ++r )
+//    {
+//        capella.GEMM_RM_NVidea(M, N, K, alpha, A, B, beta, C, 16 );
+//    }
+//    time = toc("capella.GEMM_RM_NVidea");
+//    f(time, C_);
+
     
-    
-    capella.GEMM_NVidea(M, N, K, alpha, A, B, beta, C, 16 );
-    tic("capella.GEMM_NVidea");
+    capella.GEMM_RM(M, N, K, alpha, A, B, beta, C );
+    tic("capella.GEMM_RM");
     for( UInt r = 0; r < repetitions; ++r )
     {
-        capella.GEMM_NVidea(M, N, K, alpha, A, B, beta, C, 16 );
+        capella.GEMM_RM(M, N, K, alpha, A, B, beta, C );
     }
-    time = toc("capella.GEMM_NVidea");
+    time = toc("capella.GEMM_RM");
     f(time, C_);
+    
+    print("");
+    
 
     
 //    capella.GEMM_RM(M, N, K, alpha, A, B, beta, C, 16, 16 );

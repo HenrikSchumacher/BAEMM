@@ -129,7 +129,7 @@ namespace HeavyMetal
                 
                 opt->init();
                 
-                opt->setFastMathEnabled(false);
+                opt->setFastMathEnabled(true);
                 
                 
                 MTL::Library * lib = device->newLibrary(
@@ -254,7 +254,7 @@ namespace HeavyMetal
             
             zerofy_buffer(c,M*N,8);
             
-        #pragma omp parallel for num_threads( 8 )
+            #pragma omp parallel for num_threads( 8 )
             for( uint k = 0; k < K; ++k )
             {
                 for( uint i = 0; i < M; ++i )
@@ -302,11 +302,13 @@ namespace HeavyMetal
 
 #include "GEMM/GEMM_CM.hpp"
         
-//#include "GEMM/GEMM_RM.hpp"
+#include "GEMM/GEMM_RM_NVidea.hpp"
+
+#include "GEMM/GEMM_RM.hpp"
         
-#include "GEMM/GEMM2.hpp"
+
         
-#include "GEMM/GEMM_PRM.hpp"
+//#include "GEMM/GEMM_PRM.hpp"
         
     public:
         

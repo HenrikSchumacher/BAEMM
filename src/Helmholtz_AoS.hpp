@@ -283,6 +283,7 @@ namespace BAEMM
                                 
                                 A[i][j] = std::exp( Complex(0,kappa * r) ) * r_inv;
                                 
+                                
                                 if constexpr ( ascending )
                                 {
                                     B[i][j] = std::exp( Complex(0,kappa_step * r) );
@@ -350,6 +351,133 @@ namespace BAEMM
             } // for( Int thread = 0; thread < thread_count; ++thread )
             
             toc(ClassName()+"::Neumann_to_Dirichlet_Blocked<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+        }
+        
+        
+        template<
+            Int i_blk_size, Int j_blk_size, Int n_waves, bool ascending,
+            bool copy_x = true, bool copy_y = true, bool copy_Y = false
+        >
+        void Neumann_to_Dirichlet_Assembled(
+            mut<std::complex<Real>> g_A,
+            const Real kappa,
+            const Real kappa_step,
+            const Int  thread_count
+        ) const
+        {
+            tic(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+                    
+            if( (n/i_blk_size) * i_blk_size != n )
+            {
+                wprint(ClassName()+"::Neumann_to_Dirichlet_Assembled: Loop peeling not applied.");
+            }
+        
+            
+            JobPointers<Int> job_ptr(n/i_blk_size, thread_count);
+            
+            #pragma omp parallel for num_threads( thread_count)
+            for( Int thread = 0; thread < thread_count; ++thread )
+            {
+                Tiny::Matrix<i_blk_size,3,Real,Int> x;
+                Tiny::Matrix<j_blk_size,3,Real,Int> y;
+                
+                Tiny::Vector<3,Real,Int> z;
+//                Tiny::Vector<3,Real,Int> nu;
+                
+//                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> A;
+//                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> B;
+                
+                const Int i_blk_begin = job_ptr[thread  ];
+                const Int i_blk_end   = job_ptr[thread+1];
+                
+                const Int j_blk_begin = 0;
+                const Int j_blk_end   = n/j_blk_size;
+                
+                for( Int i_blk = i_blk_begin; i_blk < i_blk_end; ++i_blk )
+                {
+                    const Int i_base = i_blk_size * i_blk;
+                    
+                    if constexpr ( copy_x )
+                    {
+                        x.Read( mid_points.data(i_base) );
+                    }
+                    
+                    for( Int j_blk = j_blk_begin; j_blk < j_blk_end; ++j_blk )
+                    {
+                        const Int j_base = j_blk_size * j_blk;
+                        
+                        if constexpr ( copy_y )
+                        {
+                            y.Read( mid_points.data(j_base) );
+                        }
+                        
+                        LOOP_UNROLL_FULL
+                        for( Int i = 0; i < i_blk_size; ++i )
+                        {
+                            const Int i_global = i_base + i;
+                            
+                            LOOP_UNROLL_FULL
+                            for( Int j = 0; j < j_blk_size; ++j )
+                            {
+                                const Int j_global = j_base + j;
+                                
+                                const Real delta_ij = static_cast<Real>(i_global==j_global);
+                                
+                                if constexpr ( copy_y )
+                                {
+                                    if constexpr ( copy_x )
+                                    {
+                                        z[0] = y[j][0] - x[i][0];
+                                        z[1] = y[j][1] - x[i][1];
+                                        z[2] = y[j][2] - x[i][2];
+                                    }
+                                    else
+                                    {
+                                        z[0] = y[j][0] - mid_points[i_global][0];
+                                        z[1] = y[j][1] - mid_points[i_global][1];
+                                        z[2] = y[j][2] - mid_points[i_global][2];
+                                    }
+                                }
+                                else
+                                {
+                                    if constexpr ( copy_x )
+                                    {
+                                        z[0] = mid_points[j_global][0] - x[i][0];
+                                        z[1] = mid_points[j_global][1] - x[i][1];
+                                        z[2] = mid_points[j_global][2] - x[i][2];
+                                    }
+                                    else
+                                    {
+                                        z[0] = mid_points[j_global][0] - mid_points[i_global][0];
+                                        z[1] = mid_points[j_global][1] - mid_points[i_global][1];
+                                        z[2] = mid_points[j_global][2] - mid_points[i_global][2];
+                                    }
+                                }
+                                
+                                const Real r = z.Norm();
+                                
+                                const Real r_inv = one_over_four_pi * (one-delta_ij)/(r + delta_ij);
+                                
+                                g_A[n * i_global + j_global] = std::exp( Complex(0,kappa * r) ) * r_inv;
+                                
+                                
+//                                if constexpr ( ascending )
+//                                {
+//                                    B[i][j] = std::exp( Complex(0,kappa_step * r) );
+//                                }
+
+                            } // for( Int j = 0; j < j_blk_size; ++j )
+                            
+                        } // for( Int i = 0; i < i_blk_size; ++i )
+        
+                        
+                    } // for( Int j_blk = j_blk_begin; j_blk < j_blk_end; ++j_blk )
+                                
+                } // for( Int i_blk = i_blk_begin; i_blk < i_blk_end; ++i_blk )
+                
+            } // for( Int thread = 0; thread < thread_count; ++thread )
+            
+            toc(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
         }
         
         template<Int n_waves, bool ascending>

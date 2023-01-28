@@ -54,8 +54,8 @@ public:
         
         MTL::Size threads_per_threadgroup ( g_rows, g_cols, 1 );
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(M, static_cast<Int>(threads_per_threadgroup.width )),
-            DivideRoundUp(N, static_cast<Int>(threads_per_threadgroup.height)),
+            DivideRoundUp(M, 4 * static_cast<Int>(threads_per_threadgroup.width )),
+            DivideRoundUp(N, 4 * static_cast<Int>(threads_per_threadgroup.height)),
             1
         );
         
@@ -63,6 +63,8 @@ public:
 //        valprint("M",M);
 //        valprint("N",N);
 //        valprint("K",K);
+//        valprint("g_rows",g_rows);
+//        valprint("g_cols",g_cols);
 //        print("threadgroups_per_grid = { "
 //              +ToString(threadgroups_per_grid.width)
 //              +","

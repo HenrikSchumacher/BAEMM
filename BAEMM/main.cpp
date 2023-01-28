@@ -19,10 +19,17 @@
 
 #include "../BAEMM.hpp"
 
+template<typename T>
+T * ToPtr( MTL::Buffer * a )
+{
+    return reinterpret_cast<T*>(a->contents());
+}
+
+
 namespace BAEMM
 {
     // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
-    // You can activate everything you want, but compile times might increase substatially.
+    // Bou can activate everything you want, but compile times might increase substatially.
     using Int     =  int32_t;
     using UInt    = uint32_t;
     using ExtInt  =  int64_t;
@@ -31,7 +38,10 @@ namespace BAEMM
     using Float   = float32_t;
     using Complex = std::complex<Float>;
     
+
 }
+
+
 
 int main(int argc, const char * argv[])
 {
@@ -65,7 +75,7 @@ int main(int argc, const char * argv[])
     SimplicialMesh_Factory<Mesh_T,2,2,3,3> mesh_factory;
     
     dump(file_name);
-    
+
     std::unique_ptr<Mesh_T> M_ptr = mesh_factory.Make_FromFile<Real,Int,Real,Real>(file_name, thread_count);
 
     Mesh_T & M = *M_ptr;  // I don't like pointers. Give me a reference.
@@ -77,123 +87,154 @@ int main(int argc, const char * argv[])
     static constexpr uint n_waves = 32;
     const uint simd_count = 32;
     const uint simd_size  = 32;
-    
+
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
 
     Float kappa = 2.;
     Float kappa_step = 0.1;
-    
+
     valprint("n      ", n       );
     valprint("n_waves", n_waves );
-    
+
     NS::AutoreleasePool* p_pool = NS::AutoreleasePool::alloc()->init();
-    
+
     MTL::Device* device = MTL::CreateSystemDefaultDevice();
-    
+
     Helmholtz_AoS<Float,UInt> H_AoS(
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
     );
     
-    Tensor2<Complex,Int>  X_True ( n, n_waves );
-    Tensor2<Complex,Int>  X      ( n, n_waves );
-    Tensor2<Complex,Int>  Y      ( n, n_waves );
+//    Tensor2<Complex,Int>  A      ( n, n );
+//    Tensor2<Complex,Int>  A_True ( n, n );
+    
+    Tensor2<Complex,Int>  C_True ( n, n_waves );
+    Tensor2<Complex,Int>  C      ( n, n_waves );
+    Tensor2<Complex,Int>  B      ( n, n_waves );
     Tensor2<Complex,Int>  Z      ( n, n_waves );
+    
 
-    Tensor2<Float,Int> Re_Y      ( n, n_waves );
-    Tensor2<Float,Int> Im_Y      ( n, n_waves );
+    Tensor2<Float,Int> Re_B      ( n, n_waves );
+    Tensor2<Float,Int> Im_B      ( n, n_waves );
+
     
     constexpr UInt round_to      = 64;
     const     UInt n_rounded     = RoundUpTo( n, round_to );
     dump(n);
     dump(n_rounded);
-    
+
     const UInt size = n_rounded * n_waves * sizeof(Float);
+
+    MTL::Buffer * Re_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Im_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Re_B_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Im_B_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
     
-    MTL::Buffer * Re_X_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Im_X_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Re_Y_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Im_Y_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    
-//    MTL::Buffer * X_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
-//    MTL::Buffer * Y_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
-    
-    auto print_error = [&] ( const auto & X )
+//    MTL::Buffer * Re_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
+//    MTL::Buffer * Im_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
+
+//    MTL::Buffer * C_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
+//    MTL::Buffer * B_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
+
+    auto print_error = [&] ( const auto & C )
     {
-        Subtract( X_True, X, Z );
-        valprint("Error",Z.MaxNorm()/X_True.MaxNorm());
+        Subtract( C_True, C, Z );
+        valprint("Error",Z.MaxNorm()/C_True.MaxNorm());
     };
 
-    auto print_error_ReIm = [&] ( const auto & Re_X_Metal, auto & Im_X_Metal )
+    auto print_error_ReIm = [&] ( const auto & Re_C_Metal, auto & Im_C_Metal )
     {
-        X.Read(
-            reinterpret_cast<Float*>( Re_X_Metal->contents() ),
-            reinterpret_cast<Float*>( Im_X_Metal->contents() )
-        );
-        print_error(X);
+        C.Read( ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal) );
+        print_error(C);
     };
-    
-//    auto print_error_C = [&] ( const auto & X_Metal )
+
+//    auto print_error_C = [&] ( const auto & C_Metal )
 //    {
-//        X.Read( reinterpret_cast<Complex*>( X_Metal->contents() ) );
-//        print_error(X);
-//        Subtract( X_True, X, Z );
+//        C.Read( reinterpret_cast<Complex*>( C_Metal->contents() ) );
+//        print_error(C);
+//        Subtract( C_True, C, Z );
 //    };
-                                
-    Re_Y.Random();
-    Im_Y.Random();
 
-    Y.Read( Re_Y.data(), Im_Y.data() );
-                                
-    Y.Write(
-        reinterpret_cast<Float*>( Re_Y_Metal->contents() ),
-        reinterpret_cast<Float*>( Im_Y_Metal->contents() )
-    );
-    Re_Y_Metal->didModifyRange({0,size});
-    Im_Y_Metal->didModifyRange({0,size});
-    
+    Re_B.Fill(1);
+//    Re_B.Random();
+//    Im_B.Random();
+
+    Im_B.SetZero();
+
+    B.Read( Re_B.data(), Im_B.data() );
+
+    B.Write( ToPtr<Float>( Re_B_Metal ), ToPtr<Float>( Im_B_Metal ) );
+    Re_B_Metal->didModifyRange({0,size});
+    Im_B_Metal->didModifyRange({0,size});
+
     H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
-        Y.data(), X_True.data(), kappa, kappa_step, thread_count
+        B.data(), C_True.data(), kappa, kappa_step, thread_count
     );
+
+    dump( C_True.MaxNorm());
     
-    dump( X_True.MaxNorm());
-    
-//    H_AoS.Neumann_to_Dirichlet<n_waves,false>(
-//        Y.data(), X.data(), kappa, kappa_step, thread_count
+//    H_AoS.Neumann_to_Dirichlet_Assembled<i_blk,j_blk,n_waves,false>(
+//        A_True.data(), kappa, kappa_step, thread_count
 //    );
-//    print_error(X);
     
+//
+//    H_AoS.Neumann_to_Dirichlet_C<n_waves,false>(
+//        ToPtr<Float>(Re_B_Metal), ToPtr<Float>(Im_B_Metal),
+//        ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal),
+//        kappa, kappa_step, thread_count
+//    );
+//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
     print("");
-    
+
     Helmholtz_Metal H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
     );
-    
+
     H_Metal.Neumann_to_Dirichlet(
-        Re_Y_Metal, Im_Y_Metal, Re_X_Metal, Im_X_Metal, kappa, kappa_step, 64, n_waves
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
     );
-    print_error_ReIm(Re_X_Metal,Im_X_Metal);
-    
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
     H_Metal.Neumann_to_Dirichlet2(
-        Re_Y_Metal, Im_Y_Metal, Re_X_Metal, Im_X_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
     );
-    print_error_ReIm(Re_X_Metal,Im_X_Metal);
-    
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+    H_Metal.Neumann_to_Dirichlet3(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, 32 );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
     H_Metal.Neumann_to_Dirichlet(
-        Re_Y_Metal, Im_Y_Metal, Re_X_Metal, Im_X_Metal, kappa, kappa_step, 64, n_waves
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
     );
-    print_error_ReIm(Re_X_Metal,Im_X_Metal);
-    
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
     H_Metal.Neumann_to_Dirichlet2(
-        Re_Y_Metal, Im_Y_Metal, Re_X_Metal, Im_X_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
     );
-    print_error_ReIm(Re_X_Metal,Im_X_Metal);
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+    H_Metal.Neumann_to_Dirichlet3(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, 32
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+
+    C.Read(
+        reinterpret_cast<Float*>( Re_C_Metal->contents() ),
+        reinterpret_cast<Float*>( Im_C_Metal->contents() )
+    );
     
+    std::ofstream fileC ("/Users/Henrik/C.txt");
+    fileC << C;
     
-    
+    std::ofstream fileATrue ("/Users/Henrik/CTrue.txt");
+    fileATrue << C_True;
+
     
 //    Helmholtz_Metal H_Metal (
 //        device,
@@ -266,8 +307,8 @@ int main(int argc, const char * argv[])
 
 
 
-//    Y.Write( reinterpret_cast<Complex*>( Y_Metal->contents() ) );
-//    Y_Metal->didModifyRange({0,2*size});
+//    B.Write( reinterpret_cast<Complex*>( B_Metal->contents() ) );
+//    B_Metal->didModifyRange({0,2*size});
 
 
 //    Float dummy (0);
@@ -276,22 +317,22 @@ int main(int argc, const char * argv[])
 //    for( UInt k = 0; k < n_waves; ++k )
 //    {
 //        H_AoS.Neumann_to_Dirichlet<1,false>(
-//            Y.data(), X.data(), kappa + k * kappa_step, kappa_step, thread_count
+//            B.data(), C.data(), kappa + k * kappa_step, kappa_step, thread_count
 //        );
 //    }
 //    toc("AoS naive");
-//    dummy += X.MaxNorm();
+//    dummy += C.MaxNorm();
 //    dump(dummy);
 //
 //    tic("AoS naive");
 //    for( UInt k = 0; k < n_waves; ++k )
 //    {
 //        H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,1,false>(
-//            Y.data(), X.data(), kappa + k * kappa_step, kappa_step, thread_count
+//            B.data(), C.data(), kappa + k * kappa_step, kappa_step, thread_count
 //        );
 //    }
 //    toc("AoS naive");
-//    dummy += X.MaxNorm();
+//    dummy += C.MaxNorm();
 //    dump(dummy);
 //
 //    print("");

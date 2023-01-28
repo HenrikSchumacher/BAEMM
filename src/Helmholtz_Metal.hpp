@@ -173,7 +173,7 @@ namespace BAEMM
             
             opt->init();
             
-            opt->setFastMathEnabled(true);
+            opt->setFastMathEnabled(false);
             
             MTL::Library * lib = device->newLibrary(
                 code_NS_String,
@@ -261,7 +261,7 @@ namespace BAEMM
             
             std::string tag = "GetPipelineState(" + fun_fullname + ")";
             
-            tic(tag);
+            ptic(tag);
             
             if( pipelines.count(fun_fullname) == 0 )
             {
@@ -271,7 +271,7 @@ namespace BAEMM
                 if( param_types.size() != param_names.size() )
                 {
                     eprint("CreatePipeline: param_types.size() != param_names.size().");
-                    toc(tag);
+                    ptoc(tag);
                     return nullptr;
                 }
                 
@@ -279,7 +279,7 @@ namespace BAEMM
                 if( param_types.size() != param_vals.size() )
                 {
                     eprint("CreatePipeline: param_types.size() != param_vals.size().");
-                    toc(tag);
+                    ptoc(tag);
                     return nullptr;
                 }
                 
@@ -342,20 +342,20 @@ namespace BAEMM
                 
                 if( found )
                 {
-                    print(std::string("CreatePipeline: Found Metal kernel ") + fun_name +".");
-                    toc(tag);
+//                    print(std::string("CreatePipeline: Found Metal kernel ") + fun_name +".");
+                    ptoc(tag);
                     return pipelines[fun_fullname];
                 }
                 else
                 {
                     eprint(std::string("CreatePipeline: Did not find Metal kernel ") + fun_name +" in source code.");
-                    toc(tag);
+                    ptoc(tag);
                     return nullptr;
                 }
             }
             else
             {
-                toc(tag);
+                ptoc(tag);
                 return pipelines[fun_fullname];
             }
         }
@@ -365,10 +365,11 @@ namespace BAEMM
         
 #include "Neumann_to_Dirichlet2.hpp"
         
+#include "Neumann_to_Dirichlet3.hpp"
+        
         
 //#include "Neumann_to_Dirichlet_C.hpp"
         
-#include "AddReduce.hpp"
         
 //#include "GEMM2.hpp"
         

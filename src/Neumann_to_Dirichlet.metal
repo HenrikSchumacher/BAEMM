@@ -5,9 +5,9 @@ R"(
 
 // FIXME: Comment-out the following line for run-time compilation:
 
-// FIXME: We use "chunk_size" and "n_waves" as "template parameters" for jit-compilation.
+// FIXME: We use "block_size" and "n_waves" as "template parameters" for jit-compilation.
 // FIXME: Comment-in the following two lines for run-time compilation:
-//constant constexpr uint chunk_size   = 64;
+//constant constexpr uint block_size   = 64;
 //constant constexpr uint n_waves      = 32;
 
 #include <metal_stdlib>
@@ -29,13 +29,13 @@ constant constexpr float one_over_four_pi = one / four_pi;
 
 using Row_T = array<float,n_waves>;
 
-[[max_total_threads_per_threadgroup(chunk_size)]]
+[[max_total_threads_per_threadgroup(block_size)]]
 [[kernel]] void Helmholtz__Neumann_to_Dirichlet(
     const constant float3 * const mid_points         [[buffer(0)]],
-    const constant float4 * const Re_Y_global        [[buffer(1)]],
-    const constant float4 * const Im_Y_global        [[buffer(2)]],
-          device   float4 * const Re_X_global        [[buffer(3)]],
-          device   float4 * const Im_X_global        [[buffer(4)]],
+    const constant float4 * const Re_B_global        [[buffer(1)]],
+    const constant float4 * const Im_B_global        [[buffer(2)]],
+          device   float4 * const Re_C_global        [[buffer(3)]],
+          device   float4 * const Im_C_global        [[buffer(4)]],
     const constant float  &       kappa              [[buffer(5)]],
     const constant float  &       kappa_step         [[buffer(6)]],
     const constant uint   &       n                  [[buffer(7)]],
@@ -45,50 +45,50 @@ using Row_T = array<float,n_waves>;
     const uint threads_per_threadgroup  [[threads_per_threadgroup]]
 )
 {
-    assert( chunk_size == threads_per_threadgroup );
+    assert( block_size == threads_per_threadgroup );
     
-    // number of chunks
-    const uint chunk_count = (n + chunk_size - 1) / chunk_size;
+    // number of block
+    const uint block_count = (n + block_size - 1) / block_size;
 
-    constexpr uint K = n_waves / 4;
+    constexpr uint K = n_waves >> 2;
     
     // each thread in the threadgroup gets one target point x assigned.
     thread float3 x_i;
     
-    thread float Re_A_i[chunk_size]; // stores real of exp( I * kappa * r_ij)/r for j in threadgroup
-    thread float Im_A_i[chunk_size]; // stores imag of exp( I * kappa * r_ij)/r for j in threadgroup
+    thread float Re_A_i[block_size]; // stores real of exp( I * kappa * r_ij)/r for j in threadgroup
+    thread float Im_A_i[block_size]; // stores imag of exp( I * kappa * r_ij)/r for j in threadgroup
     
     // Each thread maintains one row of the output matrix.
     
-    thread float4 Re_X_i [K] = {};
-    thread float4 Im_X_i [K] = {};
+    thread float4 Re_C_i [K] = {};
+    thread float4 Im_C_i [K] = {};
     
-//    thread Row_T Re_X_i = {};
-//    thread Row_T Im_X_i = {};
+//    thread Row_T Re_C_i = {};
+//    thread Row_T Im_C_i = {};
     
     // Each thread loads the x-data for itself only once.
     x_i = mid_points[i];
     
-    for( uint chunk = 0; chunk < chunk_count; ++chunk )
+    for( uint block = 0; block < block_count; ++block )
     {
-        // Compute Helmholtz kernel for the current tile of size chunk_size x chunk_size.
+        // Compute Helmholtz kernel for the current tile of size block_size x block_size.
         {
             // Each thread lets its x interact with a bunch of ys loaded into threadgroup.
-            threadgroup float3 y[chunk_size];
+            threadgroup float3 y[block_size];
 
             // Each thread in the threadgroup loads 1 entry of y.
             {
                 const uint j_loc  = i_loc;
-                const uint j      = chunk_size * chunk + j_loc;
+                const uint j      = block_size * block + j_loc;
                 y[j_loc] = mid_points[j];
             }
 
             // need synchronization after loading data
             threadgroup_barrier(mem_flags::mem_threadgroup);
 
-            for( uint j_loc = 0; j_loc < chunk_size; ++j_loc )
+            for( uint j_loc = 0; j_loc < block_size; ++j_loc )
             {
-                const uint j = chunk_size * chunk + j_loc;
+                const uint j = block_size * block + j_loc;
 
                 // We ignore the results if i and j coincide or if one of i or j are invalid.
                 const float delta = static_cast<float>( (i == j) );
@@ -103,8 +103,7 @@ using Row_T = array<float,n_waves>;
                 Re_A_i[j_loc] = cos_kappa_r * r_inv;
                 Im_A_i[j_loc] = sin_kappa_r * r_inv;
 
-            } // for( uint j_loc = 0; j_loc < chunk_size; ++j_loc )
-
+            } // for( uint j_loc = 0; j_loc < block_size; ++j_loc )
         }
 
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -115,37 +114,32 @@ using Row_T = array<float,n_waves>;
         // Now we do the actual matrix-matrix multiplication.
         {
             // The rows of the input matrix belonging to threadgroup.
-            threadgroup float4 Re_Y[chunk_size][K];
-            threadgroup float4 Im_Y[chunk_size][K];
-            
-//            threadgroup Row_T Re_Y[chunk_size];
-//            threadgroup Row_T Im_Y[chunk_size];
+            threadgroup float4 Re_B[block_size][K];
+            threadgroup float4 Im_B[block_size][K];
 
             
-            // TODO: Vectorize load operations.
-            // TODO: Pad rows of X and Y for alignment
-            // Each thread in threadgroup loads 1 row of Y.
+            // TODO: Pad rows of C and B for alignment
+            // Each thread in threadgroup loads 1 row of B.
             {
                 const uint j_loc  = i_loc;
-                const uint j      = chunk_size * chunk + j_loc;
+                const uint j      = block_size * block + j_loc;
                 
                 for( uint k = 0; k < K; ++k )
                 {
-                    Re_Y[j_loc][k] = Re_Y_global[K*j+k];
-                    Im_Y[j_loc][k] = Im_Y_global[K*j+k];
+                    Re_B[j_loc][k] = Re_B_global[K*j+k];
+                    Im_B[j_loc][k] = Im_B_global[K*j+k];
                 }
             }
             
             threadgroup_barrier(mem_flags::mem_threadgroup);
                     
             
-            for( uint j_loc = 0; j_loc < chunk_size; ++j_loc )
+            for( uint j_loc = 0; j_loc < block_size; ++j_loc )
             {
-//                for( uint k = 0; k < n_waves; ++k )
-                    for( uint k = 0; k < K; ++k )
+                for( uint k = 0; k < K; ++k )
                 {
-                    Re_X_i[k] += Re_A_i[j_loc] * Re_Y[j_loc][k] - Im_A_i[j_loc] * Im_Y[j_loc][k];
-                    Im_X_i[k] += Re_A_i[j_loc] * Im_Y[j_loc][k] + Im_A_i[j_loc] * Re_Y[j_loc][k];
+                    Re_C_i[k] += Re_A_i[j_loc] * Re_B[j_loc][k] - Im_A_i[j_loc] * Im_B[j_loc][k];
+                    Im_C_i[k] += Re_A_i[j_loc] * Im_B[j_loc][k] + Im_A_i[j_loc] * Re_B[j_loc][k];
                 }
             }
         }
@@ -153,14 +147,14 @@ using Row_T = array<float,n_waves>;
         threadgroup_barrier(mem_flags::mem_threadgroup);
         
 
-    } // for( uint chunk = 0; chunk < chunk_count; ++chunk )
+    } // for( uint block = 0; block < block_count; ++block )
     
-    // Finally we can write X_i to X_global; each threads takes care of its own row.
+    // Finally we can write C_i to C_global; each threads takes care of its own row.
     
     for( uint k = 0; k < K; ++k )
     {
-        Re_X_global[K*i+k] = Re_X_i[k];
-        Im_X_global[K*i+k] = Im_X_i[k];
+        Re_C_global[K*i+k] = Re_C_i[k];
+        Im_C_global[K*i+k] = Im_C_i[k];
     }
     
 } // Helmholtz__Neumann_to_Dirichlet

@@ -26,7 +26,7 @@ constant constexpr float four_pi = two * two_pi;
 constant constexpr float one_over_four_pi = one / four_pi;
 
 
-[[kernel]] void Helmholtz__Neumann_to_Dirichlet2(
+[[kernel]] void Helmholtz__Neumann_to_Dirichlet3(
     const constant float3 * const mid_points     [[buffer(0)]],
     const constant float  * const g_Re_B         [[buffer(1)]],
     const constant float  * const g_Im_B         [[buffer(2)]],
@@ -50,7 +50,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
     assert( cols == simd_size );
     
     
-    // Each SIMD group manages a row of a simd_size x simd_size matrix.
+    // Each SIMD group manages a row of a 32 x 32 matrix.
     const int i = simd_size * i_chunk + simd_group;
     
     const int local_id = simd_size * simd_group + simd_thread;

@@ -1,6 +1,6 @@
 public:
     
-    void GEMM_NVidea(
+    void GEMM_RM_NVidea(
         const uint M,
         const uint N,
         const uint K,
@@ -13,12 +13,10 @@ public:
         const bool wait = true
     )
     {
-//        tic(ClassName()+"::GEMM2");
-        
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-              "GEMM_NVidea",
+              "GEMM_RM_NVidea",
               std::string(
-#include "GEMM2.metal"
+#include "GEMM_RM_NVidea.metal"
               ),
               {"uint"},
               {"BLOCK_SIZE"},
@@ -102,7 +100,5 @@ public:
         {
             command_buffer->waitUntilCompleted();
         }
-        
-//        toc(ClassName()+"::GEMM2");
     }
 
