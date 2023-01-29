@@ -1,33 +1,37 @@
 public:
 
-    void Neumann_to_Dirichlet2(
+    void Neumann_to_Dirichlet5(
         const MTL::Buffer * Re_B,
         const MTL::Buffer * Im_B,
               MTL::Buffer * Re_C,
               MTL::Buffer * Im_C,
-        const Metal_Float kappa,
-        const Metal_Float kappa_step,
-        const uint n_waves,
+        const Metal_Float * kappa,
+        const uint dir_count,
+        const uint frequency_count,
         const uint simd_size,
-        const uint vec_size,
         const bool wait = true
     )
     {
-        tic(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+","+ToString(vec_size)+")");
+        tic(ClassName()+"::Neumann_to_Dirichlet5(...,"+ToString(dir_count)+","+ToString(frequency_count)+","+ToString(simd_size)+")");
+        
+        if( dir_count % simd_size )
+        {
+            eprint(ClassName()+"::Neumann_to_Dirichlet5: Number of directions dir_count must be a multiple ofr simd_size.");
+        }
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-            "Helmholtz__Neumann_to_Dirichlet2",
+            "Helmholtz__Neumann_to_Dirichlet5",
             std::string(
-#include "Neumann_to_Dirichlet2.metal"
+#include "Neumann_to_Dirichlet5.metal"
             ),
             {"unsigned char","unsigned char"},
-            {"simd_size","vec_size"},
-            {ToString(simd_size),ToString(vec_size)}
+            {"simd_size","frequency_count"},
+            {ToString(simd_size),ToString(frequency_count)}
           );
         
         if( pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size )
         {
-            eprint(ClassName()+"::Neumann_to_Dirichlet2: pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size.");
+            eprint(ClassName()+"::Neumann_to_Dirichlet5: pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size.");
         }
         
         assert( pipeline != nullptr );
@@ -50,9 +54,9 @@ public:
         compute_encoder->setBuffer(Re_C,       0, 3 );
         compute_encoder->setBuffer(Im_C,       0, 4 );
         
-        compute_encoder->setBytes(&kappa,      sizeof(Metal_Float), 5);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 6);
-        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 7);
+        compute_encoder->setBytes(&kappa,     sizeof(Metal_Float) * frequency_count , 5);
+        compute_encoder->setBytes(&n,         sizeof(NS::Integer), 6);
+        compute_encoder->setBytes(&dir_count, sizeof(NS::Integer), 7);
 
         MTL::Size threads_per_threadgroup ( simd_size * simd_size, 1, 1);
         MTL::Size threadgroups_per_grid   (
@@ -91,5 +95,5 @@ public:
             command_buffer->waitUntilCompleted();
         }
         
-        toc(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+","+ToString(vec_size)+")");
+        toc(ClassName()+"::Neumann_to_Dirichlet5(...,"+ToString(dir_count)+","+ToString(frequency_count)+","+ToString(simd_size)+")");
     }

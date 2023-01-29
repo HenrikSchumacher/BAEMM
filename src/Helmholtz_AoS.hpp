@@ -384,8 +384,8 @@ namespace BAEMM
                 Tiny::Vector<3,Real,Int> z;
 //                Tiny::Vector<3,Real,Int> nu;
                 
-//                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> A;
-//                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> B;
+                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> A;
+                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> B;
                 
                 const Int i_blk_begin = job_ptr[thread  ];
                 const Int i_blk_end   = job_ptr[thread+1];

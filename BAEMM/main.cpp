@@ -30,15 +30,16 @@ namespace BAEMM
 {
     // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
     // Bou can activate everything you want, but compile times might increase substatially.
-    using Int     =  int32_t;
-    using UInt    = uint32_t;
-    using ExtInt  =  int64_t;
+    using Int           =  int32_t;
+    using UInt          = uint32_t;
+    using ExtInt        =  int64_t;
     
-    using Real    = float64_t;
-    using Float   = float32_t;
-    using Complex = std::complex<Float>;
+    using Real          = float64_t;
+    using Float         = float32_t;
+    using Complex       = std::complex<Float>;
     
-
+    using Metal_Float   = float32_t;
+    using Metal_Complex = std::complex<Metal_Float>;
 }
 
 
@@ -84,9 +85,13 @@ int main(int argc, const char * argv[])
     print("");
 
     const UInt n = M.SimplexCount();
-    static constexpr uint vec_size   = 4;
+    static constexpr uint vec_size   =  4;
     static constexpr uint simd_size  = 32;
-    static constexpr uint n_waves    = 32 * 8;
+    static constexpr uint n_waves    = 32 * 2 * 4;
+    
+//    static constexpr uint vec_size   =  4;
+//    static constexpr uint simd_size  = 32;
+//    static constexpr uint n_waves    = 32 * 2 * 4;
     
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
@@ -124,7 +129,7 @@ int main(int argc, const char * argv[])
     dump(n);
     dump(n_rounded);
 
-    const UInt size = n_rounded * n_waves * sizeof(Float);
+    const UInt size = n_rounded * n_waves * sizeof(Metal_Float);
 
     MTL::Buffer * Re_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
     MTL::Buffer * Im_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
@@ -145,31 +150,28 @@ int main(int argc, const char * argv[])
 
     auto print_error_ReIm = [&] ( const auto & Re_C_Metal, auto & Im_C_Metal )
     {
-        C.Read( ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal) );
+        C.Read( ToPtr<Metal_Float>(Re_C_Metal), ToPtr<Metal_Float>(Im_C_Metal) );
         print_error(C);
     };
 
     auto print_error_C = [&] ( const auto & C_Metal )
     {
-        C.Read( ToPtr<Complex>(C_Metal) );
+        C.Read( ToPtr<Metal_Complex>(C_Metal) );
         print_error(C);
         Subtract( C_True, C, Z );
     };
 
-//    Re_B.Fill(1);
-//    Im_B.SetZero();
     Re_B.Random();
     Im_B.Random();
 
 
-
     B.Read( Re_B.data(), Im_B.data() );
 
-    B.Write( ToPtr<Float>(Re_B_Metal), ToPtr<Float>(Im_B_Metal) );
+    B.Write( ToPtr<Metal_Float>(Re_B_Metal), ToPtr<Metal_Float>(Im_B_Metal) );
     Re_B_Metal->didModifyRange({0,size});
     Im_B_Metal->didModifyRange({0,size});
     
-    B.Write( ToPtr<Complex>(B_Metal)  );
+    B.Write( ToPtr<Metal_Complex>(B_Metal)  );
     B_Metal->didModifyRange({0,2*size});
 
     H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
@@ -192,7 +194,7 @@ int main(int argc, const char * argv[])
 
     print("");
 
-    Helmholtz_Metal H_Metal (
+    Helmholtz_Metal<Metal_Float> H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
@@ -221,7 +223,22 @@ int main(int argc, const char * argv[])
 //        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
 //    );
 //    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, 1
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
 
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, 1
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
     H_Metal.Neumann_to_Dirichlet2(
         Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
     );
