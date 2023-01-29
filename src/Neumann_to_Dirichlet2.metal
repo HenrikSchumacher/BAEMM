@@ -49,7 +49,10 @@ template<typename vec_T>
     assert( rows == simd_size );
     assert( cols == simd_size );
     
-    constexpr int vec_size = sizeof(vec_T) >> 2;
+    constexpr int vec_size     = sizeof(vec_T) >> 2;
+    constexpr int block_size   = simd_size * simd_size;
+    constexpr int k_chunk_size = simd_size * vec_size;
+    
     
     const int simd_group  = simdgroup_index_in_threadgroup;
     const int simd_thread = thread_index_in_simdgroup;
@@ -57,16 +60,13 @@ template<typename vec_T>
     // Each SIMD group manages a row of a simd_size x simd_size matrix.
     const int i = simd_size * i_chunk + simd_group;
     
-    const int local_id = simd_size * simd_group + simd_thread;
+//    const int local_id = simd_size * simd_group + simd_thread;
     
     // Each threadgroup computes the matrix block
     // [32 * i_chunk,..., 32 * (i_chunk+1) [ x [0,...,32[ of C.
     
-    // Each thread manages one of the values of the resulting block of C.
-    thread vec_T Re_C_ik (zero);
-    thread vec_T Im_C_ik (zero);
+
     
-    int tile_size = simd_size * simd_size;
     
     // Shared memory to load a block of B.
     threadgroup vec_T s_Re_B [simd_size][simd_size];
@@ -75,7 +75,12 @@ template<typename vec_T>
     thread float Re_A_ij;
     thread float Im_A_ij;
 
-    const int j_chunk_count = n / simd_size;
+    
+    // TODO: Make sure that division is without rest!
+    const int j_chunk_count  = n / simd_size;
+    const int k_chunk_count  = n_waves / k_chunk_size;
+    const int vecs_per_chunk = block_size * k_chunk_count;
+    const int vecs_per_row   = simd_size  * k_chunk_count;
     
     thread float3 x_i;
     thread float3 y_j;
@@ -84,56 +89,73 @@ template<typename vec_T>
 
     threadgroup_barrier(mem_flags::mem_threadgroup);
     
-    for( int j_chunk = 0; j_chunk < j_chunk_count; ++j_chunk )
+    // We will have n_waves \less n, hence k_chunks will be much lower than j_chunks.
+    // Hence it might be a good idea to first loop over the k_chunks and pay the price for loading.
+    for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
     {
-        const int j = simd_size * j_chunk + simd_thread;
+        // Each thread manages one of the vec_T values of the resulting block of C.
+        thread vec_T Re_C_ik (zero);
+        thread vec_T Im_C_ik (zero);
         
-        y_j = mid_points[j];
-        
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        
-//        // We ignore the results if i and j coincide or if one of i or j are invalid.
-        const float delta_ij = static_cast<float>( i == j );
-
-        const float r = distance( x_i, y_j );
-
-        const float r_inv = one_over_four_pi * (one - delta_ij) / (r + delta_ij);
-
-        // Every thread holds exactly one matrix entry.        
-        float cos_kappa_r;
-        float sin_kappa_r = sincos( kappa * r, cos_kappa_r );
-        
-        // Each thread stores one entry of A.
-        Re_A_ij = cos_kappa_r * r_inv;
-        Im_A_ij = sin_kappa_r * r_inv;
-
-        // Each thread loads an entry of a 32 x 32 block of B.
-        
-        const int pos = tile_size * j_chunk + local_id;
-        
-        s_Re_B[simd_group][simd_thread] = g_Re_B[pos];
-        s_Im_B[simd_group][simd_thread] = g_Im_B[pos];
-        
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        
-        for( ushort j_loc = 0; j_loc < simd_size; ++j_loc )
+        for( int j_chunk = 0; j_chunk < j_chunk_count; ++j_chunk )
         {
-            float Re_a_ij = simd_broadcast( Re_A_ij, j_loc );
-            float Im_a_ij = simd_broadcast( Im_A_ij, j_loc );
-
-            const vec_T Re_B_jk = s_Re_B[j_loc][simd_thread];
-            const vec_T Im_B_jk = s_Im_B[j_loc][simd_thread];
+            const int j = simd_size * j_chunk + simd_thread;
             
-            Re_C_ik += Re_a_ij * Re_B_jk - Im_a_ij * Im_B_jk;
-            Im_C_ik += Re_a_ij * Im_B_jk + Im_a_ij * Re_B_jk;
-        }
+            y_j = mid_points[j];
+            
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            
+            //        // We ignore the results if i and j coincide or if one of i or j are invalid.
+            const float delta_ij = static_cast<float>( i == j );
+            
+            const float r = distance( x_i, y_j );
+            
+            const float r_inv = one_over_four_pi * (one - delta_ij) / (r + delta_ij);
+            
+            // Every thread holds exactly one matrix entry.
+            float cos_kappa_r;
+            float sin_kappa_r = sincos( kappa * r, cos_kappa_r );
+            
+            // Each thread stores one entry of A.
+            Re_A_ij = cos_kappa_r * r_inv;
+            Im_A_ij = sin_kappa_r * r_inv;
+            
+            
+            // Matrix block of A now computed.
+            
+            
+            
+            // Each thread loads an entry of a simd_size x simd_size block of vec_T in B.
+            // E.g., if vec_T == float4 and simd_size == 32, then this is effectively a 32 x 128 block.
+            
+            const int pos = vecs_per_chunk * j_chunk + simd_size * k_chunk + ( vecs_per_row * simd_group + simd_thread);
+            
+            s_Re_B[simd_group][simd_thread] = g_Re_B[pos];
+            s_Im_B[simd_group][simd_thread] = g_Im_B[pos];
+            
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            
+            for( ushort j_loc = 0; j_loc < simd_size; ++j_loc )
+            {
+                float Re_a_ij = simd_broadcast( Re_A_ij, j_loc );
+                float Im_a_ij = simd_broadcast( Im_A_ij, j_loc );
+                
+                const vec_T Re_B_jk = s_Re_B[j_loc][simd_thread];
+                const vec_T Im_B_jk = s_Im_B[j_loc][simd_thread];
+                
+                Re_C_ik += Re_a_ij * Re_B_jk - Im_a_ij * Im_B_jk;
+                Im_C_ik += Re_a_ij * Im_B_jk + Im_a_ij * Re_B_jk;
+            }
+            
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            
+        } // for( int j_chunk = 0; j_chunk < j_chunk_count; ++j_chunk )
         
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-    }
-    
-    const int pos = tile_size * i_chunk + local_id;
-    g_Re_C[pos] = Re_C_ik;
-    g_Im_C[pos] = Im_C_ik;
+        const int pos = vecs_per_chunk * i_chunk + simd_size * k_chunk + ( vecs_per_row * simd_group + simd_thread);
+        g_Re_C[pos] = Re_C_ik;
+        g_Im_C[pos] = Im_C_ik;
+        
+    } // for( int j_chunk = 0; j_chunk < j_chunk_count; ++j_chunk )
 }
 
 template [[ host_name("Helmholtz__Neumann_to_Dirichlet2_1") ]]

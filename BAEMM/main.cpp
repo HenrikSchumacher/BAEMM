@@ -86,7 +86,7 @@ int main(int argc, const char * argv[])
     const UInt n = M.SimplexCount();
     static constexpr uint vec_size   = 4;
     static constexpr uint simd_size  = 32;
-    static constexpr uint n_waves    = simd_size * vec_size;
+    static constexpr uint n_waves    = 32 * 8;
     
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;

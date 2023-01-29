@@ -44,11 +44,11 @@ public:
             }
                 
         }
-        
-        if( n_waves != vec_size * simd_size )
-        {
-            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != v * simd_size");
-        }
+//        
+//        if( n_waves != vec_size * simd_size )
+//        {
+//            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != v * simd_size");
+//        }
         
 //        if( n_waves != simd_size )
 //        {
