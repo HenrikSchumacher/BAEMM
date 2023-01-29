@@ -11,18 +11,52 @@ public:
         const float kappa_step,
         const uint n_waves,
         const uint simd_size,
+        const uint vec_size,
         const bool wait = true
     )
     {
         tic(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
         
-        if( n_waves != simd_size )
+        std::string kernel_name = "Helmholtz__Neumann_to_Dirichlet2_";
+        
+        switch( vec_size )
         {
-            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != simd_size");
+            case 4:
+            {
+                kernel_name += "4";
+                break;
+            }
+            case 2:
+            {
+                kernel_name += "2";
+                break;
+            }
+            case 1:
+            {
+                kernel_name += "1";
+                break;
+            }
+            default:
+            {
+                wprint("vec_size = "+ToString(vec_size)+" not allowed. Only vector sizes 1,2, and 4 are allowed. Using vec_size = 1");
+                kernel_name += "1";
+                break;
+            }
+                
         }
         
+        if( n_waves != vec_size * simd_size )
+        {
+            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != v * simd_size");
+        }
+        
+//        if( n_waves != simd_size )
+//        {
+//            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != simd_size");
+//        }
+        
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-            "Helmholtz__Neumann_to_Dirichlet2",
+            kernel_name,
             std::string(
 #include "Neumann_to_Dirichlet2.metal"
             ),
@@ -57,6 +91,7 @@ public:
         compute_encoder->setBytes(&kappa,      sizeof(float),       5);
         compute_encoder->setBytes(&kappa_step, sizeof(float),       6);
         compute_encoder->setBytes(&n,          sizeof(NS::Integer), 7);
+        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 8);
 
         
 //        const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();

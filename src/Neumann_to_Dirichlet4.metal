@@ -28,15 +28,13 @@ constant constexpr float one_over_four_pi = one / four_pi;
 
 
 [[max_total_threads_per_threadgroup(block_size)]]
-[[kernel]] void Helmholtz__Neumann_to_Dirichlet(
-    const constant float3 * const mid_points         [[buffer(0)]],
-    const constant float4 * const Re_B_global        [[buffer(1)]],
-    const constant float4 * const Im_B_global        [[buffer(2)]],
-          device   float4 * const Re_C_global        [[buffer(3)]],
-          device   float4 * const Im_C_global        [[buffer(4)]],
-    const constant float  &       kappa              [[buffer(5)]],
-    const constant float  &       kappa_step         [[buffer(6)]],
-    const constant uint   &       n                  [[buffer(7)]],
+[[kernel]] void Helmholtz__Neumann_to_Dirichlet4(
+    const constant float3   * const mid_points       [[buffer(0)]],
+    const constant float4x2 * const g_B              [[buffer(1)]],
+          device   float4x2 * const g_C              [[buffer(2)]],
+    const constant float    &       kappa            [[buffer(3)]],
+    const constant float    &       kappa_step       [[buffer(4)]],
+    const constant uint     &       n                [[buffer(5)]],
                                    
     const uint i_loc                    [[thread_position_in_threadgroup]],
     const uint i                        [[thread_position_in_grid]],
@@ -53,13 +51,11 @@ constant constexpr float one_over_four_pi = one / four_pi;
     // each thread in the threadgroup gets one target point x assigned.
     thread float3 x_i;
     
-    thread float Re_A_i[block_size]; // stores real of exp( I * kappa * r_ij)/r for j in threadgroup
-    thread float Im_A_i[block_size]; // stores imag of exp( I * kappa * r_ij)/r for j in threadgroup
+    thread float2 A_i[block_size]; // stores exp( I * kappa * r_ij)/r for j in threadgroup
     
     // Each thread maintains one row of the output matrix.
     
-    thread float4 Re_C_i [K] = {};
-    thread float4 Im_C_i [K] = {};
+    thread float4x2 C_i [K] = {{zero}};
     
     // Each thread loads the x-data for itself only once.
     x_i = mid_points[i];
@@ -95,8 +91,8 @@ constant constexpr float one_over_four_pi = one / four_pi;
                 float cos_kappa_r;
                 float sin_kappa_r = sincos( kappa * r, cos_kappa_r );
                 
-                Re_A_i[j_loc] = cos_kappa_r * r_inv;
-                Im_A_i[j_loc] = sin_kappa_r * r_inv;
+                A_i[j_loc][0] = cos_kappa_r * r_inv;
+                A_i[j_loc][1] = sin_kappa_r * r_inv;
 
             } // for( uint j_loc = 0; j_loc < block_size; ++j_loc )
         }
@@ -109,8 +105,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
         // Now we do the actual matrix-matrix multiplication.
         {
             // The rows of the input matrix belonging to threadgroup.
-            threadgroup float4 Re_B[block_size][K];
-            threadgroup float4 Im_B[block_size][K];
+            threadgroup float4x2 B[block_size][K];
 
             
             // TODO: Pad rows of C and B for alignment
@@ -121,8 +116,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
                 
                 for( uint k = 0; k < K; ++k )
                 {
-                    Re_B[j_loc][k] = Re_B_global[K*j+k];
-                    Im_B[j_loc][k] = Im_B_global[K*j+k];
+                    B[j_loc][k] = g_B[K*j+k];
                 }
             }
             
@@ -133,8 +127,18 @@ constant constexpr float one_over_four_pi = one / four_pi;
             {
                 for( uint k = 0; k < K; ++k )
                 {
-                    Re_C_i[k] += Re_A_i[j_loc] * Re_B[j_loc][k] - Im_A_i[j_loc] * Im_B[j_loc][k];
-                    Im_C_i[k] += Re_A_i[j_loc] * Im_B[j_loc][k] + Im_A_i[j_loc] * Re_B[j_loc][k];
+                    for( uint l = 0; l < 4; ++l )
+                    {
+                        C_i[k][l][0] +=
+                            A_i[j_loc][0] * B[j_loc][k][l][0]
+                            -
+                            A_i[j_loc][1] * B[j_loc][k][l][0];
+                        
+                        C_i[k][l][1] +=
+                            A_i[j_loc][0] * B[j_loc][k][l][1]
+                            +
+                            A_i[j_loc][1] * B[j_loc][k][l][1];
+                    }
                 }
             }
         }
@@ -148,11 +152,10 @@ constant constexpr float one_over_four_pi = one / four_pi;
     
     for( uint k = 0; k < K; ++k )
     {
-        Re_C_global[K*i+k] = Re_C_i[k];
-        Im_C_global[K*i+k] = Im_C_i[k];
+        g_C[K*i+k] = C_i[k];
     }
     
-} // Helmholtz__Neumann_to_Dirichlet
+} // Helmholtz__Neumann_to_Dirichlet4
 
 // FIXME: Comment-out the following line for run-time compilation:
 )"

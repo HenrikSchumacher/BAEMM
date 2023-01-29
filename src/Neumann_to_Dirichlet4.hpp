@@ -1,30 +1,26 @@
 public:
 
-    void Neumann_to_Dirichlet3(
+    void Neumann_to_Dirichlet4(
         const MTL::Buffer * B,
               MTL::Buffer * C,
         const float kappa,
         const float kappa_step,
+        const uint block_size,
         const uint n_waves,
-        const uint simd_size,
         const bool wait = true
     )
     {
-        tic(ClassName()+"::Neumann_to_Dirichlet3(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
+        tic(ClassName()+"::Neumann_to_Dirichlet4(...,"+ToString(block_size)+","+ToString(n_waves)+")");
         
-        if( n_waves != simd_size )
-        {
-            eprint(ClassName()+"::Neumann_to_Dirichlet3: n_waves != simd_size");
-        }
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-            "Helmholtz__Neumann_to_Dirichlet3",
+            "Helmholtz__Neumann_to_Dirichlet4",
             std::string(
-#include "Neumann_to_Dirichlet3.metal"
+#include "Neumann_to_Dirichlet4.metal"
             ),
-            {"int"},
-            {"simd_size"},
-            {ToString(simd_size)}
+            {"int","int"},
+            {"block_size","n_waves"},
+            {ToString(block_size),ToString(n_waves)}
           );
         
         assert( pipeline != nullptr );
@@ -50,25 +46,20 @@ public:
         compute_encoder->setBytes(&kappa_step, sizeof(float),       4);
         compute_encoder->setBytes(&n,          sizeof(NS::Integer), 5);
         
-        MTL::Size threads_per_threadgroup ( simd_size * simd_size, 1, 1);
+        MTL::Size threads_per_threadgroup ( block_size, 1, 1);
         MTL::Size threadgroups_per_grid   (
-            DivideRoundUp( n, static_cast<UInt>(simd_size) ), 1, 1
+            DivideRoundUp( n, static_cast<UInt>(block_size) ), 1, 1
         );
         
-        if( pipeline->threadExecutionWidth() != simd_size )
+        if( pipeline->maxTotalThreadsPerThreadgroup() != block_size )
         {
-            wprint("pipeline->threadExecutionWidth() != simd_size");
+            wprint("pipeline->maxTotalThreadsPerThreadgroup() != block_size");
         }
         
-        if( pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size )
-        {
-            wprint("pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size");
-        }
-        
-//        valprint("n",n);
-//        valprint("threadgroups_per_grid", threadgroups_per_grid.width );
-//        valprint("threads_per_threadgroup",threads_per_threadgroup.width);
-//        valprint("SIMD group size", pipeline->threadExecutionWidth() );
+        valprint("n",n);
+        valprint("threadgroups_per_grid", threadgroups_per_grid.width );
+        valprint("threads_per_threadgroup",threads_per_threadgroup.width);
+        valprint("SIMD group size", pipeline->threadExecutionWidth() );
 
         // Encode the compute command.
         compute_encoder->dispatchThreadgroups(threadgroups_per_grid, threads_per_threadgroup);
@@ -91,5 +82,5 @@ public:
             command_buffer->waitUntilCompleted();
         }
         
-        toc(ClassName()+"::Neumann_to_Dirichlet3(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
+        toc(ClassName()+"::Neumann_to_Dirichlet4(...,"+ToString(block_size)+","+ToString(n_waves)+")");
     }

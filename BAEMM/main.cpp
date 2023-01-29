@@ -84,10 +84,10 @@ int main(int argc, const char * argv[])
     print("");
 
     const UInt n = M.SimplexCount();
-    static constexpr uint n_waves = 32;
-    const uint simd_count = 32;
-    const uint simd_size  = 32;
-
+    static constexpr uint vec_size   = 4;
+    static constexpr uint simd_size  = 32;
+    static constexpr uint n_waves    = simd_size * vec_size;
+    
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
 
@@ -134,8 +134,8 @@ int main(int argc, const char * argv[])
 //    MTL::Buffer * Re_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
 //    MTL::Buffer * Im_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
 
-//    MTL::Buffer * C_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
-//    MTL::Buffer * B_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * C_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * B_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
 
     auto print_error = [&] ( const auto & C )
     {
@@ -149,24 +149,28 @@ int main(int argc, const char * argv[])
         print_error(C);
     };
 
-//    auto print_error_C = [&] ( const auto & C_Metal )
-//    {
-//        C.Read( reinterpret_cast<Complex*>( C_Metal->contents() ) );
-//        print_error(C);
-//        Subtract( C_True, C, Z );
-//    };
+    auto print_error_C = [&] ( const auto & C_Metal )
+    {
+        C.Read( ToPtr<Complex>(C_Metal) );
+        print_error(C);
+        Subtract( C_True, C, Z );
+    };
 
-    Re_B.Fill(1);
-//    Re_B.Random();
-//    Im_B.Random();
+//    Re_B.Fill(1);
+//    Im_B.SetZero();
+    Re_B.Random();
+    Im_B.Random();
 
-    Im_B.SetZero();
+
 
     B.Read( Re_B.data(), Im_B.data() );
 
-    B.Write( ToPtr<Float>( Re_B_Metal ), ToPtr<Float>( Im_B_Metal ) );
+    B.Write( ToPtr<Float>(Re_B_Metal), ToPtr<Float>(Im_B_Metal) );
     Re_B_Metal->didModifyRange({0,size});
     Im_B_Metal->didModifyRange({0,size});
+    
+    B.Write( ToPtr<Complex>(B_Metal)  );
+    B_Metal->didModifyRange({0,2*size});
 
     H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
         B.data(), C_True.data(), kappa, kappa_step, thread_count
@@ -194,109 +198,70 @@ int main(int argc, const char * argv[])
         M.Simplices().data(),         M.SimplexCount()
     );
 
-    H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet3(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, 32 );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_count, simd_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet3(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, 32
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-
-    C.Read(
-        reinterpret_cast<Float*>( Re_C_Metal->contents() ),
-        reinterpret_cast<Float*>( Im_C_Metal->contents() )
-    );
-    
-    std::ofstream fileC ("/Users/Henrik/C.txt");
-    fileC << C;
-    
-    std::ofstream fileATrue ("/Users/Henrik/CTrue.txt");
-    fileATrue << C_True;
-
-    
-//    Helmholtz_Metal H_Metal (
-//        device,
-//        M.VertexCoordinates().data(), M.VertexCount(),
-//        M.Simplices().data(),         M.SimplexCount()
+//    H_Metal.Neumann_to_Dirichlet(
+//        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
 //    );
+//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
-//    constexpr UInt threadgroup_size  = 1024;
-//    constexpr UInt threadgroup_count = 16 * 2;
-//    
-//    
-//    const UInt m = UInt(1024) * UInt(1024) * UInt(1024);
-//    
-//    print("Allocating "+ToString( double(m * sizeof(Float)) / (std::pow(2.,20)) )+" MB.");
-//    MTL::Buffer * a = device->newBuffer(m * sizeof(Float), MTL::ResourceStorageModeManaged);
-////    MTL::Buffer * b = device->newBuffer(thread_count_ * sizeof(float), MTL::ResourceStorageModeManaged);
-//    print("Allocating "+ToString( double(threadgroup_count * sizeof(Float)) / (std::pow(2.,20)))+" MB.");
-//    MTL::Buffer * c = device->newBuffer(threadgroup_count * sizeof(Float), MTL::ResourceStorageModeManaged);
+//    H_Metal.Neumann_to_Dirichlet3(
+//        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size );
+//    print_error_C(C_Metal);
+    
+//    H_Metal.Neumann_to_Dirichlet4(
+//        B_Metal, C_Metal, kappa, kappa_step, 64, n_waves
+//    );
+//    print_error_C(C_Metal);
+
+//    H_Metal.Neumann_to_Dirichlet(
+//        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
+//    );
+//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+
+//    H_Metal.Neumann_to_Dirichlet3(
+//        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size
+//    );
+//    print_error_C(C_Metal);
+    
+//    H_Metal.Neumann_to_Dirichlet4(
+//        B_Metal, C_Metal, kappa, kappa_step, 64, n_waves
+//    );
+//    print_error_C(C_Metal);
+
 //
-////    fill_buffer( reinterpret_cast<float*>(a->contents()), m,                 static_cast<float>(1) );
-//    
-//    std::random_device r;
-//    std::default_random_engine engine ( r() );
-//    std::uniform_real_distribution<Float> unif(static_cast<Float>(0.),static_cast<Float>(1.));
-//    
-//    mut<Float> a_ = reinterpret_cast<Float*>(a->contents());
-//    for( UInt i = 0; i < m; ++i )
-//    {
-//        a_[i] = unif(engine);
-//    }
-////    fill_buffer( a_, m,  static_cast<Float>(.1) );
+//    C.Read(
+//        reinterpret_cast<Float*>( Re_C_Metal->contents() ),
+//        reinterpret_cast<Float*>( Im_C_Metal->contents() )
+//    );
 //
-////    fill_buffer( reinterpret_cast<float*>(b->contents()), thread_count_,     static_cast<float>(0) );
-//    fill_buffer( reinterpret_cast<Float*>(c->contents()), threadgroup_count, static_cast<Float>(1) );
-//    
-//    for( UInt k = 0; k < 8; ++k )
-//    {
-//        H_Metal.AddReduce(a, c, m, threadgroup_count, threadgroup_size );
-//    }
-//    
-//    dump(m);
-//    
-//    tic("a_sum");
-//    double a_sum = 0;
-//    #pragma omp parallel for num_threads( thread_count) reduction( + : a_sum )
-//    for( UInt i = 0; i < m; ++i )
-//    {
-//        a_sum += a_[i];
-//    }
-//    toc("a_sum");
-//    dump(a_sum);
-//    
-//    ptr<Float> c_ = reinterpret_cast<ptr<Float>>(c->contents());
-//    
-////    print( ToString( c_, threadgroup_count, 16 ) );
-//    
-//    double c_sum = 0;
-//    for( UInt i = 0; i < threadgroup_count; ++i )
-//    {
-//        c_sum += c_[i];
-//    }
-//    dump(c_sum);
+//    std::ofstream fileC ("/Users/Henrik/C.txt");
+//    fileC << C;
+//
+//    std::ofstream fileATrue ("/Users/Henrik/CTrue.txt");
+//    fileATrue << C_True;
+    
+    
+    
+//    MTL::Buffer * buffer_Metal = device->newBuffer(32 * 32, MTL::ResourceStorageModeManaged);
+//
+//    H_Metal.simd_broadcast_test(
+//        buffer_Metal, 1
+//    );
+//
+//    Tensor2<Float,Int> buffer ( 32, 32 );
+//
+//    buffer.Read( ToPtr<Float>(buffer_Metal));
+//
+//    print(buffer.ToString());
     
     p_pool->release();
 

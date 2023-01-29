@@ -6,7 +6,7 @@ R"(
 // FIXME: Comment-out the following line for run-time compilation:
 
 // FIXME: Comment-in the following two lines for run-time compilation:
-//constant constexpr uint simd_size         = 32;
+//constant constexpr uint simd_size  = 32;
 
 #include <metal_stdlib>
 #include <metal_simdgroup>
@@ -26,21 +26,21 @@ constant constexpr float four_pi = two * two_pi;
 constant constexpr float one_over_four_pi = one / four_pi;
 
 
+template<typename vec_T>
 [[kernel]] void Helmholtz__Neumann_to_Dirichlet2(
     const constant float3 * const mid_points     [[buffer(0)]],
-    const constant float  * const g_Re_B         [[buffer(1)]],
-    const constant float  * const g_Im_B         [[buffer(2)]],
-          device   float  * const g_Re_C         [[buffer(3)]],
-          device   float  * const g_Im_C         [[buffer(4)]],
+    const constant vec_T  * const g_Re_B         [[buffer(1)]],
+    const constant vec_T  * const g_Im_B         [[buffer(2)]],
+          device   vec_T  * const g_Re_C         [[buffer(3)]],
+          device   vec_T  * const g_Im_C         [[buffer(4)]],
     const constant float  &       kappa          [[buffer(5)]],
     const constant float  &       kappa_step     [[buffer(6)]],
     const constant uint   &       n              [[buffer(7)]],
-//          device   float  * const g_Re_A         [[buffer(8)]],
-//          device   float  * const g_Im_A         [[buffer(9)]],
+    const constant uint   &       n_waves        [[buffer(8)]],
                                                  
-    const uint  simd_thread                      [[simdgroup_index_in_threadgroup]],
-    const uint  simd_group                       [[thread_index_in_simdgroup]],
-                                                 
+    const uint  simdgroup_index_in_threadgroup   [[simdgroup_index_in_threadgroup]],
+    const uint  thread_index_in_simdgroup        [[thread_index_in_simdgroup]],
+                                              
     const uint  i_chunk                          [[threadgroup_position_in_grid]],
     const uint  rows                             [[simdgroups_per_threadgroup]],
     const uint  cols                             [[threads_per_simdgroup]]
@@ -49,6 +49,10 @@ constant constexpr float one_over_four_pi = one / four_pi;
     assert( rows == simd_size );
     assert( cols == simd_size );
     
+    constexpr int vec_size = sizeof(vec_T) >> 2;
+    
+    const int simd_group  = simdgroup_index_in_threadgroup;
+    const int simd_thread = thread_index_in_simdgroup;
     
     // Each SIMD group manages a row of a simd_size x simd_size matrix.
     const int i = simd_size * i_chunk + simd_group;
@@ -59,17 +63,17 @@ constant constexpr float one_over_four_pi = one / four_pi;
     // [32 * i_chunk,..., 32 * (i_chunk+1) [ x [0,...,32[ of C.
     
     // Each thread manages one of the values of the resulting block of C.
-    thread float Re_C_ik = zero;
-    thread float Im_C_ik = zero;
+    thread vec_T Re_C_ik (zero);
+    thread vec_T Im_C_ik (zero);
     
     int tile_size = simd_size * simd_size;
     
     // Shared memory to load a block of B.
-    threadgroup float s_Re_B [simd_size][simd_size];
-    threadgroup float s_Im_B [simd_size][simd_size];
+    threadgroup vec_T s_Re_B [simd_size][simd_size];
+    threadgroup vec_T s_Im_B [simd_size][simd_size];
     
-    threadgroup float s_Re_A [simd_size][simd_size];
-    threadgroup float s_Im_A [simd_size][simd_size];
+    thread float Re_A_ij;
+    thread float Im_A_ij;
 
     const int j_chunk_count = n / simd_size;
     
@@ -100,8 +104,8 @@ constant constexpr float one_over_four_pi = one / four_pi;
         float sin_kappa_r = sincos( kappa * r, cos_kappa_r );
         
         // Each thread stores one entry of A.
-        s_Re_A[simd_group][simd_thread] = cos_kappa_r * r_inv;
-        s_Im_A[simd_group][simd_thread] = sin_kappa_r * r_inv;
+        Re_A_ij = cos_kappa_r * r_inv;
+        Im_A_ij = sin_kappa_r * r_inv;
 
         // Each thread loads an entry of a 32 x 32 block of B.
         
@@ -110,24 +114,18 @@ constant constexpr float one_over_four_pi = one / four_pi;
         s_Re_B[simd_group][simd_thread] = g_Re_B[pos];
         s_Im_B[simd_group][simd_thread] = g_Im_B[pos];
         
-//        s_Re_B[simd_thread][simd_group] = g_Re_B[pos];
-//        s_Im_B[simd_thread][simd_group] = g_Im_B[pos];
-        
         threadgroup_barrier(mem_flags::mem_threadgroup);
         
-        for( int j_loc = 0; j_loc < simd_size; ++j_loc )
+        for( ushort j_loc = 0; j_loc < simd_size; ++j_loc )
         {
-            const float Re_A_ij = s_Re_A[simd_group][j_loc];
-            const float Im_A_ij = s_Im_A[simd_group][j_loc];
+            float Re_a_ij = simd_broadcast( Re_A_ij, j_loc );
+            float Im_a_ij = simd_broadcast( Im_A_ij, j_loc );
 
-            const float Re_B_jk = s_Re_B[j_loc][simd_thread];
-            const float Im_B_jk = s_Im_B[j_loc][simd_thread];
+            const vec_T Re_B_jk = s_Re_B[j_loc][simd_thread];
+            const vec_T Im_B_jk = s_Im_B[j_loc][simd_thread];
             
-//            const float Re_B_jk = s_Re_B[simd_thread][j_loc];
-//            const float Im_B_jk = s_Im_B[simd_thread][j_loc];
-            
-            Re_C_ik += Re_A_ij * Re_B_jk - Im_A_ij * Im_B_jk;
-            Im_C_ik += Re_A_ij * Im_B_jk + Im_A_ij * Re_B_jk;
+            Re_C_ik += Re_a_ij * Re_B_jk - Im_a_ij * Im_B_jk;
+            Im_C_ik += Re_a_ij * Im_B_jk + Im_a_ij * Re_B_jk;
         }
         
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -137,6 +135,66 @@ constant constexpr float one_over_four_pi = one / four_pi;
     g_Re_C[pos] = Re_C_ik;
     g_Im_C[pos] = Im_C_ik;
 }
+
+template [[ host_name("Helmholtz__Neumann_to_Dirichlet2_1") ]]
+[[kernel]] void Helmholtz__Neumann_to_Dirichlet2<float>(
+    const constant float3 * const mid_points     [[buffer(0)]],
+    const constant float  * const g_Re_B         [[buffer(1)]],
+    const constant float  * const g_Im_B         [[buffer(2)]],
+          device   float  * const g_Re_C         [[buffer(3)]],
+          device   float  * const g_Im_C         [[buffer(4)]],
+    const constant float  &       kappa          [[buffer(5)]],
+    const constant float  &       kappa_step     [[buffer(6)]],
+    const constant uint   &       n              [[buffer(7)]],
+    const constant uint   &       n_waves        [[buffer(8)]],
+                                                 
+    const uint  simdgroup_index_in_threadgroup   [[simdgroup_index_in_threadgroup]],
+    const uint  thread_index_in_simdgroup        [[thread_index_in_simdgroup]],
+                                              
+    const uint  i_chunk                          [[threadgroup_position_in_grid]],
+    const uint  rows                             [[simdgroups_per_threadgroup]],
+    const uint  cols                             [[threads_per_simdgroup]]
+);
+
+template [[ host_name("Helmholtz__Neumann_to_Dirichlet2_2") ]]
+[[kernel]] void Helmholtz__Neumann_to_Dirichlet2<float2>(
+    const constant float3 * const mid_points     [[buffer(0)]],
+    const constant float2 * const g_Re_B         [[buffer(1)]],
+    const constant float2 * const g_Im_B         [[buffer(2)]],
+          device   float2 * const g_Re_C         [[buffer(3)]],
+          device   float2 * const g_Im_C         [[buffer(4)]],
+    const constant float  &       kappa          [[buffer(5)]],
+    const constant float  &       kappa_step     [[buffer(6)]],
+    const constant uint   &       n              [[buffer(7)]],
+    const constant uint   &       n_waves        [[buffer(8)]],
+                                                 
+    const uint  simdgroup_index_in_threadgroup   [[simdgroup_index_in_threadgroup]],
+    const uint  thread_index_in_simdgroup        [[thread_index_in_simdgroup]],
+                                              
+    const uint  i_chunk                          [[threadgroup_position_in_grid]],
+    const uint  rows                             [[simdgroups_per_threadgroup]],
+    const uint  cols                             [[threads_per_simdgroup]]
+);
+
+template [[ host_name("Helmholtz__Neumann_to_Dirichlet2_4") ]]
+[[kernel]] void Helmholtz__Neumann_to_Dirichlet2<float4>(
+    const constant float3 * const mid_points     [[buffer(0)]],
+    const constant float4 * const g_Re_B         [[buffer(1)]],
+    const constant float4 * const g_Im_B         [[buffer(2)]],
+          device   float4 * const g_Re_C         [[buffer(3)]],
+          device   float4 * const g_Im_C         [[buffer(4)]],
+    const constant float  &       kappa          [[buffer(5)]],
+    const constant float  &       kappa_step     [[buffer(6)]],
+    const constant uint   &       n              [[buffer(7)]],
+    const constant uint   &       n_waves        [[buffer(8)]],
+                                                         
+    const uint  simdgroup_index_in_threadgroup   [[simdgroup_index_in_threadgroup]],
+    const uint  thread_index_in_simdgroup        [[thread_index_in_simdgroup]],
+                                              
+    const uint  i_chunk                          [[threadgroup_position_in_grid]],
+    const uint  rows                             [[simdgroups_per_threadgroup]],
+    const uint  cols                             [[threads_per_simdgroup]]
+);
 
 // FIXME: Comment-out the following line for run-time compilation:
 )"
