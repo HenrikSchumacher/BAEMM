@@ -18,7 +18,7 @@ public:
               std::string(
 #include "Neumann_to_Dirichlet.metal"
               ),
-              {"uint","uint"},
+              {"int","int"},
               {"block_size","n_waves"},
               {ToString(block_size),ToString(n_waves)}
           );
@@ -47,7 +47,7 @@ public:
         compute_encoder->setBuffer(Im_X,       0, 4 );
         
         compute_encoder->setBytes(&kappa,      sizeof(float),       5);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 6);
+        compute_encoder->setBytes(&n,          sizeof(int  ), 6);
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 
