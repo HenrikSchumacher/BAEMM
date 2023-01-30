@@ -1,6 +1,5 @@
 namespace BAEMM
 {
-    
     template<typename Real_, typename Int_>
     class Helmholtz_AoS
     {
@@ -91,16 +90,15 @@ namespace BAEMM
         
     public:
         
-        template<Int n_waves, bool ascending>
+        template<Int n_waves>
         void Neumann_to_Dirichlet(
             ptr<Complex> Y,
             mut<Complex> X,
             const Real kappa,
-            const Real kappa_step,
             const Int  thread_count
         ) const
         {
-            tic(ClassName()+"::Neumann_to_Dirichlet<"+ToString(n_waves)+","+ToString(ascending)+">");
+            tic(ClassName()+"::Neumann_to_Dirichlet<"+ToString(n_waves)+">");
             JobPointers<Int> job_ptr(n, thread_count);
             
             #pragma omp parallel for num_threads( thread_count)
@@ -138,24 +136,9 @@ namespace BAEMM
 
                         Complex factor ( std::exp( Complex( 0, kappa * r ) ) * r_inv );
                         
-                        const Complex multiplier (
-                            COND(
-                                ascending,
-                                std::exp( Complex( 0, kappa_step * r ) ),
-                                Complex(0)
-                            )
-                        );
-                        
-                        X_i[0] += factor * Y[n_waves * j + 0];
-                        
                         LOOP_UNROLL_FULL
-                        for( Int k = 1; k < n_waves; ++k )
+                        for( Int k = 0; k < n_waves; ++k )
                         {
-                            if constexpr ( ascending )
-                            {
-                                factor *= multiplier;
-                            }
-
                             X_i[k] += factor * Y[n_waves * j + k];
                         }
                     }
@@ -164,23 +147,22 @@ namespace BAEMM
                 }
             }
             
-            toc(ClassName()+"::Neumann_to_Dirichlet<"+ToString(n_waves)+","+ToString(ascending)+">");
+            toc(ClassName()+"::Neumann_to_Dirichlet<"+ToString(n_waves)+">");
         }
         
         
         template<
-            Int i_blk_size, Int j_blk_size, Int n_waves, bool ascending,
+            Int i_blk_size, Int j_blk_size, Int n_waves,
             bool copy_x = true, bool copy_y = true, bool copy_Y = false
         >
         void Neumann_to_Dirichlet_Blocked(
             ptr<std::complex<Real>> Y,
             mut<std::complex<Real>> X,
             const Real kappa,
-            const Real kappa_step,
             const Int  thread_count
         ) const
         {
-            tic(ClassName()+"::Neumann_to_Dirichlet_Blocked<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            tic(ClassName()+"::Neumann_to_Dirichlet_Blocked<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
                     
             constexpr Int i_chunk = i_blk_size * n_waves;
             constexpr Int j_chunk = j_blk_size * n_waves;
@@ -206,7 +188,6 @@ namespace BAEMM
                 Tiny::Matrix<j_blk_size,n_waves,   Complex,Int> Y_blk;
                 
                 Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> A;
-                Tiny::Matrix<i_blk_size,j_blk_size,Complex,Int> B;
                 
                 const Int i_blk_begin = job_ptr[thread  ];
                 const Int i_blk_end   = job_ptr[thread+1];
@@ -282,12 +263,6 @@ namespace BAEMM
                                 const Real r_inv = one_over_four_pi * (one-delta_ij)/(r + delta_ij);
                                 
                                 A[i][j] = std::exp( Complex(0,kappa * r) ) * r_inv;
-                                
-                                
-                                if constexpr ( ascending )
-                                {
-                                    B[i][j] = std::exp( Complex(0,kappa_step * r) );
-                                }
 
                             } // for( Int j = 0; j < j_blk_size; ++j )
                             
@@ -300,24 +275,7 @@ namespace BAEMM
                         }
                         
                         LOOP_UNROLL_FULL
-                        for( Int i = 0; i < i_blk_size; ++i )
-                        {
-                            LOOP_UNROLL_FULL
-                            for( Int j = 0; j < j_blk_size; ++j )
-                            {
-                                if constexpr ( copy_Y )
-                                {
-                                    X_blk[i][0] += A[i][j] * Y_blk[j][0];
-                                }
-                                else
-                                {
-                                    X_blk[i][0] += A[i][j] * Y[n_waves*(j_base+j)+0];
-                                }
-                            }
-                        }
-                        
-                        LOOP_UNROLL_FULL
-                        for( Int k = 1; k < n_waves; ++k )
+                        for( Int k = 0; k < n_waves; ++k )
                         {
                             LOOP_UNROLL_FULL
                             for( Int i = 0; i < i_blk_size; ++i )
@@ -325,11 +283,6 @@ namespace BAEMM
                                 LOOP_UNROLL_FULL
                                 for( Int j = 0; j < j_blk_size; ++j )
                                 {
-                                    if constexpr ( ascending )
-                                    {
-                                        A[i][j] *= B[i][j];
-                                    }
-                                    
                                     if constexpr ( copy_Y )
                                     {
                                         X_blk[i][k] += A[i][j] * Y_blk[j][k];
@@ -350,7 +303,7 @@ namespace BAEMM
                 
             } // for( Int thread = 0; thread < thread_count; ++thread )
             
-            toc(ClassName()+"::Neumann_to_Dirichlet_Blocked<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            toc(ClassName()+"::Neumann_to_Dirichlet_Blocked<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
         }
         
         
@@ -361,11 +314,10 @@ namespace BAEMM
         void Neumann_to_Dirichlet_Assembled(
             mut<std::complex<Real>> g_A,
             const Real kappa,
-            const Real kappa_step,
             const Int  thread_count
         ) const
         {
-            tic(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            tic(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
                     
             if( (n/i_blk_size) * i_blk_size != n )
             {
@@ -460,12 +412,6 @@ namespace BAEMM
                                 
                                 g_A[n * i_global + j_global] = std::exp( Complex(0,kappa * r) ) * r_inv;
                                 
-                                
-//                                if constexpr ( ascending )
-//                                {
-//                                    B[i][j] = std::exp( Complex(0,kappa_step * r) );
-//                                }
-
                             } // for( Int j = 0; j < j_blk_size; ++j )
                             
                         } // for( Int i = 0; i < i_blk_size; ++i )
@@ -477,7 +423,7 @@ namespace BAEMM
                 
             } // for( Int thread = 0; thread < thread_count; ++thread )
             
-            toc(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            toc(ClassName()+"::Neumann_to_Dirichlet_Assembled<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
         }
         
         template<Int n_waves, bool ascending>
@@ -485,7 +431,6 @@ namespace BAEMM
             ptr<Real> Re_Y, ptr<Real> Im_Y,
             mut<Real> Re_X, mut<Real> Im_X,
             const Real kappa,
-            const Real kappa_step,
             const Int  thread_count
         ) const
         {
@@ -530,30 +475,14 @@ namespace BAEMM
                         
                         Real Re_factor = std::cos(kappa * r) * r_inv;
                         Real Im_factor = std::sin(kappa * r) * r_inv;
-
-                        Real Re_multiplier = COND( ascending, std::cos(kappa_step * r), 0 );
-                        Real Im_multiplier = COND( ascending, std::sin(kappa_step * r), 0 );
                         
                         ptr<Real> Re_Y_j = &Re_Y[n_waves * j];
                         ptr<Real> Im_Y_j = &Im_Y[n_waves * j];
-                        
-                        cfma(
-                            Re_factor, Im_factor,
-                            Re_Y_j[0], Im_Y_j[0],
-                            Re_X_i[0], Im_X_i[0]
-                        );
+
                         
                         LOOP_UNROLL_FULL
-                        for( Int k = 1; k < n_waves; ++k )
+                        for( Int k = 0; k < n_waves; ++k )
                         {
-                            if constexpr ( ascending )
-                            {
-                                cmulby(
-                                    Re_factor,     Im_factor,
-                                    Re_multiplier, Im_multiplier
-                                );
-                            }
-                            
                             cfma(
                                 Re_factor, Im_factor,
                                 Re_Y_j[k], Im_Y_j[k],
@@ -572,18 +501,17 @@ namespace BAEMM
         
         
         template<
-            Int i_blk_size, Int j_blk_size, Int n_waves, bool ascending,
+            Int i_blk_size, Int j_blk_size, Int n_waves,
             bool copy_x = true, bool copy_y = true, bool copy_Y = false
         >
         void Neumann_to_Dirichlet_Blocked_C(
             ptr<Real> Re_Y, ptr<Real> Im_Y,
             mut<Real> Re_X, mut<Real> Im_X,
             const Real kappa,
-            const Real kappa_step,
             const Int  thread_count
         ) const
         {
-            tic(ClassName()+"::Neumann_to_Dirichlet_Blocked_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            tic(ClassName()+"::Neumann_to_Dirichlet_Blocked_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
                     
             constexpr Int i_chunk = i_blk_size * n_waves;
             constexpr Int j_chunk = j_blk_size * n_waves;
@@ -707,9 +635,6 @@ namespace BAEMM
                                 Re_A[i][j] = std::cos(kappa * r) * r_inv;
                                 Im_A[i][j] = std::sin(kappa * r) * r_inv;
                                 
-                                Re_B[i][j] = std::cos(kappa_step * r);
-                                Im_B[i][j] = std::sin(kappa_step * r);
-
                             } // for( Int j = 0; j < j_blk_size; ++j )
                             
                         } // for( Int u = 0; u < i_blk_size; ++u )
@@ -722,32 +647,7 @@ namespace BAEMM
                         }
                         
                         LOOP_UNROLL_FULL
-                        for( Int i = 0; i < i_blk_size; ++i )
-                        {
-                            LOOP_UNROLL_FULL
-                            for( Int j = 0; j < j_blk_size; ++j )
-                            {
-                                if constexpr ( copy_Y )
-                                {
-                                    cfma(
-                                        Re_A    [i][j], Im_A    [i][j],
-                                        Re_Y_blk[j][0], Im_Y_blk[j][0],
-                                        Re_X_blk[i][0], Im_X_blk[i][0]
-                                    );
-                                }
-                                else
-                                {
-                                    cfma(
-                                        Re_A    [i][j],               Im_A    [i][j],
-                                        Re_Y [n_waves*(j_base+j)+0],  Im_Y[n_waves*(j_base+j)+0],
-                                        Re_X_blk[i][0],               Im_X_blk[i][0]
-                                    );
-                                }
-                            }
-                        }
-                        
-                        LOOP_UNROLL_FULL
-                        for( Int k = 1; k < n_waves; ++k )
+                        for( Int k = 0; k < n_waves; ++k )
                         {
                             LOOP_UNROLL_FULL
                             for( Int i = 0; i < i_blk_size; ++i )
@@ -755,11 +655,6 @@ namespace BAEMM
                                 LOOP_UNROLL_FULL
                                 for( Int j = 0; j < j_blk_size; ++j )
                                 {
-                                    if constexpr ( ascending )
-                                    {
-                                        cmulby( Re_A[i][j], Im_A[i][j], Re_B[i][j], Im_B[i][j] );
-                                    }
-                                    
                                     if constexpr ( copy_Y )
                                     {
                                         cfma(
@@ -789,7 +684,7 @@ namespace BAEMM
                 
             } // for( Int thread = 0; thread < thread_count; ++thread )
             
-            toc(ClassName()+"::Neumann_to_Dirichlet_Blocked_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(ascending)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
+            toc(ClassName()+"::Neumann_to_Dirichlet_Blocked_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(n_waves)+","+ToString(copy_x)+","+ToString(copy_y)+","+ToString(copy_Y)+">");
         }
         
     public:

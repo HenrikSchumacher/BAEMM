@@ -4,7 +4,6 @@ public:
         const MTL::Buffer * B,
               MTL::Buffer * C,
         const float kappa,
-        const float kappa_step,
         const uint n_waves,
         const uint simd_size,
         const bool wait = true
@@ -47,8 +46,7 @@ public:
         compute_encoder->setBuffer(C,          0, 2 );
         
         compute_encoder->setBytes(&kappa,      sizeof(float),       3);
-        compute_encoder->setBytes(&kappa_step, sizeof(float),       4);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 5);
+        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 4);
         
         MTL::Size threads_per_threadgroup ( simd_size * simd_size, 1, 1);
         MTL::Size threadgroups_per_grid   (

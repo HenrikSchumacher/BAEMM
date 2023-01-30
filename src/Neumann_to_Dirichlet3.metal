@@ -31,10 +31,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
     const constant float2 * const g_B            [[buffer(1)]],
           device   float2 * const g_C            [[buffer(2)]],
     const constant float  &       kappa          [[buffer(3)]],
-    const constant float  &       kappa_step     [[buffer(4)]],
-    const constant uint   &       n              [[buffer(5)]],
-//          device   float  * const g_Re_A         [[buffer(8)]],
-//          device   float  * const g_Im_A         [[buffer(9)]],
+    const constant uint   &       n              [[buffer(4)]],
                                                  
     const uint  simdgroup_index_in_threadgroup   [[simdgroup_index_in_threadgroup]],
     const uint  thread_index_in_simdgroup        [[thread_index_in_simdgroup]],

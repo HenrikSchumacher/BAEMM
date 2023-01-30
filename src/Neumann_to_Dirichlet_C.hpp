@@ -4,7 +4,6 @@ public:
         const MTL::Buffer * Y,
               MTL::Buffer * X,
         const float kappa,
-        const float kappa_step,
         const uint chunk_size,
         const uint n_waves,
         const bool wait = true
@@ -42,8 +41,7 @@ public:
         compute_encoder->setBuffer(X,          0, 2 );
 
         compute_encoder->setBytes(&kappa,      sizeof(float),       3);
-        compute_encoder->setBytes(&kappa_step, sizeof(float),       4);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 5);
+        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 4);
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 

@@ -1,14 +1,11 @@
 public:
 
     void Neumann_to_Dirichlet2(
-//              MTL::Buffer * Re_A,
-//              MTL::Buffer * Im_A,
         const MTL::Buffer * Re_B,
         const MTL::Buffer * Im_B,
               MTL::Buffer * Re_C,
               MTL::Buffer * Im_C,
         const float kappa,
-        const float kappa_step,
         const uint n_waves,
         const uint simd_size,
         const uint vec_size,
@@ -16,35 +13,7 @@ public:
     )
     {
         tic(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
-        
-        std::string kernel_name = "Helmholtz__Neumann_to_Dirichlet2_";
-        
-        switch( vec_size )
-        {
-            case 4:
-            {
-                kernel_name += "4";
-                break;
-            }
-            case 2:
-            {
-                kernel_name += "2";
-                break;
-            }
-            case 1:
-            {
-                kernel_name += "1";
-                break;
-            }
-            default:
-            {
-                wprint("vec_size = "+ToString(vec_size)+" not allowed. Only vector sizes 1,2, and 4 are allowed. Using vec_size = 1");
-                kernel_name += "1";
-                break;
-            }
-                
-        }
-        
+            
         if( n_waves != vec_size * simd_size )
         {
             eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != v * simd_size");
@@ -56,13 +25,13 @@ public:
 //        }
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-            kernel_name,
+            "Helmholtz__Neumann_to_Dirichlet2",
             std::string(
 #include "Neumann_to_Dirichlet2.metal"
             ),
-            {"int"},
-            {"simd_size"},
-            {ToString(simd_size)}
+            {"int","int"},
+            {"simd_size","vec_size"},
+            {ToString(simd_size),ToString(vec_size)}
           );
         
         assert( pipeline != nullptr );
@@ -85,13 +54,10 @@ public:
         compute_encoder->setBuffer(Im_B,       0, 2 );
         compute_encoder->setBuffer(Re_C,       0, 3 );
         compute_encoder->setBuffer(Im_C,       0, 4 );
-//        compute_encoder->setBuffer(Re_A,       0, 8 );
-//        compute_encoder->setBuffer(Im_A,       0, 9 );
         
         compute_encoder->setBytes(&kappa,      sizeof(float),       5);
-        compute_encoder->setBytes(&kappa_step, sizeof(float),       6);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 7);
-        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 8);
+        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 6);
+        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 7);
 
         
 //        const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();

@@ -35,8 +35,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
           device   float4 * const Re_C_global        [[buffer(3)]],
           device   float4 * const Im_C_global        [[buffer(4)]],
     const constant float  &       kappa              [[buffer(5)]],
-    const constant float  &       kappa_step         [[buffer(6)]],
-    const constant uint   &       n                  [[buffer(7)]],
+    const constant uint   &       n                  [[buffer(6)]],
                                    
     const uint i_loc                    [[thread_position_in_threadgroup]],
     const uint i                        [[thread_position_in_grid]],
@@ -55,11 +54,11 @@ constant constexpr float one_over_four_pi = one / four_pi;
     
     thread float Re_A_i[block_size]; // stores real of exp( I * kappa * r_ij)/r for j in threadgroup
     thread float Im_A_i[block_size]; // stores imag of exp( I * kappa * r_ij)/r for j in threadgroup
+
     
     // Each thread maintains one row of the output matrix.
-    
-    thread float4 Re_C_i [K] = {};
-    thread float4 Im_C_i [K] = {};
+    thread float4 Re_C_i [K] = {zero};
+    thread float4 Im_C_i [K] = {zero};
     
     // Each thread loads the x-data for itself only once.
     x_i = mid_points[i];
@@ -111,9 +110,9 @@ constant constexpr float one_over_four_pi = one / four_pi;
             // The rows of the input matrix belonging to threadgroup.
             threadgroup float4 Re_B[block_size][K];
             threadgroup float4 Im_B[block_size][K];
-
             
             // TODO: Pad rows of C and B for alignment
+            // TODO: Coalesce loading!
             // Each thread in threadgroup loads 1 row of B.
             {
                 const uint j_loc  = i_loc;
@@ -146,6 +145,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
     
     // Finally we can write C_i to C_global; each threads takes care of its own row.
     
+    // TODO: Coalesce writing by writing to shared memory first?
     for( uint k = 0; k < K; ++k )
     {
         Re_C_global[K*i+k] = Re_C_i[k];

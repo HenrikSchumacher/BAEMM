@@ -97,7 +97,6 @@ int main(int argc, const char * argv[])
     static constexpr uint j_blk   = 2;
 
     Float kappa = 2.;
-    Float kappa_step = 0.1;
 
     valprint("n      ", n       );
     valprint("n_waves", n_waves );
@@ -174,23 +173,11 @@ int main(int argc, const char * argv[])
     B.Write( ToPtr<Metal_Complex>(B_Metal)  );
     B_Metal->didModifyRange({0,2*size});
 
-    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
-        B.data(), C_True.data(), kappa, kappa_step, thread_count
-    );
-
-    dump( C_True.MaxNorm());
-    
-//    H_AoS.Neumann_to_Dirichlet_Assembled<i_blk,j_blk,n_waves,false>(
-//        A_True.data(), kappa, kappa_step, thread_count
+//    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
+//        B.data(), C_True.data(), kappa, thread_count
 //    );
-    
 //
-//    H_AoS.Neumann_to_Dirichlet_C<n_waves,false>(
-//        ToPtr<Float>(Re_B_Metal), ToPtr<Float>(Im_B_Metal),
-//        ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal),
-//        kappa, kappa_step, thread_count
-//    );
-//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+//    dump( C_True.MaxNorm());
 
     print("");
 
@@ -201,56 +188,39 @@ int main(int argc, const char * argv[])
     );
 
     H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, n_waves
+    );
+    C_True.Read( ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal) );
+    
+    H_Metal.Neumann_to_Dirichlet(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, n_waves
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    print("");
 
     H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, n_waves, simd_size, vec_size
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
+    H_Metal.Neumann_to_Dirichlet2(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, n_waves, simd_size, vec_size
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    print("");
+    
     H_Metal.Neumann_to_Dirichlet3(
-        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size );
+        B_Metal, C_Metal, kappa, n_waves, simd_size );
     print_error_C(C_Metal);
     
-
+    H_Metal.Neumann_to_Dirichlet3(
+        B_Metal, C_Metal, kappa, n_waves, simd_size );
+    print_error_C(C_Metal);
+    
     
     p_pool->release();
 
     return 0;
 }
-
-
-
-
-
-//    B.Write( reinterpret_cast<Complex*>( B_Metal->contents() ) );
-//    B_Metal->didModifyRange({0,2*size});
-
-
-//    Float dummy (0);
-//
-//    tic("AoS naive");
-//    for( UInt k = 0; k < n_waves; ++k )
-//    {
-//        H_AoS.Neumann_to_Dirichlet<1,false>(
-//            B.data(), C.data(), kappa + k * kappa_step, kappa_step, thread_count
-//        );
-//    }
-//    toc("AoS naive");
-//    dummy += C.MaxNorm();
-//    dump(dummy);
-//
-//    tic("AoS naive");
-//    for( UInt k = 0; k < n_waves; ++k )
-//    {
-//        H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,1,false>(
-//            B.data(), C.data(), kappa + k * kappa_step, kappa_step, thread_count
-//        );
-//    }
-//    toc("AoS naive");
-//    dummy += C.MaxNorm();
-//    dump(dummy);
-//
-//    print("");

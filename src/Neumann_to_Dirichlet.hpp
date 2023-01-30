@@ -6,7 +6,6 @@ public:
               MTL::Buffer * Re_X,
               MTL::Buffer * Im_X,
         const float kappa,
-        const float kappa_step,
         const uint block_size,
         const uint n_waves,
         const bool wait = true
@@ -48,8 +47,7 @@ public:
         compute_encoder->setBuffer(Im_X,       0, 4 );
         
         compute_encoder->setBytes(&kappa,      sizeof(float),       5);
-        compute_encoder->setBytes(&kappa_step, sizeof(float),       6);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 7);
+        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 6);
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 
