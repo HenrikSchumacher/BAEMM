@@ -8,19 +8,16 @@ namespace BAEMM
 {
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
-    template<typename Metal_Float_>
+
     class Helmholtz_Metal
     {
     public:
         
-        using Int           = uint32_t;
-        using Real          = float;
-        using Complex       = std::complex<Real>;
+        using Int        = uint32_t;
+        using Real       = float;
+        using Complex    = std::complex<Real>;
         
-        using Metal_Float   = Metal_Float_;
-        using Metal_Complex = std::complex<Metal_Float>;
-        
-        using UInt          = uint32_t;
+        using UInt        = uint32_t;
         
         using NS::StringEncoding::UTF8StringEncoding;
         
@@ -73,22 +70,21 @@ namespace BAEMM
         ,   triangles     ( triangles_,     simplex_count_, 3 )
         {
             tic(ClassName());
-            constexpr Int vec_size = 3;
-            const Int size  =            n * sizeof(Real);
-            const Int vsize = vec_size * n * sizeof(Real);
+            const Int size  =     n * sizeof(Real);
+            const Int size4 = 4 * n * sizeof(Real);
             
-            areas      = device->newBuffer( size, MTL::ResourceStorageModeManaged);
-            mid_points = device->newBuffer(vsize, MTL::ResourceStorageModeManaged);
-            normals    = device->newBuffer(vsize, MTL::ResourceStorageModeManaged);
+            areas      = device->newBuffer(size,  MTL::ResourceStorageModeManaged);
+            mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
+            normals    = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
             
             mut<Real> areas_      = static_cast<Real *>(     areas->contents());
             mut<Real> mid_points_ = static_cast<Real *>(mid_points->contents());
             mut<Real> normals_    = static_cast<Real *>(   normals->contents());
             
-            Tiny::Vector<vec_size,Real,Int> x;
-            Tiny::Vector<vec_size,Real,Int> y;
-            Tiny::Vector<vec_size,Real,Int> z;
-            Tiny::Vector<vec_size,Real,Int> nu;
+            Tiny::Vector<4,Real,Int> x;
+            Tiny::Vector<4,Real,Int> y;
+            Tiny::Vector<4,Real,Int> z;
+            Tiny::Vector<4,Real,Int> nu;
             
             // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
             for( Int i = 0; i < n; ++i )
@@ -105,13 +101,10 @@ namespace BAEMM
                 z[1] = vertex_coords(triangles(i,2),1);
                 z[2] = vertex_coords(triangles(i,2),2);
                 
-                mid_points_[vec_size*i+0] = third * ( x[0] + y[0] + z[0] );
-                mid_points_[vec_size*i+1] = third * ( x[1] + y[1] + z[1] );
-                mid_points_[vec_size*i+2] = third * ( x[2] + y[2] + z[2] );
-                if constexpr ( vec_size > 3 )
-                {
-                    mid_points_[vec_size*i+3] = 0;
-                }
+                mid_points_[4*i+0] = third * ( x[0] + y[0] + z[0] );
+                mid_points_[4*i+1] = third * ( x[1] + y[1] + z[1] );
+                mid_points_[4*i+2] = third * ( x[2] + y[2] + z[2] );
+                mid_points_[4*i+3] = 0;
                 
                 y[0] -= x[0]; y[1] -= x[1]; y[2] -= x[2];
                 z[0] -= x[0]; z[1] -= x[1]; z[2] -= x[2];
@@ -125,18 +118,15 @@ namespace BAEMM
 
                 nu /= a;
 
-                normals_[vec_size*i+0] = nu[0];
-                normals_[vec_size*i+1] = nu[1];
-                normals_[vec_size*i+2] = nu[2];
-                if constexpr ( vec_size > 3 )
-                {
-                    normals_[vec_size*i+3] = zero;
-                }
+                normals_[4*i+0] = nu[0];
+                normals_[4*i+1] = nu[1];
+                normals_[4*i+2] = nu[2];
+                normals_[4*i+3] = zero;
             }
             
-                 areas->didModifyRange({0, size});
-            mid_points->didModifyRange({0,vsize});
-               normals->didModifyRange({0,vsize});
+                 areas->didModifyRange({0,size });
+            mid_points->didModifyRange({0,size4});
+               normals->didModifyRange({0,size4});
 
             command_queue = device->newCommandQueue();
             
@@ -152,6 +142,103 @@ namespace BAEMM
         ~Helmholtz_Metal() = default;
 
     private:
+        
+        void CreatePipelineState(
+            const std::string & fun_name,       // name of function in code string
+            const std::string & fun_fullname,   // name in std::map Pipelines
+            const std::string & code,           // string of actual Metal code
+            const std::string * param_types,    // types of compile-time parameters (converted to string)
+            const std::string * param_names,    // name of compile-time parameters
+            const std::string * param_vals,     // values of compile-time parameters (converted to string)
+            Int  param_count                   // number of compile-time parameters
+        )
+        {
+            tic("CreatePipeline(" + fun_fullname + ")");
+            
+            std::stringstream full_code;
+            
+            // Create compile-time constant. Will be prependend to code string.
+            for( Int i = 0; i < param_count; ++i )
+            {
+                full_code << "constant constexpr " << param_types[i] << " " << param_names[i] << " = " << param_vals[i] <<";\n";
+            }
+            
+            full_code << code;
+            
+            NS::String * code_NS_String = NS::String::string(full_code.str().c_str(), UTF8StringEncoding);
+            
+            NS::Error *error = nullptr;
+            
+            MTL::CompileOptions * opt = MTL::CompileOptions::alloc();
+            
+            opt->init();
+            
+            opt->setFastMathEnabled(false);
+            
+            MTL::Library * lib = device->newLibrary(
+                code_NS_String,
+                opt, // <-- crucial for distinguishing from the function that loads from file
+                &error
+            );
+            
+            if( lib == nullptr )
+            {
+                std::cout << "Failed to compile library from string for function "
+                          << fun_fullname << ", error "
+                          << error->description()->utf8String() << std::endl;
+                std::exit(-1);
+            }
+            
+            bool found = false;
+            
+            // Go through all functions in the library to find ours.
+            for( NS::UInteger i = 0; i < lib->functionNames()->count(); ++i )
+            {
+                found = true;
+                
+                auto name_nsstring = lib->functionNames()->object(i)->description();
+                
+                if( fun_name == name_nsstring->utf8String() )
+                {
+                    // This MTL::Function object is needed only temporarily.
+                    MTL::Function * fun = lib->newFunction(name_nsstring);
+    
+                    // Create pipeline from function.
+                    pipelines[fun_fullname] = device->newComputePipelineState(fun, &error);
+    
+                    if( pipelines[fun_fullname] == nullptr )
+                    {
+                        std::cout << "Failed to created pipeline state object for "
+                                  << fun_name << ", error "
+                                  << error->description()->utf8String() << std::endl;
+                        return;
+                    }
+                }
+            }
+            
+            if( found )
+            {
+                print(std::string("CreatePipeline: Found Metal kernel ") + fun_name +".");
+            }
+            else
+            {
+                eprint(std::string("CreatePipeline: Did not find Metal kernel ") + fun_name +" in source code.");
+            }
+            
+            toc("CreatePipeline(" + fun_fullname + ")");
+        }
+        
+        
+        
+//        MTL::ComputePipelineState * pipeline = GetPipelineState(
+//              "Helmholtz__Neumann_to_Dirichlet",
+//              std::string(
+//#include "Neumann_to_Dirichlet.metal"
+//              ),
+//              {"uint","uint"},
+//              {"chunk_size","n_waves"},
+//              {chunk_size,n_waves}
+//          );
         
         MTL::ComputePipelineState * GetPipelineState(
             const std::string & fun_name,       // name of function in code string
@@ -279,8 +366,6 @@ namespace BAEMM
 #include "Neumann_to_Dirichlet2.hpp"
         
 #include "Neumann_to_Dirichlet3.hpp"
-        
-#include "Neumann_to_Dirichlet4.hpp"
         
 #include "simd_broadcast_test.hpp"
         

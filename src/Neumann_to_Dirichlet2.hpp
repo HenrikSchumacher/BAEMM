@@ -1,34 +1,69 @@
 public:
 
     void Neumann_to_Dirichlet2(
+//              MTL::Buffer * Re_A,
+//              MTL::Buffer * Im_A,
         const MTL::Buffer * Re_B,
         const MTL::Buffer * Im_B,
               MTL::Buffer * Re_C,
               MTL::Buffer * Im_C,
-        const Metal_Float kappa,
-        const Metal_Float kappa_step,
+        const float kappa,
+        const float kappa_step,
         const uint n_waves,
         const uint simd_size,
         const uint vec_size,
         const bool wait = true
     )
     {
-        tic(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+","+ToString(vec_size)+")");
+        tic(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
+        
+        std::string kernel_name = "Helmholtz__Neumann_to_Dirichlet2_";
+        
+        switch( vec_size )
+        {
+            case 4:
+            {
+                kernel_name += "4";
+                break;
+            }
+            case 2:
+            {
+                kernel_name += "2";
+                break;
+            }
+            case 1:
+            {
+                kernel_name += "1";
+                break;
+            }
+            default:
+            {
+                wprint("vec_size = "+ToString(vec_size)+" not allowed. Only vector sizes 1,2, and 4 are allowed. Using vec_size = 1");
+                kernel_name += "1";
+                break;
+            }
+                
+        }
+        
+        if( n_waves != vec_size * simd_size )
+        {
+            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != v * simd_size");
+        }
+        
+//        if( n_waves != simd_size )
+//        {
+//            eprint(ClassName()+"::Neumann_to_Dirichlet2: n_waves != simd_size");
+//        }
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-            "Helmholtz__Neumann_to_Dirichlet2",
+            kernel_name,
             std::string(
 #include "Neumann_to_Dirichlet2.metal"
             ),
-            {"unsigned char","unsigned char"},
-            {"simd_size","vec_size"},
-            {ToString(simd_size),ToString(vec_size)}
+            {"int"},
+            {"simd_size"},
+            {ToString(simd_size)}
           );
-        
-        if( pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size )
-        {
-            eprint(ClassName()+"::Neumann_to_Dirichlet2: pipeline->maxTotalThreadsPerThreadgroup() != simd_size * simd_size.");
-        }
         
         assert( pipeline != nullptr );
         
@@ -36,7 +71,8 @@ public:
         MTL::CommandBuffer * command_buffer = command_queue->commandBuffer();
         assert( command_buffer != nullptr );
 
-        // Create an encoder that translates our command to something the device understands.
+        // Create an encoder that translates our command to something the
+        // device understands
         MTL::ComputeCommandEncoder * compute_encoder = command_buffer->computeCommandEncoder();
         assert( compute_encoder != nullptr );
 
@@ -49,11 +85,20 @@ public:
         compute_encoder->setBuffer(Im_B,       0, 2 );
         compute_encoder->setBuffer(Re_C,       0, 3 );
         compute_encoder->setBuffer(Im_C,       0, 4 );
+//        compute_encoder->setBuffer(Re_A,       0, 8 );
+//        compute_encoder->setBuffer(Im_A,       0, 9 );
         
-        compute_encoder->setBytes(&kappa,      sizeof(Metal_Float), 5);
-        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 6);
-        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 7);
+        compute_encoder->setBytes(&kappa,      sizeof(float),       5);
+        compute_encoder->setBytes(&kappa_step, sizeof(float),       6);
+        compute_encoder->setBytes(&n,          sizeof(NS::Integer), 7);
+        compute_encoder->setBytes(&n_waves,    sizeof(NS::Integer), 8);
 
+        
+//        const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
+        
+//        valprint("max_threads", max_threads );
+
+        
         MTL::Size threads_per_threadgroup ( simd_size * simd_size, 1, 1);
         MTL::Size threadgroups_per_grid   (
             DivideRoundUp( n, static_cast<UInt>(simd_size) ), 1, 1
@@ -81,6 +126,8 @@ public:
         
         blit_command_encoder->synchronizeResource(Re_C);
         blit_command_encoder->synchronizeResource(Im_C);
+//        blit_command_encoder->synchronizeResource(Re_A);
+//        blit_command_encoder->synchronizeResource(Im_A);
         blit_command_encoder->endEncoding();
         
         
@@ -91,5 +138,5 @@ public:
             command_buffer->waitUntilCompleted();
         }
         
-        toc(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+","+ToString(vec_size)+")");
+        toc(ClassName()+"::Neumann_to_Dirichlet2(...,"+ToString(n_waves)+","+ToString(simd_size)+")");
     }

@@ -85,9 +85,9 @@ int main(int argc, const char * argv[])
     print("");
 
     const UInt n = M.SimplexCount();
-    static constexpr uint vec_size   =  4;
+    static constexpr uint vec_size   =  1;
     static constexpr uint simd_size  = 32;
-    static constexpr uint n_waves    = 32 * 2 * 4;
+    static constexpr uint n_waves    = 32;
     
 //    static constexpr uint vec_size   =  4;
 //    static constexpr uint simd_size  = 32;
@@ -194,91 +194,27 @@ int main(int argc, const char * argv[])
 
     print("");
 
-    Helmholtz_Metal<Metal_Float> H_Metal (
+    Helmholtz_Metal H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
     );
 
-//    H_Metal.Neumann_to_Dirichlet(
-//        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
-//    );
-//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    H_Metal.Neumann_to_Dirichlet(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
 
     H_Metal.Neumann_to_Dirichlet2(
         Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
-//    H_Metal.Neumann_to_Dirichlet3(
-//        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size );
-//    print_error_C(C_Metal);
+    H_Metal.Neumann_to_Dirichlet3(
+        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size );
+    print_error_C(C_Metal);
     
-//    H_Metal.Neumann_to_Dirichlet4(
-//        B_Metal, C_Metal, kappa, kappa_step, 64, n_waves
-//    );
-//    print_error_C(C_Metal);
 
-//    H_Metal.Neumann_to_Dirichlet(
-//        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, 64, n_waves
-//    );
-//    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, 1
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, 1
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, kappa_step, n_waves, simd_size, vec_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-
-//    H_Metal.Neumann_to_Dirichlet3(
-//        B_Metal, C_Metal, kappa, kappa_step, n_waves, simd_size
-//    );
-//    print_error_C(C_Metal);
-    
-//    H_Metal.Neumann_to_Dirichlet4(
-//        B_Metal, C_Metal, kappa, kappa_step, 64, n_waves
-//    );
-//    print_error_C(C_Metal);
-
-//
-//    C.Read(
-//        reinterpret_cast<Float*>( Re_C_Metal->contents() ),
-//        reinterpret_cast<Float*>( Im_C_Metal->contents() )
-//    );
-//
-//    std::ofstream fileC ("/Users/Henrik/C.txt");
-//    fileC << C;
-//
-//    std::ofstream fileATrue ("/Users/Henrik/CTrue.txt");
-//    fileATrue << C_True;
-    
-    
-    
-//    MTL::Buffer * buffer_Metal = device->newBuffer(32 * 32, MTL::ResourceStorageModeManaged);
-//
-//    H_Metal.simd_broadcast_test(
-//        buffer_Metal, 1
-//    );
-//
-//    Tensor2<Float,Int> buffer ( 32, 32 );
-//
-//    buffer.Read( ToPtr<Float>(buffer_Metal));
-//
-//    print(buffer.ToString());
     
     p_pool->release();
 
