@@ -85,21 +85,26 @@ int main(int argc, const char * argv[])
     print("");
 
     const UInt n = M.SimplexCount();
-    static constexpr uint vec_size   =  1;
-    static constexpr uint simd_size  = 32;
-    static constexpr uint wave_count = 32;
+//    static constexpr uint simd_size        = 32;
+    static constexpr uint wave_count       = 32;
+    static constexpr uint wave_chunk_size  = 16;
+    static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
+    static constexpr uint block_size       = 64;
     
-//    static constexpr uint vec_size   =  4;
-//    static constexpr uint simd_size  = 32;
-//    static constexpr uint wave_count    = 32 * 2 * 4;
+    
+    const uint n_rounded          = RoundUpTo( n, block_size      );
+    const uint wave_count_rounded = RoundUpTo( n, wave_chunk_size );
+    dump(n);
+    dump(n_rounded);
+    dump(wave_count);
+    dump(wave_count_rounded);
+    
+    
     
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
 
     Float kappa = 2.;
-
-    valprint("n      ", n       );
-    valprint("wave_count", wave_count );
 
     NS::AutoreleasePool* p_pool = NS::AutoreleasePool::alloc()->init();
 
@@ -110,33 +115,20 @@ int main(int argc, const char * argv[])
         M.Simplices().data(),         M.SimplexCount()
     );
     
-//    Tensor2<Complex,Int>  A      ( n, n );
-//    Tensor2<Complex,Int>  A_True ( n, n );
-    
     Tensor2<Complex,Int>  C_True ( n, wave_count );
     Tensor2<Complex,Int>  C      ( n, wave_count );
     Tensor2<Complex,Int>  B      ( n, wave_count );
     Tensor2<Complex,Int>  Z      ( n, wave_count );
-    
 
-    Tensor2<Float,Int> Re_B      ( n, wave_count );
-    Tensor2<Float,Int> Im_B      ( n, wave_count );
+    Tensor2<Float,Int>    Re_B   ( n, wave_count );
+    Tensor2<Float,Int>    Im_B   ( n, wave_count );
 
-    
-    constexpr UInt round_to      = 64;
-    const     UInt n_rounded     = RoundUpTo( n, round_to );
-    dump(n);
-    dump(n_rounded);
+    const UInt size = n_rounded * wave_count_rounded * sizeof(Metal_Float);
 
-    const UInt size = n_rounded * wave_count * sizeof(Metal_Float);
-
-    MTL::Buffer * Re_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Im_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Re_B_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    MTL::Buffer * Im_B_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-    
-//    MTL::Buffer * Re_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
-//    MTL::Buffer * Im_A_Metal = device->newBuffer(n*n*sizeof(Float), MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Re_C_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Im_C_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Re_B_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged);
+    MTL::Buffer * Im_B_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged);
 
     MTL::Buffer * C_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
     MTL::Buffer * B_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged);
@@ -163,20 +155,18 @@ int main(int argc, const char * argv[])
     Re_B.Random();
     Im_B.Random();
 
-
     B.Read( Re_B.data(), Im_B.data() );
 
     B.Write( ToPtr<Metal_Float>(Re_B_Metal), ToPtr<Metal_Float>(Im_B_Metal) );
     Re_B_Metal->didModifyRange({0,size});
     Im_B_Metal->didModifyRange({0,size});
     
-    B.Write( ToPtr<Metal_Complex>(B_Metal)  );
+    B.Write( ToPtr<Metal_Complex>(B_Metal) );
     B_Metal->didModifyRange({0,2*size});
 
 //    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,wave_count,false>(
 //        B.data(), C_True.data(), kappa, thread_count
 //    );
-//
 //    dump( C_True.MaxNorm());
 
     print("");
@@ -186,64 +176,70 @@ int main(int argc, const char * argv[])
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
     );
-
-    H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, wave_count
-    );
-    C_True.Read( ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal) );
     
-    H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, wave_count
+    std::vector<Float> kappa_vec (wave_chunk_count, kappa);
+    
+    std::array<Complex,3> coeff_0 {1.f, 0.f, 0.f};
+    std::array<Complex,3> coeff_1 {1.f, 2.f, 3.f};
+    
+    print("");
+    print("Single layer operator");
+    print("");
+    
+    H_Metal.ApplyBoundaryOperators_C(
+        B_Metal, C_Metal, kappa_vec, coeff_0,
+        wave_count, 64, wave_chunk_size, true
+    );
+    C_True.Read( ToPtr<Complex>(C_Metal) );
+//    print_error_C(C_Metal);
+    
+    H_Metal.ApplyBoundaryOperators_C(
+        B_Metal, C_Metal, kappa_vec, coeff_0,
+        wave_count, 64, wave_chunk_size, true
+    );
+    print_error_C(C_Metal);
+    
+    H_Metal.ApplyBoundaryOperators_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_0,
+        wave_count, 64, wave_chunk_size, true
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.ApplyBoundaryOperators_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_0,
+        wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
     print("");
-
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, wave_count, simd_size, vec_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, wave_count, simd_size, vec_size
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
+    print("General operator");
     print("");
     
-    H_Metal.Neumann_to_Dirichlet3(
-        B_Metal, C_Metal, kappa, wave_count, simd_size );
+    H_Metal.ApplyBoundaryOperators_C(
+        B_Metal, C_Metal, kappa_vec, coeff_1,
+        wave_count, 64, wave_chunk_size, true
+    );
+//    print_error_C(C_Metal);
+    C_True.Read( ToPtr<Complex>(C_Metal) );
+    
+    H_Metal.ApplyBoundaryOperators_C(
+        B_Metal, C_Metal, kappa_vec, coeff_1,
+        wave_count, 64, wave_chunk_size, true
+    );
     print_error_C(C_Metal);
     
-    H_Metal.Neumann_to_Dirichlet3(
-        B_Metal, C_Metal, kappa, wave_count, simd_size );
-    print_error_C(C_Metal);
     
-    
-    H_Metal.Neumann_to_Dirichlet4(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
-        wave_count, 64, 32, true
+    H_Metal.ApplyBoundaryOperators_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_1,
+        wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
-    H_Metal.Neumann_to_Dirichlet4(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
-        wave_count, 64, 32, true
+    H_Metal.ApplyBoundaryOperators_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_1,
+        wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet4(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
-        wave_count, 64, 16, true
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
-    H_Metal.Neumann_to_Dirichlet4(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
-        wave_count, 64, 16, true
-    );
-    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-    
     
     p_pool->release();
 

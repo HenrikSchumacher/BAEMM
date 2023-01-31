@@ -55,6 +55,8 @@ namespace BAEMM
         MTL::Buffer * mid_points;
         MTL::Buffer * normals;
         
+        float coeff_over_four_pi [4][2] = {{}};
+        
     public:
         
         template<typename ExtReal,typename ExtInt>
@@ -361,6 +363,26 @@ namespace BAEMM
         }
 
         
+    public:
+        
+        
+        void LoadCoefficients( const std::array<Complex,3> & coeff )
+        {
+            // We have to process the coefficients anyways.
+            // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
+            
+            coeff_over_four_pi[0][0] = real(coeff[0]) * one_over_four_pi;
+            coeff_over_four_pi[0][1] = imag(coeff[0]) * one_over_four_pi;
+            coeff_over_four_pi[1][0] = real(coeff[1]) * one_over_four_pi;
+            coeff_over_four_pi[1][1] = imag(coeff[1]) * one_over_four_pi;
+            
+            coeff_over_four_pi[2][0] = real(coeff[2]) * one_over_four_pi;
+            coeff_over_four_pi[2][1] = imag(coeff[2]) * one_over_four_pi;
+            coeff_over_four_pi[3][0] = zero;
+            coeff_over_four_pi[3][1] = zero;
+        }
+        
+        
 #include "Neumann_to_Dirichlet.hpp"
         
 #include "Neumann_to_Dirichlet2.hpp"
@@ -368,6 +390,10 @@ namespace BAEMM
 #include "Neumann_to_Dirichlet3.hpp"
         
 #include "Neumann_to_Dirichlet4.hpp"
+        
+#include "ApplyBoundaryOperators_C.hpp"
+        
+#include "ApplyBoundaryOperators_ReIm.hpp"
         
 #include "simd_broadcast_test.hpp"
         

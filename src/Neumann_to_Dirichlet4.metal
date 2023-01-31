@@ -8,7 +8,7 @@ R"(
 // FIXME: We use "block_size" and "wave_chunk_size" as "template parameters" for jit-compilation.
 // FIXME: Comment-in the following two lines for run-time compilation:
 //constant constexpr int  block_size      = 64;
-//constant constexpr int  wave_chunk_size = 32;
+//constant constexpr int  wave_chunk_size = 16;
 //constant constexpr bool single_layer    = true;
 //constant constexpr bool double_layer    = true;
 //constant constexpr bool adjdbl_layer    = true;
@@ -134,7 +134,7 @@ constant constexpr float one_over_four_pi = one / four_pi;
                     
                     const float r = distance( x_i, y[j_loc] );
                     
-                    const float r_inv = one_over_four_pi * (one - delta) / (r + delta);
+                    const float r_inv = (one - delta) / (r + delta);
                     
                     float cos_kappa_r;
                     float sin_kappa_r = sincos( kappa * r, cos_kappa_r );
@@ -145,18 +145,12 @@ constant constexpr float one_over_four_pi = one / four_pi;
                     
                     if( single_layer )
                     {
-                        Re_A_i[j_loc] = coeff[0] * cos_kappa_r * r_inv;
-                        Im_A_i[j_loc] = coeff[0] * sin_kappa_r * r_inv;
+                        Re_A_i[j_loc] += coeff[0] * one_over_four_pi * cos_kappa_r * r_inv;
+                        Im_A_i[j_loc] += coeff[0] * one_over_four_pi * sin_kappa_r * r_inv;
                     }
                     
                 } // for( int j_loc = 0; j_loc < block_size; ++j_loc )
             }
-            
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-            
-            // Now Re_A_i, Im_A_i are pre-computed.
-            // Space reserved for the ys is freed again.
-            
             
             // Load the block of B corresponding to
             //  [ block_size * j_block,...,block_size * (j_block+1)[
@@ -175,21 +169,10 @@ constant constexpr float one_over_four_pi = one / four_pi;
                 }
             }
             
-            //            // Coalesced(?) load.
-            //            constant    const float * Re_from = &Re_B_global[k_ld * block_size * j_block];
-            //            constant    const float * Im_from = &Im_B_global[k_ld * block_size * j_block];
-            //
-            //            threadgroup       float * Re_to   = &Re_B[0][0];
-            //            threadgroup       float * Im_to   = &Im_B[0][0];
-            //
-            //            for( int k = 0; k < block_size * k_chunk_count; k += block_size )
-            //            {
-            //                Re_to[k + i_loc] = Re_from[k + i_loc];
-            //                Im_to[k + i_loc] = Im_from[k + i_loc];
-            //            }
-            
             threadgroup_barrier(mem_flags::mem_threadgroup);
+
             
+            // Do the actual matrix-matrix multiplication.
             for( int j_loc = 0; j_loc < block_size; ++j_loc )
             {
                 for( int k = 0; k < k_chunk_size; ++k )
@@ -199,32 +182,10 @@ constant constexpr float one_over_four_pi = one / four_pi;
                 }
             }
             
-            
             threadgroup_barrier(mem_flags::mem_threadgroup);
             
             
         } // for( int j_block = 0; j_block < block_count; ++j_block )
-        
-        //    // In order to achieve coalesced write, we use threadgroup memory Re_B, Im_B as intermediate buffer.
-        //    // Each thread writes it row into shared memory.
-        //    for( int k = 0; k < k_chunk_count; ++k )
-        //    {
-        //        Re_B[i_loc][k] = Re_C_i[k];
-        //        Im_B[i_loc][k] = Im_C_i[k];
-        //    }
-        //
-        //    threadgroup const float * Re_from = &Re_B[0][0];
-        //    threadgroup const float * Im_from = &Im_B[0][0];
-        //
-        //    device            float * Re_to   = &Re_C_global[k_ld * block_size * threadgroup_position_in_grid];
-        //    device            float * Im_to   = &Im_C_global[k_ld * block_size * threadgroup_position_in_grid];
-        //
-        //    // Coalesced(?) write to output.
-        //    for( int k = 0; k < block_size * k_chunk_count; k += block_size )
-        //    {
-        //        Re_to[k + i_loc] = Re_from[k + i_loc];
-        //        Im_to[k + i_loc] = Im_from[k + i_loc];
-        //    }
         
         // Write the block of C corresponding to
         //  [ block_size * i_block,...,block_size * (i_block+1)[
@@ -237,6 +198,8 @@ constant constexpr float one_over_four_pi = one / four_pi;
             Re_C_global[k_ld * i + k_chunk_size * k_chunk + k] = Re_C_i[k];
             Im_C_global[k_ld * i + k_chunk_size * k_chunk + k] = Im_C_i[k];
         }
+        
+        threadgroup_barrier(mem_flags::mem_threadgroup);
     }
     
 } // Helmholtz__Neumann_to_Dirichlet
