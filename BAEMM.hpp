@@ -62,9 +62,6 @@ namespace BAEMM
 //    }
 }
 
-
-#include "src/Helmholtz_SoA.hpp"
-
-#include "src/Helmholtz_AoS.hpp"
+#include "src/Helmholtz_CPU.hpp"
 
 #include "src/Helmholtz_Metal.hpp"

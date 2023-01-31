@@ -4,6 +4,23 @@
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
 
+
+// TODO: Priority 1:
+// TODO: diagonal part of single layer boundary operator
+// TODO: single and double layer potential operator for far field.
+// TODO: averaging operator
+// TODO: mass matrix
+// TODO: wrapper
+// TODO: internal management of MTL::Buffer (round_up, copy, etc.)
+
+// TODO: Priority 2:
+// TODO: evaluate incoming waves on surface -> Dirichlet and Neumann operators.
+// TODO: Manage many waves and many wave directions.
+// TODO: GMRES on GPU
+
+// TODO: Priority 3:
+// TODO: Calderon preconditioner ->local curl operators.
+
 namespace BAEMM
 {
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
@@ -61,7 +78,7 @@ namespace BAEMM
         
         template<typename ExtReal,typename ExtInt>
         Helmholtz_Metal(
-            MTL::Device* device_,
+            MTL::Device * device_,
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_
         )
@@ -365,40 +382,62 @@ namespace BAEMM
         
     public:
         
-        
         void LoadCoefficients( const std::array<Complex,3> & coeff )
         {
             // We have to process the coefficients anyways.
             // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
             
-            coeff_over_four_pi[0][0] = real(coeff[0]) * one_over_four_pi;
-            coeff_over_four_pi[0][1] = imag(coeff[0]) * one_over_four_pi;
-            coeff_over_four_pi[1][0] = real(coeff[1]) * one_over_four_pi;
-            coeff_over_four_pi[1][1] = imag(coeff[1]) * one_over_four_pi;
-            
-            coeff_over_four_pi[2][0] = real(coeff[2]) * one_over_four_pi;
-            coeff_over_four_pi[2][1] = imag(coeff[2]) * one_over_four_pi;
-            coeff_over_four_pi[3][0] = zero;
-            coeff_over_four_pi[3][1] = zero;
+            SetSingleLayerCoefficient(coeff[0]);
+            SetDoubleLayerCoefficient(coeff[1]);
+            SetAdjDblLayerCoefficient(coeff[2]);
+        }
+        
+        Complex GetSingleLayerCoefficient() const
+        {
+            return Complex( coeff_over_four_pi[0][0] * four_pi, coeff_over_four_pi[0][1] * four_pi);
         }
         
         
-#include "Neumann_to_Dirichlet.hpp"
+        void SetSingleLayerCoefficient( const Complex & z )
+        {
+            coeff_over_four_pi[0][0] = real(z) * one_over_four_pi;
+            coeff_over_four_pi[0][1] = imag(z) * one_over_four_pi;
+        }
         
-#include "Neumann_to_Dirichlet2.hpp"
+        Complex GetDoubleLayerCoefficient() const
+        {
+            return Complex( coeff_over_four_pi[1][0] * four_pi, coeff_over_four_pi[1][1] * four_pi);
+        }
         
-#include "Neumann_to_Dirichlet3.hpp"
+        void SetDoubleLayerCoefficient( const Complex & z )
+        {
+            coeff_over_four_pi[1][0] = real(z) * one_over_four_pi;
+            coeff_over_four_pi[1][1] = imag(z) * one_over_four_pi;
+        }
         
-#include "Neumann_to_Dirichlet4.hpp"
+        Complex GetAdjDblLayerCoefficient() const
+        {
+            return Complex( coeff_over_four_pi[3][0] * four_pi, coeff_over_four_pi[3][1] * four_pi);
+        }
         
-#include "ApplyBoundaryOperators_C.hpp"
+        void SetAdjDblLayerCoefficient( const Complex & z )
+        {
+            coeff_over_four_pi[2][0] = real(z) * one_over_four_pi;
+            coeff_over_four_pi[2][1] = imag(z) * one_over_four_pi;
+        }
         
-#include "ApplyBoundaryOperators_ReIm.hpp"
         
-#include "simd_broadcast_test.hpp"
+//#include "Neumann_to_Dirichlet.hpp"
+//
+//#include "Neumann_to_Dirichlet2.hpp"
+//
+//#include "Neumann_to_Dirichlet3.hpp"
+//
+//#include "Neumann_to_Dirichlet4.hpp"
         
+#include "BoundaryOperatorKernel_C.hpp"
         
-//#include "Neumann_to_Dirichlet_C.hpp"
+#include "BoundaryOperatorKernel_ReIm.hpp"
         
         
 //#include "GEMM2.hpp"

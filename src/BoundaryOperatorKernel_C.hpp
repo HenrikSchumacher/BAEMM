@@ -1,10 +1,8 @@
 public:
 
-    void ApplyBoundaryOperators_ReIm(
-        const MTL::Buffer * Re_B,
-        const MTL::Buffer * Im_B,
-              MTL::Buffer * Re_C,
-              MTL::Buffer * Im_C,
+    void BoundaryOperatorKernel_C(
+        const MTL::Buffer * B,
+              MTL::Buffer * C,
         const std::vector<Real>      & kappa,
         const std::array <Complex,3> & coeff,
         const int  wave_count,
@@ -13,7 +11,7 @@ public:
         const bool wait = true
     )
     {
-        std::string name ( "ApplyBoundaryOperators_ReIm" );
+        std::string name ( "BoundaryOperatorKernel_C" );
         
         bool single_layer = std::abs(coeff[0]) != zero;
         bool double_layer = std::abs(coeff[1]) != zero;
@@ -24,7 +22,7 @@ public:
         MTL::ComputePipelineState * pipeline = GetPipelineState(
               name,
               std::string(
-#include "ApplyBoundaryOperators_ReIm.metal"
+#include "BoundaryOperatorKernel_C.metal"
               ),
               {"int","int","bool","bool","bool"},
               {"block_size","wave_chunk_size","single_layer","double_layer","adjdbl_layer"},
@@ -54,24 +52,25 @@ public:
 
         // Encode the pipeline state object and its parameters.
         compute_encoder->setComputePipelineState( pipeline );
-
+        
         LoadCoefficients(coeff);
         
         // Place data in encoder
         compute_encoder->setBuffer(mid_points,   0, 0 );
         compute_encoder->setBuffer(normals   ,   0, 1 );
-        compute_encoder->setBuffer(Re_B,         0, 2 );
-        compute_encoder->setBuffer(Im_B,         0, 3 );
-        compute_encoder->setBuffer(Re_C,         0, 4 );
-        compute_encoder->setBuffer(Im_C,         0, 5 );
-        compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real ), 6 );
-        compute_encoder->setBytes(&coeff_over_four_pi[0],  8 * sizeof(Real ), 7 );
-        compute_encoder->setBytes(&n,                          sizeof(int  ), 8 );
-        compute_encoder->setBytes(&wave_count,                 sizeof(int  ), 9 );
+        compute_encoder->setBuffer(B,            0, 2 );
+        compute_encoder->setBuffer(C,            0, 3 );
+        compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real ), 4 );
+        compute_encoder->setBytes(&coeff_over_four_pi[0],  8 * sizeof(Real ), 5 );
+        compute_encoder->setBytes(&n,                          sizeof(int  ), 6 );
+        compute_encoder->setBytes(&wave_count,                 sizeof(int  ), 7 );
 
-        
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 
+//        if(block_size != max_threads)
+//        {
+//            wprint(ClassName()+"::ApplyBoundaryOperators: block_size != max_threads");
+//        }
         
         MTL::Size threads_per_threadgroup (max_threads, 1, 1);
         MTL::Size threadgroups_per_grid  (
@@ -93,8 +92,7 @@ public:
         MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
         assert( blit_command_encoder != nullptr );
         
-        blit_command_encoder->synchronizeResource(Re_C);
-        blit_command_encoder->synchronizeResource(Im_C);
+        blit_command_encoder->synchronizeResource(C);
         blit_command_encoder->endEncoding();
         
         

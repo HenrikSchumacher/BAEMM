@@ -59,8 +59,8 @@ int main(int argc, const char * argv[])
     }
     std::string path ( homedir );
     
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
@@ -92,6 +92,13 @@ int main(int argc, const char * argv[])
     static constexpr uint block_size       = 64;
     
     
+    constexpr Float kappa = 2.;
+    
+    std::vector<Float> kappa_list (wave_chunk_count, kappa);
+    
+    std::array<Complex,3> coeff_0 { Complex(1.0f,0.0f), Complex(0.0f,-0.0f), Complex(-0.0f,0.0f) };
+    std::array<Complex,3> coeff_1 { Complex(0.1f,0.2f), Complex(2.0f,-1.0f), Complex(-0.5f,0.4f) };
+    
     const uint n_rounded          = RoundUpTo( n, block_size      );
     const uint wave_count_rounded = RoundUpTo( n, wave_chunk_size );
     dump(n);
@@ -104,16 +111,10 @@ int main(int argc, const char * argv[])
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
 
-    Float kappa = 2.;
 
     NS::AutoreleasePool* p_pool = NS::AutoreleasePool::alloc()->init();
 
     MTL::Device* device = MTL::CreateSystemDefaultDevice();
-
-    Helmholtz_AoS<Float,UInt> H_AoS(
-        M.VertexCoordinates().data(), M.VertexCount(),
-        M.Simplices().data(),         M.SimplexCount()
-    );
     
     Tensor2<Complex,Int>  C_True ( n, wave_count );
     Tensor2<Complex,Int>  C      ( n, wave_count );
@@ -164,49 +165,60 @@ int main(int argc, const char * argv[])
     B.Write( ToPtr<Metal_Complex>(B_Metal) );
     B_Metal->didModifyRange({0,2*size});
 
-//    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,wave_count,false>(
-//        B.data(), C_True.data(), kappa, thread_count
-//    );
-//    dump( C_True.MaxNorm());
-
     print("");
 
+    print("");
+    print("Preparing Helmholts classes");
+    print("");
+    
+    Helmholtz_CPU<Float,UInt> H_CPU(
+        M.VertexCoordinates().data(), M.VertexCount(),
+        M.Simplices().data(),         M.SimplexCount()
+    );
+    
     Helmholtz_Metal H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount()
     );
     
-    std::vector<Float> kappa_vec (wave_chunk_count, kappa);
-    
-    std::array<Complex,3> coeff_0 {1.f, 0.f, 0.f};
-    std::array<Complex,3> coeff_1 {1.f, 2.f, 3.f};
-    
     print("");
     print("Single layer operator");
     print("");
+
     
-    H_Metal.ApplyBoundaryOperators_C(
-        B_Metal, C_Metal, kappa_vec, coeff_0,
+    H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
+        B.data(), C_True.data(), kappa, coeff_0, thread_count
+    );
+    dump( C_True.MaxNorm());
+
+    
+    H_Metal.BoundaryOperatorKernel_C(
+        B_Metal, C_Metal, kappa_list, coeff_0,
         wave_count, 64, wave_chunk_size, true
     );
-    C_True.Read( ToPtr<Complex>(C_Metal) );
-//    print_error_C(C_Metal);
+    print_error_C(C_Metal);
+    C.Read(ToPtr<Metal_Complex>(C_Metal));
+    dump( C.MaxNorm());
+
+    //    C_True.Read( ToPtr<Complex>(C_Metal) );
+        
+
     
-    H_Metal.ApplyBoundaryOperators_C(
-        B_Metal, C_Metal, kappa_vec, coeff_0,
+    H_Metal.BoundaryOperatorKernel_C(
+        B_Metal, C_Metal, kappa_list, coeff_0,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_C(C_Metal);
     
-    H_Metal.ApplyBoundaryOperators_ReIm(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_0,
+    H_Metal.BoundaryOperatorKernel_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_0,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
-    H_Metal.ApplyBoundaryOperators_ReIm(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_0,
+    H_Metal.BoundaryOperatorKernel_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_0,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
@@ -215,28 +227,33 @@ int main(int argc, const char * argv[])
     print("General operator");
     print("");
     
-    H_Metal.ApplyBoundaryOperators_C(
-        B_Metal, C_Metal, kappa_vec, coeff_1,
+    H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
+        B.data(), C_True.data(), kappa, coeff_1, thread_count
+    );
+    dump( C_True.MaxNorm());
+    
+    H_Metal.BoundaryOperatorKernel_C(
+        B_Metal, C_Metal, kappa_list, coeff_1,
         wave_count, 64, wave_chunk_size, true
     );
-//    print_error_C(C_Metal);
-    C_True.Read( ToPtr<Complex>(C_Metal) );
+    print_error_C(C_Metal);
+//    C_True.Read( ToPtr<Complex>(C_Metal) );
     
-    H_Metal.ApplyBoundaryOperators_C(
-        B_Metal, C_Metal, kappa_vec, coeff_1,
+    H_Metal.BoundaryOperatorKernel_C(
+        B_Metal, C_Metal, kappa_list, coeff_1,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_C(C_Metal);
     
     
-    H_Metal.ApplyBoundaryOperators_ReIm(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_1,
+    H_Metal.BoundaryOperatorKernel_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_1,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
-    H_Metal.ApplyBoundaryOperators_ReIm(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_vec, coeff_1,
+    H_Metal.BoundaryOperatorKernel_ReIm(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_1,
         wave_count, 64, wave_chunk_size, true
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);

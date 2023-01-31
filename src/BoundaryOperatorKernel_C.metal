@@ -34,17 +34,15 @@ constant constexpr float one     = static_cast<float>(1);
 //constant constexpr float one_over_four_pi = one / four_pi;
 
 [[max_total_threads_per_threadgroup(block_size)]]
-[[kernel]] void ApplyBoundaryOperators_ReIm(
+[[kernel]] void BoundaryOperatorKernel_C(
     const constant float3 * const mid_points       [[buffer(0)]], // triangle midpoints
     const constant float3 * const normals          [[buffer(1)]], // triangle normals
-    const constant float  * const Re_B_global      [[buffer(2)]], // right hand sides
-    const constant float  * const Im_B_global      [[buffer(3)]],
-          device   float  * const Re_C_global      [[buffer(4)]], // results C = A * B
-          device   float  * const Im_C_global      [[buffer(5)]],
-    const constant float  * const kappa            [[buffer(6)]], // vector of wave numbers
-    const constant cmplx4 &       c                [[buffer(7)]], // coefficients for the operators
-    const constant int    &       n                [[buffer(8)]], // number of triangles
-    const constant int    &       wave_count       [[buffer(9)]], // number of right hand sides
+    const constant cmplx  * const B_global         [[buffer(2)]], // buffer for right hand sides
+          device   cmplx  * const C_global         [[buffer(3)]], // buffer for results C = A * B
+    const constant float  * const kappa            [[buffer(4)]], // vector of wave numbers
+    const constant cmplx4 &       c                [[buffer(5)]], // coefficients for the operators
+    const constant int    &       n                [[buffer(6)]], // number of triangles
+    const constant int    &       wave_count       [[buffer(7)]], // number of right hand sides
                                    
     const uint thread_position_in_threadgroup        [[thread_position_in_threadgroup]],
     const uint thread_position_in_grid               [[thread_position_in_grid]],
@@ -76,13 +74,11 @@ constant constexpr float one     = static_cast<float>(1);
     thread float3 x_i;
     thread float3 nu_i;
     
-    thread float Re_A_i [block_size]; // stores a row chunk of A_i for j in threadgroup
-    thread float Im_A_i [block_size]; // stores a row chunk of A_i for j in threadgroup
+    thread cmplx A_i [block_size]; // stores a row chunk of A_i for j in threadgroup
 
     
     // The rows of the input matrix belonging to the threadgroup.
-    threadgroup float Re_B [block_size][k_chunk_size];
-    threadgroup float Im_B [block_size][k_chunk_size];
+    threadgroup cmplx B [block_size][k_chunk_size];
     
     // Each thread loads the x-data for itself only once.
     x_i  = mid_points[i];
@@ -99,8 +95,7 @@ constant constexpr float one     = static_cast<float>(1);
     for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
     {
         // Each thread maintains one row of the output matrix.
-        thread float Re_C_i [k_chunk_size] = {zero};
-        thread float Im_C_i [k_chunk_size] = {zero};
+        thread cmplx C_i [k_chunk_size] = {zero};
         
         for( int j_block = 0; j_block < block_count; ++j_block )
         {
@@ -156,13 +151,13 @@ constant constexpr float one     = static_cast<float>(1);
                         r3_inv = r_inv * r_inv * r_inv;
                     }
 
-                    Re_A_i[j_loc] = 0.f;
-                    Im_A_i[j_loc] = 0.f;
+                    A_i[j_loc][0] = 0.f;
+                    A_i[j_loc][1] = 0.f;
                     
                     if( single_layer )
                     {
-                        Re_A_i[j_loc] += (c[0][0] * cos_kappa_r - c[0][1] * sin_kappa_r) * r_inv;
-                        Im_A_i[j_loc] += (c[0][0] * sin_kappa_r + c[0][1] * cos_kappa_r) * r_inv ;
+                        A_i[j_loc][0] += (c[0][0] * cos_kappa_r - c[0][1] * sin_kappa_r) * r_inv;
+                        A_i[j_loc][1] += (c[0][0] * sin_kappa_r + c[0][1] * cos_kappa_r) * r_inv ;
                     }
                     
                     if( double_layer )
@@ -180,8 +175,8 @@ constant constexpr float one     = static_cast<float>(1);
                         const float a = ( c[1][1] - kappa_r * c[1][0] );
                         const float b = ( c[1][0] + kappa_r * c[1][1] );
                         
-                        Re_A_i[j_loc] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
-                        Im_A_i[j_loc] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
+                        A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
+                        A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
                     }
                     
                     if( adjdbl_layer )
@@ -199,8 +194,8 @@ constant constexpr float one     = static_cast<float>(1);
                         const float a = ( c[2][1] - kappa_r * c[2][0] );
                         const float b = ( c[2][0] + kappa_r * c[2][1] );
                         
-                        Re_A_i[j_loc] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
-                        Im_A_i[j_loc] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
+                        A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
+                        A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
                     }
                     
                 } // for( int j_loc = 0; j_loc < block_size; ++j_loc )
@@ -218,8 +213,7 @@ constant constexpr float one     = static_cast<float>(1);
                 
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    Re_B[j_loc][k] = Re_B_global[k_ld * j + k_chunk_size * k_chunk + k];
-                    Im_B[j_loc][k] = Im_B_global[k_ld * j + k_chunk_size * k_chunk + k];
+                    B[j_loc][k] = B_global[k_ld * j + k_chunk_size * k_chunk + k];
                 }
             }
             
@@ -231,13 +225,12 @@ constant constexpr float one     = static_cast<float>(1);
             {
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    Re_C_i[k] += Re_A_i[j_loc] * Re_B[j_loc][k] - Im_A_i[j_loc] * Im_B[j_loc][k];
-                    Im_C_i[k] += Re_A_i[j_loc] * Im_B[j_loc][k] + Im_A_i[j_loc] * Re_B[j_loc][k];
+                    C_i[k][0] += A_i[j_loc][0] * B[j_loc][k][0] - A_i[j_loc][1] * B[j_loc][k][1];
+                    C_i[k][1] += A_i[j_loc][0] * B[j_loc][k][1] + A_i[j_loc][1] * B[j_loc][k][0];
                 }
             }
             
             threadgroup_barrier(mem_flags::mem_threadgroup);
-            
             
         } // for( int j_block = 0; j_block < block_count; ++j_block )
         
@@ -249,14 +242,13 @@ constant constexpr float one     = static_cast<float>(1);
         // Each threads takes care of its own row.
         for( int k = 0; k < k_chunk_size; ++k )
         {
-            Re_C_global[k_ld * i + k_chunk_size * k_chunk + k] = Re_C_i[k];
-            Im_C_global[k_ld * i + k_chunk_size * k_chunk + k] = Im_C_i[k];
+            C_global[k_ld * i + k_chunk_size * k_chunk + k] = C_i[k];
         }
         
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
     
-} // ApplyBoundaryOperators_ReIm
+} // BoundaryOperatorKernel_C
 
 // FIXME: Comment-out the following line for run-time compilation:
 )"
