@@ -62,7 +62,7 @@ public:
         compute_encoder->setBuffer(C,            0, 3 );
         compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real ), 4 );
         compute_encoder->setBytes(&coeff_over_four_pi[0],  8 * sizeof(Real ), 5 );
-        compute_encoder->setBytes(&n,                          sizeof(int  ), 6 );
+        compute_encoder->setBytes(&simplex_count,              sizeof(int  ), 6 );
         compute_encoder->setBytes(&wave_count,                 sizeof(int  ), 7 );
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
@@ -74,10 +74,10 @@ public:
         
         MTL::Size threads_per_threadgroup (max_threads, 1, 1);
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(n, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
+            DivideRoundUp(simplex_count, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
         );
         
-//        valprint("n",n);
+//        valprint("simplex_count",simplex_count);
 //        valprint("threadgroups_per_grid",threadgroups_per_grid.width);
 //        valprint("threads_per_threadgroup",threads_per_threadgroup.width);
 //        valprint("SIMD group size", pipeline->threadExecutionWidth() );

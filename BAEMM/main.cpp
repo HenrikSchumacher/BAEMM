@@ -59,16 +59,16 @@ int main(int argc, const char * argv[])
     }
     std::string path ( homedir );
     
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
     Profiler::Clear( path );
     
-    int thread_count = 8;
-//    int thread_count = 1;
-    omp_set_num_threads(thread_count);
+    int OMP_thread_count = 8;
+//    int OMP_thread_count = 1;
+    omp_set_num_threads(OMP_thread_count);
     
     using Mesh_T = SimplicialMeshBase<Real,Int,Real,Real>;
     
@@ -77,7 +77,7 @@ int main(int argc, const char * argv[])
     
     dump(file_name);
 
-    std::unique_ptr<Mesh_T> M_ptr = mesh_factory.Make_FromFile<Real,Int,Real,Real>(file_name, thread_count);
+    std::unique_ptr<Mesh_T> M_ptr = mesh_factory.Make_FromFile<Real,Int,Real,Real>(file_name, OMP_thread_count);
 
     Mesh_T & M = *M_ptr;  // I don't like pointers. Give me a reference.
 
@@ -173,13 +173,15 @@ int main(int argc, const char * argv[])
     
     Helmholtz_CPU<Float,UInt> H_CPU(
         M.VertexCoordinates().data(), M.VertexCount(),
-        M.Simplices().data(),         M.SimplexCount()
+        M.Simplices().data(),         M.SimplexCount(),
+        OMP_thread_count
     );
     
     Helmholtz_Metal H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
-        M.Simplices().data(),         M.SimplexCount()
+        M.Simplices().data(),         M.SimplexCount(),
+        OMP_thread_count
     );
     
     print("");
@@ -188,7 +190,7 @@ int main(int argc, const char * argv[])
 
     
     H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
-        B.data(), C_True.data(), kappa, coeff_0, thread_count
+        B.data(), C_True.data(), kappa, coeff_0
     );
     dump( C_True.MaxNorm());
 
@@ -228,7 +230,7 @@ int main(int argc, const char * argv[])
     print("");
     
     H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
-        B.data(), C_True.data(), kappa, coeff_1, thread_count
+        B.data(), C_True.data(), kappa, coeff_1
     );
     dump( C_True.MaxNorm());
     

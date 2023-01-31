@@ -6,14 +6,14 @@
 
 
 // TODO: Priority 1:
-// TODO: diagonal part of single layer boundary operator
-// TODO: single and double layer potential operator for far field.
 // TODO: averaging operator
 // TODO: mass matrix
 // TODO: wrapper
 // TODO: internal management of MTL::Buffer (round_up, copy, etc.)
 
 // TODO: Priority 2:
+// TODO: single and double layer potential operator for far field.
+// TODO: diagonal part of single layer boundary operator
 // TODO: evaluate incoming waves on surface -> Dirichlet and Neumann operators.
 // TODO: Manage many waves and many wave directions.
 // TODO: GMRES on GPU
@@ -34,7 +34,7 @@ namespace BAEMM
         using Real       = float;
         using Complex    = std::complex<Real>;
         
-        using UInt        = uint32_t;
+        using UInt       = uint32_t;
         
         using NS::StringEncoding::UTF8StringEncoding;
         
@@ -58,12 +58,14 @@ namespace BAEMM
         
         MTL::Device* device;
 
+        const int OMP_thread_count = 1;
+        
         std::map<std::string, MTL::ComputePipelineState * > pipelines;
         
         MTL::CommandQueue * command_queue;
         
-        const Int m;
-        const Int n;
+        const Int vertex_count;
+        const Int simplex_count;
         
         Tensor2<Real,Int> vertex_coords;
         Tensor2<Int ,Int> triangles;
@@ -71,6 +73,9 @@ namespace BAEMM
         MTL::Buffer * areas;
         MTL::Buffer * mid_points;
         MTL::Buffer * normals;
+        
+        Sparse::MatrixCSR<Complex,Int,Int> AvOp;
+        Sparse::MatrixCSR<Complex,Int,Int> AvOpTransp;
         
         float coeff_over_four_pi [4][2] = {{}};
         
@@ -80,17 +85,19 @@ namespace BAEMM
         Helmholtz_Metal(
             MTL::Device * device_,
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-            ptr<ExtInt>  triangles_    , ExtInt simplex_count_
+            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            int OMP_thread_count_
         )
-        :   device( device_ )
-        ,   m             ( vertex_count_ )
-        ,   n             ( simplex_count_ )
-        ,   vertex_coords ( vertex_coords_, vertex_count_,  3 )
-        ,   triangles     ( triangles_,     simplex_count_, 3 )
+        :   device           ( device_ )
+        ,   OMP_thread_count ( OMP_thread_count_ )
+        ,   vertex_count     ( vertex_count_ )
+        ,   simplex_count    ( simplex_count_ )
+        ,   vertex_coords    ( vertex_coords_, vertex_count_,  3 )
+        ,   triangles        ( triangles_,     simplex_count_, 3 )
         {
             tic(ClassName());
-            const Int size  =     n * sizeof(Real);
-            const Int size4 = 4 * n * sizeof(Real);
+            const Int size  =     simplex_count * sizeof(Real);
+            const Int size4 = 4 * simplex_count * sizeof(Real);
             
             areas      = device->newBuffer(size,  MTL::ResourceStorageModeManaged);
             mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
@@ -99,31 +106,49 @@ namespace BAEMM
             mut<Real> areas_      = static_cast<Real *>(     areas->contents());
             mut<Real> mid_points_ = static_cast<Real *>(mid_points->contents());
             mut<Real> normals_    = static_cast<Real *>(   normals->contents());
+
             
-            Tiny::Vector<4,Real,Int> x;
-            Tiny::Vector<4,Real,Int> y;
-            Tiny::Vector<4,Real,Int> z;
-            Tiny::Vector<4,Real,Int> nu;
+            AvOp = Sparse::MatrixCSR<Complex,Int,Int>(
+                simplex_count,
+                vertex_count,
+                simplex_count * 3,
+                OMP_thread_count
+            );
+            
+            mut<Int>     outer = AvOp.Outer().data();
+            mut<Int>     inner = AvOp.Inner().data();
+            mut<Complex> vals  = AvOp.Values().data();
+
             
             // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
-            for( Int i = 0; i < n; ++i )
-            {
-                x[0] = vertex_coords(triangles(i,0),0);
-                x[1] = vertex_coords(triangles(i,0),1);
-                x[2] = vertex_coords(triangles(i,0),2);
+            #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+            for( Int i = 0; i < simplex_count; ++i )
+            {   
+                Tiny::Vector<4,Real,Int> x;
+                Tiny::Vector<4,Real,Int> y;
+                Tiny::Vector<4,Real,Int> z;
+                Tiny::Vector<4,Real,Int> nu;
                 
-                y[0] = vertex_coords(triangles(i,1),0);
-                y[1] = vertex_coords(triangles(i,1),1);
-                y[2] = vertex_coords(triangles(i,1),2);
+                Int i_0 = triangles(i,0);
+                Int i_1 = triangles(i,1);
+                Int i_2 = triangles(i,2);
                 
-                z[0] = vertex_coords(triangles(i,2),0);
-                z[1] = vertex_coords(triangles(i,2),1);
-                z[2] = vertex_coords(triangles(i,2),2);
+                x[0] = vertex_coords(i_0,0);
+                x[1] = vertex_coords(i_0,1);
+                x[2] = vertex_coords(i_0,2);
+                
+                y[0] = vertex_coords(i_1,0);
+                y[1] = vertex_coords(i_1,1);
+                y[2] = vertex_coords(i_1,2);
+                
+                z[0] = vertex_coords(i_2,0);
+                z[1] = vertex_coords(i_2,1);
+                z[2] = vertex_coords(i_2,2);
                 
                 mid_points_[4*i+0] = third * ( x[0] + y[0] + z[0] );
                 mid_points_[4*i+1] = third * ( x[1] + y[1] + z[1] );
                 mid_points_[4*i+2] = third * ( x[2] + y[2] + z[2] );
-                mid_points_[4*i+3] = 0;
+                mid_points_[4*i+3] = zero;
                 
                 y[0] -= x[0]; y[1] -= x[1]; y[2] -= x[2];
                 z[0] -= x[0]; z[1] -= x[1]; z[2] -= x[2];
@@ -135,6 +160,14 @@ namespace BAEMM
                 const Real a = std::sqrt( nu[0] * nu[0] + nu[1] * nu[1] + nu[2] * nu[2] );
                 areas_[i] = a;
 
+                outer[i+1]   = 3 * i;
+                inner[3*i+0] = i_0;
+                inner[3*i+1] = i_1;
+                inner[3*i+2] = i_2;
+                vals [3*i+0] = a * third;
+                vals [3*i+1] = a * third;
+                vals [3*i+2] = a * third;
+                
                 nu /= a;
 
                 normals_[4*i+0] = nu[0];
@@ -146,6 +179,8 @@ namespace BAEMM
                  areas->didModifyRange({0,size });
             mid_points->didModifyRange({0,size4});
                normals->didModifyRange({0,size4});
+            
+//            AvOpTransp = AvOp.Transpose();
 
             command_queue = device->newCommandQueue();
             

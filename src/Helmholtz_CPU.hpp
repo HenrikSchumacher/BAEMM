@@ -29,26 +29,30 @@ namespace BAEMM
             template<typename ExtReal,typename ExtInt>
             Helmholtz_CPU(
                 ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-                ptr<ExtInt>  triangles_    , ExtInt simplex_count_
+                ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+                Int OMP_thread_count_
             )
-            :   vertex_count  ( vertex_count_                     )
-            ,   simplex_count ( simplex_count_                    )
-            ,   vertex_coords ( vertex_coords_, vertex_count_,  3 )
-            ,   triangles     ( triangles_,     simplex_count_, 3 )
-            ,   areas         (                 simplex_count_    )
-            ,   mid_points    (                 simplex_count_, 3 )
-            ,   normals       (                 simplex_count_, 3 )
+            :   OMP_thread_count ( OMP_thread_count_                 )
+            ,   vertex_count     ( vertex_count_                     )
+            ,   simplex_count    ( simplex_count_                    )
+            ,   vertex_coords    ( vertex_coords_, vertex_count_,  3 )
+            ,   triangles        ( triangles_,     simplex_count_, 3 )
+            ,   areas            (                 simplex_count_    )
+            ,   mid_points       (                 simplex_count_, 3 )
+            ,   normals          (                 simplex_count_, 3 )
             {
                 tic(ClassName());
+
                 
-                Tiny::Vector<3,Real,Int> x;
-                Tiny::Vector<3,Real,Int> y;
-                Tiny::Vector<3,Real,Int> z;
-                
-                Tiny::Vector<3,Real,Int> nu;
-                
+                #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
                 for( Int i = 0; i < simplex_count; ++i )
                 {
+                    Tiny::Vector<3,Real,Int> x;
+                    Tiny::Vector<3,Real,Int> y;
+                    Tiny::Vector<3,Real,Int> z;
+                    
+                    Tiny::Vector<3,Real,Int> nu;
+                    
                     x.Read( vertex_coords.data(triangles(i,0)) );
                     y.Read( vertex_coords.data(triangles(i,1)) );
                     z.Read( vertex_coords.data(triangles(i,2)) );
@@ -78,6 +82,8 @@ namespace BAEMM
             ~Helmholtz_CPU() = default;
         
     protected:
+        
+        const Int OMP_thread_count = 1;
         
         const Int vertex_count;
         const Int simplex_count;
@@ -154,8 +160,7 @@ namespace BAEMM
             ptr<Complex> B,
             mut<Complex> C,
             const Real kappa,
-            const std::array <Complex,3> & coeff,
-            const Int thread_count
+            const std::array <Complex,3> & coeff
         )
         {
             tic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(wave_count)+">");
@@ -168,10 +173,10 @@ namespace BAEMM
             }
             
             LoadCoefficients(coeff);
-            JobPointers<Int> job_ptr(simplex_count/i_blk_size, thread_count);
+            JobPointers<Int> job_ptr(simplex_count/i_blk_size, OMP_thread_count);
             
-            #pragma omp parallel for num_threads( thread_count)
-            for( Int thread = 0; thread < thread_count; ++thread )
+            #pragma omp parallel for num_threads( OMP_thread_count)
+            for( Int thread = 0; thread < OMP_thread_count; ++thread )
             {
                 Tiny::Matrix<i_blk_size,3,Real,Int> x;
                 Tiny::Matrix<i_blk_size,3,Real,Int> nu;
@@ -273,7 +278,7 @@ namespace BAEMM
                     
                 } // for( Int i_blk = i_blk_begin; i_blk < i_blk_end; ++i_blk )
     
-            } // for( Int thread = 0; thread < thread_count; ++thread )
+            } // for( Int thread = 0; thread < OMP_thread_count; ++thread )
             
             toc(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(wave_count)+">");
         }

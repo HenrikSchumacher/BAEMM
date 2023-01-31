@@ -66,7 +66,7 @@ public:
         compute_encoder->setBuffer(Im_C,         0, 5 );
         compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real ), 6 );
         compute_encoder->setBytes(&coeff_over_four_pi[0],  8 * sizeof(Real ), 7 );
-        compute_encoder->setBytes(&n,                          sizeof(int  ), 8 );
+        compute_encoder->setBytes(&simplex_count,              sizeof(int  ), 8 );
         compute_encoder->setBytes(&wave_count,                 sizeof(int  ), 9 );
 
         
@@ -75,7 +75,7 @@ public:
         
         MTL::Size threads_per_threadgroup (max_threads, 1, 1);
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(n, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
+            DivideRoundUp(simplex_count, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
         );
         
 //        valprint("n",n);
