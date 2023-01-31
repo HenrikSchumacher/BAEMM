@@ -367,6 +367,8 @@ namespace BAEMM
         
 #include "Neumann_to_Dirichlet3.hpp"
         
+#include "Neumann_to_Dirichlet4.hpp"
+        
 #include "simd_broadcast_test.hpp"
         
         

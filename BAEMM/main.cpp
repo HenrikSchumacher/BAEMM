@@ -87,11 +87,11 @@ int main(int argc, const char * argv[])
     const UInt n = M.SimplexCount();
     static constexpr uint vec_size   =  1;
     static constexpr uint simd_size  = 32;
-    static constexpr uint n_waves    = 32;
+    static constexpr uint wave_count = 32;
     
 //    static constexpr uint vec_size   =  4;
 //    static constexpr uint simd_size  = 32;
-//    static constexpr uint n_waves    = 32 * 2 * 4;
+//    static constexpr uint wave_count    = 32 * 2 * 4;
     
     static constexpr uint i_blk   = 4;
     static constexpr uint j_blk   = 2;
@@ -99,7 +99,7 @@ int main(int argc, const char * argv[])
     Float kappa = 2.;
 
     valprint("n      ", n       );
-    valprint("n_waves", n_waves );
+    valprint("wave_count", wave_count );
 
     NS::AutoreleasePool* p_pool = NS::AutoreleasePool::alloc()->init();
 
@@ -113,14 +113,14 @@ int main(int argc, const char * argv[])
 //    Tensor2<Complex,Int>  A      ( n, n );
 //    Tensor2<Complex,Int>  A_True ( n, n );
     
-    Tensor2<Complex,Int>  C_True ( n, n_waves );
-    Tensor2<Complex,Int>  C      ( n, n_waves );
-    Tensor2<Complex,Int>  B      ( n, n_waves );
-    Tensor2<Complex,Int>  Z      ( n, n_waves );
+    Tensor2<Complex,Int>  C_True ( n, wave_count );
+    Tensor2<Complex,Int>  C      ( n, wave_count );
+    Tensor2<Complex,Int>  B      ( n, wave_count );
+    Tensor2<Complex,Int>  Z      ( n, wave_count );
     
 
-    Tensor2<Float,Int> Re_B      ( n, n_waves );
-    Tensor2<Float,Int> Im_B      ( n, n_waves );
+    Tensor2<Float,Int> Re_B      ( n, wave_count );
+    Tensor2<Float,Int> Im_B      ( n, wave_count );
 
     
     constexpr UInt round_to      = 64;
@@ -128,7 +128,7 @@ int main(int argc, const char * argv[])
     dump(n);
     dump(n_rounded);
 
-    const UInt size = n_rounded * n_waves * sizeof(Metal_Float);
+    const UInt size = n_rounded * wave_count * sizeof(Metal_Float);
 
     MTL::Buffer * Re_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
     MTL::Buffer * Im_C_Metal = device->newBuffer(size, MTL::ResourceStorageModeManaged);
@@ -173,7 +173,7 @@ int main(int argc, const char * argv[])
     B.Write( ToPtr<Metal_Complex>(B_Metal)  );
     B_Metal->didModifyRange({0,2*size});
 
-//    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,n_waves,false>(
+//    H_AoS.Neumann_to_Dirichlet_Blocked<i_blk,j_blk,wave_count,false>(
 //        B.data(), C_True.data(), kappa, thread_count
 //    );
 //
@@ -188,36 +188,61 @@ int main(int argc, const char * argv[])
     );
 
     H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, n_waves
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, wave_count
     );
     C_True.Read( ToPtr<Float>(Re_C_Metal), ToPtr<Float>(Im_C_Metal) );
     
     H_Metal.Neumann_to_Dirichlet(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, n_waves
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 64, wave_count
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
     print("");
 
     H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, n_waves, simd_size, vec_size
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, wave_count, simd_size, vec_size
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
     H_Metal.Neumann_to_Dirichlet2(
-        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, n_waves, simd_size, vec_size
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, wave_count, simd_size, vec_size
     );
     print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
     print("");
     
     H_Metal.Neumann_to_Dirichlet3(
-        B_Metal, C_Metal, kappa, n_waves, simd_size );
+        B_Metal, C_Metal, kappa, wave_count, simd_size );
     print_error_C(C_Metal);
     
     H_Metal.Neumann_to_Dirichlet3(
-        B_Metal, C_Metal, kappa, n_waves, simd_size );
+        B_Metal, C_Metal, kappa, wave_count, simd_size );
     print_error_C(C_Metal);
+    
+    
+    H_Metal.Neumann_to_Dirichlet4(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
+        wave_count, 64, 32, true
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.Neumann_to_Dirichlet4(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
+        wave_count, 64, 32, true
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.Neumann_to_Dirichlet4(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
+        wave_count, 64, 16, true
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
+    
+    H_Metal.Neumann_to_Dirichlet4(
+        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa, 1.f, 0.f, 0.f,
+        wave_count, 64, 16, true
+    );
+    print_error_ReIm(Re_C_Metal,Im_C_Metal);
     
     
     p_pool->release();
