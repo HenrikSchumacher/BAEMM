@@ -31,10 +31,13 @@ namespace BAEMM
     public:
         
         using Int        = uint32_t;
+//        using Int        = int;
         using Real       = float;
         using Complex    = std::complex<Real>;
         
         using UInt       = uint32_t;
+        
+        using Sparse_T = Sparse::MatrixCSR<Complex,Int,Int>;
         
         using NS::StringEncoding::UTF8StringEncoding;
         
@@ -60,7 +63,7 @@ namespace BAEMM
 
         const int OMP_thread_count = 1;
         
-        std::map<std::string, MTL::ComputePipelineState * > pipelines;
+        std::map<std::string, MTL::ComputePipelineState *> pipelines;
         
         MTL::CommandQueue * command_queue;
         
@@ -74,8 +77,8 @@ namespace BAEMM
         MTL::Buffer * mid_points;
         MTL::Buffer * normals;
         
-        Sparse::MatrixCSR<Complex,Int,Int> AvOp;
-        Sparse::MatrixCSR<Complex,Int,Int> AvOpTransp;
+        Sparse_T AvOp;
+        Sparse_T AvOpTransp;
         
         float coeff_over_four_pi [4][2] = {{}};
         
@@ -96,8 +99,8 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count_, 3 )
         {
             tic(ClassName());
-            const Int size  =     simplex_count * sizeof(Real);
-            const Int size4 = 4 * simplex_count * sizeof(Real);
+            const uint size  =     simplex_count * sizeof(Real);
+            const uint size4 = 4 * simplex_count * sizeof(Real);
             
             areas      = device->newBuffer(size,  MTL::ResourceStorageModeManaged);
             mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
@@ -108,17 +111,17 @@ namespace BAEMM
             mut<Real> normals_    = static_cast<Real *>(   normals->contents());
 
             
-            AvOp = Sparse::MatrixCSR<Complex,Int,Int>(
-                simplex_count,
-                vertex_count,
-                simplex_count * 3,
-                OMP_thread_count
-            );
-            
-            mut<Int>     outer = AvOp.Outer().data();
-            mut<Int>     inner = AvOp.Inner().data();
-            mut<Complex> vals  = AvOp.Values().data();
 
+            
+            Tensor1<Int,Int>     outer ( simplex_count + 1 );
+            Tensor1<Int,Int>     inner ( 3 * simplex_count );
+            Tensor1<Complex,Int> vals  ( 3 * simplex_count );
+            outer[0] = 0;
+            
+//            mut<Int>     outer = AvOp.Outer().data();
+//            mut<Int>     inner = AvOp.Inner().data();
+//            mut<Complex> vals  = AvOp.Values().data();
+//
             
             // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
             #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
@@ -180,8 +183,16 @@ namespace BAEMM
             mid_points->didModifyRange({0,size4});
                normals->didModifyRange({0,size4});
             
-//            AvOpTransp = AvOp.Transpose();
+            AvOp = Sparse_T(
+                std::move(outer), std::move(inner), std::move(vals),
+                simplex_count, vertex_count,
+                OMP_thread_count
+            );
+            
+            AvOp.SortInner();
 
+            AvOpTransp = AvOp.Transpose();
+            
             command_queue = device->newCommandQueue();
             
             if( command_queue == nullptr )
@@ -470,9 +481,9 @@ namespace BAEMM
 //
 //#include "Neumann_to_Dirichlet4.hpp"
         
-#include "BoundaryOperatorKernel_C.hpp"
+#include "Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
         
-#include "BoundaryOperatorKernel_ReIm.hpp"
+#include "Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp"
         
         
 //#include "GEMM2.hpp"
