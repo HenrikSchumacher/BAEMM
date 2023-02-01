@@ -156,14 +156,14 @@ constant constexpr float one     = static_cast<float>(1);
                     
                     if( single_layer )
                     {
-                        A_i[j_loc][0] += (c[0][0] * cos_kappa_r - c[0][1] * sin_kappa_r) * r_inv;
-                        A_i[j_loc][1] += (c[0][0] * sin_kappa_r + c[0][1] * cos_kappa_r) * r_inv ;
+                        A_i[j_loc][0] += (c[1][0] * cos_kappa_r - c[1][1] * sin_kappa_r) * r_inv;
+                        A_i[j_loc][1] += (c[1][0] * sin_kappa_r + c[1][1] * cos_kappa_r) * r_inv ;
                     }
                     
                     if( double_layer )
                     {
                         // We have to add
-                        // c[1] * exp(I * kappa * r) * (I * kappa * r - 1) (z.mu_j) / r^3
+                        // c[2] * exp(I * kappa * r) * (I * kappa * r - 1) (z.mu_j) / r^3
                         // to A_i.
                         
                         const float factor = (
@@ -172,8 +172,8 @@ constant constexpr float one     = static_cast<float>(1);
                             + z[2] * mu[j_loc][2]
                         ) * r3_inv;
                         
-                        const float a = ( c[1][1] - kappa_r * c[1][0] );
-                        const float b = ( c[1][0] + kappa_r * c[1][1] );
+                        const float a = ( c[2][1] - kappa_r * c[2][0] );
+                        const float b = ( c[2][0] + kappa_r * c[2][1] );
                         
                         A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
                         A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
@@ -182,7 +182,7 @@ constant constexpr float one     = static_cast<float>(1);
                     if( adjdbl_layer )
                     {
                         // We have to add
-                        // c[1] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
+                        // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
                         // to A_i.
                         
                         const float factor = - (
@@ -191,8 +191,8 @@ constant constexpr float one     = static_cast<float>(1);
                             + z[2] * nu_i[2]
                         ) * r3_inv;
                         
-                        const float a = ( c[2][1] - kappa_r * c[2][0] );
-                        const float b = ( c[2][0] + kappa_r * c[2][1] );
+                        const float a = ( c[3][1] - kappa_r * c[3][0] );
+                        const float b = ( c[3][0] + kappa_r * c[3][1] );
                         
                         A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
                         A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;

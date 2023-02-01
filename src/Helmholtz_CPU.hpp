@@ -95,60 +95,71 @@ namespace BAEMM
         Tensor2<Real,Int> mid_points;
         Tensor2<Real,Int> normals;
         
-        Real    coeff_over_four_pi   [4][2] = {{}};
+        Real    c   [4][2] = {{}};
         
-        Complex coeff_C_over_four_pi [4]    = {{}};
+        Complex c_C [4]    = {{}};
         
     public:
         
-        void LoadCoefficients( const std::array<Complex,3> & coeff )
+        void LoadCoefficients( const std::array<Complex,4> & coeff )
         {
             // We have to process the coefficients anyways.
             // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
             
-            SetSingleLayerCoefficient(coeff[0]);
-            SetDoubleLayerCoefficient(coeff[1]);
-            SetAdjDblLayerCoefficient(coeff[2]);
+            SetMassMatrixCoefficient (coeff[0]);
+            SetSingleLayerCoefficient(coeff[1]);
+            SetDoubleLayerCoefficient(coeff[2]);
+            SetAdjDblLayerCoefficient(coeff[3]);
+        }
+
+        Complex GetMassMatrixCoefficient() const
+        {
+            return Complex( c[0][0], c[0][1] );
+        }
+        
+        
+        void SetMassMatrixCoefficient( const Complex & z )
+        {
+            c_C[0]  = z;
+            c[0][0] = real(z);
+            c[0][1] = imag(z);
         }
         
         Complex GetSingleLayerCoefficient() const
         {
-            return coeff_C_over_four_pi[0] * four_pi;
+            return c_C[1] * four_pi;
         }
         
         
         void SetSingleLayerCoefficient( const Complex & z )
         {
-            coeff_C_over_four_pi[0] = z * one_over_four_pi;
-            
-            coeff_over_four_pi[0][0] = real(coeff_C_over_four_pi[0]);
-            coeff_over_four_pi[0][1] = imag(coeff_C_over_four_pi[0]);
+            c_C[1]  = z * one_over_four_pi;
+            c[1][0] = real(c_C[1]);
+            c[1][1] = imag(c_C[1]);
         }
         
         Complex GetDoubleLayerCoefficient() const
         {
-            return coeff_C_over_four_pi[1] * four_pi;
+            return c_C[2] * four_pi;
         }
         
         void SetDoubleLayerCoefficient( const Complex & z )
         {
-            coeff_C_over_four_pi[1] = z * one_over_four_pi;
-            
-            coeff_over_four_pi[1][0] = real(coeff_C_over_four_pi[1]);
-            coeff_over_four_pi[1][1] = imag(coeff_C_over_four_pi[1]);
+            c_C[2]  = z * one_over_four_pi;
+            c[2][0] = real(c_C[2]);
+            c[2][1] = imag(c_C[2]);
         }
         
         Complex GetAdjDblLayerCoefficient() const
         {
-            return coeff_C_over_four_pi[2] * four_pi;
+            return c_C[3] * four_pi;
         }
         
         void SetAdjDblLayerCoefficient( const Complex & z )
         {
-            coeff_C_over_four_pi[2] = z * one_over_four_pi;
-            
-            coeff_over_four_pi[2][0] = real(coeff_C_over_four_pi[2]);
-            coeff_over_four_pi[2][1] = imag(coeff_C_over_four_pi[2]);
+            c_C[3]  = z * one_over_four_pi;
+            c[3][0] = real(c_C[3]);
+            c[3][1] = imag(c_C[3]);
         }
         
     public:
@@ -160,7 +171,7 @@ namespace BAEMM
             ptr<Complex> B,
             mut<Complex> C,
             const Real kappa,
-            const std::array <Complex,3> & coeff
+            const std::array <Complex,4> & coeff
         )
         {
             tic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+","+ToString(wave_count)+">");
@@ -244,12 +255,12 @@ namespace BAEMM
                                 const Complex factor ( (I_kappa_r - one) * r3_inv );
                                 
                                 A[i][j] = exp_I_kappa_r * (
-                                    coeff_C_over_four_pi[0] * r_inv
+                                    c_C[1] * r_inv
                                     +
                                     factor * (
-                                        coeff_C_over_four_pi[1] * dot_z_mu
+                                        c_C[2] * dot_z_mu
                                         -
-                                        coeff_C_over_four_pi[2] * dot_z_nu
+                                        c_C[3] * dot_z_nu
                                     )
                                 );
 
