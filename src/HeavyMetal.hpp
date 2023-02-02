@@ -111,10 +111,10 @@ namespace HeavyMetal
                     return nullptr;
                 }
                 
-                size_t param_count = param_types.size();
+                std::size_t param_count = param_types.size();
                 
                 // Create compile-time constant. Will be prependend to code string.
-                for( size_t i = 0; i < param_count; ++i )
+                for( std::size_t i = 0; i < param_count; ++i )
                 {
                     full_code << "constant constexpr " << param_types[i] << " " << param_names[i] << " = " << param_vals[i] <<";\n";
                 }

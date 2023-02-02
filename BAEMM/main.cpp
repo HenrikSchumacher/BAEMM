@@ -60,8 +60,8 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
     
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
     Profiler::Clear( path );
@@ -211,11 +211,10 @@ int main(int argc, const char * argv[])
     dump(B.Size());
     
     H_Metal.LoadCoefficients(coeff_0);
-    H_Metal.ReadB( B.data(), wave_count );
-    H_Metal.BoundaryOperatorKernel_C( kappa_list );
+    H_Metal.ReadB ( B.data(), wave_count );
+    H_Metal.BoundaryOperatorKernel_C(kappa_list);
     H_Metal.WriteC( C.data(), wave_count );
-    Subtract( C_True, C, Z );
-    valprint("error", Z.MaxNorm()/C_True.MaxNorm() );
+    print_error(C);
     
     
     print("");
@@ -225,14 +224,13 @@ int main(int argc, const char * argv[])
     H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
         B.data(), C_True.data(), kappa, coeff_1
     );
-    dump( C_True.MaxNorm());
+    dump( C_True.MaxNorm() );
 
     H_Metal.LoadCoefficients(coeff_1);
-    H_Metal.ReadB( B.data(), wave_count );
-    H_Metal.BoundaryOperatorKernel_C( kappa_list );
+    H_Metal.ReadB ( B.data(), wave_count );
+    H_Metal.BoundaryOperatorKernel_C(kappa_list);
     H_Metal.WriteC( C.data(), wave_count );
-    Subtract( C_True, C, Z );
-    valprint("error", Z.MaxNorm()/C_True.MaxNorm() );
+    print_error(C);
     
 //
 //    H_Metal.BoundaryOperatorKernel_ReIm(
@@ -247,6 +245,22 @@ int main(int argc, const char * argv[])
 //    );
 //    print_error_ReIm(Re_C_Metal,Im_C_Metal);
 //
+    
+    
+    Tensor2<Complex,Int> X ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> Y ( H_Metal.VertexCount(), wave_count);
+    
+//    X.Read( Re_B.data(), Im_B.data() );
+    
+    for( Int k = 0; k < 4; ++k )
+    {
+        H_Metal.ApplyBoundaryOperators_PL(
+            Complex(1), X.data(), wave_count,
+            Complex(0), Y.data(), wave_count,
+            kappa_list, coeff_0,  wave_count
+        );
+    }
+    
     p_pool->release();
 
     return 0;
