@@ -1,32 +1,33 @@
 public:
 
-    void BoundaryOperatorKernel_C(
-        const std::vector<Real> & kappa
-    )
+    void BoundaryOperatorKernel_C( const std::vector<Real> & kappa )
     {
-        std::string name ( "BoundaryOperatorKernel_C" );
+        std::string name ("BoundaryOperatorKernel_C");
         
         tic(ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")");
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-              name,
-              std::string(
+            name,
+            std::string(
 #include "BoundaryOperatorKernel_C.metal"
-              ),
-              {"int","int","bool","bool","bool"},
-              {"block_size","wave_chunk_size","single_layer","double_layer","adjdbl_layer"},
-              {
-                  ToString(block_size),
-                  ToString(wave_chunk_size),
-                  ToString(single_layer),
-                  ToString(double_layer),
-                  ToString(adjdbl_layer)
-              }
-          );
+            ),
+            {"int","int","bool","bool","bool"},
+            {"block_size","wave_chunk_size","single_layer","double_layer","adjdbl_layer"},
+            {
+              ToString(block_size),
+              ToString(wave_chunk_size),
+              ToString(single_layer),
+              ToString(double_layer),
+              ToString(adjdbl_layer)
+            }
+        );
         
         if( kappa.size() != wave_count / wave_chunk_size )
         {
             eprint(ClassName()+"::"+name+": kappa.size() != wave_count / wave_chunk_size. Aborting.");
+            dump(kappa.size());
+            dump(wave_count);
+            dump(wave_chunk_size);
             return;
         }
         

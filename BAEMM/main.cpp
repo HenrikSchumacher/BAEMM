@@ -26,21 +26,20 @@ T * ToPtr( MTL::Buffer * a )
 }
 
 
-namespace BAEMM
-{
-    // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
-    // Bou can activate everything you want, but compile times might increase substatially.
-    using Int           =  int32_t;
-    using UInt          = uint32_t;
-    using ExtInt        =  int64_t;
-    
-    using Real          = float64_t;
-    using Float         = float32_t;
-    using Complex       = std::complex<Float>;
-    
-    using Metal_Float   = float32_t;
-    using Metal_Complex = std::complex<Metal_Float>;
-}
+
+// We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
+// Bou can activate everything you want, but compile times might increase substatially.
+using Int           =  int32_t;
+using UInt          = uint32_t;
+using ExtInt        =  int64_t;
+
+using Real          = float64_t;
+using Float         = float32_t;
+using Complex       = std::complex<Float>;
+
+using Metal_Float   = float32_t;
+using Metal_Complex = std::complex<Metal_Float>;
+
 
 
 
@@ -49,7 +48,7 @@ int main(int argc, const char * argv[])
     using namespace Repulsor;
     using namespace Tensors;
     using namespace Tools;
-    using namespace BAEMM;
+//    using namespace BAEMM;
     
     const char * homedir = getenv("HOME");
 
@@ -60,8 +59,8 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
     
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
     Profiler::Clear( path );
@@ -85,12 +84,10 @@ int main(int argc, const char * argv[])
     print("");
 
     const UInt n = M.SimplexCount();
-//    static constexpr uint simd_size        = 32;
     static constexpr uint wave_count       = 32;
     static constexpr uint wave_chunk_size  = 16;
     static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
     static constexpr uint block_size       = 64;
-    
     
     constexpr Float kappa = 2.;
     
@@ -98,9 +95,9 @@ int main(int argc, const char * argv[])
     
     std::array<Complex,4> coeff_0 {
         Complex(1.0f,0.0f),
-        Complex(1.0f,0.0f),
-        Complex(0.0f,-0.0f),
-        Complex(-0.0f,0.0f)
+        Complex(0.0f,0.0f),
+        Complex(0.0f,0.0f),
+        Complex(0.0f,0.0f)
     };
     
     std::array<Complex,4> coeff_1 {
@@ -116,12 +113,6 @@ int main(int argc, const char * argv[])
     dump(n_rounded);
     dump(wave_count);
     dump(wave_count_rounded);
-    
-    
-    
-    static constexpr uint i_blk   = 4;
-    static constexpr uint j_blk   = 2;
-
 
     NS::AutoreleasePool* p_pool = NS::AutoreleasePool::alloc()->init();
 
@@ -135,46 +126,16 @@ int main(int argc, const char * argv[])
     Tensor2<Float,Int>    Re_B   ( n, wave_count );
     Tensor2<Float,Int>    Im_B   ( n, wave_count );
 
-//    const UInt size = n_rounded * wave_count_rounded * sizeof(Metal_Float);
-//
-//    MTL::Buffer * Re_C_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged );
-//    MTL::Buffer * Im_C_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged );
-//    MTL::Buffer * Re_B_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged );
-//    MTL::Buffer * Im_B_Metal = device->newBuffer(  size, MTL::ResourceStorageModeManaged );
-//
-//    MTL::Buffer * C_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged );
-//    MTL::Buffer * B_Metal    = device->newBuffer(2*size, MTL::ResourceStorageModeManaged );
-
     auto print_error = [&] ( const auto & C )
     {
         Subtract( C_True, C, Z );
         valprint("Error",Z.MaxNorm()/C_True.MaxNorm());
     };
 
-//    auto print_error_ReIm = [&] ( const auto & Re_C_Metal, auto & Im_C_Metal )
-//    {
-//        C.Read( ToPtr<Metal_Float>(Re_C_Metal), ToPtr<Metal_Float>(Im_C_Metal) );
-//        print_error(C);
-//    };
-
-//    auto print_error_C = [&] ( const auto & C_Metal )
-//    {
-//        C.Read( ToPtr<Metal_Complex>(C_Metal) );
-//        print_error(C);
-//        Subtract( C_True, C, Z );
-//    };
-
     Re_B.Random();
     Im_B.Random();
 
     B.Read( Re_B.data(), Im_B.data() );
-
-//    B.Write( ToPtr<Metal_Float>(Re_B_Metal), ToPtr<Metal_Float>(Im_B_Metal) );
-//    Re_B_Metal->didModifyRange({0,size});
-//    Im_B_Metal->didModifyRange({0,size});
-//
-//    B.Write( ToPtr<Metal_Complex>(B_Metal) );
-//    B_Metal->didModifyRange({0,2*size});
 
     print("");
 
@@ -182,33 +143,39 @@ int main(int argc, const char * argv[])
     print("Preparing Helmholts classes");
     print("");
     
-    Helmholtz_CPU<Float,UInt> H_CPU(
+    BAEMM::Helmholtz_CPU H_CPU(
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount(),
         OMP_thread_count
     );
+    H_CPU.SetWaveChunkSize(wave_chunk_size);
     
-    Helmholtz_Metal H_Metal (
+    BAEMM::Helmholtz_Metal H_Metal (
         device,
         M.VertexCoordinates().data(), M.VertexCount(),
         M.Simplices().data(),         M.SimplexCount(),
         OMP_thread_count
     );
-
+    H_Metal.SetWaveChunkSize(wave_chunk_size);
     
     print("");
     print("Single layer operator");
     print("");
 
     
-
+    dump(B(0,0));
+    dump(B(0,1));
+    dump(B(0,2));
     
-    H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
-        B.data(), C_True.data(), kappa, coeff_0
-    );
+    H_CPU.LoadCoefficients(coeff_0);
+    H_CPU.ReadB ( B.data(), wave_count );
+    H_CPU.BoundaryOperatorKernel_C(kappa_list);
+    H_CPU.WriteC( C_True.data(), wave_count );
     dump( C_True.MaxNorm());
 
-    dump(B.Size());
+    dump(C_True(0,0));
+    dump(C_True(0,1));
+    dump(C_True(0,2));
     
     H_Metal.LoadCoefficients(coeff_0);
     H_Metal.ReadB ( B.data(), wave_count );
@@ -216,14 +183,18 @@ int main(int argc, const char * argv[])
     H_Metal.WriteC( C.data(), wave_count );
     print_error(C);
     
+    dump(C(0,0));
+    dump(C(0,1));
+    dump(C(0,2));
     
     print("");
     print("General operator");
     print("");
     
-    H_CPU.BoundaryOperatorKernel_C<i_blk,j_blk,wave_count>(
-        B.data(), C_True.data(), kappa, coeff_1
-    );
+    H_CPU.LoadCoefficients(coeff_1);
+    H_CPU.ReadB ( B.data(), wave_count );
+    H_CPU.BoundaryOperatorKernel_C(kappa_list);
+    H_CPU.WriteC( C_True.data(), wave_count );
     dump( C_True.MaxNorm() );
 
     H_Metal.LoadCoefficients(coeff_1);
@@ -246,20 +217,29 @@ int main(int argc, const char * argv[])
 //    print_error_ReIm(Re_C_Metal,Im_C_Metal);
 //
     
+    print("");
+    print("From vertices");
+    print("");
     
     Tensor2<Complex,Int> X ( H_Metal.VertexCount(), wave_count);
     Tensor2<Complex,Int> Y ( H_Metal.VertexCount(), wave_count);
     
 //    X.Read( Re_B.data(), Im_B.data() );
     
-    for( Int k = 0; k < 4; ++k )
-    {
-        H_Metal.ApplyBoundaryOperators_PL(
-            Complex(1), X.data(), wave_count,
-            Complex(0), Y.data(), wave_count,
-            kappa_list, coeff_0,  wave_count
-        );
-    }
+    H_Metal.ApplyBoundaryOperators_PL(
+        Complex(1), X.data(), wave_count,
+        Complex(0), Y.data(), wave_count,
+        kappa_list, {1.,2.,3.,4.},  wave_count
+    );
+    
+//    for( Int k = 0; k < 4; ++k )
+//    {
+//        H_Metal.ApplyBoundaryOperators_PL(
+//            Complex(1), X.data(), wave_count,
+//            Complex(0), Y.data(), wave_count,
+//            kappa_list, {1.,2.,3.,4.},  wave_count
+//        );
+//    }
     
     p_pool->release();
 

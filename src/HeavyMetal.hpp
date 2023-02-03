@@ -47,7 +47,6 @@ namespace HeavyMetal
         
         MTL::CommandQueue * command_queue;
         
-        
     public:
         
         BLAS_Capella() = delete;
