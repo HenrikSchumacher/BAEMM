@@ -1,13 +1,11 @@
 #pragma once
 
-
 #include "Tensors/Tensors.hpp"
 
 namespace BAEMM
 {
     using namespace Tools;
     using namespace Tensors;
-    using namespace Repulsor;
 
     template<typename Real>
     force_inline void cfma(

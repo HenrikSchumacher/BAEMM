@@ -17,8 +17,9 @@
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
-#include "Repulsor.hpp"
 #include "../BAEMM.hpp"
+#include "Repulsor.hpp"
+
 
 template<typename T>
 T * ToPtr( MTL::Buffer * a )
