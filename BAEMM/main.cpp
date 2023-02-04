@@ -17,6 +17,7 @@
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
+#include "Repulsor.hpp"
 #include "../BAEMM.hpp"
 
 template<typename T>

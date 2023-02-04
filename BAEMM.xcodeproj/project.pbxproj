@@ -58,7 +58,7 @@
 		AF65FA22297DE7EE005964CF /* metal-cpp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "metal-cpp"; sourceTree = "<group>"; };
 		AF65FA23297E601D005964CF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		AF9F3744297C004600F3C43A /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
-		AF9F3745297C00C800F3C43A /* Repulsor */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Repulsor; sourceTree = "<group>"; };
+		AFAABB26298E550500374FA1 /* Tensors */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tensors; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,10 +90,10 @@
 		AF146D4E297BFFE0000B7240 = {
 			isa = PBXGroup;
 			children = (
+				AFAABB26298E550500374FA1 /* Tensors */,
 				AF65FA22297DE7EE005964CF /* metal-cpp */,
 				AF65FA1A297C7E3A005964CF /* BAEMM.hpp */,
 				AF65FA17297C74AD005964CF /* Meshes */,
-				AF9F3745297C00C800F3C43A /* Repulsor */,
 				AF9F3744297C004600F3C43A /* src */,
 				AF146D59297BFFE0000B7240 /* BAEMM */,
 				AF419E942980599400810E0A /* MetalBLAS */,
