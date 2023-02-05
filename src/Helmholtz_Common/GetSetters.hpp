@@ -15,6 +15,11 @@ public:
         return Mass;
     }
 
+    ptr<Real> Areas() const
+    {
+        return areas_ptr;
+    }
+
 
 public:
 
@@ -27,11 +32,6 @@ public:
         SetSingleLayerCoefficient(coeff[1]);
         SetDoubleLayerCoefficient(coeff[2]);
         SetAdjDblLayerCoefficient(coeff[3]);
-        
-        dump(mass);
-        dump(single_layer);
-        dump(double_layer);
-        dump(adjdbl_layer);
     }
 
 

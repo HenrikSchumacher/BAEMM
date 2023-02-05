@@ -36,9 +36,6 @@ public:
         if( chunk_count != kappa.size() )
         {
             eprint(ClassName()+"::"+name+": kappa.size() != wave_count / wave_chunk_size. Aborting.");
-            dump(kappa.size());
-            dump(wave_count_);
-            dump(wave_chuck_size);
             return;
         }
         

@@ -4,6 +4,9 @@ void RequireBuffers( const Int wave_count_, const Int wave_chunk_size_ )
     
     if( wave_count_ > wave_count )
     {
+        B_loaded = false;
+        C_loaded = false;
+        
         B_buf = Tensor2<Complex,Int> (simplex_count, wave_count_);
         C_buf = Tensor2<Complex,Int> (simplex_count, wave_count_);
         

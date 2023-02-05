@@ -4,6 +4,11 @@ public:
     {
         std::string name ("BoundaryOperatorKernel_C");
         
+        if( !B_loaded )
+        {
+            wprint(ClassName()+"::BoundaryOperatorKernel_C: No values loaded into B. doing nothing.");
+        }
+        
         tic(ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")");
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
@@ -24,10 +29,10 @@ public:
         
         if( kappa.size() != wave_count / wave_chunk_size )
         {
-            eprint(ClassName()+"::"+name+": kappa.size() != wave_count / wave_chunk_size. Aborting.");
             dump(kappa.size());
             dump(wave_count);
             dump(wave_chunk_size);
+            eprint(ClassName()+"::"+name+": kappa.size() != wave_count / wave_chunk_size. Aborting.");
             return;
         }
         
@@ -53,7 +58,7 @@ public:
         compute_encoder->setBuffer(B_buf,        0, 2 );
         compute_encoder->setBuffer(C_buf,        0, 3 );
         compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real), 4 );
-        compute_encoder->setBytes(&c[0],                   8 * sizeof(Real), 5 );
+        compute_encoder->setBytes(&c[0][0],                8 * sizeof(Real), 5 );
         compute_encoder->setBytes(&simplex_count,              sizeof(int ), 6 );
         compute_encoder->setBytes(&wave_count,                 sizeof(int ), 7 );
 

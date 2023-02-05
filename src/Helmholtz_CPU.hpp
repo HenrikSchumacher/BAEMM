@@ -36,8 +36,8 @@ namespace BAEMM
 #include "Helmholtz_Common/MemberVariables.hpp"
         
         Tensor1<Real,Int> areas;
-        Tensor1<Real,Int> mid_points;
-        Tensor1<Real,Int> normals;
+        Tensor2<Real,Int> mid_points;
+        Tensor2<Real,Int> normals;
         
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;

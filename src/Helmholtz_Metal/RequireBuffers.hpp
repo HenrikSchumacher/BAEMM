@@ -7,6 +7,9 @@ void RequireBuffers( const Int wave_count_, const Int block_size_, const Int wav
     
     if( new_size > ldB * n_rounded )
     {
+        B_loaded = false;
+        C_loaded = false;
+        
         B_buf = device->newBuffer(new_size * sizeof(Complex), MTL::ResourceStorageModeManaged);
         C_buf = device->newBuffer(new_size * sizeof(Complex), MTL::ResourceStorageModeManaged);
         

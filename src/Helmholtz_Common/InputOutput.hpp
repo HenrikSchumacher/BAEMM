@@ -44,7 +44,7 @@ public:
         }
         
         ModifiedB();
-        
+        B_loaded = true;
 //            toc("ReadB");
     }
     
@@ -74,13 +74,14 @@ public:
         }
         
         ModifiedC();
+        C_loaded = true;
         
 //            toc("ReadC");
     }
     
     void ReadC( ptr<Complex> input, const Int wave_count_ )
     {
-        ReadB( input, wave_count_, wave_count_ );
+        ReadC( input, wave_count_, wave_count_ );
     }
     
     void WriteC( mut<Complex> output, const Int ld_output )

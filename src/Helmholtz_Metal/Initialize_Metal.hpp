@@ -7,9 +7,6 @@ public:
         const uint size  =     simplex_count * sizeof(Real);
         const uint size4 = 4 * simplex_count * sizeof(Real);
         
-        dump(size);
-        dump(size4);
-        
         areas      = device->newBuffer(size,  MTL::ResourceStorageModeManaged);
         mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
         normals    = device->newBuffer(size4, MTL::ResourceStorageModeManaged);

@@ -17,15 +17,13 @@ public:
         
         // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
         
-        dump(OMP_thread_count);
-        
 //        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < simplex_count; ++i )
         {
-            Tiny::Vector<4,Real,Int> x;
-            Tiny::Vector<4,Real,Int> y;
-            Tiny::Vector<4,Real,Int> z;
-            Tiny::Vector<4,Real,Int> nu;
+            Tiny::Vector<3,Real,Int> x;
+            Tiny::Vector<3,Real,Int> y;
+            Tiny::Vector<3,Real,Int> z;
+            Tiny::Vector<3,Real,Int> nu;
             
             Int i_0 = triangles(i,0);
             Int i_1 = triangles(i,1);

@@ -22,6 +22,9 @@ private:
     Sparse_T AvOpTransp;
     Sparse_T Mass;
 
+    bool B_loaded     = false;
+    bool C_loaded     = false;
+
     bool mass         = false;
     bool single_layer = false;
     bool double_layer = false;

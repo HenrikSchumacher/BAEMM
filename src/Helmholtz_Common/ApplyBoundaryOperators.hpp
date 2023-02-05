@@ -29,9 +29,7 @@ public:
         if( kappa.size() != wave_count_ / wave_chunk_size )
         {
             eprint(ClassName()+"::ApplyBoundaryOperators_PL: kappa.size() != wave_count_ / wave_chuck_size.");
-            dump(kappa.size());
-            dump(wave_count_);
-            dump(wave_chunk_size);
+
             return;
         }
 
