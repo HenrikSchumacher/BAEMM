@@ -192,44 +192,49 @@ int main(int argc, const char * argv[])
     H_Metal.BoundaryOperatorKernel_C(kappa_list);
     H_Metal.WriteC( C.data(), wave_count );
     print_error(C);
-//
-////
-////    H_Metal.BoundaryOperatorKernel_ReIm(
-////        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_1,
-////        wave_count, 64, wave_chunk_size, true
-////    );
-////    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-////
-////    H_Metal.BoundaryOperatorKernel_ReIm(
-////        Re_B_Metal, Im_B_Metal, Re_C_Metal, Im_C_Metal, kappa_list, coeff_1,
-////        wave_count, 64, wave_chunk_size, true
-////    );
-////    print_error_ReIm(Re_C_Metal,Im_C_Metal);
-////
-//
-//    print("");
-//    print("From vertices");
-//    print("");
-//
-//    Tensor2<Complex,Int> X ( H_Metal.VertexCount(), wave_count);
-//    Tensor2<Complex,Int> Y ( H_Metal.VertexCount(), wave_count);
-//
-////    X.Read( Re_B.data(), Im_B.data() );
-//
-//    H_Metal.ApplyBoundaryOperators_PL(
-//        Complex(1), X.data(), wave_count,
-//        Complex(0), Y.data(), wave_count,
-//        kappa_list, {1.,2.,3.,4.},  wave_count
-//    );
-//
-////    for( Int k = 0; k < 4; ++k )
-////    {
-////        H_Metal.ApplyBoundaryOperators_PL(
-////            Complex(1), X.data(), wave_count,
-////            Complex(0), Y.data(), wave_count,
-////            kappa_list, {1.,2.,3.,4.},  wave_count
-////        );
-////    }
+
+    print("");
+    print("From vertices");
+    print("");
+
+    
+    
+    
+    Tensor2<Complex,Int> X       ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Real   ,Int> Re_X    ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Real   ,Int> Im_X    ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> Y_CPU   ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> Y_Metal ( H_Metal.VertexCount(), wave_count);
+
+    Re_X.Random(8);
+    Im_X.Random(8);
+    
+    X.Read( Re_X.data(), Im_X.data() );
+
+    H_CPU.ApplyBoundaryOperators_PL(
+        Complex(1), X.data(),       wave_count,
+        Complex(0), Y_CPU.data(),   wave_count,
+        kappa_list, coeff_1,        wave_count
+    );
+    
+    H_Metal.ApplyBoundaryOperators_PL(
+        Complex(1), X.data(),       wave_count,
+        Complex(0), Y_Metal.data(), wave_count,
+        kappa_list, coeff_1,        wave_count
+    );
+    
+    {
+        Float error = 0;
+        for( Int i = 0; i < H_Metal.VertexCount(); ++i )
+        {
+            for( Int k = 0; k < wave_count; ++k )
+            {
+                error = std::max( error, std::abs( Y_CPU(i,k) - Y_Metal(i,k) ) );
+            }
+        }
+        
+        valprint("Error", error / Y_CPU.MaxNorm() );
+    }
     
     p_pool->release();
 
