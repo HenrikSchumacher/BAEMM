@@ -15,6 +15,27 @@ void RequireBuffers( const Int wave_count_, const Int block_size_, const Int wav
         
         B_ptr = reinterpret_cast<Complex *>(B_buf->contents());
         C_ptr = reinterpret_cast<Complex *>(C_buf->contents());
+     
+        
+        // Clearing the buffers should be obsolete, because newBuffer already zerofies all bytes.
+//        #pragma omp parallel num_threads(OMP_thread_count)
+//        for( Int i = 0; i < simplex_count; ++i )
+//        {
+//            zerofy_buffer( &B_ptr[new_ld * i + wave_count_], new_ld - wave_count_ );
+//            zerofy_buffer( &C_ptr[new_ld * i + wave_count_], new_ld - wave_count_ );
+//        }
+//
+//        zerofy_buffer(
+//            &B_ptr[new_ld * simplex_count],
+//            new_ld * (n_rounded - simplex_count),
+//            OMP_thread_count
+//        );
+//
+//        zerofy_buffer(
+//            &C_ptr[new_ld * simplex_count],
+//            new_ld * (n_rounded - simplex_count),
+//            OMP_thread_count
+//        );
     }
     
     wave_count      = wave_count_;

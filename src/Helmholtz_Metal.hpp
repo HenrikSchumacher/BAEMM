@@ -8,6 +8,8 @@
 // TODO: Priority 1:
 // TODO: Debug wrapper
 // TODO: diagonal part of single layer boundary operator
+// TODO: adjust block_size
+// TODO: Are the i, j >= n treated correctly?
 
 // TODO: Priority 2:
 // TODO: single and double layer potential operator for far field.

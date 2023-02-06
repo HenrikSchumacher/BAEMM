@@ -65,7 +65,6 @@ constant constexpr float one     = static_cast<float>(1);
     // number of blocks
     const int block_count = (n + block_size - 1) / block_size;
     
-    
     const int i_loc   = thread_position_in_threadgroup;
     const int i       = thread_position_in_grid;
 //    const int i_block = threadgroup_position_in_grid;
@@ -81,12 +80,30 @@ constant constexpr float one     = static_cast<float>(1);
     threadgroup cmplx B [block_size][k_chunk_size];
     
     // Each thread loads the x-data for itself only once.
-    x_i  = mid_points[i];
-    
-    if( adjdbl_layer )
+    if( i < n )
     {
-        nu_i = normals[i];
+        x_i  = mid_points[i];
+        
+        if( adjdbl_layer )
+        {
+            nu_i = normals[i];
+        }
     }
+    else
+    {
+        // Load just anything.
+        x_i[0] = 1.f;
+        x_i[1] = 1.f;
+        x_i[2] = 1.f;
+        
+        if( adjdbl_layer )
+        {
+            nu_i[0] = 0.f;
+            nu_i[1] = 0.f;
+            nu_i[2] = 1.f;
+        }
+    }
+
     
     
     // Typically, k_chunk_count is much smaller than block_count.
@@ -108,19 +125,32 @@ constant constexpr float one     = static_cast<float>(1);
                 threadgroup float3 y  [block_size];
                 threadgroup float3 mu [block_size];
                 
+                const int j_loc  = i_loc;
+                const int j      = block_size * j_block + j_loc;
+                
                 // Each thread in the threadgroup loads 1 entry of y and mu.
-                if( double_layer )
+                if( j < n )
                 {
-                    const int j_loc  = i_loc;
-                    const int j      = block_size * j_block + j_loc;
-                    y [j_loc] = mid_points[j];
-                    mu[j_loc] = normals   [j];
+                    y[j_loc] = mid_points[j];
+                    if( double_layer )
+                    {
+                        mu[j_loc] = normals[j];
+                    }
                 }
                 else
                 {
-                    const int j_loc  = i_loc;
-                    const int j      = block_size * j_block + j_loc;
-                    y [j_loc] = mid_points[j];
+                    // Load just anything not equal to x_i.
+                    
+                    y [j_loc][0] = 0.f;
+                    y [j_loc][1] = 0.f;
+                    y [j_loc][2] = 0.f;
+                    
+                    if( adjdbl_layer )
+                    {
+                        mu[j_loc][0] = 0.f;
+                        mu[j_loc][1] = 0.f;
+                        mu[j_loc][2] = 1.f;
+                    }
                 }
                 
                 // need synchronization after loading data
@@ -131,12 +161,13 @@ constant constexpr float one     = static_cast<float>(1);
                     const int j = block_size * j_block + j_loc;
                     
                     // We ignore the results if i and j coincide or if one of i or j are invalid.
-                    const float delta = static_cast<float>( (i == j) );
+                    const float delta = static_cast<float>( (i == j) || (i >= n) || (j >= n) );
                     
                     const float3 z = y[j_loc] - x_i;
                     
                     const float r = sqrt( z[0] * z[0] + z[1] * z[1] + z[2] * z[2] );
                     
+                    // Since each operator has at least one factor of r_inv, this will set to 0 all entries in the block A that lie on the main diagonal or outside the actual n x n matrix.
                     const float r_inv = (one - delta) / (r + delta);
                                         
                     const float kappa_r = kappa[k_chunk] * r;
