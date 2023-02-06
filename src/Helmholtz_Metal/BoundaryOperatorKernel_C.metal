@@ -65,7 +65,7 @@ constant constexpr float one     = static_cast<float>(1);
     // number of blocks
     const int block_count = (n + block_size - 1) / block_size;
     
-    const int i_loc   = thread_position_in_threadgroup;
+//    const int i_loc   = thread_position_in_threadgroup;
     const int i       = thread_position_in_grid;
 //    const int i_block = threadgroup_position_in_grid;
 
@@ -125,7 +125,7 @@ constant constexpr float one     = static_cast<float>(1);
                 threadgroup float3 y  [block_size];
                 threadgroup float3 mu [block_size];
                 
-                const int j_loc  = i_loc;
+                const int j_loc  = thread_position_in_threadgroup;
                 const int j      = block_size * j_block + j_loc;
                 
                 // Each thread in the threadgroup loads 1 entry of y and mu.
@@ -239,7 +239,7 @@ constant constexpr float one     = static_cast<float>(1);
                 
             // Each thread in threadgroup loads 1 row of B.
             {
-                const int j_loc  = i_loc;
+                const int j_loc  = thread_position_in_threadgroup;
                 const int j      = block_size * j_block + j_loc;
                 
                 for( int k = 0; k < k_chunk_size; ++k )

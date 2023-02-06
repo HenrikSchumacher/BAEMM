@@ -61,9 +61,9 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
 
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
 
     Profiler::Clear( path );
 
@@ -89,15 +89,7 @@ int main(int argc, const char * argv[])
     static constexpr uint wave_count       = 64;
     static constexpr uint wave_chunk_size  = 16;
     static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
-    static constexpr uint block_size       = 32;
-
-
-    const uint n_rounded          = RoundUpTo( n, block_size      );
-    const uint wave_count_rounded = RoundUpTo( n, wave_chunk_size );
-    dump(n);
-    dump(n_rounded);
-    dump(wave_count);
-    dump(wave_count_rounded);
+//    static constexpr uint block_size       = 64;
 
 
     print("");
