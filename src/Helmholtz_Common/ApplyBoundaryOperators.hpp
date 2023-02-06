@@ -45,6 +45,7 @@ public:
             RequireBuffers( wave_count_, wave_chunk_size );
             
             AvOp.Dot( Complex(1), B_in, ldB_in, Complex(0), B_ptr, ldB, wave_count );
+            B_loaded = true;
             
             BoundaryOperatorKernel_C( kappa );
             
@@ -53,6 +54,7 @@ public:
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             AvOpTransp.Dot( alpha, C_ptr, ldC, beta, C_out, ldC_out, wave_count );
+            C_loaded = true;
             
             addTo = 1;
         }

@@ -169,8 +169,6 @@ public:
                         
                         ptr<Complex> B_block = &B_ptr[k_ld * j_base + k_chunk_size * k_chunk];
                         
-                        
-                        
                         LOOP_UNROLL_FULL
                         for( Int k = 0; k < k_chunk_size; ++k )
                         {
@@ -182,7 +180,7 @@ public:
                                 {
                                     C_blk[i][k]
                                     +=
-                                    A[i][j] * B_block[k_ld * j+k];
+                                    A[i][j] * B_block[k_ld * j + k];
                                 }
                             }
                         }

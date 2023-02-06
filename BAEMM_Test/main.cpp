@@ -33,15 +33,15 @@ T * ToPtr( MTL::Buffer * a )
 
 // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
 // Bou can activate everything you want, but compile times might increase substatially.
-using Int           =  Int32;
-using UInt          = UInt32;
-using ExtInt        =  Int64;
+using Int           =  int;
+using UInt          =  uint;
+using ExtInt        =  long long;
 
-using Real          = Real64;
-using Float         = Real32;
-using Complex       = std::complex<Float>;
+using Real          = double;
+using Float         = float;
+using Complex       = std::complex<float>;
 
-using Metal_Float   = Real32;
+using Metal_Float   = int;
 using Metal_Complex = std::complex<Metal_Float>;
 
 
@@ -91,23 +91,6 @@ int main(int argc, const char * argv[])
     static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
     static constexpr uint block_size       = 32;
 
-    constexpr Float kappa = 2.;
-
-    std::vector<Float> kappa_list (wave_chunk_count, kappa);
-
-    std::array<Complex,4> coeff_0 {
-        Complex(0.0f,0.0f),
-        Complex(1.0f,0.0f),
-        Complex(0.0f,0.0f),
-        Complex(0.0f,0.0f)
-    };
-
-    std::array<Complex,4> coeff_1 {
-        Complex(1.0f,0.0f),
-        Complex(0.1f,0.2f),
-        Complex(2.0f,-1.0f),
-        Complex(-0.5f,0.4f)
-    };
 
     const uint n_rounded          = RoundUpTo( n, block_size      );
     const uint wave_count_rounded = RoundUpTo( n, wave_chunk_size );
@@ -116,32 +99,6 @@ int main(int argc, const char * argv[])
     dump(wave_count);
     dump(wave_count_rounded);
 
-    NS::AutoreleasePool * p_pool = NS::AutoreleasePool::alloc()->init();
-
-    MTL::Device* device = MTL::CreateSystemDefaultDevice();
-
-    
-
-    Tensor2<Complex,Int>  C_True ( n, wave_count );
-    Tensor2<Complex,Int>  C      ( n, wave_count );
-    Tensor2<Complex,Int>  B      ( n, wave_count );
-    Tensor2<Complex,Int>  Z      ( n, wave_count );
-
-    Tensor2<Float,Int>    Re_B   ( n, wave_count );
-    Tensor2<Float,Int>    Im_B   ( n, wave_count );
-
-    auto print_error = [&] ( const auto & C )
-    {
-        Subtract( C_True, C, Z );
-        valprint("Error",Z.MaxNorm()/C_True.MaxNorm());
-    };
-
-    Re_B.Random();
-    Im_B.Random();
-
-    B.Read( Re_B.data(), Im_B.data() );
-
-    print("");
 
     print("");
     print("Preparing Helmholtz classes");
@@ -153,89 +110,98 @@ int main(int argc, const char * argv[])
         OMP_thread_count
     );
     H_CPU.SetWaveChunkSize(wave_chunk_size);
+    
+    // Create an object that handles GPU acces via Metal.
+    
+    // Some pool to handle reference-counted objects associated to Metal (namespace MTL).
+    NS::AutoreleasePool * p_pool = NS::AutoreleasePool::alloc()->init();
 
+    // Request the GPU device.
+    MTL::Device* device = MTL::CreateSystemDefaultDevice();
+    
     BAEMM::Helmholtz_Metal H_Metal (
         device,
-        M.VertexCoordinates().data(), M.VertexCount(),
-        M.Simplices().data(),         M.SimplexCount(),
-        OMP_thread_count
+        M.VertexCoordinates().data(),  // pointer to an array of doubles or floats
+        M.VertexCount(),               // number of vertices
+        M.Simplices().data(),          // pointer to an array of ints or long ints
+        M.SimplexCount(),              // number of simplices
+        OMP_thread_count               // number of OpenMP threads to use.
     );
     H_Metal.SetWaveChunkSize(wave_chunk_size);
 
-    print("");
-    print("Single layer operator");
-    print("");
-
-    H_CPU.LoadCoefficients(coeff_0);
-    H_CPU.ReadB ( B.data(), wave_count );
-    H_CPU.BoundaryOperatorKernel_C(kappa_list);
-    H_CPU.WriteC( C_True.data(), wave_count );
-
-    H_Metal.LoadCoefficients(coeff_0);
-    H_Metal.ReadB ( B.data(), wave_count );
-    H_Metal.BoundaryOperatorKernel_C(kappa_list);
-    H_Metal.WriteC( C.data(), wave_count );
-    print_error(C);
-
-    print("");
-    print("General operator");
-    print("");
-
-    H_CPU.LoadCoefficients(coeff_1);
-    H_CPU.ReadB ( B.data(), wave_count );
-    H_CPU.BoundaryOperatorKernel_C(kappa_list);
-    H_CPU.WriteC( C_True.data(), wave_count );
-    dump( C_True.MaxNorm() );
-
-    H_Metal.LoadCoefficients(coeff_1);
-    H_Metal.ReadB ( B.data(), wave_count );
-    H_Metal.BoundaryOperatorKernel_C(kappa_list);
-    H_Metal.WriteC( C.data(), wave_count );
-    print_error(C);
-
-    print("");
-    print("From vertices");
-    print("");
 
     
+    // Some matrices to hold data.
+    Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> Y_CPU ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> Y     ( H_Metal.VertexCount(), wave_count);
+    
+    // Generate some random input data.
+    X.Random( 8 );
+    // Loading a buffer would also work
+    // X.Read( some_buffer );
     
     
-    Tensor2<Complex,Int> X       ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Real   ,Int> Re_X    ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Real   ,Int> Im_X    ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Complex,Int> Y_CPU   ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Complex,Int> Y_Metal ( H_Metal.VertexCount(), wave_count);
+    // Two real factors
+    const Complex alpha = 1;
+    const Complex beta  = 0;
+    
+    // Prepare wave numbers (all equal to 2 in this example).
+    constexpr Float kappa = 2.;
 
-    Re_X.Random(8);
-    Im_X.Random(8);
+    std::vector<Float> kappa_list (wave_chunk_count, kappa);
     
-    X.Read( Re_X.data(), Im_X.data() );
+    // Set the coefficients for the operators
+    std::array<Complex,4> coeff {
+        Complex(0.0f,0.0f), // coefficient of mass matrix
+        Complex(1.0f,0.0f), // coefficient of single layer op
+        Complex(0.0f,0.0f), // coefficient of double layer op
+        Complex(0.0f,0.0f)  // coefficient of adjoint double layer op
+    };
+
+    const Int ldX = X.Dimension(1);
+    const Int ldY = Y.Dimension(1);
 
     H_CPU.ApplyBoundaryOperators_PL(
-        Complex(1), X.data(),       wave_count,
-        Complex(0), Y_CPU.data(),   wave_count,
-        kappa_list, coeff_1,        wave_count
+        alpha,      X.data(),       ldX,
+        beta,       Y_CPU.data(),   ldY,
+        kappa_list, coeff,          wave_count
     );
+    
+    // Compute Y = alpha * A * X + beta * Y
+    // where A =   coeff[0] * [mass]
+    //           + coeff[1] * [single layer op]
+    //           + coeff[2] * [double layer op]
+    //           + coeff[3] * [adjoint double layer op]
     
     H_Metal.ApplyBoundaryOperators_PL(
-        Complex(1), X.data(),       wave_count,
-        Complex(0), Y_Metal.data(), wave_count,
-        kappa_list, coeff_1,        wave_count
+        alpha,
+        X.data(),       // pointer to float
+        ldX,            // "leading dimension": number of columns in buffer X
+        beta,
+        Y.data(),       // pointer to float
+        ldY,            // "leading dimension": number of columns in buffer Y
+        kappa_list,     // List of wave numbers;
+        coeff,
+        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
     );
     
+    // Check the correctness against CPU implementation (which might also be wrong!!!)
     {
         Float error = 0;
         for( Int i = 0; i < H_Metal.VertexCount(); ++i )
         {
             for( Int k = 0; k < wave_count; ++k )
             {
-                error = std::max( error, std::abs( Y_CPU(i,k) - Y_Metal(i,k) ) );
+                error = std::max( error, std::abs( Y_CPU(i,k) - Y(i,k) ) );
             }
         }
         
         valprint("Error", error / Y_CPU.MaxNorm() );
     }
     
+    
+    // Destruct the pool for managing Metal's reference counted pointers.
     p_pool->release();
 
     return 0;
