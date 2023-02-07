@@ -8,6 +8,7 @@ public:
         const Int wave_count_
     )
     {
+        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
         tic(ClassName()+"::ApplyBoundaryOperators_PL");
         // TODO: Aim is to implement the following:
         //
@@ -67,6 +68,7 @@ public:
         }
         
         toc(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
     }
     
     // Overload for just one wave number

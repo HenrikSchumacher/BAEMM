@@ -9,7 +9,10 @@ public:
             wprint(ClassName()+"::BoundaryOperatorKernel_C: No values loaded into B. doing nothing.");
         }
         
-        tic(ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")");
+        std::string tag = ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")";
+        
+        ptic(tag);
+        tic(tag);
         
         MTL::ComputePipelineState * pipeline = GetPipelineState(
             name,
@@ -97,5 +100,6 @@ public:
         command_buffer->commit();
         command_buffer->waitUntilCompleted();
         
-        toc(ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")");
+        toc(tag);
+        ptoc(tag);
     }

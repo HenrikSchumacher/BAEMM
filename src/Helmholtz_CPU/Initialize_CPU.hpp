@@ -2,7 +2,7 @@ public:
     
     void Initialize_CPU()
     {
-        tic(ClassName()+"::Initialize_CPU");
+        ptic(ClassName()+"::Initialize_CPU");
         
         areas      = Tensor1<Real,Int>( simplex_count    );
         mid_points = Tensor2<Real,Int>( simplex_count, 4 );
@@ -13,5 +13,5 @@ public:
         normals_ptr    = normals.data();
         
         
-        toc(ClassName()+"::Initialize_CPU");
+        ptoc(ClassName()+"::Initialize_CPU");
     }

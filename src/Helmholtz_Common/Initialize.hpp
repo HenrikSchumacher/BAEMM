@@ -2,7 +2,7 @@ public:
     
     void Initialize()
     {
-        tic(ClassName()+"::Initialize");
+        ptic(ClassName()+"::Initialize");
 
         // For assembling AvOp.
         Tensor1<LInt,    Int> outer ( simplex_count + 1, 0 );
@@ -124,5 +124,5 @@ public:
             OMP_thread_count, true, false
         );
 
-        toc(ClassName()+"::Initialize");
+        ptoc(ClassName()+"::Initialize");
     }

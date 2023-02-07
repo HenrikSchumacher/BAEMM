@@ -70,6 +70,8 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count_,  3 )
         ,   triangles        ( triangles_,     simplex_count_, 3 )
         {
+            tic(ClassName());
+            
             Initialize_Metal();
             
             Initialize();
@@ -77,6 +79,8 @@ namespace BAEMM
                  areas->didModifyRange({0,areas->length()});
             mid_points->didModifyRange({0,mid_points->length()});
                normals->didModifyRange({0,normals->length()});
+            
+            toc(ClassName());
         }
         
         ~Helmholtz_Metal() = default;

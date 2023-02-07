@@ -2,7 +2,7 @@ public:
     
     void Initialize_Metal()
     {
-        tic(ClassName()+"::Initialize_Metal");
+        ptic(ClassName()+"::Initialize_Metal");
         
         const uint size  =     simplex_count * sizeof(Real);
         const uint size4 = 4 * simplex_count * sizeof(Real);
@@ -23,5 +23,5 @@ public:
             return;
         }
         
-        toc(ClassName()+"::Initialize_Metal");
+        ptoc(ClassName()+"::Initialize_Metal");
     }
