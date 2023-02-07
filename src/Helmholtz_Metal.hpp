@@ -54,8 +54,6 @@ namespace BAEMM
         Int block_count        =  0;
         Int n_rounded          =  0;
 
-
-        
     public:
         
         template<typename ExtReal,typename ExtInt>

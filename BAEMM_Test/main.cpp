@@ -85,7 +85,6 @@ int main(int argc, const char * argv[])
     print("");
     print("");
 
-    const UInt n = M.SimplexCount();
     static constexpr uint wave_count       = 64;
     static constexpr uint wave_chunk_size  = 16;
     static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
@@ -122,7 +121,6 @@ int main(int argc, const char * argv[])
     H_Metal.SetWaveChunkSize(wave_chunk_size);
 
 
-    
     // Some matrices to hold data.
     Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count);
     Tensor2<Complex,Int> Y_CPU ( H_Metal.VertexCount(), wave_count);

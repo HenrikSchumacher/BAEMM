@@ -46,6 +46,7 @@ public:
             
             AvOp.Dot( Complex(1), B_in, ldB_in, Complex(0), B_ptr, ldB, wave_count );
             B_loaded = true;
+            ModifiedB();
             
             BoundaryOperatorKernel_C( kappa );
             
