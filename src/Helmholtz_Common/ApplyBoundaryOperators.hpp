@@ -1,8 +1,9 @@
 public:
     
+    template<typename T_in, typename T_out>
     void ApplyBoundaryOperators_PL(
-        const Complex & alpha, ptr<Complex> B_in,  const Int ldB_in,
-        const Complex & beta,  mut<Complex> C_out, const Int ldC_out,
+        const Complex alpha, ptr<T_in>  B_in,  const Int ldB_in,
+        const Complex beta,  mut<T_out> C_out, const Int ldC_out,
         const std::vector<Real>      & kappa,
         const std::array <Complex,4> & coeff,
         const Int wave_count_
@@ -39,13 +40,17 @@ public:
 
         LoadCoefficients(coeff);
         
-        Complex addTo = 0;
+        Complex addTo = Scalar::Zero<Complex>;
 
         if( single_layer || double_layer || adjdbl_layer )
         {
             RequireBuffers( wave_count_, wave_chunk_size );
             
-            AvOp.Dot( Complex(1), B_in, ldB_in, Complex(0), B_ptr, ldB, wave_count );
+            AvOp.Dot(
+                Scalar::One <Complex>, B_in,  ldB_in,
+                Scalar::Zero<Complex>, B_ptr, ldB,
+                wave_count
+            );
             B_loaded = true;
             ModifiedB();
             
@@ -55,10 +60,14 @@ public:
             
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
-            AvOpTransp.Dot( alpha, C_ptr, ldC, beta, C_out, ldC_out, wave_count );
+            AvOpTransp.Dot(
+                alpha, C_ptr, ldC,
+                beta,  C_out, ldC_out,
+                wave_count
+            );
             C_loaded = true;
             
-            addTo = 1;
+            addTo = Scalar::One<Complex>;
         }
         if( mass )
         {
@@ -72,9 +81,10 @@ public:
     }
     
     // Overload for just one wave number
+    template<typename T_in, typename T_out>
     void ApplyBoundaryOperators_PL(
-        const Complex & alpha, ptr<Complex> B_in,  const Int ldB_in,
-        const Complex & beta,  mut<Complex> C_out, const Int ldC_out,
+        const Complex alpha, ptr<T_in>  B_in,  const Int ldB_in,
+        const Complex beta,  mut<T_out> C_out, const Int ldC_out,
         const Real kappa,
         const std::array <Complex,4> & coeff,
         const Int wave_count_
@@ -83,8 +93,8 @@ public:
         std::vector<Real> kappa_list ( DivideRoundUp(wave_count_, wave_chunk_size), kappa  );
         
         ApplyBoundaryOperators_PL(
-            alpha, B_in, ldB_in,
-            beta, C_out, ldC_out,
+            alpha, B_in,  ldB_in,
+            beta,  C_out, ldC_out,
             kappa_list, coeff, wave_count_
         );
     }

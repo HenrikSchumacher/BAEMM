@@ -193,6 +193,6 @@ int main(int argc, const char * argv[])
     
     // Destruct the pool for managing Metal's reference counted pointers.
     p_pool->release();
-
+    
     return 0;
 }
