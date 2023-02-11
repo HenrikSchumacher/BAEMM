@@ -213,9 +213,9 @@ int main(int argc, const char * argv[])
     // Set the coefficients for the operators
     std::array<Complex,4> coeff {
         Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(1.0f,0.0f), // coefficient of single layer op
-        Complex(0.0f,0.0f), // coefficient of double layer op
-        Complex(0.0f,0.0f)  // coefficient of adjoint double layer op
+        Complex(0.4f,1.0f), // coefficient of single layer op
+        Complex(1.2f,0.9f), // coefficient of double layer op
+        Complex(1.0f,0.5f)  // coefficient of adjoint double layer op
     };
 
     const Int ldX = X.Dimension(1);
@@ -260,9 +260,9 @@ int main(int argc, const char * argv[])
     
     std::array<Complex,4> coeff_1 {
         Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(1.9f,1.3f), // coefficient of single layer op
-        Complex(1.2f,1.1f), // coefficient of double layer op
-        Complex(1.2f,1.2f)  // coefficient of adjoint double layer op
+        Complex(1.9f,0.0f), // coefficient of single layer op
+        Complex(0.0f,1.1f), // coefficient of double layer op
+        Complex(1.2f,0.0f)  // coefficient of adjoint double layer op
     };
     
     print("");

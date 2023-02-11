@@ -46,7 +46,7 @@ public:
         
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
 
-        if( single_layer || double_layer || adjdbl_layer )
+        if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer || Re_adjdbl_layer || Im_adjdbl_layer )
         {
             RequireBuffers( wave_count_, wave_chunk_size );
             

@@ -60,7 +60,9 @@ public:
         c_C[1]  = z * one_over_four_pi;
         c[1][0] = real(c_C[1]);
         c[1][1] = imag(c_C[1]);
-        single_layer = (c[1][0] != zero) || (c[1][1] != zero);
+        
+        Re_single_layer = (c[1][0] != zero);
+        Im_single_layer = (c[1][1] != zero);
     }
 
 
@@ -74,7 +76,8 @@ public:
         c_C[2]  = z * one_over_four_pi;
         c[2][0] = real(c_C[2]);
         c[2][1] = imag(c_C[2]);
-        double_layer = (c[2][0] != zero) || (c[2][1] != zero);
+        Re_double_layer = (c[2][0] != zero);
+        Im_double_layer = (c[2][1] != zero);
     }
 
     Complex GetAdjDblLayerCoefficient() const
@@ -88,7 +91,8 @@ public:
         c_C[3]  = z * one_over_four_pi;
         c[3][0] = real(c_C[3]);
         c[3][1] = imag(c_C[3]);
-        adjdbl_layer = (c[3][0] != zero) || (c[3][1] != zero);
+        Re_adjdbl_layer = (c[3][0] != zero);
+        Im_adjdbl_layer = (c[3][1] != zero);
     }
 
 

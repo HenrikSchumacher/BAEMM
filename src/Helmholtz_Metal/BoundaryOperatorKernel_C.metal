@@ -9,9 +9,12 @@ R"(
 // FIXME: Comment-in the following two lines for run-time compilation:
 //constant constexpr int  block_size      = 64;
 //constant constexpr int  wave_chunk_size = 16;
-//constant constexpr bool single_layer    = true;
-//constant constexpr bool double_layer    = true;
-//constant constexpr bool adjdbl_layer    = true;
+//constant constexpr bool Re_single_layer    = true;
+//constant constexpr bool Im_single_layer    = true;
+//constant constexpr bool Re_double_layer    = true;
+//constant constexpr bool Im_double_layer    = true;
+//constant constexpr bool Re_adjdbl_layer    = true;
+//constant constexpr bool Im_adjdbl_layer    = true;
 
 #include <metal_stdlib>
 
@@ -84,7 +87,7 @@ constant constexpr float one     = static_cast<float>(1);
     {
         x_i  = mid_points[i];
         
-        if( adjdbl_layer )
+        if( Re_adjdbl_layer || Im_adjdbl_layer )
         {
             nu_i = normals[i];
         }
@@ -96,7 +99,7 @@ constant constexpr float one     = static_cast<float>(1);
         x_i[1] = 1.f;
         x_i[2] = 1.f;
         
-        if( adjdbl_layer )
+        if( Re_adjdbl_layer || Im_adjdbl_layer )
         {
             nu_i[0] = 0.f;
             nu_i[1] = 0.f;
@@ -133,7 +136,7 @@ constant constexpr float one     = static_cast<float>(1);
                 {
                     y[j_loc] = mid_points[j];
                     
-                    if( double_layer )
+                    if( Re_double_layer || Im_double_layer )
                     {
                         mu[j_loc] = normals[j];
                     }
@@ -146,7 +149,7 @@ constant constexpr float one     = static_cast<float>(1);
                     y [j_loc][1] = 0.f;
                     y [j_loc][2] = 0.f;
                     
-                    if( adjdbl_layer )
+                    if( Re_adjdbl_layer || Im_adjdbl_layer )
                     {
                         mu[j_loc][0] = 0.f;
                         mu[j_loc][1] = 0.f;
@@ -171,63 +174,100 @@ constant constexpr float one     = static_cast<float>(1);
                     // Since each operator has at least one factor of r_inv, this will set to 0 all entries in the block A that lie on the main diagonal or outside the actual n x n matrix.
                     const float r_inv = (one - delta) / (r + delta);
                                         
-                    const float kappa_r = kappa[k_chunk] * r;
+                    const float KappaR = kappa[k_chunk] * r;
 
-                    float cos_kappa_r;
-                    float sin_kappa_r = sincos( kappa_r, cos_kappa_r );
+                    float CosKappaR;
+                    float SinKappaR = sincos( KappaR, CosKappaR );
                     
-                    float r3_inv;
-                    
-                    if( double_layer || adjdbl_layer )
-                    {
-                        r3_inv = r_inv * r_inv * r_inv;
-                    }
+
 
                     A_i[j_loc][0] = 0.f;
                     A_i[j_loc][1] = 0.f;
                     
-                    if( single_layer )
+                    if( Re_single_layer && Im_single_layer )
                     {
-                        A_i[j_loc][0] += (c[1][0] * cos_kappa_r - c[1][1] * sin_kappa_r) * r_inv;
-                        A_i[j_loc][1] += (c[1][0] * sin_kappa_r + c[1][1] * cos_kappa_r) * r_inv ;
+                        A_i[j_loc][0] += (c[1][0] * CosKappaR - c[1][1] * SinKappaR) * r_inv;
+                        A_i[j_loc][1] += (c[1][0] * SinKappaR + c[1][1] * CosKappaR) * r_inv ;
+                    }
+                    else if (Re_single_layer )
+                    {
+                        A_i[j_loc][0] += (c[1][0] * CosKappaR) * r_inv;
+                        A_i[j_loc][1] += (c[1][0] * SinKappaR) * r_inv;
+                    }
+                    else if (Im_single_layer )
+                    {
+                        A_i[j_loc][0] += (- c[1][1] * SinKappaR) * r_inv;
+                        A_i[j_loc][1] += (+ c[1][1] * CosKappaR) * r_inv;
                     }
                     
-                    if( double_layer )
-                    {
-                        // We have to add
-                        // c[2] * exp(I * kappa * r) * (I * kappa * r - 1) (z.mu_j) / r^3
-                        // to A_i.
-                        
-                        const float factor = (
-                              z[0] * mu[j_loc][0]
-                            + z[1] * mu[j_loc][1]
-                            + z[2] * mu[j_loc][2]
-                        ) * r3_inv;
-                        
-                        const float a = ( c[2][1] - kappa_r * c[2][0] );
-                        const float b = ( c[2][0] + kappa_r * c[2][1] );
-                        
-                        A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
-                        A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
-                    }
                     
-                    if( adjdbl_layer )
+
+                    if( Re_double_layer || Im_double_layer
+                        ||
+                        Re_adjdbl_layer || Im_adjdbl_layer
+                    )
                     {
-                        // We have to add
-                        // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
-                        // to A_i.
+                        const float r3_inv = r_inv * r_inv * r_inv;
+                        const float KappaRCosKappaR = KappaR * CosKappaR;
+                        const float KappaRSinKappaR = KappaR * SinKappaR;
                         
-                        const float factor = - (
-                              z[0] * nu_i[0]
-                            + z[1] * nu_i[1]
-                            + z[2] * nu_i[2]
-                        ) * r3_inv;
+                        const float a_0 = -(KappaRSinKappaR + CosKappaR) * r3_inv;
+                        const float a_1 =  (KappaRCosKappaR - SinKappaR) * r3_inv;
                         
-                        const float a = ( c[3][1] - kappa_r * c[3][0] );
-                        const float b = ( c[3][0] + kappa_r * c[3][1] );
                         
-                        A_i[j_loc][0] += (  sin_kappa_r * a - cos_kappa_r * b) * factor;
-                        A_i[j_loc][1] += (- cos_kappa_r * a - sin_kappa_r * b) * factor;
+                        if( Re_double_layer || Im_double_layer )
+                        {
+                            // We have to add
+                            // c[2] * exp(I * kappa * r) * (I * kappa * r - 1) ( z.mu_j ) / r^3
+                            // to A_i.
+                            
+                            const float factor = (
+                                  z[0] * mu[j_loc][0]
+                                + z[1] * mu[j_loc][1]
+                                + z[2] * mu[j_loc][2]
+                            );
+                            
+                            const float b_0 = factor * a_0;
+                            const float b_1 = factor * a_1;
+
+                            if (Re_double_layer )
+                            {
+                                A_i[j_loc][0] += b_0 * c[2][0];
+                                A_i[j_loc][1] += b_1 * c[2][0];
+                            }
+                            if (Im_double_layer )
+                            {
+                                A_i[j_loc][0] -= b_1 * c[2][1];
+                                A_i[j_loc][1] += b_0 * c[2][1];
+                            }
+                        }
+                        
+                        if( Re_adjdbl_layer || Im_adjdbl_layer )
+                        {
+                            // We have to add
+                            // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
+                            // to A_i.
+                            
+                            const float factor = - (
+                                  z[0] * nu_i[0]
+                                + z[1] * nu_i[1]
+                                + z[2] * nu_i[2]
+                            );
+                            
+                            const float b_0 = factor * a_0;
+                            const float b_1 = factor * a_1;
+                            
+                            if( Re_adjdbl_layer )
+                            {
+                                A_i[j_loc][0] += b_0 * c[3][0];
+                                A_i[j_loc][1] += b_1 * c[3][0];
+                            }
+                            if( Im_adjdbl_layer )
+                            {
+                                A_i[j_loc][0] -= b_1 * c[3][1];
+                                A_i[j_loc][1] += b_0 * c[3][1];
+                            }
+                        }
                     }
                     
                 } // for( int j_loc = 0; j_loc < block_size; ++j_loc )

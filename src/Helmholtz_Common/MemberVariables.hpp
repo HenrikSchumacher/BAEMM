@@ -22,13 +22,16 @@ private:
     Sparse_T AvOpTransp;
     Sparse_T Mass;
 
-    bool B_loaded     = false;
-    bool C_loaded     = false;
+    bool B_loaded        = false;
+    bool C_loaded        = false;
 
-    bool mass         = false;
-    bool single_layer = false;
-    bool double_layer = false;
-    bool adjdbl_layer = false;
+    bool mass            = false;
+    bool Re_single_layer = false;
+    bool Im_single_layer = false;
+    bool Re_double_layer = false;
+    bool Im_double_layer = false;
+    bool Re_adjdbl_layer = false;
+    bool Im_adjdbl_layer = false;
 
     Int wave_chunk_size    =  1;
     Int wave_count         =  0;

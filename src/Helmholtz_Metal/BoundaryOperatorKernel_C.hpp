@@ -9,7 +9,11 @@ public:
             wprint(ClassName()+"::BoundaryOperatorKernel_C: No values loaded into B. doing nothing.");
         }
         
-        std::string tag = ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)+","+ToString(single_layer)+","+ToString(double_layer)+","+ToString(adjdbl_layer)+")";
+        std::string tag = ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)
+            + ",{"+ToString(Re_single_layer)+","+ToString(Im_single_layer)
+            +"},{"+ToString(Re_double_layer)+","+ToString(Im_double_layer)
+            +"},{"+ToString(Re_adjdbl_layer)+","+ToString(Im_adjdbl_layer)
+            +"})";
         
         ptic(tag);
         tic(tag);
@@ -19,14 +23,17 @@ public:
             std::string(
 #include "BoundaryOperatorKernel_C.metal"
             ),
-            {"int","int","bool","bool","bool"},
-            {"block_size","wave_chunk_size","single_layer","double_layer","adjdbl_layer"},
-            {
+            {"int","int","bool","bool","bool","bool","bool","bool"},
+            {"block_size","wave_chunk_size",
+                "Re_single_layer","Im_single_layer",
+                "Re_double_layer","Im_double_layer",
+                "Re_adjdbl_layer","Im_adjdbl_layer"
+            },{
               ToString(block_size),
               ToString(wave_chunk_size),
-              ToString(single_layer),
-              ToString(double_layer),
-              ToString(adjdbl_layer)
+              ToString(Re_single_layer), ToString(Im_single_layer),
+              ToString(Re_double_layer), ToString(Im_double_layer),
+              ToString(Re_adjdbl_layer), ToString(Im_adjdbl_layer)
             }
         );
         
