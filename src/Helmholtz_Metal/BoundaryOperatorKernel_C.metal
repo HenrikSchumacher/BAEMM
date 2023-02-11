@@ -132,6 +132,7 @@ constant constexpr float one     = static_cast<float>(1);
                 if( j < n )
                 {
                     y[j_loc] = mid_points[j];
+                    
                     if( double_layer )
                     {
                         mu[j_loc] = normals[j];
@@ -242,9 +243,11 @@ constant constexpr float one     = static_cast<float>(1);
                 const int j_loc  = thread_position_in_threadgroup;
                 const int j      = block_size * j_block + j_loc;
                 
+                const constant cmplx * B_j_blk = &B_global[k_ld * j + k_chunk_size * k_chunk];
+                
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    B[j_loc][k] = B_global[k_ld * j + k_chunk_size * k_chunk + k];
+                    B[j_loc][k] = B_j_blk[k];
                 }
             }
             
@@ -256,8 +259,11 @@ constant constexpr float one     = static_cast<float>(1);
             {
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    C_i[k][0] += A_i[j_loc][0] * B[j_loc][k][0] - A_i[j_loc][1] * B[j_loc][k][1];
-                    C_i[k][1] += A_i[j_loc][0] * B[j_loc][k][1] + A_i[j_loc][1] * B[j_loc][k][0];
+                    C_i[k][0] +=   A_i[j_loc][0] * B[j_loc][k][0]
+                                 - A_i[j_loc][1] * B[j_loc][k][1];
+                    
+                    C_i[k][1] +=   A_i[j_loc][0] * B[j_loc][k][1]
+                                 + A_i[j_loc][1] * B[j_loc][k][0];
                 }
             }
             
@@ -271,9 +277,13 @@ constant constexpr float one     = static_cast<float>(1);
         //  [ k_chunk_size * k_chunk,...,k_chunk_size * (k_chunk+1)[
         //
         // Each threads takes care of its own row.
-        for( int k = 0; k < k_chunk_size; ++k )
         {
-            C_global[k_ld * i + k_chunk_size * k_chunk + k] = C_i[k];
+            device cmplx * C_i_blk = &C_global[k_ld * i + k_chunk_size * k_chunk];
+            
+            for( int k = 0; k < k_chunk_size; ++k )
+            {
+                C_i_blk[k] = C_i[k];
+            }
         }
         
         threadgroup_barrier(mem_flags::mem_threadgroup);

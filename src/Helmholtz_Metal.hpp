@@ -11,6 +11,7 @@
 // TODO: adjust block_size
 // TODO: Are the i, j >= n treated correctly?
 // TODO: Hypersingular operator -> local curl operators?
+// TODO: Update vertex-coordinates and simplices without discarding compiled functions
 
 // TODO: Priority 2:
 // TODO: single and double layer potential operator for far field.

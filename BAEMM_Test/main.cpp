@@ -18,8 +18,6 @@
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
 #include "../BAEMM.hpp"
-#include "Repulsor.hpp"
-
 
 using namespace Tools;
 using namespace Tensors;
@@ -31,6 +29,70 @@ T * ToPtr( MTL::Buffer * a )
 }
 
 
+template<typename Real, typename Int>
+void ReadFromFile(
+    const std::string & file_name,
+    Tensor2<Real,Int> & coords,
+    Tensor2<Int,Int>  & simplices
+)
+{
+    print("Reading mesh from file "+file_name+".");
+    
+    std::ifstream s (file_name);
+    
+    if( !s.good() )
+    {
+        eprint("ReadFromFile: File "+file_name+" could not be opened.");
+        
+        return;
+    }
+    
+    std::string str;
+    Int amb_dim;
+    Int dom_dim;
+    Int vertex_count;
+    Int simplex_count;
+    s >> str;
+    s >> dom_dim;
+    valprint("dom_dim",dom_dim);
+    s >> str;
+    s >> amb_dim;
+    valprint("amb_dim",amb_dim);
+    s >> str;
+    s >> vertex_count;
+    valprint("vertex_count",vertex_count);
+    s >> str;
+    s >> simplex_count;
+    valprint("simplex_count",simplex_count);
+    
+    const Int simplex_size = dom_dim+1;
+    
+    valprint("simplex_size",simplex_size);
+    
+    coords    = Tensor2<Real,Int>(vertex_count, amb_dim     );
+    simplices = Tensor2<Int, Int>(simplex_count,simplex_size);
+    
+    mut<Real> V = coords.data();
+    mut<Int>     S = simplices.data();
+    
+    
+    for( Int i = 0; i < vertex_count; ++i )
+    {
+        for( Int k = 0; k < amb_dim; ++k )
+        {
+            s >> V[amb_dim * i + k];
+        }
+    }
+    
+    for( Int i = 0; i < simplex_count; ++i )
+    {
+        for( Int k = 0; k < simplex_size; ++k )
+        {
+            s >> S[simplex_size * i + k];
+        }
+    }
+}
+
 // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
 // Bou can activate everything you want, but compile times might increase substatially.
 using Int           = int;
@@ -40,11 +102,15 @@ using Complex       = std::complex<Real>;
 
 int main(int argc, const char * argv[])
 {
-    using namespace Repulsor;
+//    using namespace Repulsor;
     using namespace Tensors;
     using namespace Tools;
 //    using namespace BAEMM;
 
+  
+    
+    //Loading vertex coordinates and simplices from file.
+    
     const char * homedir = getenv("HOME");
 
     if( homedir == nullptr)
@@ -58,22 +124,31 @@ int main(int argc, const char * argv[])
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
 
-    Profiler::Clear( path );
 
+    Tensor2<Real,Int> coords;
+    Tensor2<Int ,Int> simplices;
+    ReadFromFile(file_name, coords, simplices);
+
+
+    // Clear file used by the profiler.
+    Profiler::Clear( path );
+    
+    print("");
+    print("");
+    
+    uint OMP_thread_count_0;
+    #pragma omp parallel
+    {
+        OMP_thread_count_0 = omp_get_num_threads();
+    }
+    valprint("Initial number of OpenMP threads", OMP_thread_count_0);
+    
+    
     int OMP_thread_count = 8;
 //    int OMP_thread_count = 1;
     omp_set_num_threads(OMP_thread_count);
 
-    using Mesh_T = SimplicialMeshBase<Real,Int,Real,Real>;
-
-    // Create a factory that can make instances of SimplicialMesh with domain dimension in the range 2,...,2 and ambient dimension in the range 3,...,3.
-    SimplicialMesh_Factory<Mesh_T,2,2,3,3> mesh_factory;
-
-    dump(file_name);
-
-    std::unique_ptr<Mesh_T> M_ptr = mesh_factory.Make_FromFile<Real,Int,Real,Real>(file_name, OMP_thread_count);
-
-    Mesh_T & M = *M_ptr;  // I don't like pointers. Give me a reference.
+    valprint("number of OpenMP threads",OMP_thread_count);
 
     print("");
     print("");
@@ -88,9 +163,11 @@ int main(int argc, const char * argv[])
     print("Preparing Helmholtz classes");
     print("");
 
+    
+    
     BAEMM::Helmholtz_CPU H_CPU(
-        M.VertexCoordinates().data(), M.VertexCount(),
-        M.Simplices().data(),         M.SimplexCount(),
+        coords.data(),    coords.Dimension(0),
+        simplices.data(), simplices.Dimension(0),
         OMP_thread_count
     );
     H_CPU.SetWaveChunkSize(wave_chunk_size);
@@ -105,14 +182,13 @@ int main(int argc, const char * argv[])
     
     BAEMM::Helmholtz_Metal H_Metal (
         device,
-        M.VertexCoordinates().data(),  // pointer to an array of doubles or floats
-        M.VertexCount(),               // number of vertices
-        M.Simplices().data(),          // pointer to an array of ints or long ints
-        M.SimplexCount(),              // number of simplices
-        OMP_thread_count               // number of OpenMP threads to use.
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
     );
     H_Metal.SetWaveChunkSize(wave_chunk_size);
-
 
     // Some matrices to hold data.
     Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count);
@@ -173,6 +249,73 @@ int main(int argc, const char * argv[])
     const Real error = RelativeMaxError(Y_CPU,Y);
     valprint("Error", error );
 
+    
+    // Set the coefficients for the operators
+    std::array<Complex,4> coeff_0 {
+        Complex(0.0f,0.0f), // coefficient of mass matrix
+        Complex(1.0f,0.0f), // coefficient of single layer op
+        Complex(0.0f,0.0f), // coefficient of double layer op
+        Complex(0.0f,0.0f)  // coefficient of adjoint double layer op
+    };
+    
+    std::array<Complex,4> coeff_1 {
+        Complex(0.0f,0.0f), // coefficient of mass matrix
+        Complex(1.9f,1.3f), // coefficient of single layer op
+        Complex(1.2f,1.1f), // coefficient of double layer op
+        Complex(1.2f,1.2f)  // coefficient of adjoint double layer op
+    };
+    
+    print("");
+    print("Few coefficients.");
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,
+        X.data(),       // pointer to complex floating point type
+        ldX,            // "leading dimension": number of columns in buffer X
+        beta,
+        Y.data(),       // pointer to complex floating point type
+        ldY,            // "leading dimension": number of columns in buffer Y
+        kappa_list,     // List of wave numbers;
+        coeff_0,
+        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+    );
+    
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,
+        X.data(),       // pointer to complex floating point type
+        ldX,            // "leading dimension": number of columns in buffer X
+        beta,
+        Y.data(),       // pointer to complex floating point type
+        ldY,            // "leading dimension": number of columns in buffer Y
+        kappa_list,     // List of wave numbers;
+        coeff_0,
+        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+    );
+    
+    print("");
+    print("Many coefficients.");
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,
+        X.data(),       // pointer to complex floating point type
+        ldX,            // "leading dimension": number of columns in buffer X
+        beta,
+        Y.data(),       // pointer to complex floating point type
+        ldY,            // "leading dimension": number of columns in buffer Y
+        kappa_list,     // List of wave numbers;
+        coeff_1,
+        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+    );
+    
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,
+        X.data(),       // pointer to complex floating point type
+        ldX,            // "leading dimension": number of columns in buffer X
+        beta,
+        Y.data(),       // pointer to complex floating point type
+        ldY,            // "leading dimension": number of columns in buffer Y
+        kappa_list,     // List of wave numbers;
+        coeff_1,
+        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+    );
     
     
     // Destruct the pool for managing Metal's reference counted pointers.
