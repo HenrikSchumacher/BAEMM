@@ -33,16 +33,9 @@ T * ToPtr( MTL::Buffer * a )
 
 // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
 // Bou can activate everything you want, but compile times might increase substatially.
-using Int           =  int;
-using UInt          =  uint;
-using ExtInt        =  long long;
-
+using Int           = int;
 using Real          = double;
-using Float         = float;
-using Complex       = std::complex<float>;
-
-using Metal_Float   = int;
-using Metal_Complex = std::complex<Metal_Float>;
+using Complex       = std::complex<Real>;
 
 
 int main(int argc, const char * argv[])
@@ -137,9 +130,9 @@ int main(int argc, const char * argv[])
     const Complex beta  = 0;
     
     // Prepare wave numbers (all equal to 2 in this example).
-    constexpr Float kappa = 2.;
+    constexpr Real kappa = 2.;
 
-    std::vector<Float> kappa_list (wave_chunk_count, kappa);
+    std::vector<Real> kappa_list (wave_chunk_count, kappa);
     
     // Set the coefficients for the operators
     std::array<Complex,4> coeff {
@@ -166,10 +159,10 @@ int main(int argc, const char * argv[])
     
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,
-        X.data(),       // pointer to float
+        X.data(),       // pointer to complex floating point type
         ldX,            // "leading dimension": number of columns in buffer X
         beta,
-        Y.data(),       // pointer to float
+        Y.data(),       // pointer to complex floating point type
         ldY,            // "leading dimension": number of columns in buffer Y
         kappa_list,     // List of wave numbers;
         coeff,
@@ -177,18 +170,9 @@ int main(int argc, const char * argv[])
     );
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)
-    {
-        Float error = 0;
-        for( Int i = 0; i < H_Metal.VertexCount(); ++i )
-        {
-            for( Int k = 0; k < wave_count; ++k )
-            {
-                error = std::max( error, std::abs( Y_CPU(i,k) - Y(i,k) ) );
-            }
-        }
-        
-        valprint("Error", error / Y_CPU.MaxNorm() );
-    }
+    const Real error = RelativeMaxError(Y_CPU,Y);
+    valprint("Error", error );
+
     
     
     // Destruct the pool for managing Metal's reference counted pointers.

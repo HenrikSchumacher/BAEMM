@@ -1,6 +1,6 @@
 public:
 
-    void BoundaryOperatorKernel_C( const std::vector<Real> & kappa )
+    void BoundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
     {
         if( !B_loaded )
         {
@@ -55,7 +55,7 @@ public:
     template<
         Int i_blk_size, Int j_blk_size, Int wave_chunk_size
     >
-    void boundaryOperatorKernel_C( const std::vector<Real> & kappa )
+    void boundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
     {
         tic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
         

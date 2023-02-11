@@ -1,14 +1,18 @@
 public:
     
-    template<typename T_in, typename T_out>
+    template<typename R_ext, typename C_ext>
     void ApplyBoundaryOperators_PL(
-        const Complex alpha, ptr<T_in>  B_in,  const Int ldB_in,
-        const Complex beta,  mut<T_out> C_out, const Int ldC_out,
-        const std::vector<Real>      & kappa,
-        const std::array <Complex,4> & coeff,
+        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
+        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+        const std::vector<R_ext>  & kappa,
+        const std::array<C_ext,4> & coeff,
         const Int wave_count_
     )
     {
+        static_assert( Scalar::IsReal<R_ext>, "Template parameter R_ext has to be a real floating point type." );
+        
+        static_assert( Scalar::IsComplex<C_ext>, "Template parameter C_ext has to be a complex floating point type." );
+        
         ptic(ClassName()+"::ApplyBoundaryOperators_PL");
         tic(ClassName()+"::ApplyBoundaryOperators_PL");
         // TODO: Aim is to implement the following:
@@ -40,21 +44,25 @@ public:
 
         LoadCoefficients(coeff);
         
-        Complex addTo = Scalar::Zero<Complex>;
+        Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
 
         if( single_layer || double_layer || adjdbl_layer )
         {
             RequireBuffers( wave_count_, wave_chunk_size );
             
             AvOp.Dot(
-                Scalar::One <Complex>, B_in,  ldB_in,
+                Scalar::One<Complex>,  B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 wave_count
             );
             B_loaded = true;
             ModifiedB();
             
-            BoundaryOperatorKernel_C( kappa );
+            // Convert kappa input to intenal type.
+            WaveNumberContainer_T kappa_ ( kappa.size() );
+            copy_buffer(kappa.data(), kappa_.data(), kappa.size() );
+            
+            BoundaryOperatorKernel_C( kappa_ );
             
             // TODO: Apply diagonal part of single layer boundary operator.
             
@@ -67,12 +75,16 @@ public:
             );
             C_loaded = true;
             
-            addTo = Scalar::One<Complex>;
+            addTo = Scalar::One<C_ext>;
         }
         if( mass )
         {
+            const Scalar::Complex<C_ext> factor = alpha * Scalar::Complex<C_ext>(c[0][0],c[0][1]);
+            
             Mass.Dot(
-                alpha * Complex(c[0][0],c[0][1]), B_in, ldB_in, addTo, C_out, ldC_out, wave_count
+                factor, B_in,  ldB_in,
+                addTo,  C_out, ldC_out,
+                wave_count
             );
         }
         
@@ -81,16 +93,19 @@ public:
     }
     
     // Overload for just one wave number
-    template<typename T_in, typename T_out>
+    template<typename R_ext, typename C_ext>
     void ApplyBoundaryOperators_PL(
-        const Complex alpha, ptr<T_in>  B_in,  const Int ldB_in,
-        const Complex beta,  mut<T_out> C_out, const Int ldC_out,
-        const Real kappa,
-        const std::array <Complex,4> & coeff,
+        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
+        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+        const R_ext kappa,
+        const std::array<C_ext,4> & coeff,
         const Int wave_count_
     )
     {
-        std::vector<Real> kappa_list ( DivideRoundUp(wave_count_, wave_chunk_size), kappa  );
+        std::vector<Real> kappa_list (
+              DivideRoundUp(wave_count_, wave_chunk_size),
+              static_cast<Real>(kappa)
+        );
         
         ApplyBoundaryOperators_PL(
             alpha, B_in,  ldB_in,

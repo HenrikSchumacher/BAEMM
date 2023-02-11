@@ -1,6 +1,6 @@
 public:
 
-    void BoundaryOperatorKernel_C( const std::vector<Real> & kappa )
+    void BoundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
     {
         std::string name ("BoundaryOperatorKernel_C");
         
@@ -35,7 +35,7 @@ public:
             dump(kappa.size());
             dump(wave_count);
             dump(wave_chunk_size);
-            eprint(ClassName()+"::"+name+": kappa.size() != wave_count / wave_chunk_size. Aborting.");
+            eprint(ClassName()+"::"+name+": kappa.Size() != wave_count / wave_chunk_size. Aborting.");
             return;
         }
         

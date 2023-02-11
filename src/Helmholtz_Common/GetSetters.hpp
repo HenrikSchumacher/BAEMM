@@ -23,15 +23,16 @@ public:
 
 public:
 
-    void LoadCoefficients( const std::array<Complex,4> & coeff )
+    template<typename C>
+    void LoadCoefficients( const std::array<C,4> & coeff )
     {
         // We have to process the coefficients anyways.
         // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
         
-        SetMassMatrixCoefficient (coeff[0]);
-        SetSingleLayerCoefficient(coeff[1]);
-        SetDoubleLayerCoefficient(coeff[2]);
-        SetAdjDblLayerCoefficient(coeff[3]);
+        SetMassMatrixCoefficient ( static_cast<Complex>(coeff[0]) );
+        SetSingleLayerCoefficient( static_cast<Complex>(coeff[1]) );
+        SetDoubleLayerCoefficient( static_cast<Complex>(coeff[2]) );
+        SetAdjDblLayerCoefficient( static_cast<Complex>(coeff[3]) );
     }
 
 

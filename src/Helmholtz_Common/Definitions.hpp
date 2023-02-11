@@ -9,6 +9,8 @@ public:
     using UInt       = uint32_t;
     
     using Sparse_T = Sparse::MatrixCSR<Complex,Int,LInt>;
+
+    using WaveNumberContainer_T = std::vector<Real>;
     
     using NS::StringEncoding::UTF8StringEncoding;
     

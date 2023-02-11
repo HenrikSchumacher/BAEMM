@@ -10,16 +10,16 @@
 // TODO: diagonal part of single layer boundary operator
 // TODO: adjust block_size
 // TODO: Are the i, j >= n treated correctly?
+// TODO: Hypersingular operator -> local curl operators?
 
 // TODO: Priority 2:
 // TODO: single and double layer potential operator for far field.
 // TODO: evaluate incoming waves on surface -> Dirichlet and Neumann operators.
 // TODO: Manage many waves and many wave directions.
-// TODO: GMRES on GPU
 
 // TODO: Priority 3:
 // TODO: Calderon preconditioner ->local curl operators.
-
+// TODO: GMRES on GPU
 
 // DONE: averaging operator
 // DONE: internal management of MTL::Buffer (round_up, copy, etc.)
