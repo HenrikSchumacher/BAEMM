@@ -58,7 +58,7 @@ public:
         
         MTL::Size threads_per_threadgroup (max_threads, 1, 1);
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(n, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
+            CeilDivide(n, static_cast<Int>(threads_per_threadgroup.width)), 1, 1
         );
         
 //        valprint("n",n);

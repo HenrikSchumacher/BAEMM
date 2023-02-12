@@ -1,28 +1,29 @@
 public:
-    
-    void GEMM_RM_NVidea(
+
+    void GEMM_CM_C(
         const uint M,
         const uint N,
         const uint K,
-        const float alpha,
+        const Complex alpha,
         const MTL::Buffer * A,
         const MTL::Buffer * B,
-        const float beta,
+        const Complex beta,
               MTL::Buffer * C,
-        const uint block_size,
-        const bool wait = true
+        const uint g_rows,
+        const uint g_cols
     )
     {
+        print("A");
         MTL::ComputePipelineState * pipeline = GetPipelineState(
-              "GEMM_RM_NVidea",
-              std::string(
-#include "GEMM_RM_NVidea.metal"
-              ),
-              {"uint"},
-              {"BLOCK_SIZE"},
-              {ToString(block_size)}
-          );
-        
+            "GEMM_CM_C",
+            std::string(
+#include "GEMM_CM_C.metal"
+            ),
+            {"uint","uint"},
+            {"g_rows","g_cols"},
+            {ToString(g_rows),ToString(g_cols)}
+        );
+        print("B");
         assert( pipeline != nullptr );
         
         // Now we can proceed to set up the MTL::CommandBuffer.
@@ -43,18 +44,18 @@ public:
         compute_encoder->setBytes(&M,          sizeof(uint),  0);
         compute_encoder->setBytes(&N,          sizeof(uint),  1);
         compute_encoder->setBytes(&K,          sizeof(uint),  2);
-        compute_encoder->setBytes(&alpha,      sizeof(float), 3);
+        compute_encoder->setBytes(&alpha,      2*sizeof(float), 3);
         compute_encoder->setBuffer(A, 0 ,4 );
         compute_encoder->setBuffer(B, 0 ,5 );
-        compute_encoder->setBytes(&beta,       sizeof(float), 6);
+        compute_encoder->setBytes(&beta,       2*sizeof(float), 6);
         compute_encoder->setBuffer(C, 0 ,7 );
 
 //        const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
         
-        MTL::Size threads_per_threadgroup ( block_size, block_size, 1 );
+        MTL::Size threads_per_threadgroup ( g_rows, g_cols, 1 );
         MTL::Size threadgroups_per_grid  (
-            CeilDivide(M, static_cast<Int>(threads_per_threadgroup.width )),
-            CeilDivide(N, static_cast<Int>(threads_per_threadgroup.height)),
+            CeilDivide(M, 4 * static_cast<Int>(threads_per_threadgroup.width )),
+            CeilDivide(N, 4 * static_cast<Int>(threads_per_threadgroup.height)),
             1
         );
         
@@ -62,6 +63,8 @@ public:
 //        valprint("M",M);
 //        valprint("N",N);
 //        valprint("K",K);
+//        valprint("g_rows",g_rows);
+//        valprint("g_cols",g_cols);
 //        print("threadgroups_per_grid = { "
 //              +ToString(threadgroups_per_grid.width)
 //              +","
@@ -86,19 +89,15 @@ public:
         // Signal that we have encoded all we want.
         compute_encoder->endEncoding();
         
-        // Encode synchronization of return buffers.
-        MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
-        assert( blit_command_encoder != nullptr );
-        
-        blit_command_encoder->synchronizeResource(C);
-        blit_command_encoder->endEncoding();
+//        // Encode synchronization of return buffers.
+//        MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
+//        assert( blit_command_encoder != nullptr );
+//        
+//        blit_command_encoder->synchronizeResource(C);
+//        blit_command_encoder->endEncoding();
         
         
         // Execute the command buffer.
         command_buffer->commit();
-        if( wait )
-        {
-            command_buffer->waitUntilCompleted();
-        }
+        command_buffer->waitUntilCompleted();
     }
-

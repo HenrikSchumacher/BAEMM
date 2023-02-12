@@ -24,6 +24,8 @@ using cmplx = float2;
 
 using cmplx4 = float4x2;
 
+using Row_T = array<float, 2 * wave_chunk_size>;
+
 constant constexpr float zero    = static_cast<float>(0);
 constant constexpr float one     = static_cast<float>(1);
 //constant constexpr float two     = static_cast<float>(2);
@@ -38,19 +40,19 @@ constant constexpr float one     = static_cast<float>(1);
 
 [[max_total_threads_per_threadgroup(block_size)]]
 [[kernel]] void BoundaryOperatorKernel_C(
-    const constant float3 * const mid_points       [[buffer(0)]], // triangle midpoints
-    const constant float3 * const normals          [[buffer(1)]], // triangle normals
-    const constant cmplx  * const B_global         [[buffer(2)]], // buffer for right hand sides
-          device   cmplx  * const C_global         [[buffer(3)]], // buffer for results C = A * B
-    const constant float  * const kappa            [[buffer(4)]], // vector of wave numbers
-    const constant cmplx4 &       c                [[buffer(5)]], // coefficients for the operators
-    const constant int    &       n                [[buffer(6)]], // number of triangles
-    const constant int    &       wave_count       [[buffer(7)]], // number of right hand sides
+    const constant float3 * const mid_points    [[buffer(0)]], // triangle midpoints
+    const constant float3 * const normals       [[buffer(1)]], // triangle normals
+    const constant cmplx  * const B_global      [[buffer(2)]], // buffer for right hand sides
+          device   cmplx  * const C_global      [[buffer(3)]], // buffer for results C = A * B
+    const constant float  * const kappa         [[buffer(4)]], // vector of wave numbers
+    const constant cmplx4 &       c             [[buffer(5)]], // coefficients for the operators
+    const constant int    &       n             [[buffer(6)]], // number of triangles
+    const constant int    &       wave_count    [[buffer(7)]], // number of right hand sides
                                    
-    const uint thread_position_in_threadgroup        [[thread_position_in_threadgroup]],
-    const uint thread_position_in_grid               [[thread_position_in_grid]],
-    const uint threads_per_threadgroup               [[threads_per_threadgroup]],
-    const uint threadgroup_position_in_grid          [[threadgroup_position_in_grid]]
+    const uint thread_position_in_threadgroup   [[thread_position_in_threadgroup]],
+    const uint thread_position_in_grid          [[thread_position_in_grid]],
+    const uint threads_per_threadgroup          [[threads_per_threadgroup]],
+    const uint threadgroup_position_in_grid     [[threadgroup_position_in_grid]]
 )
 {
     
@@ -278,18 +280,20 @@ constant constexpr float one     = static_cast<float>(1);
             //  x
             //  [ k_chunk_size * k_chunk,...,k_chunk_size * (k_chunk+1)[
                 
+            // TODO: Improve reading of data.
             // Each thread in threadgroup loads 1 row of B.
             {
                 const int j_loc  = thread_position_in_threadgroup;
                 const int j      = block_size * j_block + j_loc;
-                
+
                 const constant cmplx * B_j_blk = &B_global[k_ld * j + k_chunk_size * k_chunk];
-                
+
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
                     B[j_loc][k] = B_j_blk[k];
                 }
             }
+            
             
             threadgroup_barrier(mem_flags::mem_threadgroup);
 
@@ -301,7 +305,7 @@ constant constexpr float one     = static_cast<float>(1);
                 {
                     C_i[k][0] +=   A_i[j_loc][0] * B[j_loc][k][0]
                                  - A_i[j_loc][1] * B[j_loc][k][1];
-                    
+
                     C_i[k][1] +=   A_i[j_loc][0] * B[j_loc][k][1]
                                  + A_i[j_loc][1] * B[j_loc][k][0];
                 }
@@ -316,17 +320,16 @@ constant constexpr float one     = static_cast<float>(1);
         //  x
         //  [ k_chunk_size * k_chunk,...,k_chunk_size * (k_chunk+1)[
         //
-        // Each threads takes care of its own row.
+        // TODO: Improve writing of data.
+        // Each thread takes care of its own row.
         {
             device cmplx * C_i_blk = &C_global[k_ld * i + k_chunk_size * k_chunk];
-            
+
             for( int k = 0; k < k_chunk_size; ++k )
             {
                 C_i_blk[k] = C_i[k];
             }
         }
-        
-        threadgroup_barrier(mem_flags::mem_threadgroup);
     }
     
 } // BoundaryOperatorKernel_C

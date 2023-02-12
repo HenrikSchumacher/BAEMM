@@ -95,8 +95,6 @@ public:
         Im_adjdbl_layer = (c[3][1] != zero);
     }
 
-
-
     Int GetWaveChunkSize() const
     {
         return wave_chunk_size;
@@ -104,5 +102,27 @@ public:
 
     void SetWaveChunkSize( const Int wave_chunk_size_ )
     {
-        RequireBuffers( wave_count, wave_chunk_size_ );
+        wave_chunk_size = wave_chunk_size_;
+        B_loaded = false;
+        C_loaded = false;
+    }
+
+    Int GetWaveChunkCount( const Int wave_count_ ) const
+    {
+        return CeilDivide(wave_count_, wave_chunk_size);
+    }
+
+    Int GetBlockSize() const
+    {
+        return block_size;
+    }
+
+    void SetBlockSize( const Int block_size_ )
+    {
+        block_size    = block_size_;
+        block_count   = CeilDivide( simplex_count, block_size);
+        rows_rounded  = block_count * block_size;
+        
+        B_loaded = false;
+        C_loaded = false;
     }

@@ -43,7 +43,7 @@ public:
             copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
         }
         
-        ModifiedB();
+        ModifiedB( simplex_count * ldB );
         B_loaded = true;
 //            toc("ReadB");
     }
@@ -73,7 +73,7 @@ public:
             copy_buffer( &input[ld_input * i], &C_ptr[ldC * i], wave_count );
         }
         
-        ModifiedC();
+        ModifiedC( simplex_count * ldC );
         C_loaded = true;
         
 //            toc("ReadC");

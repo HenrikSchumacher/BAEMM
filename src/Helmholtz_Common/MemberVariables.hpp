@@ -34,6 +34,12 @@ private:
     bool Im_adjdbl_layer = false;
 
     Int wave_chunk_size    =  1;
+    Int wave_chunk_count   =  0;
     Int wave_count         =  0;
     Int ldB                =  0;
     Int ldC                =  0;
+
+    Int block_size         = 64;
+    Int block_count        =  0;
+    Int rows_rounded       =  0;
+

@@ -1,4 +1,5 @@
 public:
+public:
     
     void GEMM_CM(
         const uint M,
@@ -54,8 +55,8 @@ public:
         
         MTL::Size threads_per_threadgroup ( g_rows, g_cols, 1 );
         MTL::Size threadgroups_per_grid  (
-            DivideRoundUp(M, 4 * static_cast<Int>(threads_per_threadgroup.width )),
-            DivideRoundUp(N, 4 * static_cast<Int>(threads_per_threadgroup.height)),
+            CeilDivide(M, 4 * static_cast<Int>(threads_per_threadgroup.width )),
+            CeilDivide(N, 4 * static_cast<Int>(threads_per_threadgroup.height)),
             1
         );
         

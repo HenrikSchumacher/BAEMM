@@ -24,8 +24,8 @@ namespace HeavyMetal
         MatrixPanelRowMajor( Int row_count_, Int col_count_ )
         :   dim { row_count_, col_count_ }
         ,   panel_count {
-                DivideRoundUp(dim[0], panel_dim[0]),
-                DivideRoundUp(dim[1], panel_dim[1])
+                CeilDivide(dim[0], panel_dim[0]),
+                CeilDivide(dim[1], panel_dim[1])
             }
         ,   dim_internal { panel_count[0] * panel_dim[0], panel_count[1] * panel_dim[1] }
         {

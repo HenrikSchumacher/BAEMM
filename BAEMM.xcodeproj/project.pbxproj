@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF73BBF72997FE3400526B7D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF73BBF62997FE3400526B7D /* main.cpp */; };
+		AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
+		AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF14298E573500085994 /* Foundation.framework */; };
+		AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
 		AFA1CF1F298E588E00085994 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFA1CF1E298E588E00085994 /* main.cpp */; };
 		AFA1CF24298E59A100085994 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
 		AFA1CF25298E59A600085994 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
@@ -14,6 +18,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		AF73BBF22997FE3400526B7D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		AFA1CF1A298E588D00085994 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -26,9 +39,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF73BBF62997FE3400526B7D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Metal_Experiments.entitlements; sourceTree = "<group>"; };
 		AFA1CF06298E56FF00085994 /* Notes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Notes; sourceTree = "<group>"; };
 		AFA1CF07298E56FF00085994 /* Mathematica */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Mathematica; sourceTree = "<group>"; };
-		AFA1CF08298E56FF00085994 /* BAEMM.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BAEMM.hpp; sourceTree = "<group>"; };
 		AFA1CF09298E56FF00085994 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
 		AFA1CF0B298E56FF00085994 /* Tensors */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tensors; sourceTree = "<group>"; };
 		AFA1CF0C298E56FF00085994 /* Literature */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Literature; sourceTree = "<group>"; };
@@ -42,9 +57,21 @@
 		AFA1CF1C298E588D00085994 /* BAEMM_Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BAEMM_Test; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFA1CF1E298E588E00085994 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFA1CF23298E58F500085994 /* BAEMM_Test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BAEMM_Test.entitlements; sourceTree = "<group>"; };
+		AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
+		AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_Metal.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AF73BBF12997FE3400526B7D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */,
+				AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */,
+				AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AFA1CF19298E588D00085994 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -58,10 +85,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF73BBF52997FE3400526B7D /* Metal_Experiments */ = {
+			isa = PBXGroup;
+			children = (
+				AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */,
+				AF73BBF62997FE3400526B7D /* main.cpp */,
+			);
+			path = Metal_Experiments;
+			sourceTree = "<group>";
+		};
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
-				AFA1CF08298E56FF00085994 /* BAEMM.hpp */,
+				AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */,
+				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF0C298E56FF00085994 /* Literature */,
 				AFA1CF07298E56FF00085994 /* Mathematica */,
@@ -72,6 +109,7 @@
 				AFA1CF09298E56FF00085994 /* src */,
 				AFA1CF0B298E56FF00085994 /* Tensors */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
+				AF73BBF52997FE3400526B7D /* Metal_Experiments */,
 				AFA1CEFC298E56D400085994 /* Products */,
 				AFA1CF11298E572A00085994 /* Frameworks */,
 			);
@@ -81,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				AFA1CF1C298E588D00085994 /* BAEMM_Test */,
+				AF73BBF42997FE3400526B7D /* Metal_Experiments */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -107,6 +146,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AF73BBF32997FE3400526B7D /* Metal_Experiments */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */;
+			buildPhases = (
+				AF73BBF02997FE3400526B7D /* Sources */,
+				AF73BBF12997FE3400526B7D /* Frameworks */,
+				AF73BBF22997FE3400526B7D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Metal_Experiments;
+			productName = Metal_Experiments;
+			productReference = AF73BBF42997FE3400526B7D /* Metal_Experiments */;
+			productType = "com.apple.product-type.tool";
+		};
 		AFA1CF1B298E588D00085994 /* BAEMM_Test */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AFA1CF20298E588E00085994 /* Build configuration list for PBXNativeTarget "BAEMM_Test" */;
@@ -133,6 +189,9 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
+					AF73BBF32997FE3400526B7D = {
+						CreatedOnToolsVersion = 14.2;
+					};
 					AFA1CF1B298E588D00085994 = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -152,11 +211,20 @@
 			projectRoot = "";
 			targets = (
 				AFA1CF1B298E588D00085994 /* BAEMM_Test */,
+				AF73BBF32997FE3400526B7D /* Metal_Experiments */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AF73BBF02997FE3400526B7D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF73BBF72997FE3400526B7D /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AFA1CF18298E588D00085994 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -168,6 +236,30 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		AF73BBF82997FE3400526B7D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AF73BBF92997FE3400526B7D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		AFA1CF00298E56D400085994 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -344,6 +436,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF73BBF82997FE3400526B7D /* Debug */,
+				AF73BBF92997FE3400526B7D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AFA1CEF6298E56D400085994 /* Build configuration list for PBXProject "BAEMM" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -17,7 +17,8 @@
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
-#include "../BAEMM.hpp"
+#include "../Helmholtz_CPU.hpp"
+#include "../Helmholtz_Metal.hpp"
 
 using namespace Tools;
 using namespace Tensors;
@@ -189,6 +190,7 @@ int main(int argc, const char * argv[])
         OMP_thread_count            // number of OpenMP threads to use.
     );
     H_Metal.SetWaveChunkSize(wave_chunk_size);
+    H_Metal.SetBlockSize(64);
 
     // Some matrices to hold data.
     Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count);
@@ -246,9 +248,33 @@ int main(int argc, const char * argv[])
     );
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)
-    const Real error = RelativeMaxError(Y_CPU,Y);
-    valprint("Error", error );
-
+    {
+        const Real error = RelativeMaxError(Y_CPU,Y);
+        valprint("Error", error );
+    }
+    
+    
+    print("");
+    print("Second run to factor-out one-time costs.");
+    print("");
+    
+    H_CPU.ApplyBoundaryOperators_PL(
+        alpha,      X.data(),       ldX,
+        beta,       Y_CPU.data(),   ldY,
+        kappa_list, coeff,          wave_count
+    );
+    
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff,          wave_count
+    );
+    
+    // Check the correctness against CPU implementation (which might also be wrong!!!)
+    {
+        const Real error = RelativeMaxError(Y_CPU,Y);
+        valprint("Error", error );
+    }
     
     // Set the coefficients for the operators
     std::array<Complex,4> coeff_0 {
@@ -265,56 +291,56 @@ int main(int argc, const char * argv[])
         Complex(1.2f,0.0f)  // coefficient of adjoint double layer op
     };
     
+    std::array<Complex,4> coeff_2 {
+        Complex(0.0f,0.0f), // coefficient of mass matrix
+        Complex(1.9f,0.2f), // coefficient of single layer op
+        Complex(0.0f,1.1f), // coefficient of double layer op
+        Complex(1.2f,0.9f)  // coefficient of adjoint double layer op
+    };
+
     print("");
-    print("Few coefficients.");
+    print("");
+    print("Checking dependence of runtime on numer of nonzero coeffiencts.");
+    print("");
+    print("");
+    print("One nonzero coefficients.");
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,
-        X.data(),       // pointer to complex floating point type
-        ldX,            // "leading dimension": number of columns in buffer X
-        beta,
-        Y.data(),       // pointer to complex floating point type
-        ldY,            // "leading dimension": number of columns in buffer Y
-        kappa_list,     // List of wave numbers;
-        coeff_0,
-        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_0,        wave_count
     );
-    
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,
-        X.data(),       // pointer to complex floating point type
-        ldX,            // "leading dimension": number of columns in buffer X
-        beta,
-        Y.data(),       // pointer to complex floating point type
-        ldY,            // "leading dimension": number of columns in buffer Y
-        kappa_list,     // List of wave numbers;
-        coeff_0,
-        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_0,        wave_count
     );
     
     print("");
-    print("Many coefficients.");
+    print("");
+    print("Three nonzero coefficients.");
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,
-        X.data(),       // pointer to complex floating point type
-        ldX,            // "leading dimension": number of columns in buffer X
-        beta,
-        Y.data(),       // pointer to complex floating point type
-        ldY,            // "leading dimension": number of columns in buffer Y
-        kappa_list,     // List of wave numbers;
-        coeff_1,
-        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_1,        wave_count
+    );
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_1,        wave_count
     );
     
+    print("");
+    print("");
+    print("Six nonzero coefficients.");
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,
-        X.data(),       // pointer to complex floating point type
-        ldX,            // "leading dimension": number of columns in buffer X
-        beta,
-        Y.data(),       // pointer to complex floating point type
-        ldY,            // "leading dimension": number of columns in buffer Y
-        kappa_list,     // List of wave numbers;
-        coeff_1,
-        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_2,        wave_count
+    );
+    H_Metal.ApplyBoundaryOperators_PL(
+        alpha,      X.data(),       ldX,
+        beta,       Y.data(),       ldY,
+        kappa_list, coeff_2,        wave_count
     );
     
     

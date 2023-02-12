@@ -1,8 +1,16 @@
+#pragma once
+
+#include <complex>
+#include "Tensors/Tensors.hpp"
+
 namespace BAEMM
 {
+    using namespace Tools;
+    using namespace Tensors;
+    
     class Helmholtz_CPU
     {
-#include "Helmholtz_Common/Definitions.hpp"
+#include "src/Helmholtz_Common/Definitions.hpp"
         
     public:
         
@@ -33,7 +41,7 @@ namespace BAEMM
         ~Helmholtz_CPU() = default;
 
         
-#include "Helmholtz_Common/MemberVariables.hpp"
+#include "src/Helmholtz_Common/MemberVariables.hpp"
         
         Tensor1<Real,Int> areas;
         Tensor2<Real,Int> mid_points;
@@ -42,19 +50,19 @@ namespace BAEMM
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;
         
-#include "Helmholtz_CPU/Initialize_CPU.hpp"
+#include "src/Helmholtz_CPU/Initialize_CPU.hpp"
         
-#include "Helmholtz_Common/Initialize.hpp"
+#include "src/Helmholtz_Common/Initialize.hpp"
             
-#include "Helmholtz_Common/InputOutput.hpp"
+#include "src/Helmholtz_Common/InputOutput.hpp"
         
-#include "Helmholtz_Common/GetSetters.hpp"
+#include "src/Helmholtz_Common/GetSetters.hpp"
         
-#include "Helmholtz_CPU/RequireBuffers.hpp"
+#include "src/Helmholtz_CPU/RequireBuffers.hpp"
 
-#include "Helmholtz_Common/ApplyBoundaryOperators.hpp"
+#include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
         
-#include "Helmholtz_CPU/BoundaryOperatorKernel_C.hpp"
+#include "src/Helmholtz_CPU/BoundaryOperatorKernel_C.hpp"
         
     public:
         

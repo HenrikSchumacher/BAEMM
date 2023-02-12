@@ -14,7 +14,6 @@ public:
         static_assert( Scalar::IsComplex<C_ext>, "Template parameter C_ext has to be a complex floating point type." );
         
         ptic(ClassName()+"::ApplyBoundaryOperators_PL");
-        tic(ClassName()+"::ApplyBoundaryOperators_PL");
         // TODO: Aim is to implement the following:
         //
         // Computes
@@ -31,11 +30,15 @@ public:
         //     + coeff[3] * AdjDblLayerOp
         
         // TODO: Explain how kappa is distributed over this data!
-        
-        if( kappa.size() != wave_count_ / wave_chunk_size )
-        {
-            eprint(ClassName()+"::ApplyBoundaryOperators_PL: kappa.size() != wave_count_ / wave_chuck_size.");
 
+        
+        if( kappa.size() != GetWaveChunkCount(wave_count_) )
+        {
+            eprint(ClassName()+"::ApplyBoundaryOperators_PL: kappa.size() != GetWaveChunkCount(wave_count_). Aborting.");
+            
+            dump(kappa.size());
+            
+            valprint("GetWaveChunkCount("+ToString(wave_count_)+")", GetWaveChunkCount(wave_count_));
             return;
         }
 
@@ -48,7 +51,8 @@ public:
 
         if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer || Re_adjdbl_layer || Im_adjdbl_layer )
         {
-            RequireBuffers( wave_count_, wave_chunk_size );
+            
+            RequireBuffers( wave_count_ );
             
             AvOp.Dot(
                 Scalar::One<Complex>,  B_in,  ldB_in,
@@ -56,13 +60,14 @@ public:
                 wave_count
             );
             B_loaded = true;
-            ModifiedB();
+            ModifiedB( wave_count * ldB );
             
             // Convert kappa input to intenal type.
             WaveNumberContainer_T kappa_ ( kappa.size() );
             copy_buffer(kappa.data(), kappa_.data(), kappa.size() );
             
             BoundaryOperatorKernel_C( kappa_ );
+            C_loaded = true;
             
             // TODO: Apply diagonal part of single layer boundary operator.
             
@@ -73,7 +78,6 @@ public:
                 beta,  C_out, ldC_out,
                 wave_count
             );
-            C_loaded = true;
             
             addTo = Scalar::One<C_ext>;
         }
@@ -87,8 +91,7 @@ public:
                 wave_count
             );
         }
-        
-        toc(ClassName()+"::ApplyBoundaryOperators_PL");
+
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
     }
     
@@ -103,7 +106,7 @@ public:
     )
     {
         std::vector<Real> kappa_list (
-              DivideRoundUp(wave_count_, wave_chunk_size),
+              CeilDivide(wave_count_, wave_chunk_size),
               static_cast<Real>(kappa)
         );
         
@@ -113,3 +116,4 @@ public:
             kappa_list, coeff, wave_count_
         );
     }
+

@@ -67,7 +67,7 @@ public:
         
         MTL::Size threads_per_threadgroup ( simd_size * simd_size, 1, 1);
         MTL::Size threadgroups_per_grid   (
-            DivideRoundUp( n, static_cast<UInt>(simd_size) ), 1, 1
+            CeilDivide( n, static_cast<UInt>(simd_size) ), 1, 1
         );
         
         if( pipeline->threadExecutionWidth() != simd_size )

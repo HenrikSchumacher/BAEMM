@@ -81,7 +81,7 @@ public:
         
         MTL::Size threads_per_threadgroup (max_threads, 1, 1);
         MTL::Size threadgroups_per_grid  (
-            n_rounded / static_cast<Int>(threads_per_threadgroup.width), 1, 1
+            rows_rounded / static_cast<Int>(threads_per_threadgroup.width), 1, 1
         );
                 
 //        valprint("simplex_count",simplex_count);

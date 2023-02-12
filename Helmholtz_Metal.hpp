@@ -4,6 +4,8 @@
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
 
+#include <complex>
+#include "Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
@@ -29,14 +31,17 @@
 
 namespace BAEMM
 {
+    using namespace Tools;
+    using namespace Tensors;
+    
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
 
     class Helmholtz_Metal
     {
-#include "Helmholtz_Common/Definitions.hpp"
+#include "src/Helmholtz_Common/Definitions.hpp"
             
-#include "Helmholtz_Common/MemberVariables.hpp"
+#include "src/Helmholtz_Common/MemberVariables.hpp"
         
         MTL::Device* device;
         
@@ -51,10 +56,6 @@ namespace BAEMM
         MTL::Buffer * B_buf;
         MTL::Buffer * C_buf;
         
-        Int block_size         = 64;
-        Int block_count        =  0;
-        Int n_rounded          =  0;
-
     public:
         
         template<typename ExtReal,typename ExtInt>
@@ -86,23 +87,23 @@ namespace BAEMM
         
         ~Helmholtz_Metal() = default;
 
-#include "Helmholtz_Metal/Initialize_Metal.hpp"
+#include "src/Helmholtz_Metal/Initialize_Metal.hpp"
         
-#include "Helmholtz_Common/Initialize.hpp"
+#include "src/Helmholtz_Common/Initialize.hpp"
 
-#include "Helmholtz_Common/GetSetters.hpp"
+#include "src/Helmholtz_Common/GetSetters.hpp"
         
-#include "Helmholtz_Common/InputOutput.hpp"
+#include "src/Helmholtz_Common/InputOutput.hpp"
         
-#include "Helmholtz_Metal/GetPipelineState.hpp"
+#include "src/Helmholtz_Metal/GetPipelineState.hpp"
 
-#include "Helmholtz_Metal/RequireBuffers.hpp"
+#include "src/Helmholtz_Metal/RequireBuffers.hpp"
         
-#include "Helmholtz_Common/ApplyBoundaryOperators.hpp"
+#include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
         
-#include "Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
+#include "src/Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
         
-//#include "Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
+//#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
         
     public:
         

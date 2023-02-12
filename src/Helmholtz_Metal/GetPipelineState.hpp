@@ -19,7 +19,7 @@ private:
         
         std::string fun_fullname = fun_fullname_stream.str();
         
-        std::string tag = "GetPipelineState(" + fun_fullname + ")";
+        std::string tag = ClassName()+"::GetPipelineState(" + fun_fullname + ")";
         
         ptic(tag);
         
@@ -29,14 +29,14 @@ private:
             
             if( param_types.size() != param_names.size() )
             {
-                eprint("CreatePipeline: param_types.size() != param_names.size().");
+                eprint(tag+": param_types.size() != param_names.size().");
                 ptoc(tag);
                 return nullptr;
             }
             
             if( param_types.size() != param_vals.size() )
             {
-                eprint("CreatePipeline: param_types.size() != param_vals.size().");
+                eprint(tag+": param_types.size() != param_vals.size().");
                 ptoc(tag);
                 return nullptr;
             }
@@ -63,11 +63,9 @@ private:
             
             if( lib == nullptr )
             {
-                std::cout << "Failed to compile library from string for function "
-                << fun_fullname << ", error "
-                << error->description()->utf8String() << std::endl;
-//                    std::exit(-1);
-                
+                eprint(tag+": Failed to compile library from string for function.");
+                valprint("Error message", error->description()->utf8String() );
+                std::exit(-1);
                 return nullptr;
             }
             
@@ -76,12 +74,13 @@ private:
             // Go through all functions in the library to find ours.
             for( NS::UInteger i = 0; i < lib->functionNames()->count(); ++i )
             {
-                found = true;
-                
                 auto name_nsstring = lib->functionNames()->object(i)->description();
                 
                 if( fun_name == name_nsstring->utf8String() )
                 {
+                    found = true;
+                
+                    
                     // This MTL::Function object is needed only temporarily.
                     MTL::Function * fun = lib->newFunction(name_nsstring);
                     
@@ -90,9 +89,9 @@ private:
                     
                     if( pipelines[fun_fullname] == nullptr )
                     {
-                        std::cout << "Failed to created pipeline state object for "
-                        << fun_name << ", error "
-                        << error->description()->utf8String() << std::endl;
+                        eprint(tag+": Failed to created pipeline state object.");
+                        valprint("Error message", error->description()->utf8String() );
+                        std::exit(-1);
                         return nullptr;
                     }
                 }
@@ -100,14 +99,15 @@ private:
             
             if( found )
             {
-//                    print(std::string("CreatePipeline: Found Metal kernel ") + fun_name +".");
+//                print(tag+": Metal kernel found in source code.");
                 ptoc(tag);
                 return pipelines[fun_fullname];
             }
             else
             {
-                eprint(std::string("CreatePipeline: Did not find Metal kernel ") + fun_name +" in source code.");
+                eprint(tag+": Metal kernel not found in source code.");
                 ptoc(tag);
+                std::exit(-1);
                 return nullptr;
             }
         }
