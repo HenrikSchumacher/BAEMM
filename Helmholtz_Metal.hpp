@@ -43,18 +43,18 @@ namespace BAEMM
             
 #include "src/Helmholtz_Common/MemberVariables.hpp"
         
-        MTL::Device* device;
+        MTL::Device * device = nullptr;
         
         std::map<std::string, MTL::ComputePipelineState *> pipelines;
         
-        MTL::CommandQueue * command_queue;
+        MTL::CommandQueue * command_queue = nullptr;
         
         MTL::Buffer * areas;
         MTL::Buffer * mid_points;
         MTL::Buffer * normals;
 
-        MTL::Buffer * B_buf;
-        MTL::Buffer * C_buf;
+        MTL::Buffer * B_buf = nullptr;
+        MTL::Buffer * C_buf = nullptr;
         
     public:
         

@@ -154,10 +154,9 @@ int main(int argc, const char * argv[])
     print("");
     print("");
 
-    static constexpr uint wave_count       = 64;
-    static constexpr uint wave_chunk_size  = 16;
-    static constexpr uint wave_chunk_count = wave_count / wave_chunk_size;
-//    static constexpr uint block_size       = 64;
+    static constexpr size_t wave_count       = 64;
+    static constexpr size_t wave_chunk_size  = 16;
+    static constexpr size_t wave_chunk_count = wave_count / wave_chunk_size;
 
 
     print("");
@@ -191,14 +190,14 @@ int main(int argc, const char * argv[])
     );
     H_Metal.SetWaveChunkSize(wave_chunk_size);
     H_Metal.SetBlockSize(64);
-
+    
     // Some matrices to hold data.
-    Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Complex,Int> Y_CPU ( H_Metal.VertexCount(), wave_count);
-    Tensor2<Complex,Int> Y     ( H_Metal.VertexCount(), wave_count);
+    Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count );
+    Tensor2<Complex,Int> Y_CPU ( H_Metal.VertexCount(), wave_count );
+    Tensor2<Complex,Int> Y     ( H_Metal.VertexCount(), wave_count );
     
     // Generate some random input data.
-    X.Random( 8 );
+    X.Random(OMP_thread_count_0);
     // Loading a buffer would also work
     // X.Read( some_buffer );
     
@@ -228,7 +227,7 @@ int main(int argc, const char * argv[])
         beta,       Y_CPU.data(),   ldY,
         kappa_list, coeff,          wave_count
     );
-    
+
     // Compute Y = alpha * A * X + beta * Y
     // where A =   coeff[0] * [mass]
     //           + coeff[1] * [single layer op]
@@ -237,14 +236,14 @@ int main(int argc, const char * argv[])
     
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,
-        X.data(),       // pointer to complex floating point type
-        ldX,            // "leading dimension": number of columns in buffer X
+        X.data(),   // pointer to complex floating point type
+        ldX,        // "leading dimension": number of columns in buffer X
         beta,
-        Y.data(),       // pointer to complex floating point type
-        ldY,            // "leading dimension": number of columns in buffer Y
-        kappa_list,     // List of wave numbers;
+        Y.data(),   // pointer to complex floating point type
+        ldY,        // "leading dimension": number of columns in buffer Y
+        kappa_list, // List of wave numbers;
         coeff,
-        wave_count      // number of waves to process; wave_count <= ldX and wave_count <= dY
+        wave_count  // number of waves to process; wave_count <= ldX and wave_count <= dY
     );
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)

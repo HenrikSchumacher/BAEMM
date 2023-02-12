@@ -1,34 +1,40 @@
-Int BufferSize() const
+LInt BufferSize() const
 {
     // Number of instances of Complex that fit into B_buf and C_buf.
-    return rows_rounded * ldB;
+    return (B_buf == nullptr) || (C_buf == nullptr)
+        ?
+        LInt(0)
+        :
+        std::min( int_cast<Int>(B_buf->length()), int_cast<Int>(C_buf->length())) / int_cast<Int>(sizeof(Complex));
 }
 
 void RequireBuffers( const Int wave_count_  )
 {
     wave_count       = wave_count_;
-    wave_chunk_count = CeilDivide( wave_chunk_size, wave_count );
+    wave_chunk_count = GetWaveChunkCount(wave_count);
+    ldB = ldC        = wave_chunk_count * wave_chunk_size;
     
-    const Int new_ld = wave_chunk_count * wave_chunk_size;
+    const LInt new_size = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
     
-    if( new_ld > ldB )
+    if(
+       (B_buf == nullptr) || (C_buf == nullptr)
+       ||
+       (new_size > std::min( B_buf->length(), C_buf->length() ) )
+    )
     {
-        const Int new_size = rows_rounded * new_ld;
-        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(new_size)+".");
+        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
         
         B_loaded = false;
         C_loaded = false;
         
-        B_buf = device->newBuffer(new_size * sizeof(Complex), MTL::ResourceStorageModeManaged);
-        C_buf = device->newBuffer(new_size * sizeof(Complex), MTL::ResourceStorageModeManaged);
+        B_buf = device->newBuffer(new_size, MTL::ResourceStorageModeManaged);
+        C_buf = device->newBuffer(new_size, MTL::ResourceStorageModeManaged);
         
         B_ptr = reinterpret_cast<Complex *>(B_buf->contents());
         C_ptr = reinterpret_cast<Complex *>(C_buf->contents());
      
         // Clearing out the right border and the bottom of the buffers is obsolete, because newBuffer already zerofies all bytes.
     }
-    
-    ldB = ldC        = new_ld;
 }
 
 void ModifiedB()
@@ -36,9 +42,9 @@ void ModifiedB()
     B_buf->didModifyRange({0, B_buf->length()});
 }
 
-void ModifiedB( const Int n )
+void ModifiedB( const LInt n )
 {
-    B_buf->didModifyRange({0, static_cast<uint>(n * sizeof(Complex))});
+    B_buf->didModifyRange({0, n * sizeof(Complex)});
 }
 
 void ModifiedC()
@@ -46,7 +52,7 @@ void ModifiedC()
     C_buf->didModifyRange({0, C_buf->length()});
 }
 
-void ModifiedC( const Int n )
+void ModifiedC( const LInt n )
 {
-    C_buf->didModifyRange({0, static_cast<uint>(n * sizeof(Complex))});
+    C_buf->didModifyRange({0, n * sizeof(Complex)});
 }

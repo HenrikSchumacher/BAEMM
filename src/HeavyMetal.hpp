@@ -32,7 +32,7 @@ namespace HeavyMetal
         static constexpr Real half  = one / two;
         static constexpr Real third = one / three;
         
-        static constexpr Real pi      = M_PI;
+        static constexpr Real pi      = Scalar::Pi<Real>;
         static constexpr Real two_pi  = two * pi;
         static constexpr Real four_pi = two * two_pi;
         

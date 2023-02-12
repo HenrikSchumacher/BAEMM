@@ -31,44 +31,43 @@ public:
         
         // TODO: Explain how kappa is distributed over this data!
 
+        RequireBuffers( wave_count_ );
         
-        if( kappa.size() != GetWaveChunkCount(wave_count_) )
+        if( kappa.size() != wave_chunk_count )
         {
             eprint(ClassName()+"::ApplyBoundaryOperators_PL: kappa.size() != GetWaveChunkCount(wave_count_). Aborting.");
             
             dump(kappa.size());
-            
-            valprint("GetWaveChunkCount("+ToString(wave_count_)+")", GetWaveChunkCount(wave_count_));
+            dump(wave_count);
+            dump(wave_chunk_size);
+            dump(GetWaveChunkCount(wave_count_));
+            valprint("GetWaveChunkCount("+ToString(wave_count_)+")", wave_chunk_count);
             return;
         }
-
         
         // TODO: Adjust coeffients!
-
         LoadCoefficients(coeff);
-        
+
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
 
         if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer || Re_adjdbl_layer || Im_adjdbl_layer )
         {
-            
-            RequireBuffers( wave_count_ );
-            
             AvOp.Dot(
                 Scalar::One<Complex>,  B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 wave_count
             );
+
             B_loaded = true;
-            ModifiedB( wave_count * ldB );
-            
+            ModifiedB( int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) );
+
             // Convert kappa input to intenal type.
             WaveNumberContainer_T kappa_ ( kappa.size() );
             copy_buffer(kappa.data(), kappa_.data(), kappa.size() );
-            
+
             BoundaryOperatorKernel_C( kappa_ );
             C_loaded = true;
-            
+
             // TODO: Apply diagonal part of single layer boundary operator.
             
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?

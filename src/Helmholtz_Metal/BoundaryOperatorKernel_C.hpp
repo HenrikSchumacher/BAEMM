@@ -37,7 +37,9 @@ public:
             }
         );
         
-        if( kappa.size() != wave_count / wave_chunk_size )
+        assert( pipeline != nullptr );
+        
+        if( kappa.size() != wave_chunk_count )
         {
             dump(kappa.size());
             dump(wave_count);
@@ -45,8 +47,6 @@ public:
             eprint(ClassName()+"::"+name+": kappa.Size() != wave_count / wave_chunk_size. Aborting.");
             return;
         }
-        
-        assert( pipeline != nullptr );
         
         // Now we can proceed to set up the MTL::CommandBuffer.
 
