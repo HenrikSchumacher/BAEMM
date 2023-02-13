@@ -43,22 +43,22 @@ namespace BAEMM
             
 #include "src/Helmholtz_Common/MemberVariables.hpp"
         
-//        NS::AutoreleasePool * auto_pool = nullptr;
-        
         NS::SharedPtr<MTL::Device> device;
         
-        std::map<std::string, MTL::ComputePipelineState *> pipelines;
+        std::map<std::string, NS::SharedPtr<MTL::ComputePipelineState>> pipelines;
         
-        MTL::CommandQueue * command_queue = nullptr;
+        NS::SharedPtr<MTL::CommandQueue> command_queue;
         
-        MTL::Buffer * areas      = nullptr;
-        MTL::Buffer * mid_points = nullptr;
-        MTL::Buffer * normals    = nullptr;
+        NS::SharedPtr<MTL::Buffer> areas;
+        NS::SharedPtr<MTL::Buffer> mid_points;
+        NS::SharedPtr<MTL::Buffer> normals;
 
-        MTL::Buffer * B_buf      = nullptr;
-        MTL::Buffer * C_buf      = nullptr;
+        NS::SharedPtr<MTL::Buffer> B_buf;
+        NS::SharedPtr<MTL::Buffer> C_buf;
         
     public:
+        
+        static constexpr auto Managed = MTL::ResourceStorageModeManaged;
         
         template<typename ExtReal,typename ExtInt>
         Helmholtz_Metal(
@@ -75,47 +75,31 @@ namespace BAEMM
         ,   device           ( device_                              )
         {
             tic(ClassName());
-//            dump(auto_pool);
-            
-
-            print("A");
             
             const uint size  =     simplex_count * sizeof(Real);
             const uint size4 = 4 * simplex_count * sizeof(Real);
             
-            areas      = device->newBuffer(size, MTL::ResourceStorageModeManaged);
-            mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
-            normals    = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
-            
-            dump(areas);
-            dump(mid_points);
-            dump(normals);
-            
-            dump(areas->length());
-            dump(mid_points->length());
-            dump(normals->length());
+            areas      = NS::TransferPtr(device->newBuffer(size,  Managed));
+            mid_points = NS::TransferPtr(device->newBuffer(size4, Managed));
+            normals    = NS::TransferPtr(device->newBuffer(size4, Managed));
             
             areas_ptr      = static_cast<Real *>(     areas->contents());
             mid_points_ptr = static_cast<Real *>(mid_points->contents());
             normals_ptr    = static_cast<Real *>(   normals->contents());
             
-            command_queue = device->newCommandQueue();
+            command_queue = NS::TransferPtr(device->newCommandQueue());
             
-            if( command_queue == nullptr )
+            if( command_queue.get() == nullptr )
             {
                 eprint(ClassName()+"::Initialize_Metal: Failed to find the command queue." );
                 return;
             }
             
-            print("B");
-            
             Initialize();
             
-            print("C");
                  areas->didModifyRange({0,areas->length()});
             mid_points->didModifyRange({0,mid_points->length()});
                normals->didModifyRange({0,normals->length()});
-            print("D");
             
             toc(ClassName());
         }
@@ -124,11 +108,7 @@ namespace BAEMM
         {
             print("~Helmholtz_Metal()");
             
-            pipelines = std::map<std::string, MTL::ComputePipelineState *>();
-            
-//            dump(auto_pool);
-//            
-//            auto_pool->release();
+            pipelines = std::map<std::string, NS::SharedPtr<MTL::ComputePipelineState>> ();
         }
         
 #include "src/Helmholtz_Common/Initialize.hpp"

@@ -74,7 +74,7 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
-
+        
         LoadCoefficients(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -152,7 +152,7 @@ public:
                     Mass.Dot(
                         factor, &B_in [wave_chunk_size * k], ldB_in,
                         addTo,  &C_out[wave_chunk_size * k], ldC_out,
-                        wave_count % wave_chunk_size
+                        wave_count - wave_chunk_size*k
                     );
                 }
             }

@@ -18,7 +18,7 @@ public:
         ptic(tag);
         tic(tag);
         
-        MTL::ComputePipelineState * pipeline = GetPipelineState(
+        NS::SharedPtr<MTL::ComputePipelineState> pipeline = GetPipelineState(
             name,
             std::string(
 #include "BoundaryOperatorKernel_C.metal"
@@ -37,7 +37,7 @@ public:
             }
         );
         
-        assert( pipeline != nullptr );
+        assert( pipeline.get() != nullptr );
         
         if( kappa.Size() != wave_chunk_count )
         {
@@ -51,22 +51,22 @@ public:
         // Now we can proceed to set up the MTL::CommandBuffer.
 
         // Create a command buffer to hold commands.
-        MTL::CommandBuffer * command_buffer = command_queue->commandBuffer();
-        assert( command_buffer != nullptr );
+        NS::SharedPtr<MTL::CommandBuffer> command_buffer = NS::TransferPtr(command_queue->commandBuffer());
+        assert( command_buffer.get() != nullptr );
 
         // Create an encoder that translates our command to something the
         // device understands
-        MTL::ComputeCommandEncoder * compute_encoder = command_buffer->computeCommandEncoder();
-        assert( compute_encoder != nullptr );
+        NS::SharedPtr<MTL::ComputeCommandEncoder> compute_encoder = NS::TransferPtr(command_buffer->computeCommandEncoder());
+        assert( compute_encoder.get() != nullptr );
 
         // Encode the pipeline state object and its parameters.
-        compute_encoder->setComputePipelineState( pipeline );
+        compute_encoder->setComputePipelineState( pipeline.get() );
         
         // Place data in encoder
-        compute_encoder->setBuffer(mid_points, 0, 0 );
-        compute_encoder->setBuffer(normals   , 0, 1 );
-        compute_encoder->setBuffer(B_buf,      0, 2 );
-        compute_encoder->setBuffer(C_buf,      0, 3 );
+        compute_encoder->setBuffer(mid_points.get(), 0, 0 );
+        compute_encoder->setBuffer(normals.get()   , 0, 1 );
+        compute_encoder->setBuffer(B_buf.get(),      0, 2 );
+        compute_encoder->setBuffer(C_buf.get(),      0, 3 );
         compute_encoder->setBytes(kappa.data(), kappa.Size() * sizeof(Real), 4 );
         compute_encoder->setBytes(c.data(),                8 * sizeof(Real), 5 );
         compute_encoder->setBytes(&simplex_count,              sizeof(int ), 6 );
@@ -99,7 +99,7 @@ public:
         MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
         assert( blit_command_encoder != nullptr );
         
-        blit_command_encoder->synchronizeResource(C_buf);
+        blit_command_encoder->synchronizeResource(C_buf.get());
         blit_command_encoder->endEncoding();
         
         

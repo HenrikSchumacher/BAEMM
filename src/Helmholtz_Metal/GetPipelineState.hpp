@@ -1,6 +1,6 @@
 private:
     
-    MTL::ComputePipelineState * GetPipelineState(
+    NS::SharedPtr<MTL::ComputePipelineState> GetPipelineState(
         const std::string & fun_name,       // name of function in code string
         const std::string & code,           // string of actual Metal code
         const std::vector<std::string> & param_types,    // types of compile-time parameters (converted to string)
@@ -31,14 +31,14 @@ private:
             {
                 eprint(tag+": param_types.size() != param_names.size().");
                 ptoc(tag);
-                return nullptr;
+                std::exit(-1);
             }
             
             if( param_types.size() != param_vals.size() )
             {
                 eprint(tag+": param_types.size() != param_vals.size().");
                 ptoc(tag);
-                return nullptr;
+                std::exit(-1);
             }
             
             std::size_t param_count = param_types.size();
@@ -51,22 +51,22 @@ private:
             
             full_code << code;
             
-            NS::String * code_NS_String = NS::String::string(full_code.str().c_str(), UTF8StringEncoding);
+            NS::SharedPtr<NS::String> code_NS_String = NS::TransferPtr( NS::String::string(full_code.str().c_str(), UTF8StringEncoding) );
             
-            NS::Error *error = nullptr;
+            NS::Error * error = nullptr;
             
-            MTL::Library * lib = device->newLibrary(
-                code_NS_String,
-                nullptr, // <-- crucial for distinguishing from the function that loads from file
-                &error
+            NS::SharedPtr<MTL::Library> lib = NS::TransferPtr( device->newLibrary(
+                    code_NS_String.get(),
+                    nullptr, // <-- for distinguishing from the function that loads from file
+                    &error
+                )
             );
             
-            if( lib == nullptr )
+            if( lib.get() == nullptr )
             {
                 eprint(tag+": Failed to compile library from string for function.");
                 valprint("Error message", error->description()->utf8String() );
                 std::exit(-1);
-                return nullptr;
             }
             
             bool found = false;
@@ -82,12 +82,12 @@ private:
                 
                     
                     // This MTL::Function object is needed only temporarily.
-                    MTL::Function * fun = lib->newFunction(name_nsstring);
+                    NS::SharedPtr<MTL::Function> fun = NS::TransferPtr(lib->newFunction(name_nsstring));
                     
                     // Create pipeline from function.
-                    pipelines[fun_fullname] = device->newComputePipelineState(fun, &error);
+                    pipelines[fun_fullname] = NS::TransferPtr(device->newComputePipelineState(fun.get(), &error));
                     
-                    if( pipelines[fun_fullname] == nullptr )
+                    if( pipelines[fun_fullname].get() == nullptr )
                     {
                         eprint(tag+": Failed to created pipeline state object.");
                         valprint("Error message", error->description()->utf8String() );
@@ -108,7 +108,6 @@ private:
                 eprint(tag+": Metal kernel not found in source code.");
                 ptoc(tag);
                 std::exit(-1);
-                return nullptr;
             }
         }
         else

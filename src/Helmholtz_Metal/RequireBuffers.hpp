@@ -1,7 +1,7 @@
 LInt BufferSize() const
 {
     // Number of instances of Complex that fit into B_buf and C_buf.
-    return (B_buf == nullptr) || (C_buf == nullptr)
+    return (B_buf.get() == nullptr) || (C_buf.get() == nullptr)
         ?
         LInt(0)
         :
@@ -17,7 +17,7 @@ void RequireBuffers( const Int wave_count_  )
     const LInt new_size = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
     
     if(
-       (B_buf == nullptr) || (C_buf == nullptr)
+       (B_buf.get() == nullptr) || (C_buf.get() == nullptr)
        ||
        (new_size > std::min( B_buf->length(), C_buf->length() ) )
     )
@@ -27,8 +27,8 @@ void RequireBuffers( const Int wave_count_  )
         B_loaded = false;
         C_loaded = false;
         
-        B_buf = device->newBuffer(new_size, MTL::ResourceStorageModeManaged);
-        C_buf = device->newBuffer(new_size, MTL::ResourceStorageModeManaged);
+        B_buf = NS::TransferPtr(device->newBuffer(new_size, Managed));
+        C_buf = NS::TransferPtr(device->newBuffer(new_size, Managed));
         
         B_ptr = reinterpret_cast<Complex *>(B_buf->contents());
         C_ptr = reinterpret_cast<Complex *>(C_buf->contents());

@@ -119,8 +119,8 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
 
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
 
 
@@ -161,42 +161,35 @@ int main(int argc, const char * argv[])
     print("Preparing Helmholtz classes");
     print("");
 
+    std::unique_ptr<BAEMM::Helmholtz_CPU> H_CPU = nullptr;
     
-    
-    BAEMM::Helmholtz_CPU H_CPU(
+    H_CPU = std::make_unique<BAEMM::Helmholtz_CPU>(
         coords.data(),    coords.Dimension(0),
         simplices.data(), simplices.Dimension(0),
         OMP_thread_count
     );
-    H_CPU.SetWaveChunkSize(wave_chunk_size);
-    H_CPU.SetWaveCount(wave_count);
+    H_CPU->SetWaveChunkSize(wave_chunk_size);
+    H_CPU->SetWaveCount(wave_count);
+    
     
     // Create an object that handles GPU acces via Metal.
     
     // Some pool to handle reference-counted objects associated to Metal (namespace MTL).
-//    NS::AutoreleasePool * auto_pool = NS::AutoreleasePool::alloc()->init();
-    NS::SharedPtr<NS::AutoreleasePool> auto_pool
-        = NS::TransferPtr( NS::AutoreleasePool::alloc()->init() );
-
+//    NS::SharedPtr<NS::AutoreleasePool> auto_pool
+//        = NS::TransferPtr( NS::AutoreleasePool::alloc()->init() );
     
     // Request the GPU device.
+//    NS::SharedPtr<MTL::Device> device =
+//        reinterpret_cast<MTL::Device *>( MTL::CopyAllDevices()->object(0) )
+//    );
+    
     NS::SharedPtr<MTL::Device> device = NS::TransferPtr(
         reinterpret_cast<MTL::Device *>( MTL::CopyAllDevices()->object(0) )
     );
 
-    {
-        BAEMM::Helmholtz_Metal H_Metal (
-            device,
-            coords.data(),              // pointer to an array of doubles or floats
-            coords.Dimension(0),        // number of vertices
-            simplices.data(),           // pointer to an array of ints or long ints
-            simplices.Dimension(0),     // number of simplices
-            OMP_thread_count            // number of OpenMP threads to use.
-        );
-        
-        dump(H_Metal.GetWaveChunkSize());
-    }
-    BAEMM::Helmholtz_Metal H_Metal (
+    std::unique_ptr<BAEMM::Helmholtz_Metal> H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
         device,
         coords.data(),              // pointer to an array of doubles or floats
         coords.Dimension(0),        // number of vertices
@@ -204,14 +197,79 @@ int main(int argc, const char * argv[])
         simplices.Dimension(0),     // number of simplices
         OMP_thread_count            // number of OpenMP threads to use.
     );
-    H_Metal.SetWaveChunkSize(wave_chunk_size);
-    H_Metal.SetWaveCount(wave_count);
-    H_Metal.SetBlockSize(64);
+    
+    dump(H_Metal->GetWaveChunkSize());
+    
+    H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
+    
+    dump(H_Metal->GetWaveChunkSize());
+    
+    H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
+    
+    dump(H_Metal->GetWaveChunkSize());
+    
+    H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
+    
+    dump(H_Metal->GetWaveChunkSize());
+    
+    H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
+    
+    dump(H_Metal->GetWaveChunkSize());
+    
+    H_Metal = nullptr;
+    
+    H_Metal = std::make_unique<BAEMM::Helmholtz_Metal>(
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
+    H_Metal->SetWaveChunkSize(wave_chunk_size);
+    H_Metal->SetWaveCount(wave_count);
+    H_Metal->SetBlockSize(64);
     
     // Some matrices to hold data.
-    Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count );
-    Tensor2<Complex,Int> Y_CPU ( H_Metal.VertexCount(), wave_count );
-    Tensor2<Complex,Int> Y     ( H_Metal.VertexCount(), wave_count );
+    Tensor2<Complex,Int> X     ( H_Metal->VertexCount(), wave_count );
+    Tensor2<Complex,Int> Y_CPU ( H_Metal->VertexCount(), wave_count );
+    Tensor2<Complex,Int> Y     ( H_Metal->VertexCount(), wave_count );
     
     // Generate some random input data.
     X.Random(OMP_thread_count_0);
@@ -242,7 +300,7 @@ int main(int argc, const char * argv[])
     const Int ldY = Y.Dimension(1);
 
     
-    H_CPU.ApplyBoundaryOperators_PL(
+    H_CPU->ApplyBoundaryOperators_PL(
         alpha,
         X.data(),           // pointer to complex floating point type
         ldX,                // "leading dimension": number of columns in buffer X
@@ -261,7 +319,7 @@ int main(int argc, const char * argv[])
     //           + coeff[2] * [double layer op]
     //           + coeff[3] * [adjoint double layer op]
     
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,
         X.data(),           // pointer to complex floating point type
         ldX,                // "leading dimension": number of columns in buffer X
@@ -285,13 +343,13 @@ int main(int argc, const char * argv[])
     print("Second run to factor-out one-time costs.");
     print("");
     
-    H_CPU.ApplyBoundaryOperators_PL(
+    H_CPU->ApplyBoundaryOperators_PL(
         alpha, X.data(),     ldX,
         beta,  Y_CPU.data(), ldY,
         kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
     );
     
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha, X.data(),     ldX,
         beta,  Y.data(),     ldY,
         kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
@@ -339,12 +397,12 @@ int main(int argc, const char * argv[])
     print("");
     print("One nonzero coefficients.");
 
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
     );
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
@@ -353,12 +411,12 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     print("Three nonzero coefficients.");
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
     );
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
@@ -367,12 +425,12 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     print("Six nonzero coefficients.");
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
-    H_Metal.ApplyBoundaryOperators_PL(
+    H_Metal->ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
@@ -380,6 +438,11 @@ int main(int argc, const char * argv[])
     
     print("");
     print("");
+    
+    
+    print("bla");
+    H_Metal = nullptr;
+    print("blubb");
     
     return 0;
 }

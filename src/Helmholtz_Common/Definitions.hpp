@@ -2,6 +2,7 @@ public:
     
 //        using Int        = uint32_t;
     using LInt       = std::size_t;
+//    using LInt       = long long;
     using Int        = int;
     using Real       = float;
     using Complex    = std::complex<Real>;
