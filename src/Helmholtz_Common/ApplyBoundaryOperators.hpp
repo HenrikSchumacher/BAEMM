@@ -1,56 +1,110 @@
 public:
-    
-    template<typename R_ext, typename C_ext>
+
+    template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
-        const std::vector<R_ext>  & kappa,
-        const std::array<C_ext,4> & coeff,
-        const Int wave_count_
+        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const R_ext kappa_,
+        const C_ext coeff_0,
+        const C_ext coeff_1,
+        const C_ext coeff_2,
+        const C_ext coeff_3,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
     )
     {
-        static_assert( Scalar::IsReal<R_ext>, "Template parameter R_ext has to be a real floating point type." );
-        
-        static_assert( Scalar::IsComplex<C_ext>, "Template parameter C_ext has to be a complex floating point type." );
-        
-        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
-        // TODO: Aim is to implement the following:
-        //
         // Computes
         //
         //     C_out = alpha * A * B_in + beta * C_out,
         //
         // where B_in and C_out out are matrices of size vertex_count x wave_count_ and
         // represent the vertex values of  wave_count_ piecewise-linear functions.
-        // The operator A is a linear combination of several operators:
+        // The operator A is a linear combination of several operators, depending on kappa:
         //
-        // A =   coeff[0] * MassMatrix
-        //     + coeff[1] * SingleLayerOp
-        //     + coeff[2] * DoubleLayerOp
-        //     + coeff[3] * AdjDblLayerOp
+        // A =   coeff_0 * MassMatrix
+        //     + coeff_1 * SingleLayerOp[kappa]
+        //     + coeff_2 * DoubleLayerOp[kappa]
+        //     + coeff_3 * AdjDblLayerOp[kappa]
+        //
+        //
         
-        // TODO: Explain how kappa is distributed over this data!
+        ASSERT_INT(I_ext);
+        ASSERT_REAL(R_ext);
+        ASSERT_COMPLEX(C_ext);
+        
+        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
+        
+        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+    }
 
-        RequireBuffers( wave_count_ );
-        
-        if( kappa.size() != wave_chunk_count )
-        {
-            eprint(ClassName()+"::ApplyBoundaryOperators_PL: kappa.size() != GetWaveChunkCount(wave_count_). Aborting.");
-            
-            dump(kappa.size());
-            dump(wave_count);
-            dump(wave_chunk_size);
-            dump(GetWaveChunkCount(wave_count_));
-            valprint("GetWaveChunkCount("+ToString(wave_count_)+")", wave_chunk_count);
-            return;
-        }
-        
-        // TODO: Adjust coeffients!
-        LoadCoefficients(coeff);
 
+//    template<typename R_ext, typename C_ext, typename I_ext>
+//    void ApplyBoundaryOperators_PL(
+//        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
+//        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+//        const Tensor1<R_ext,I_ext> & kappa_list,
+//        const Tensor2<C_ext,I_ext> & coeff_list,
+//        const Int wave_count_,
+//        const Int wave_chunk_size_
+//    )
+//    {
+//        //  The same as above, but with several wave numbers kappa_list and several coefficients.
+//
+//        ASSERT_INT(I_ext);
+//        ASSERT_REAL(R_ext);
+//        ASSERT_COMPLEX(C_ext);
+//
+//        LoadCoefficients(kappa_list.data(),coeff_list.data(),wave_count_,wave_chunk_size_);
+//
+//        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+//    }
+
+    template<typename R_ext, typename C_ext, typename I_ext>
+    void ApplyBoundaryOperators_PL(
+        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
+    )
+    {
+        //  The same as above, but with several wave numbers kappa_list and several coefficients.
+
+        ASSERT_INT(I_ext);
+        ASSERT_REAL(R_ext);
+        ASSERT_COMPLEX(C_ext);
+
+        LoadCoefficients(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
+        
+        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+    }
+
+    template<typename C_ext, typename I_ext>
+    void ApplyBoundaryOperators_PL(
+        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
+        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_
+    )
+    {
+        // The same as above, but assumes that
+        ASSERT_INT(I_ext);
+        ASSERT_COMPLEX(C_ext);
+        
+        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
+
+        const Int ldB_in  = int_cast<Int>(ldB_in_ );
+        const Int ldC_out = int_cast<Int>(ldC_out_);
+        
+        RequireBuffers( wave_count );
+        
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
 
-        if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer || Re_adjdbl_layer || Im_adjdbl_layer )
+//        PrintBooleans();
+        
+        if( Re_single_layer || Im_single_layer ||
+            Re_double_layer || Im_double_layer ||
+            Re_adjdbl_layer || Im_adjdbl_layer
+        )
         {
             AvOp.Dot(
                 Scalar::One<Complex>,  B_in,  ldB_in,
@@ -61,11 +115,7 @@ public:
             B_loaded = true;
             ModifiedB( int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) );
 
-            // Convert kappa input to intenal type.
-            WaveNumberContainer_T kappa_ ( kappa.size() );
-            copy_buffer(kappa.data(), kappa_.data(), kappa.size() );
-
-            BoundaryOperatorKernel_C( kappa_ );
+            BoundaryOperatorKernel_C( kappa );
             C_loaded = true;
 
             // TODO: Apply diagonal part of single layer boundary operator.
@@ -80,39 +130,33 @@ public:
             
             addTo = Scalar::One<C_ext>;
         }
-        if( mass )
+        
+        if( Re_mass_matrix || Im_mass_matrix )
         {
-            const Scalar::Complex<C_ext> factor = alpha * Scalar::Complex<C_ext>(c[0][0],c[0][1]);
-            
-            Mass.Dot(
-                factor, B_in,  ldB_in,
-                addTo,  C_out, ldC_out,
-                wave_count
-            );
+            if( wave_chunk_count >= 1 )
+            {
+                for( Int k = 0; k < wave_chunk_count-1; ++k )
+                {
+                    const Scalar::Complex<C_ext> factor = alpha * static_cast<C_ext>(c[k][0]);
+                    
+                    Mass.Dot(
+                        factor, &B_in [wave_chunk_size * k], ldB_in,
+                        addTo,  &C_out[wave_chunk_size * k], ldC_out,
+                        wave_chunk_size
+                    );
+                }
+                {
+                    const Int k = wave_chunk_count-1;
+                    const Scalar::Complex<C_ext> factor = alpha * static_cast<C_ext>(c[k][0]);
+                    
+                    Mass.Dot(
+                        factor, &B_in [wave_chunk_size * k], ldB_in,
+                        addTo,  &C_out[wave_chunk_size * k], ldC_out,
+                        wave_count % wave_chunk_size
+                    );
+                }
+            }
         }
 
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
     }
-    
-    // Overload for just one wave number
-    template<typename R_ext, typename C_ext>
-    void ApplyBoundaryOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
-        const R_ext kappa,
-        const std::array<C_ext,4> & coeff,
-        const Int wave_count_
-    )
-    {
-        std::vector<Real> kappa_list (
-              CeilDivide(wave_count_, wave_chunk_size),
-              static_cast<Real>(kappa)
-        );
-        
-        ApplyBoundaryOperators_PL(
-            alpha, B_in,  ldB_in,
-            beta,  C_out, ldC_out,
-            kappa_list, coeff, wave_count_
-        );
-    }
-

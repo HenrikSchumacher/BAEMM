@@ -8,8 +8,8 @@ private:
     Tensor2<Real,Int> vertex_coords;
     Tensor2<Int ,Int> triangles;
 
-    Real    c   [4][2] = {{}};
-    Complex c_C [4]    = {{}};
+    WaveNumberContainer_T  kappa;
+    CoefficientContainer_T c;
 
     Real * restrict areas_ptr      = nullptr;
     Real * restrict mid_points_ptr = nullptr;
@@ -25,7 +25,8 @@ private:
     bool B_loaded        = false;
     bool C_loaded        = false;
 
-    bool mass            = false;
+    bool Re_mass_matrix  = false;
+    bool Im_mass_matrix  = false;
     bool Re_single_layer = false;
     bool Im_single_layer = false;
     bool Re_double_layer = false;

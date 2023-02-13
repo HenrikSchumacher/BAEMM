@@ -23,11 +23,11 @@ namespace BAEMM
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             Int OMP_thread_count_
         )
-        :   OMP_thread_count ( OMP_thread_count_                 )
-        ,   vertex_count     ( vertex_count_                     )
-        ,   simplex_count    ( simplex_count_                    )
-        ,   vertex_coords    ( vertex_coords_, vertex_count_,  3 )
-        ,   triangles        ( triangles_,     simplex_count_, 3 )
+        :   OMP_thread_count ( OMP_thread_count_                )
+        ,   vertex_count     ( int_cast<Int>(vertex_count_)     )
+        ,   simplex_count    ( int_cast<Int>(simplex_count_)    )
+        ,   vertex_coords    ( vertex_coords_, vertex_count,  3 )
+        ,   triangles        ( triangles_,     simplex_count, 3 )
         {
             tic(ClassName());
             

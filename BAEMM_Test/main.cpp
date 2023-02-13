@@ -96,7 +96,7 @@ void ReadFromFile(
 
 // We have to toggle which domain dimensions and ambient dimensions shall be supported by runtime polymorphism before we load Repulsor.hpp
 // Bou can activate everything you want, but compile times might increase substatially.
-using Int           = int;
+using Int           = long long;
 using Real          = double;
 using Complex       = std::complex<Real>;
 
@@ -137,7 +137,7 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     
-    uint OMP_thread_count_0;
+    int OMP_thread_count_0;
     #pragma omp parallel
     {
         OMP_thread_count_0 = omp_get_num_threads();
@@ -154,9 +154,9 @@ int main(int argc, const char * argv[])
     print("");
     print("");
 
-    static constexpr size_t wave_count       = 64;
-    static constexpr size_t wave_chunk_size  = 16;
-    static constexpr size_t wave_chunk_count = wave_count / wave_chunk_size;
+    static constexpr Int wave_count       = 64;
+    static constexpr Int wave_chunk_size  = 16;
+    static constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
 
 
     print("");
@@ -171,6 +171,7 @@ int main(int argc, const char * argv[])
         OMP_thread_count
     );
     H_CPU.SetWaveChunkSize(wave_chunk_size);
+    H_CPU.SetWaveCount(wave_count);
     
     // Create an object that handles GPU acces via Metal.
     
@@ -189,6 +190,7 @@ int main(int argc, const char * argv[])
         OMP_thread_count            // number of OpenMP threads to use.
     );
     H_Metal.SetWaveChunkSize(wave_chunk_size);
+    H_Metal.SetWaveCount(wave_count);
     H_Metal.SetBlockSize(64);
     
     // Some matrices to hold data.
@@ -209,23 +211,33 @@ int main(int argc, const char * argv[])
     // Prepare wave numbers (all equal to 2 in this example).
     constexpr Real kappa = 2.;
 
-    std::vector<Real> kappa_list (wave_chunk_count, kappa);
+    Tensor1<Real,Int> kappa_list (wave_chunk_count, kappa);
     
     // Set the coefficients for the operators
-    std::array<Complex,4> coeff {
-        Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(0.4f,1.0f), // coefficient of single layer op
-        Complex(1.2f,0.9f), // coefficient of double layer op
-        Complex(1.0f,0.5f)  // coefficient of adjoint double layer op
-    };
-
+    Tensor2<Complex,Int> coeff_list (wave_chunk_count,4);
+    for( Int k = 0; k < wave_chunk_count; ++k )
+    {
+        coeff_list[k][0] = Complex(0.0f,0.0f); // coefficient of mass matrix
+        coeff_list[k][1] = Complex(0.4f,1.0f); // coefficient of single layer op
+        coeff_list[k][2] = Complex(1.2f,0.9f); // coefficient of double layer op
+        coeff_list[k][3] = Complex(1.0f,0.5f); // coefficient of adjoint double layer op
+    }
+    
     const Int ldX = X.Dimension(1);
     const Int ldY = Y.Dimension(1);
 
+    
     H_CPU.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y_CPU.data(),   ldY,
-        kappa_list, coeff,          wave_count
+        alpha,
+        X.data(),           // pointer to complex floating point type
+        ldX,                // "leading dimension": number of columns in buffer X
+        beta,
+        Y_CPU.data(),       // pointer to complex floating point type
+        ldY,                // "leading dimension": number of columns in buffer Y
+        kappa_list.data(),  // the wave numbers to use; 1 for each chunk
+        coeff_list.data(),  // the coefficients to use; 4 for each chunk
+        wave_count,         // how many right hand sides to process
+        wave_chunk_size     // do it in chunks of size wave_chunk_size
     );
 
     // Compute Y = alpha * A * X + beta * Y
@@ -236,14 +248,15 @@ int main(int argc, const char * argv[])
     
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,
-        X.data(),   // pointer to complex floating point type
-        ldX,        // "leading dimension": number of columns in buffer X
+        X.data(),           // pointer to complex floating point type
+        ldX,                // "leading dimension": number of columns in buffer X
         beta,
-        Y.data(),   // pointer to complex floating point type
-        ldY,        // "leading dimension": number of columns in buffer Y
-        kappa_list, // List of wave numbers;
-        coeff,
-        wave_count  // number of waves to process; wave_count <= ldX and wave_count <= dY
+        Y.data(),           // pointer to complex floating point type
+        ldY,                // "leading dimension": number of columns in buffer Y
+        kappa_list.data(),  // the wave numbers to use; 1 for each chunk
+        coeff_list.data(),  // the coefficients to use; 4 for each chunk
+        wave_count,         // how many right hand sides to process
+        wave_chunk_size     // do it in chunks of size wave_chunk_size
     );
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)
@@ -258,15 +271,15 @@ int main(int argc, const char * argv[])
     print("");
     
     H_CPU.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y_CPU.data(),   ldY,
-        kappa_list, coeff,          wave_count
+        alpha, X.data(),     ldX,
+        beta,  Y_CPU.data(), ldY,
+        kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
     );
     
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff,          wave_count
+        alpha, X.data(),     ldX,
+        beta,  Y.data(),     ldY,
+        kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
     );
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)
@@ -276,26 +289,33 @@ int main(int argc, const char * argv[])
     }
     
     // Set the coefficients for the operators
-    std::array<Complex,4> coeff_0 {
-        Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(1.0f,0.0f), // coefficient of single layer op
-        Complex(0.0f,0.0f), // coefficient of double layer op
-        Complex(0.0f,0.0f)  // coefficient of adjoint double layer op
-    };
     
-    std::array<Complex,4> coeff_1 {
-        Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(1.9f,0.0f), // coefficient of single layer op
-        Complex(0.0f,1.1f), // coefficient of double layer op
-        Complex(1.2f,0.0f)  // coefficient of adjoint double layer op
-    };
+    Tensor2<Complex,Int> coeff_0 (wave_chunk_count,4);
+    for( Int k = 0; k < wave_chunk_count; ++k )
+    {
+        coeff_0[k][0] = Complex(0.0f,0.0f);
+        coeff_0[k][1] = Complex(1.0f,0.0f);
+        coeff_0[k][2] = Complex(0.0f,0.0f);
+        coeff_0[k][3] = Complex(0.0f,0.0f);
+    }
     
-    std::array<Complex,4> coeff_2 {
-        Complex(0.0f,0.0f), // coefficient of mass matrix
-        Complex(1.9f,0.2f), // coefficient of single layer op
-        Complex(0.0f,1.1f), // coefficient of double layer op
-        Complex(1.2f,0.9f)  // coefficient of adjoint double layer op
-    };
+    Tensor2<Complex,Int> coeff_1 (wave_chunk_count,4);
+    for( Int k = 0; k < wave_chunk_count; ++k )
+    {
+        coeff_1[k][0] = Complex(0.0f,0.0f);
+        coeff_1[k][1] = Complex(1.9f,0.0f);
+        coeff_1[k][2] = Complex(0.0f,1.1f);
+        coeff_1[k][3] = Complex(1.2f,0.0f);
+    }
+    
+    Tensor2<Complex,Int> coeff_2 (wave_chunk_count,4);
+    for( Int k = 0; k < wave_chunk_count; ++k )
+    {
+        coeff_2[k][0] = Complex(0.0f,0.0f);
+        coeff_2[k][1] = Complex(1.9f,0.2f);
+        coeff_2[k][2] = Complex(0.7f,1.1f);
+        coeff_2[k][3] = Complex(1.2f,0.9f);
+    }
 
     print("");
     print("");
@@ -303,45 +323,48 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     print("One nonzero coefficients.");
+
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_0,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
     );
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_0,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
     );
     
     print("");
     print("");
     print("Three nonzero coefficients.");
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_1,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
     );
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_1,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
     );
-    
+
     print("");
     print("");
     print("Six nonzero coefficients.");
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_2,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
     H_Metal.ApplyBoundaryOperators_PL(
-        alpha,      X.data(),       ldX,
-        beta,       Y.data(),       ldY,
-        kappa_list, coeff_2,        wave_count
+        alpha,      X.data(),  ldX,
+        beta,       Y.data(),  ldY,
+        kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
     
+    print("");
+    print("");
     
     // Destruct the pool for managing Metal's reference counted pointers.
     p_pool->release();

@@ -39,9 +39,9 @@ public:
         
         assert( pipeline != nullptr );
         
-        if( kappa.size() != wave_chunk_count )
+        if( kappa.Size() != wave_chunk_count )
         {
-            dump(kappa.size());
+            dump(kappa.Size());
             dump(wave_count);
             dump(wave_chunk_size);
             eprint(ClassName()+"::"+name+": kappa.Size() != wave_count / wave_chunk_size. Aborting.");
@@ -67,8 +67,8 @@ public:
         compute_encoder->setBuffer(normals   ,   0, 1 );
         compute_encoder->setBuffer(B_buf,        0, 2 );
         compute_encoder->setBuffer(C_buf,        0, 3 );
-        compute_encoder->setBytes(kappa.data(), kappa.size() * sizeof(Real), 4 );
-        compute_encoder->setBytes(&c[0][0],                8 * sizeof(Real), 5 );
+        compute_encoder->setBytes(kappa.data(), kappa.Size() * sizeof(Real), 4 );
+        compute_encoder->setBytes(c.data(),                8 * sizeof(Real), 5 );
         compute_encoder->setBytes(&simplex_count,              sizeof(int ), 6 );
         compute_encoder->setBytes(&wave_count,                 sizeof(int ), 7 );
 
