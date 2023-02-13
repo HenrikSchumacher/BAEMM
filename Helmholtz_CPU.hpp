@@ -31,7 +31,13 @@ namespace BAEMM
         {
             tic(ClassName());
             
-            Initialize_CPU();
+            areas      = Tensor1<Real,Int>( simplex_count    );
+            mid_points = Tensor2<Real,Int>( simplex_count, 4 );
+            normals    = Tensor2<Real,Int>( simplex_count, 4 );
+            
+            areas_ptr      = areas.data();
+            mid_points_ptr = mid_points.data();
+            normals_ptr    = normals.data();
             
             Initialize();
             
@@ -49,8 +55,6 @@ namespace BAEMM
         
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;
-        
-#include "src/Helmholtz_CPU/Initialize_CPU.hpp"
         
 #include "src/Helmholtz_Common/Initialize.hpp"
             

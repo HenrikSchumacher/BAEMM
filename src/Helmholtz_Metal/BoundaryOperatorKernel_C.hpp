@@ -63,10 +63,10 @@ public:
         compute_encoder->setComputePipelineState( pipeline );
         
         // Place data in encoder
-        compute_encoder->setBuffer(mid_points,   0, 0 );
-        compute_encoder->setBuffer(normals   ,   0, 1 );
-        compute_encoder->setBuffer(B_buf,        0, 2 );
-        compute_encoder->setBuffer(C_buf,        0, 3 );
+        compute_encoder->setBuffer(mid_points, 0, 0 );
+        compute_encoder->setBuffer(normals   , 0, 1 );
+        compute_encoder->setBuffer(B_buf,      0, 2 );
+        compute_encoder->setBuffer(C_buf,      0, 3 );
         compute_encoder->setBytes(kappa.data(), kappa.Size() * sizeof(Real), 4 );
         compute_encoder->setBytes(c.data(),                8 * sizeof(Real), 5 );
         compute_encoder->setBytes(&simplex_count,              sizeof(int ), 6 );

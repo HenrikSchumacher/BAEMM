@@ -4,16 +4,14 @@
 #include <pwd.h>
 #include <complex>
 
+#define OBJC_DEBUG_MISSING_POOLS = YES
+
 #define NS_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
+
 #include <Foundation/Foundation.hpp>
 #include <Metal/Metal.hpp>
 #include <Accelerate/Accelerate.h>
-
-
-
-//#define REMESHER_VERBATIM
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
@@ -176,11 +174,28 @@ int main(int argc, const char * argv[])
     // Create an object that handles GPU acces via Metal.
     
     // Some pool to handle reference-counted objects associated to Metal (namespace MTL).
-    NS::AutoreleasePool * p_pool = NS::AutoreleasePool::alloc()->init();
+//    NS::AutoreleasePool * auto_pool = NS::AutoreleasePool::alloc()->init();
+    NS::SharedPtr<NS::AutoreleasePool> auto_pool
+        = NS::TransferPtr( NS::AutoreleasePool::alloc()->init() );
 
-    // Request the GPU device.
-    MTL::Device* device = MTL::CreateSystemDefaultDevice();
     
+    // Request the GPU device.
+    NS::SharedPtr<MTL::Device> device = NS::TransferPtr(
+        reinterpret_cast<MTL::Device *>( MTL::CopyAllDevices()->object(0) )
+    );
+
+    {
+        BAEMM::Helmholtz_Metal H_Metal (
+            device,
+            coords.data(),              // pointer to an array of doubles or floats
+            coords.Dimension(0),        // number of vertices
+            simplices.data(),           // pointer to an array of ints or long ints
+            simplices.Dimension(0),     // number of simplices
+            OMP_thread_count            // number of OpenMP threads to use.
+        );
+        
+        dump(H_Metal.GetWaveChunkSize());
+    }
     BAEMM::Helmholtz_Metal H_Metal (
         device,
         coords.data(),              // pointer to an array of doubles or floats
@@ -319,7 +334,7 @@ int main(int argc, const char * argv[])
 
     print("");
     print("");
-    print("Checking dependence of runtime on numer of nonzero coeffiencts.");
+    print("Checking dependence of runtime on number of nonzero coeffiencts.");
     print("");
     print("");
     print("One nonzero coefficients.");
@@ -365,9 +380,6 @@ int main(int argc, const char * argv[])
     
     print("");
     print("");
-    
-    // Destruct the pool for managing Metal's reference counted pointers.
-    p_pool->release();
     
     return 0;
 }

@@ -92,7 +92,7 @@ private:
                         eprint(tag+": Failed to created pipeline state object.");
                         valprint("Error message", error->description()->utf8String() );
                         std::exit(-1);
-                        return nullptr;
+                        ;
                     }
                 }
             }

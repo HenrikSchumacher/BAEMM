@@ -43,51 +43,93 @@ namespace BAEMM
             
 #include "src/Helmholtz_Common/MemberVariables.hpp"
         
-        MTL::Device * device = nullptr;
+//        NS::AutoreleasePool * auto_pool = nullptr;
+        
+        NS::SharedPtr<MTL::Device> device;
         
         std::map<std::string, MTL::ComputePipelineState *> pipelines;
         
         MTL::CommandQueue * command_queue = nullptr;
         
-        MTL::Buffer * areas;
-        MTL::Buffer * mid_points;
-        MTL::Buffer * normals;
+        MTL::Buffer * areas      = nullptr;
+        MTL::Buffer * mid_points = nullptr;
+        MTL::Buffer * normals    = nullptr;
 
-        MTL::Buffer * B_buf = nullptr;
-        MTL::Buffer * C_buf = nullptr;
+        MTL::Buffer * B_buf      = nullptr;
+        MTL::Buffer * C_buf      = nullptr;
         
     public:
         
         template<typename ExtReal,typename ExtInt>
         Helmholtz_Metal(
-            MTL::Device * device_,
+            NS::SharedPtr<MTL::Device> & device_,
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             int OMP_thread_count_
         )
-        :   device           ( device_                          )
-        ,   OMP_thread_count ( OMP_thread_count_                )
-        ,   vertex_count     ( int_cast<Int>(vertex_count_)     )
-        ,   simplex_count    ( int_cast<Int>(simplex_count_)    )
-        ,   vertex_coords    ( vertex_coords_, vertex_count,  3 )
-        ,   triangles        ( triangles_,     simplex_count, 3 )
+        :   OMP_thread_count ( OMP_thread_count_                    )
+        ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
+        ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
+        ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
+        ,   triangles        ( triangles_,     simplex_count, 3     )
+        ,   device           ( device_                              )
         {
             tic(ClassName());
+//            dump(auto_pool);
             
-            Initialize_Metal();
+
+            print("A");
+            
+            const uint size  =     simplex_count * sizeof(Real);
+            const uint size4 = 4 * simplex_count * sizeof(Real);
+            
+            areas      = device->newBuffer(size, MTL::ResourceStorageModeManaged);
+            mid_points = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
+            normals    = device->newBuffer(size4, MTL::ResourceStorageModeManaged);
+            
+            dump(areas);
+            dump(mid_points);
+            dump(normals);
+            
+            dump(areas->length());
+            dump(mid_points->length());
+            dump(normals->length());
+            
+            areas_ptr      = static_cast<Real *>(     areas->contents());
+            mid_points_ptr = static_cast<Real *>(mid_points->contents());
+            normals_ptr    = static_cast<Real *>(   normals->contents());
+            
+            command_queue = device->newCommandQueue();
+            
+            if( command_queue == nullptr )
+            {
+                eprint(ClassName()+"::Initialize_Metal: Failed to find the command queue." );
+                return;
+            }
+            
+            print("B");
             
             Initialize();
             
+            print("C");
                  areas->didModifyRange({0,areas->length()});
             mid_points->didModifyRange({0,mid_points->length()});
                normals->didModifyRange({0,normals->length()});
+            print("D");
             
             toc(ClassName());
         }
         
-        ~Helmholtz_Metal() = default;
-
-#include "src/Helmholtz_Metal/Initialize_Metal.hpp"
+        ~Helmholtz_Metal()
+        {
+            print("~Helmholtz_Metal()");
+            
+            pipelines = std::map<std::string, MTL::ComputePipelineState *>();
+            
+//            dump(auto_pool);
+//            
+//            auto_pool->release();
+        }
         
 #include "src/Helmholtz_Common/Initialize.hpp"
 

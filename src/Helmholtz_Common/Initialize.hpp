@@ -3,7 +3,7 @@ public:
     void Initialize()
     {
         ptic(ClassName()+"::Initialize");
-
+        
         // For assembling AvOp.
         Tensor1<LInt,    Int> outer ( simplex_count + 1, 0 );
         Tensor1<Int,    LInt> inner ( 3 * simplex_count );
@@ -17,7 +17,9 @@ public:
         
         // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
         
-//        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+        print("B.1");
+        
+        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < simplex_count; ++i )
         {
             Tiny::Vector<3,Real,Int> x;
@@ -107,16 +109,19 @@ public:
             a_list(i,2,2) = a_over_6;
         }
         
+        print("B.2");
+        
         AvOp = Sparse_T(
             std::move(outer), std::move(inner), std::move(vals),
             simplex_count, vertex_count,
             OMP_thread_count
         );
 
+        print("B.3");
         AvOp.SortInner();
-
+        print("B.4");
         AvOpTransp = AvOp.Transpose();
-
+        print("B.5");
         Mass = Sparse_T(
             a_list.Size(),
             i_list.data(), j_list.data(), a_list.data(),
