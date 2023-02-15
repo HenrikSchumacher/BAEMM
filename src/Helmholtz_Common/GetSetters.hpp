@@ -65,3 +65,8 @@ public:
         B_loaded = false;
         C_loaded = false;
     }
+
+    const Real * SingleLayerDiagonal( ) const
+    {
+        return single_diag_ptr;
+    }

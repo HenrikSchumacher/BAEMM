@@ -271,7 +271,7 @@ public:
                 sum += L1 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
             }
             
-            single_diag_ptr[i] = sum;
+            single_diag_ptr[i] = sum / (areas_ptr[i] * areas_ptr[i]);
         }
         
         AvOp = Sparse_T(
