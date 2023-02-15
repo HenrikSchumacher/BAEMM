@@ -1,6 +1,9 @@
 public:
 
-    void BoundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
+    void BoundaryOperatorKernel_C(
+        const WaveNumberContainer_T  & kappa_,
+        const CoefficientContainer_T & c_
+    )
     {
         if( !B_loaded )
         {
@@ -11,37 +14,37 @@ public:
         {
             case 1:
             {
-                boundaryOperatorKernel_C<4,2,1>(kappa);
+                boundaryOperatorKernel_C<4,2,1>(kappa_,c_);
                 break;
             }
             case 2:
             {
-                boundaryOperatorKernel_C<4,2,2>(kappa);
+                boundaryOperatorKernel_C<4,2,2>(kappa_,c_);
                 break;
             }
             case 4:
             {
-                boundaryOperatorKernel_C<4,2,4>(kappa);
+                boundaryOperatorKernel_C<4,2,4>(kappa_,c_);
                 break;
             }
             case 8:
             {
-                boundaryOperatorKernel_C<4,2,8>(kappa);
+                boundaryOperatorKernel_C<4,2,8>(kappa_,c_);
                 break;
             }
             case 16:
             {
-                boundaryOperatorKernel_C<4,2,16>(kappa);
+                boundaryOperatorKernel_C<4,2,16>(kappa_,c_);
                 break;
             }
             case 32:
             {
-                boundaryOperatorKernel_C<4,2,32>(kappa);
+                boundaryOperatorKernel_C<4,2,32>(kappa_,c_);
                 break;
             }
             case 64:
             {
-                boundaryOperatorKernel_C<4,2,64>(kappa);
+                boundaryOperatorKernel_C<4,2,64>(kappa_,c_);
                 break;
             }
             default:
@@ -55,7 +58,10 @@ public:
     template<
         Int i_blk_size, Int j_blk_size, Int wave_chunk_size
     >
-    void boundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
+    void boundaryOperatorKernel_C(
+        const WaveNumberContainer_T  & kappa_,
+        const CoefficientContainer_T & c_
+    )
     {
         tic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
         
@@ -67,10 +73,11 @@ public:
         }
         
         const int k_chunk_size  = wave_chunk_size;
-        const int k_chunk_count = wave_count / k_chunk_size;
-        const int k_ld          = wave_count;  // Leading dim of B and C.
+        const int k_chunk_count = kappa_.Size();
+        const int k_ld          = kappa_.Size() * k_chunk_size;  // Leading dim of B and C.
         
         JobPointers<Int> job_ptr(simplex_count/i_blk_size, OMP_thread_count);
+
 
         for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
         {
@@ -149,7 +156,7 @@ public:
                                 
                                 const Complex I_kappa_r (
                                     Scalar::Zero<Real>,
-                                    kappa[k_chunk] * r
+                                    kappa_[k_chunk] * r
                                 );
                                 
                                 const Complex exp_I_kappa_r ( std::exp(I_kappa_r) );
@@ -157,12 +164,12 @@ public:
                                 const Complex factor ( (I_kappa_r - one) * r3_inv );
                                 
                                 A[i][j] = exp_I_kappa_r * (
-                                    c[k_chunk][1] * r_inv
+                                    c_[k_chunk][1] * r_inv
                                     +
                                     factor * (
-                                        c[k_chunk][2] * dot_z_mu
+                                        c_[k_chunk][2] * dot_z_mu
                                         -
-                                        c[k_chunk][3] * dot_z_nu
+                                        c_[k_chunk][3] * dot_z_nu
                                     )
                                 );
 
@@ -181,9 +188,7 @@ public:
                                 LOOP_UNROLL_FULL
                                 for( Int j = 0; j < j_blk_size; ++j )
                                 {
-                                    C_blk[i][k]
-                                    +=
-                                    A[i][j] * B_block[k_ld * j + k];
+                                    C_blk[i][k] += A[i][j] * B_block[k_ld * j + k];
                                 }
                             }
                         }

@@ -44,8 +44,8 @@ constant constexpr float one     = static_cast<float>(1);
     const constant float3 * const normals       [[buffer(1)]], // triangle normals
     const constant cmplx  * const B_global      [[buffer(2)]], // buffer for right hand sides
           device   cmplx  * const C_global      [[buffer(3)]], // buffer for results C = A * B
-    const constant float  * const kappa         [[buffer(4)]], // vector of wave numbers
-    const constant cmplx4 &       c             [[buffer(5)]], // coefficients for the operators
+    const constant float  * const kappa_buf     [[buffer(4)]], // vector of wave numbers
+    const constant cmplx4 *       c_buf         [[buffer(5)]], // coefficients for the ops
     const constant int    &       n             [[buffer(6)]], // number of triangles
     const constant int    &       wave_count    [[buffer(7)]], // number of right hand sides
                                    
@@ -115,7 +115,10 @@ constant constexpr float one     = static_cast<float>(1);
     // Since loading and writing to device memory is very expensive, it might be a better to make
     // the loop over the k_chunks the outer loop and pay the (small) price of recomputing A multiple times.
     for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
-    {
+    {   
+        const thread float  kappa = kappa_buf[k_chunk];
+        const thread cmplx4 c     = c_buf[k_chunk];
+        
         // Each thread maintains one row of the output matrix.
         thread cmplx C_i [k_chunk_size] = {zero};
         
@@ -176,7 +179,7 @@ constant constexpr float one     = static_cast<float>(1);
                     // Since each operator has at least one factor of r_inv, this will set to 0 all entries in the block A that lie on the main diagonal or outside the actual n x n matrix.
                     const float r_inv = (one - delta) / (r + delta);
                                         
-                    const float KappaR = kappa[k_chunk] * r;
+                    const float KappaR = kappa * r;
 
                     float CosKappaR;
                     float SinKappaR = sincos( KappaR, CosKappaR );

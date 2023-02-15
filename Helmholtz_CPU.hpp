@@ -31,13 +31,15 @@ namespace BAEMM
         {
             tic(ClassName());
             
-            areas      = Tensor1<Real,Int>( simplex_count    );
-            mid_points = Tensor2<Real,Int>( simplex_count, 4 );
-            normals    = Tensor2<Real,Int>( simplex_count, 4 );
+            areas       = Tensor1<Real,Int>( simplex_count    );
+            mid_points  = Tensor2<Real,Int>( simplex_count, 4 );
+            normals     = Tensor2<Real,Int>( simplex_count, 4 );
+            single_diag = Tensor1<Real,Int>( simplex_count    );
             
-            areas_ptr      = areas.data();
-            mid_points_ptr = mid_points.data();
-            normals_ptr    = normals.data();
+            areas_ptr       = areas.data();
+            mid_points_ptr  = mid_points.data();
+            normals_ptr     = normals.data();
+            single_diag_ptr = single_diag.data();
             
             Initialize();
             
@@ -52,6 +54,7 @@ namespace BAEMM
         Tensor1<Real,Int> areas;
         Tensor2<Real,Int> mid_points;
         Tensor2<Real,Int> normals;
+        Tensor1<Real,Int> single_diag;
         
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;
@@ -61,6 +64,10 @@ namespace BAEMM
 #include "src/Helmholtz_Common/InputOutput.hpp"
         
 #include "src/Helmholtz_Common/GetSetters.hpp"
+        
+#include "src/Helmholtz_Common/LoadParameters.hpp"
+        
+#include "src/Helmholtz_Common/LoadParameters3.hpp"
         
 #include "src/Helmholtz_CPU/RequireBuffers.hpp"
 

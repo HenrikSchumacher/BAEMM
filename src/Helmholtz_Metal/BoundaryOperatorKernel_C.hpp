@@ -1,6 +1,9 @@
 public:
 
-    void BoundaryOperatorKernel_C( const WaveNumberContainer_T & kappa )
+    void BoundaryOperatorKernel_C(
+        const WaveNumberContainer_T  & kappa_,
+        const CoefficientContainer_T & c_
+    )
     {
         std::string name ("BoundaryOperatorKernel_C");
         
@@ -39,15 +42,6 @@ public:
         
         assert( pipeline.get() != nullptr );
         
-        if( kappa.Size() != wave_chunk_count )
-        {
-            dump(kappa.Size());
-            dump(wave_count);
-            dump(wave_chunk_size);
-            eprint(ClassName()+"::"+name+": kappa.Size() != wave_count / wave_chunk_size. Aborting.");
-            return;
-        }
-        
         // Now we can proceed to set up the MTL::CommandBuffer.
 
         // Create a command buffer to hold commands.
@@ -62,15 +56,18 @@ public:
         // Encode the pipeline state object and its parameters.
         compute_encoder->setComputePipelineState( pipeline.get() );
         
+        const Int wave_count_ = kappa_.Size() * wave_chunk_size;
+        
         // Place data in encoder
         compute_encoder->setBuffer(mid_points.get(), 0, 0 );
         compute_encoder->setBuffer(normals.get()   , 0, 1 );
         compute_encoder->setBuffer(B_buf.get(),      0, 2 );
         compute_encoder->setBuffer(C_buf.get(),      0, 3 );
-        compute_encoder->setBytes(kappa.data(), kappa.Size() * sizeof(Real), 4 );
-        compute_encoder->setBytes(c.data(),                8 * sizeof(Real), 5 );
-        compute_encoder->setBytes(&simplex_count,              sizeof(int ), 6 );
-        compute_encoder->setBytes(&wave_count,                 sizeof(int ), 7 );
+        
+        compute_encoder->setBytes(kappa.data(),   kappa.Size() * sizeof(Real), 4 );
+        compute_encoder->setBytes(c.data(),        c.Size() * sizeof(Complex), 5 );
+        compute_encoder->setBytes(&simplex_count,                 sizeof(int), 6 );
+        compute_encoder->setBytes(&wave_count_,                   sizeof(int), 7 );
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 

@@ -52,7 +52,8 @@ namespace BAEMM
         NS::SharedPtr<MTL::Buffer> areas;
         NS::SharedPtr<MTL::Buffer> mid_points;
         NS::SharedPtr<MTL::Buffer> normals;
-
+        NS::SharedPtr<MTL::Buffer> single_diag;
+        
         NS::SharedPtr<MTL::Buffer> B_buf;
         NS::SharedPtr<MTL::Buffer> C_buf;
         
@@ -79,13 +80,15 @@ namespace BAEMM
             const uint size  =     simplex_count * sizeof(Real);
             const uint size4 = 4 * simplex_count * sizeof(Real);
             
-            areas      = NS::TransferPtr(device->newBuffer(size,  Managed));
-            mid_points = NS::TransferPtr(device->newBuffer(size4, Managed));
-            normals    = NS::TransferPtr(device->newBuffer(size4, Managed));
+            areas       = NS::TransferPtr(device->newBuffer(size,  Managed));
+            mid_points  = NS::TransferPtr(device->newBuffer(size4, Managed));
+            normals     = NS::TransferPtr(device->newBuffer(size4, Managed));
+            single_diag = NS::TransferPtr(device->newBuffer(size,  Managed));
             
-            areas_ptr      = static_cast<Real *>(     areas->contents());
-            mid_points_ptr = static_cast<Real *>(mid_points->contents());
-            normals_ptr    = static_cast<Real *>(   normals->contents());
+            areas_ptr       = reinterpret_cast<Real *>(      areas->contents());
+            mid_points_ptr  = reinterpret_cast<Real *>( mid_points->contents());
+            normals_ptr     = reinterpret_cast<Real *>(    normals->contents());
+            single_diag_ptr = reinterpret_cast<Real *>(single_diag->contents());
             
             command_queue = NS::TransferPtr(device->newCommandQueue());
             
@@ -97,9 +100,10 @@ namespace BAEMM
             
             Initialize();
             
-                 areas->didModifyRange({0,areas->length()});
-            mid_points->didModifyRange({0,mid_points->length()});
-               normals->didModifyRange({0,normals->length()});
+                  areas->didModifyRange({0,areas->length()});
+             mid_points->didModifyRange({0,mid_points->length()});
+                normals->didModifyRange({0,normals->length()});
+            single_diag->didModifyRange({0,single_diag->length()});
             
             toc(ClassName());
         }
@@ -114,6 +118,10 @@ namespace BAEMM
 #include "src/Helmholtz_Common/Initialize.hpp"
 
 #include "src/Helmholtz_Common/GetSetters.hpp"
+        
+#include "src/Helmholtz_Common/LoadParameters.hpp"
+        
+#include "src/Helmholtz_Common/LoadParameters3.hpp"
         
 #include "src/Helmholtz_Common/InputOutput.hpp"
         

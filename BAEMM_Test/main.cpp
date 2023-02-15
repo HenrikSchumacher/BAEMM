@@ -4,7 +4,7 @@
 #include <pwd.h>
 #include <complex>
 
-#define OBJC_DEBUG_MISSING_POOLS = YES
+//#define OBJC_DEBUG_MISSING_POOLS = YES
 
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -118,8 +118,8 @@ int main(int argc, const char * argv[])
     }
     std::string path ( homedir );
     
-    //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+//        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
+        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
     //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
     //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
@@ -128,6 +128,7 @@ int main(int argc, const char * argv[])
     Tensor2<Int ,Int> simplices;
     ReadFromFile(file_name, coords, simplices);
     
+    print("");
     
     // Clear file used by the profiler.
     Profiler::Clear( path );
@@ -162,13 +163,13 @@ int main(int argc, const char * argv[])
     print("");
     
     BAEMM::Helmholtz_CPU H_CPU (
-                                coords.data(),    coords.Dimension(0),
-                                simplices.data(), simplices.Dimension(0),
-                                OMP_thread_count
-                                );
+        coords.data(),    coords.Dimension(0),
+        simplices.data(), simplices.Dimension(0),
+        OMP_thread_count
+    );
     
     
-    // Create an object that handles GPU acces via Metal.
+    // Create an object that handles GPU access via Metal.
     
     // Some pool to handle reference-counted objects associated to Metal (namespace MTL).
     //    NS::SharedPtr<NS::AutoreleasePool> auto_pool
@@ -180,17 +181,17 @@ int main(int argc, const char * argv[])
     //    );
     
     NS::SharedPtr<MTL::Device> device = NS::TransferPtr(
-                                                        reinterpret_cast<MTL::Device *>( MTL::CopyAllDevices()->object(0) )
-                                                        );
+        reinterpret_cast<MTL::Device *>( MTL::CopyAllDevices()->object(0) )
+    );
     
     BAEMM::Helmholtz_Metal H_Metal (
-                                    device,
-                                    coords.data(),              // pointer to an array of doubles or floats
-                                    coords.Dimension(0),        // number of vertices
-                                    simplices.data(),           // pointer to an array of ints or long ints
-                                    simplices.Dimension(0),     // number of simplices
-                                    OMP_thread_count            // number of OpenMP threads to use.
-                                    );
+        device,
+        coords.data(),              // pointer to an array of doubles or floats
+        coords.Dimension(0),        // number of vertices
+        simplices.data(),           // pointer to an array of ints or long ints
+        simplices.Dimension(0),     // number of simplices
+        OMP_thread_count            // number of OpenMP threads to use.
+    );
     
     // Some matrices to hold data.
     Tensor2<Complex,Int> X     ( H_Metal.VertexCount(), wave_count );
@@ -210,13 +211,15 @@ int main(int argc, const char * argv[])
     
     // Set the coefficients for the operators
     Tensor2<Complex,Int> coeff_list (wave_chunk_count,4);
-    for( Int k = 0; k < wave_chunk_count; ++k )
-    {
-        coeff_list[k][0] = Complex(0.0f,0.0f); // coefficient of mass matrix
-        coeff_list[k][1] = Complex(0.4f,1.0f); // coefficient of single layer op
-        coeff_list[k][2] = Complex(1.2f,0.9f); // coefficient of double layer op
-        coeff_list[k][3] = Complex(1.0f,0.5f); // coefficient of adjoint double layer op
-    }
+    
+    coeff_list.Random();
+//    for( Int k = 0; k < wave_chunk_count; ++k )
+//    {
+//        coeff_list[k][0] = Complex(4.0f,1.2f); // coefficient of mass matrix
+//        coeff_list[k][1] = Complex(0.4f,1.3f); // coefficient of single layer op
+//        coeff_list[k][2] = Complex(1.2f,0.9f); // coefficient of double layer op
+//        coeff_list[k][3] = Complex(1.0f,0.5f); // coefficient of adjoint double layer op
+//    }
     
     
     // Two complex factors
@@ -332,7 +335,7 @@ int main(int argc, const char * argv[])
     Tensor2<Complex,Int> coeff_2 (wave_chunk_count,4);
     for( Int k = 0; k < wave_chunk_count; ++k )
     {
-        coeff_2[k][0] = Complex(0.0f,0.0f);
+        coeff_2[k][0] = Complex(1.0f,1.0f);
         coeff_2[k][1] = Complex(1.9f,0.2f);
         coeff_2[k][2] = Complex(0.7f,1.1f);
         coeff_2[k][3] = Complex(1.2f,0.9f);

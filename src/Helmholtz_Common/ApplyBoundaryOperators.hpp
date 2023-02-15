@@ -32,7 +32,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
+        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -54,7 +54,7 @@ public:
 //        ASSERT_REAL(R_ext);
 //        ASSERT_COMPLEX(C_ext);
 //
-//        LoadCoefficients(kappa_list.data(),coeff_list.data(),wave_count_,wave_chunk_size_);
+//        LoadParameters(kappa_list.data(),coeff_list.data(),wave_count_,wave_chunk_size_);
 //
 //        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
 //    }
@@ -75,7 +75,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadCoefficients(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
+        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -95,12 +95,13 @@ public:
         const Int ldB_in  = int_cast<Int>(ldB_in_ );
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
-        RequireBuffers( wave_count );
-        
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
 
 //        PrintBooleans();
         
+        RequireBuffers( wave_count );
+        
+        // Apply off-diagonal part of integral operators.
         if( Re_single_layer || Im_single_layer ||
             Re_double_layer || Im_double_layer ||
             Re_adjdbl_layer || Im_adjdbl_layer
@@ -115,7 +116,7 @@ public:
             B_loaded = true;
             ModifiedB( int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) );
 
-            BoundaryOperatorKernel_C( kappa );
+            BoundaryOperatorKernel_C( kappa, c );
             C_loaded = true;
 
             // TODO: Apply diagonal part of single layer boundary operator.
@@ -131,32 +132,82 @@ public:
             addTo = Scalar::One<C_ext>;
         }
         
-        if( Re_mass_matrix || Im_mass_matrix )
+        
+        // Apply diagonal of single layer boundary operators.
+        if( (Re_single_layer || Im_single_layer) && (wave_chunk_count >= 1) )
         {
-            if( wave_chunk_count >= 1 )
+            Tensor1<Complex,Int> I_kappa ( wave_chunk_count );
+            
+            const Int border_size = wave_count - wave_chunk_size * (wave_chunk_count-1);
+            
+            for( Int chunk = 0; chunk < wave_chunk_count; ++chunk )
             {
-                for( Int k = 0; k < wave_chunk_count-1; ++k )
+                I_kappa[chunk] = Complex( - imag(kappa[chunk]), real(kappa[chunk]) );
+            }
+
+            #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+            for( Int i = 0; i < simplex_count; ++i )
+            {
+                for( Int chunk = 0; chunk < wave_chunk_count-1; ++chunk )
                 {
-                    const Scalar::Complex<C_ext> factor = alpha * static_cast<C_ext>(c[k][0]);
+                    const Int pos = ldB * i + wave_chunk_size * chunk;
                     
-                    Mass.Dot(
-                        factor, &B_in [wave_chunk_size * k], ldB_in,
-                        addTo,  &C_out[wave_chunk_size * k], ldC_out,
+                    const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
+                    
+                    combine_buffers<Scalar::Flag::Generic, Scalar::Flag::Plus>(
+                        factor,               &B_ptr[pos],
+                        Scalar::One<Complex>, &C_ptr[pos],
                         wave_chunk_size
                     );
                 }
+                
                 {
-                    const Int k = wave_chunk_count-1;
-                    const Scalar::Complex<C_ext> factor = alpha * static_cast<C_ext>(c[k][0]);
+                    const Int chunk = wave_chunk_count - 1;
                     
-                    Mass.Dot(
-                        factor, &B_in [wave_chunk_size * k], ldB_in,
-                        addTo,  &C_out[wave_chunk_size * k], ldC_out,
-                        wave_count - wave_chunk_size*k
+                    const Int pos = ldB * i + wave_chunk_size * chunk;
+                    
+                    const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
+                    
+                    combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Plus>(
+                        factor,               &B_ptr[pos],
+                        Scalar::One<Complex>, &C_ptr[pos],
+                        border_size
                     );
                 }
             }
         }
+        
+        
+        // Apply mass matrix.
+        if( Re_mass_matrix || Im_mass_matrix )
+        {
+            if( wave_chunk_count >= 1 )
+            {
+                for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
+                {
+                    const Scalar::Complex<C_ext> factor
+                            = alpha * static_cast<C_ext>(c[chunk][0]);
+                    
+                    Mass.Dot(
+                        factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                        addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                        wave_chunk_size
+                    );
+                }
+                {
+                    const Int chunk = wave_chunk_count - 1;
+                    const Scalar::Complex<C_ext> factor
+                            = alpha * static_cast<C_ext>(c[chunk][0]);
+                    
+                    Mass.Dot(
+                        factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                        addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                        wave_count - wave_chunk_size*chunk
+                    );
+                }
+            }
+        }
+        
 
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
     }

@@ -9,7 +9,7 @@ public:
     
     using UInt       = uint32_t;
     
-    using Sparse_T = Sparse::MatrixCSR<Complex,Int,LInt>;    
+    using Sparse_T = Sparse::MatrixCSR<Real,Int,LInt>;    
 
     using WaveNumberContainer_T  = Tensor1<Real   ,Int>;
     using CoefficientContainer_T = Tensor2<Complex,Int>;

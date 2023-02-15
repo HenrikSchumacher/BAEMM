@@ -55,7 +55,7 @@ public:
         // Encode the pipeline state object and its parameters.
         compute_encoder->setComputePipelineState( pipeline );
 
-        LoadCoefficients(coeff);
+        LoadParameters(coeff);
         
         // Place data in encoder
         compute_encoder->setBuffer(mid_points,   0, 0 );
