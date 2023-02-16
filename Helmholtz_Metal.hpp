@@ -75,7 +75,7 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   device           ( device_                              )
         {
-            tic(ClassName());
+//            tic(ClassName());
             
             const uint size  =     simplex_count * sizeof(Real);
             const uint size4 = 4 * simplex_count * sizeof(Real);
@@ -105,7 +105,7 @@ namespace BAEMM
                 normals->didModifyRange({0,normals->length()});
             single_diag->didModifyRange({0,single_diag->length()});
             
-            toc(ClassName());
+//            toc(ClassName());
         }
         
         ~Helmholtz_Metal()
@@ -130,6 +130,8 @@ namespace BAEMM
 #include "src/Helmholtz_Metal/RequireBuffers.hpp"
         
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
+        
+#include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
         
 #include "src/Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
         

@@ -29,7 +29,7 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3 )
         ,   triangles        ( triangles_,     simplex_count, 3 )
         {
-            tic(ClassName());
+//            tic(ClassName());
             
             areas       = Tensor1<Real,Int>( simplex_count    );
             mid_points  = Tensor2<Real,Int>( simplex_count, 4 );
@@ -43,7 +43,7 @@ namespace BAEMM
             
             Initialize();
             
-            toc(ClassName());
+//            toc(ClassName());
         }
         
         ~Helmholtz_CPU() = default;
@@ -72,6 +72,8 @@ namespace BAEMM
 #include "src/Helmholtz_CPU/RequireBuffers.hpp"
 
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
+        
+#include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
         
 #include "src/Helmholtz_CPU/BoundaryOperatorKernel_C.hpp"
         

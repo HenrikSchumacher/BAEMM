@@ -294,17 +294,21 @@ int main(int argc, const char * argv[])
     print("Second run to factor-out one-time costs.");
     print("");
     
+    tic("H_CPU.ApplyBoundaryOperators_PL");
     H_CPU.ApplyBoundaryOperators_PL(
         alpha, X.data(),     ldX,
         beta,  Y_CPU.data(), ldY,
         kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
     );
+    toc("H_CPU.ApplyBoundaryOperators_PL");
     
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha, X.data(),     ldX,
         beta,  Y.data(),     ldY,
         kappa_list.data(), coeff_list.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
     
     // Check the correctness against CPU implementation (which might also be wrong!!!)
     {
@@ -348,44 +352,59 @@ int main(int argc, const char * argv[])
     print("");
     print("One nonzero coefficients.");
 
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
+    
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_0.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
     
     print("");
     print("");
     print("Three nonzero coefficients.");
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
+    
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_1.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
 
     print("");
     print("");
     print("Six nonzero coefficients.");
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
+    
+    tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,
         beta,       Y.data(),  ldY,
         kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
+    toc("H_Metal.ApplyBoundaryOperators_PL");
     
     print("");
     print("");

@@ -66,7 +66,30 @@ public:
         C_loaded = false;
     }
 
-    const Real * SingleLayerDiagonal( ) const
+    const Real * SingleLayerDiagonal() const
     {
         return single_diag_ptr;
     }
+
+    const Real * TriangleAreas() const
+    {
+        return areas_ptr;
+    }
+
+    const Real * TriangleNormals() const
+    {
+        return normals_ptr;
+    }
+
+    const Real * TriangleMidpoints() const
+    {
+        return mid_points_ptr;
+    }
+
+
+    void UseDiagonal( const bool use_it )
+    {
+        use_diagonal = use_it;
+    }
+
+

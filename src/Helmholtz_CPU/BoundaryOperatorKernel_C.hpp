@@ -63,7 +63,7 @@ public:
         const CoefficientContainer_T & c_
     )
     {
-        tic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
+        ptic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
         
 //        constexpr Int i_chunk_size = i_blk_size * wave_count;
 
@@ -211,5 +211,5 @@ public:
             } // for( Int thread = 0; thread < OMP_thread_count; ++thread )
         }
         
-        toc(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
+        ptoc(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
     }

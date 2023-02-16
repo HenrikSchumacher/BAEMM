@@ -22,7 +22,7 @@ void RequireBuffers( const Int wave_count_  )
        (new_size > std::min( B_buf->length(), C_buf->length() ) )
     )
     {
-        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
+//        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
         
         B_loaded = false;
         C_loaded = false;

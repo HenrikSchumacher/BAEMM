@@ -12,7 +12,7 @@ void RequireBuffers( const Int wave_count_ )
     
     if( simplex_count * wave_count > B_buf.Size() )
     {
-        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(simplex_count)+" * "+ToString(wave_count)+" = "+ToString(simplex_count * wave_count)+".");
+//        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(simplex_count)+" * "+ToString(wave_count)+" = "+ToString(simplex_count * wave_count)+".");
         
         B_loaded = false;
         C_loaded = false;

@@ -19,7 +19,7 @@ public:
             +"})";
         
         ptic(tag);
-        tic(tag);
+//        tic(tag);
         
         NS::SharedPtr<MTL::ComputePipelineState> pipeline = GetPipelineState(
             name,
@@ -104,6 +104,6 @@ public:
         command_buffer->commit();
         command_buffer->waitUntilCompleted();
         
-        toc(tag);
+//        toc(tag);
         ptoc(tag);
     }

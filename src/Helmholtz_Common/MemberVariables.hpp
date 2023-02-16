@@ -42,6 +42,8 @@ private:
     bool Re_adjdbl_layer = false;
     bool Im_adjdbl_layer = false;
 
+    bool use_diagonal = true;
+
     Int wave_chunk_size    = 16;
     Int wave_chunk_count   =  0;
     Int wave_count         =  0;

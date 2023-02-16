@@ -246,7 +246,7 @@ public:
                 const Real SinAlpha = L1_inv * vnorminv * a;
                 const Real SinBeta  = L2_inv * vnorminv * b;
                 
-                sum += L2 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
+                sum += L1 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
             }
             
             {
@@ -257,7 +257,7 @@ public:
                 const Real SinAlpha = L2_inv * vnorminv * a;
                 const Real SinBeta  = L0_inv * vnorminv * b;
                 
-                sum += L0 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
+                sum += L2 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
             }
             
             {
@@ -268,10 +268,10 @@ public:
                 const Real SinAlpha = L0_inv * vnorminv * a;
                 const Real SinBeta  = L1_inv * vnorminv * b;
                 
-                sum += L1 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
+                sum += L0 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
             }
             
-            single_diag_ptr[i] = sum / (areas_ptr[i] * areas_ptr[i]);
+            single_diag_ptr[i] = sum / areas_ptr[i];
         }
         
         AvOp = Sparse_T(

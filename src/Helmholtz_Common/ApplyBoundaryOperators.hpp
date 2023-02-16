@@ -90,8 +90,17 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_COMPLEX(C_ext);
         
+//        tic(ClassName()+"::ApplyBoundaryOperators_PL");
         ptic(ClassName()+"::ApplyBoundaryOperators_PL");
-
+        
+        if( wave_chunk_count < 1 )
+        {
+            ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+//            toc(ClassName()+"::ApplyBoundaryOperators_PL");
+            return;
+        }
+        
+    
         const Int ldB_in  = int_cast<Int>(ldB_in_ );
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
@@ -101,7 +110,6 @@ public:
         
         RequireBuffers( wave_count );
         
-        // Apply off-diagonal part of integral operators.
         if( Re_single_layer || Im_single_layer ||
             Re_double_layer || Im_double_layer ||
             Re_adjdbl_layer || Im_adjdbl_layer
@@ -116,10 +124,12 @@ public:
             B_loaded = true;
             ModifiedB( int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) );
 
+            // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C( kappa, c );
             C_loaded = true;
-
-            // TODO: Apply diagonal part of single layer boundary operator.
+            
+            // Apply diagonal of single layer operator.
+            ApplySingleLayerDiagonal( kappa, c );
             
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
@@ -132,82 +142,34 @@ public:
             addTo = Scalar::One<C_ext>;
         }
         
-        
-        // Apply diagonal of single layer boundary operators.
-        if( (Re_single_layer || Im_single_layer) && (wave_chunk_count >= 1) )
-        {
-            Tensor1<Complex,Int> I_kappa ( wave_chunk_count );
-            
-            const Int border_size = wave_count - wave_chunk_size * (wave_chunk_count-1);
-            
-            for( Int chunk = 0; chunk < wave_chunk_count; ++chunk )
-            {
-                I_kappa[chunk] = Complex( - imag(kappa[chunk]), real(kappa[chunk]) );
-            }
-
-            #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-            for( Int i = 0; i < simplex_count; ++i )
-            {
-                for( Int chunk = 0; chunk < wave_chunk_count-1; ++chunk )
-                {
-                    const Int pos = ldB * i + wave_chunk_size * chunk;
-                    
-                    const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
-                    
-                    combine_buffers<Scalar::Flag::Generic, Scalar::Flag::Plus>(
-                        factor,               &B_ptr[pos],
-                        Scalar::One<Complex>, &C_ptr[pos],
-                        wave_chunk_size
-                    );
-                }
-                
-                {
-                    const Int chunk = wave_chunk_count - 1;
-                    
-                    const Int pos = ldB * i + wave_chunk_size * chunk;
-                    
-                    const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
-                    
-                    combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Plus>(
-                        factor,               &B_ptr[pos],
-                        Scalar::One<Complex>, &C_ptr[pos],
-                        border_size
-                    );
-                }
-            }
-        }
-        
-        
         // Apply mass matrix.
         if( Re_mass_matrix || Im_mass_matrix )
         {
-            if( wave_chunk_count >= 1 )
+            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
             {
-                for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-                {
-                    const Scalar::Complex<C_ext> factor
-                            = alpha * static_cast<C_ext>(c[chunk][0]);
-                    
-                    Mass.Dot(
-                        factor, &B_in [wave_chunk_size * chunk], ldB_in,
-                        addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
-                        wave_chunk_size
-                    );
-                }
-                {
-                    const Int chunk = wave_chunk_count - 1;
-                    const Scalar::Complex<C_ext> factor
-                            = alpha * static_cast<C_ext>(c[chunk][0]);
-                    
-                    Mass.Dot(
-                        factor, &B_in [wave_chunk_size * chunk], ldB_in,
-                        addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
-                        wave_count - wave_chunk_size*chunk
-                    );
-                }
+                const Scalar::Complex<C_ext> factor
+                        = alpha * static_cast<C_ext>(c[chunk][0]);
+                
+                Mass.Dot(
+                    factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                    addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                    wave_chunk_size
+                );
             }
+            {
+                const Int chunk = wave_chunk_count - 1;
+                const Scalar::Complex<C_ext> factor
+                        = alpha * static_cast<C_ext>(c[chunk][0]);
+                
+                Mass.Dot(
+                    factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                    addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                    wave_count - wave_chunk_size*chunk
+                );
+            }
+            
         }
         
-
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+//        toc(ClassName()+"::ApplyBoundaryOperators_PL");
     }
