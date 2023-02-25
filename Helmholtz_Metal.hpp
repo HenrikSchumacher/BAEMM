@@ -53,6 +53,7 @@ namespace BAEMM
         NS::SharedPtr<MTL::Buffer> mid_points;
         NS::SharedPtr<MTL::Buffer> normals;
         NS::SharedPtr<MTL::Buffer> single_diag;
+        NS::SharedPtr<MTL::Buffer> tri_coords;
         
         NS::SharedPtr<MTL::Buffer> B_buf;
         NS::SharedPtr<MTL::Buffer> C_buf;
@@ -77,18 +78,20 @@ namespace BAEMM
         {
 //            tic(ClassName());
             
-            const uint size  =     simplex_count * sizeof(Real);
-            const uint size4 = 4 * simplex_count * sizeof(Real);
+            const uint size     =     simplex_count * sizeof(Real);
+            const uint size4    = 4 * simplex_count * sizeof(Real);
             
-            areas       = NS::TransferPtr(device->newBuffer(size,  Managed));
-            mid_points  = NS::TransferPtr(device->newBuffer(size4, Managed));
-            normals     = NS::TransferPtr(device->newBuffer(size4, Managed));
-            single_diag = NS::TransferPtr(device->newBuffer(size,  Managed));
+            areas               = NS::TransferPtr(device->newBuffer(size,    Managed));
+            mid_points          = NS::TransferPtr(device->newBuffer(size4,   Managed));
+            normals             = NS::TransferPtr(device->newBuffer(size4,   Managed));
+            single_diag         = NS::TransferPtr(device->newBuffer(size,    Managed));
+            tri_coords          = NS::TransferPtr(device->newBuffer(3*size4, Managed));
             
-            areas_ptr       = reinterpret_cast<Real *>(      areas->contents());
-            mid_points_ptr  = reinterpret_cast<Real *>( mid_points->contents());
-            normals_ptr     = reinterpret_cast<Real *>(    normals->contents());
-            single_diag_ptr = reinterpret_cast<Real *>(single_diag->contents());
+            areas_ptr           = reinterpret_cast<Real*>(      areas->contents());
+            mid_points_ptr      = reinterpret_cast<Real*>( mid_points->contents());
+            normals_ptr         = reinterpret_cast<Real*>(    normals->contents());
+            single_diag_ptr     = reinterpret_cast<Real*>(single_diag->contents());
+            tri_coords_ptr      = reinterpret_cast<Real*>( tri_coords->contents());
             
             command_queue = NS::TransferPtr(device->newCommandQueue());
             

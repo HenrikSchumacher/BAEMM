@@ -31,15 +31,19 @@ namespace BAEMM
         {
 //            tic(ClassName());
             
-            areas       = Tensor1<Real,Int>( simplex_count    );
-            mid_points  = Tensor2<Real,Int>( simplex_count, 4 );
-            normals     = Tensor2<Real,Int>( simplex_count, 4 );
-            single_diag = Tensor1<Real,Int>( simplex_count    );
+            areas           = Tensor1<Real,Int>( simplex_count    );
+            mid_points      = Tensor2<Real,Int>( simplex_count, 4 );
+            normals         = Tensor2<Real,Int>( simplex_count, 4 );
+            single_diag     = Tensor1<Real,Int>( simplex_count    );
+            tri_coords      = Tensor3<Real,Int>( simplex_count, 3, 4 );
             
             areas_ptr       = areas.data();
             mid_points_ptr  = mid_points.data();
             normals_ptr     = normals.data();
             single_diag_ptr = single_diag.data();
+            tri_coords_ptr  = tri_coords.data();
+            
+            dump( tri_coords.Size() );
             
             Initialize();
             
@@ -55,6 +59,8 @@ namespace BAEMM
         Tensor2<Real,Int> mid_points;
         Tensor2<Real,Int> normals;
         Tensor1<Real,Int> single_diag;
+        
+        Tensor3<Real,Int> tri_coords;
         
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;
@@ -76,6 +82,10 @@ namespace BAEMM
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
         
 #include "src/Helmholtz_CPU/BoundaryOperatorKernel_C.hpp"
+        
+
+
+//#include "src/Helmholtz_CPU/SingleLayer.hpp"
         
     public:
         

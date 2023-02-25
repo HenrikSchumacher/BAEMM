@@ -71,7 +71,7 @@ constant constexpr float one     = static_cast<float>(1);
     const int block_count = (n + block_size - 1) / block_size;
     
 //    const int i_loc   = thread_position_in_threadgroup;
-    const int i       = thread_position_in_grid;
+    const int i = thread_position_in_grid;
 //    const int i_block = threadgroup_position_in_grid;
 
     // each thread in the threadgroup gets one target point x and normal nu assigned.

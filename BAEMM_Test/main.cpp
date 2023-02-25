@@ -119,9 +119,9 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
     
 //        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
-    //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
+//        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
     
     Tensor2<Real,Int> coords;
@@ -405,6 +405,7 @@ int main(int argc, const char * argv[])
         kappa_list.data(), coeff_2.data(), wave_count, wave_chunk_size
     );
     toc("H_Metal.ApplyBoundaryOperators_PL");
+    
     
     print("");
     print("");

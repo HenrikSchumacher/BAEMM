@@ -24,8 +24,10 @@ public:
         Tensor3<Real,   LInt> a_list ( simplex_count, 3, 3 );
         
         // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
+
+        dump(12 * simplex_count );
         
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+//        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < simplex_count; ++i )
         {
             Tiny::Vector<3,Real,Int> x_0;
@@ -50,21 +52,22 @@ public:
             Int i_1 = triangles(i,1);
             Int i_2 = triangles(i,2);
             
-            x_0[0] = vertex_coords(i_0,0);
-            x_0[1] = vertex_coords(i_0,1);
-            x_0[2] = vertex_coords(i_0,2);
+            tri_coords_ptr[12*i+ 0] = x_0[0] = vertex_coords(i_0,0);
+            tri_coords_ptr[12*i+ 1] = x_0[1] = vertex_coords(i_0,1);
+            tri_coords_ptr[12*i+ 2] = x_0[2] = vertex_coords(i_0,2);
+            tri_coords_ptr[12*i+ 3] = Scalar::Zero<Real>;
+            tri_coords_ptr[12*i+ 4] = x_1[0] = vertex_coords(i_1,0);
+            tri_coords_ptr[12*i+ 5] = x_1[1] = vertex_coords(i_1,1);
+            tri_coords_ptr[12*i+ 6] = x_1[2] = vertex_coords(i_1,2);
+            tri_coords_ptr[12*i+ 7] = Scalar::Zero<Real>;
+            tri_coords_ptr[12*i+ 8] = x_2[0] = vertex_coords(i_2,0);
+            tri_coords_ptr[12*i+ 9] = x_2[1] = vertex_coords(i_2,1);
+            tri_coords_ptr[12*i+10] = x_2[2] = vertex_coords(i_2,2);
+            tri_coords_ptr[12*i+11] = Scalar::Zero<Real>;
             
-            x_1[0] = vertex_coords(i_1,0);
-            x_1[1] = vertex_coords(i_1,1);
-            x_1[2] = vertex_coords(i_1,2);
-            
-            x_2[0] = vertex_coords(i_2,0);
-            x_2[1] = vertex_coords(i_2,1);
-            x_2[2] = vertex_coords(i_2,2);
-            
-            c[0] = third * ( x_0[0] + x_1[0] + x_2[0] );
-            c[1] = third * ( x_0[1] + x_1[1] + x_2[1] );
-            c[2] = third * ( x_0[2] + x_1[2] + x_2[2] );
+            c[0] = third * (x_0[0] + x_1[0] + x_2[0]);
+            c[1] = third * (x_0[1] + x_1[1] + x_2[1]);
+            c[2] = third * (x_0[2] + x_1[2] + x_2[2]);
             
             // Compute the vectors pointing from the triangle center to the corners.
             // Will be used for diagonal of single layer operator.

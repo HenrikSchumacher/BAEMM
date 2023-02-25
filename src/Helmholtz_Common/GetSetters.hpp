@@ -92,4 +92,3 @@ public:
         use_diagonal = use_it;
     }
 
-

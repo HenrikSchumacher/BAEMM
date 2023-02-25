@@ -8,16 +8,17 @@ private:
     Tensor2<Real,Int> vertex_coords;
     Tensor2<Int ,Int> triangles;
 
-    WaveNumberContainer_T  kappa;
-    WaveNumberContainer_T  kappa3;
+    WaveNumberContainer_T kappa;
+    WaveNumberContainer_T kappa3;
     
     CoefficientContainer_T c;
     CoefficientContainer_T c3;
 
-    Real * restrict areas_ptr       = nullptr;
-    Real * restrict mid_points_ptr  = nullptr;
-    Real * restrict normals_ptr     = nullptr;
-    Real * restrict single_diag_ptr = nullptr;
+    Real * restrict areas_ptr           = nullptr;
+    Real * restrict mid_points_ptr      = nullptr;
+    Real * restrict normals_ptr         = nullptr;
+    Real * restrict single_diag_ptr     = nullptr;
+    Real * restrict tri_coords_ptr      = nullptr;
 
     Complex * restrict B_ptr = nullptr;
     Complex * restrict C_ptr = nullptr;
