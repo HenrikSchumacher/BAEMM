@@ -185,7 +185,6 @@ constant constexpr float one     = static_cast<float>(1);
                     float SinKappaR = sincos( KappaR, CosKappaR );
                     
 
-
                     A_i[j_loc][0] = 0.f;
                     A_i[j_loc][1] = 0.f;
                     
@@ -216,8 +215,8 @@ constant constexpr float one     = static_cast<float>(1);
                         const float KappaRCosKappaR = KappaR * CosKappaR;
                         const float KappaRSinKappaR = KappaR * SinKappaR;
                         
-                        const float a_0 = -(KappaRSinKappaR + CosKappaR) * r3_inv;
-                        const float a_1 =  (KappaRCosKappaR - SinKappaR) * r3_inv;
+                        const float a_0 = (KappaRSinKappaR + CosKappaR) * r3_inv;
+                        const float a_1 = (KappaRCosKappaR - SinKappaR) * r3_inv;
                         
                         
                         if( Re_double_layer || Im_double_layer )
@@ -234,16 +233,16 @@ constant constexpr float one     = static_cast<float>(1);
                             
                             const float b_0 = factor * a_0;
                             const float b_1 = factor * a_1;
-
-                            if( Re_double_layer )
+                            
+                            if (Re_double_layer )
                             {
-                                A_i[j_loc][0] += b_0 * c[2][0];
-                                A_i[j_loc][1] += b_1 * c[2][0];
+                                A_i[j_loc][0] -= b_0 * c[2][0];
+                                A_i[j_loc][1] -= b_1 * c[2][0];
                             }
-                            if( Im_double_layer )
+                            if (Im_double_layer )
                             {
-                                A_i[j_loc][0] -= b_1 * c[2][1];
-                                A_i[j_loc][1] += b_0 * c[2][1];
+                                A_i[j_loc][0] += b_1 * c[2][1];
+                                A_i[j_loc][1] -= b_0 * c[2][1];
                             }
                         }
                         
@@ -253,7 +252,7 @@ constant constexpr float one     = static_cast<float>(1);
                             // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
                             // to A_i.
                             
-                            const float factor = - (
+                            const float factor = (
                                   z[0] * nu_i[0]
                                 + z[1] * nu_i[1]
                                 + z[2] * nu_i[2]
@@ -265,11 +264,12 @@ constant constexpr float one     = static_cast<float>(1);
                             if( Re_adjdbl_layer )
                             {
                                 A_i[j_loc][0] += b_0 * c[3][0];
-                                A_i[j_loc][1] += b_1 * c[3][0];
+                                A_i[j_loc][1] += b_1 * c[3][1];
                             }
+                            
                             if( Im_adjdbl_layer )
                             {
-                                A_i[j_loc][0] -= b_1 * c[3][1];
+                                A_i[j_loc][0] -= b_1 * c[3][0];
                                 A_i[j_loc][1] += b_0 * c[3][1];
                             }
                         }

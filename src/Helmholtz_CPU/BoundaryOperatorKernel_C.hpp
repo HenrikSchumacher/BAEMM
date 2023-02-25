@@ -154,14 +154,14 @@ public:
                                 
                                 const Real r3_inv = r_inv * r_inv * r_inv;
                                 
-                                const Complex I_kappa_r (
+                                const Complex I_kappa_r {
                                     Scalar::Zero<Real>,
                                     kappa_[k_chunk] * r
-                                );
+                                };
                                 
                                 const Complex exp_I_kappa_r ( std::exp(I_kappa_r) );
                                 
-                                const Complex factor ( (I_kappa_r - one) * r3_inv );
+                                const Complex factor { (I_kappa_r - one) * r3_inv };
                                 
                                 A[i][j] = exp_I_kappa_r * (
                                     c_[k_chunk][1] * r_inv

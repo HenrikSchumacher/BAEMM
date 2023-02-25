@@ -25,9 +25,7 @@ public:
         
         // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
 
-        dump(12 * simplex_count );
-        
-//        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < simplex_count; ++i )
         {
             Tiny::Vector<3,Real,Int> x_0;

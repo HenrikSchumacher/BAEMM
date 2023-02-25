@@ -113,7 +113,7 @@ namespace BAEMM
         
         ~Helmholtz_Metal()
         {
-            print("~Helmholtz_Metal()");
+//            print("~Helmholtz_Metal()");
             
             pipelines = std::map<std::string, NS::SharedPtr<MTL::ComputePipelineState>> ();
         }

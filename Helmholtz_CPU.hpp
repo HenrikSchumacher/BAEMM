@@ -43,8 +43,6 @@ namespace BAEMM
             single_diag_ptr = single_diag.data();
             tri_coords_ptr  = tri_coords.data();
             
-            dump( tri_coords.Size() );
-            
             Initialize();
             
 //            toc(ClassName());
