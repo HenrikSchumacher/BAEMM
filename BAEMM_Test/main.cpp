@@ -153,7 +153,7 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     
-    static constexpr Int wave_count       = 64;
+    static constexpr Int wave_count       = 16;
     static constexpr Int wave_chunk_size  = 16;
     static constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
