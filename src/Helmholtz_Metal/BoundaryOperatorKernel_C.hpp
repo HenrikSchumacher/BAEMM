@@ -31,7 +31,12 @@ public:
             +"})";
         
         ptic(tag);
-//        tic(tag);
+        
+        // DEBUGGING
+        tic(tag);
+        
+        PrintBooleans();
+        
         
         NS::SharedPtr<MTL::ComputePipelineState> pipeline = GetPipelineState(
             name,
@@ -54,16 +59,31 @@ public:
         
         assert( pipeline.get() != nullptr );
         
+        if( pipeline.get() == nullptr )
+        {
+            print("pipeline.get() == nullptr");
+        }
+        
         // Now we can proceed to set up the MTL::CommandBuffer.
 
         // Create a command buffer to hold commands.
         NS::SharedPtr<MTL::CommandBuffer> command_buffer = NS::TransferPtr(command_queue->commandBuffer());
         assert( command_buffer.get() != nullptr );
 
+        if( command_buffer.get() == nullptr )
+        {
+            print("command_buffer.get() == nullptr");
+        }
+        
         // Create an encoder that translates our command to something the
         // device understands
         NS::SharedPtr<MTL::ComputeCommandEncoder> compute_encoder = NS::TransferPtr(command_buffer->computeCommandEncoder());
         assert( compute_encoder.get() != nullptr );
+        
+        if( compute_encoder.get() != nullptr )
+        {
+            print("compute_encoder.get() != nullptr");
+        }
 
         // Encode the pipeline state object and its parameters.
         compute_encoder->setComputePipelineState( pipeline.get() );
@@ -108,6 +128,11 @@ public:
         MTL::BlitCommandEncoder * blit_command_encoder = command_buffer->blitCommandEncoder();
         assert( blit_command_encoder != nullptr );
         
+        if( blit_command_encoder == nullptr )
+        {
+            print("blit_command_encoder = nullptr");
+        }
+        
         blit_command_encoder->synchronizeResource(C_buf.get());
         blit_command_encoder->endEncoding();
         
@@ -116,6 +141,8 @@ public:
         command_buffer->commit();
         command_buffer->waitUntilCompleted();
         
-//        toc(tag);
+        // DEBUGGING
+        toc(tag);
+        
         ptoc(tag);
     }
