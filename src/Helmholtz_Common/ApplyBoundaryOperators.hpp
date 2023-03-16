@@ -128,6 +128,8 @@ public:
             // Apply diagonal of single layer operator.
 //            ApplySingleLayerDiagonal( kappa, c );
             
+            copy_buffer( B_ptr, C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) );
+            
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             AvOpTransp.Dot(
