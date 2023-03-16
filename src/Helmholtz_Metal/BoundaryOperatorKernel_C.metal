@@ -185,95 +185,98 @@ constant constexpr float one     = static_cast<float>(1);
                     float SinKappaR = sincos( KappaR, CosKappaR );
                     
 
-
-                    A_i[j_loc][0] = 0.f;
-                    A_i[j_loc][1] = 0.f;
-                    
-                    if( Re_single_layer && Im_single_layer )
-                    {
-                        A_i[j_loc][0] += (c[1][0] * CosKappaR - c[1][1] * SinKappaR) * r_inv;
-                        A_i[j_loc][1] += (c[1][0] * SinKappaR + c[1][1] * CosKappaR) * r_inv ;
-                    }
-                    else if (Re_single_layer )
-                    {
-                        A_i[j_loc][0] += (c[1][0] * CosKappaR) * r_inv;
-                        A_i[j_loc][1] += (c[1][0] * SinKappaR) * r_inv;
-                    }
-                    else if (Im_single_layer )
-                    {
-                        A_i[j_loc][0] += (- c[1][1] * SinKappaR) * r_inv;
-                        A_i[j_loc][1] += (+ c[1][1] * CosKappaR) * r_inv;
-                    }
+                    A_i[j_loc][0] = 1.f;
+                    A_i[j_loc][1] = 1.f;
                     
                     
-
-                    if( Re_double_layer || Im_double_layer
-                        ||
-                        Re_adjdbl_layer || Im_adjdbl_layer
-                    )
-                    {
-                        const float r3_inv = r_inv * r_inv * r_inv;
-                        const float KappaRCosKappaR = KappaR * CosKappaR;
-                        const float KappaRSinKappaR = KappaR * SinKappaR;
-                        
-                        const float a_0 = -(KappaRSinKappaR + CosKappaR) * r3_inv;
-                        const float a_1 =  (KappaRCosKappaR - SinKappaR) * r3_inv;
-                        
-                        
-                        if( Re_double_layer || Im_double_layer )
-                        {
-                            // We have to add
-                            // c[2] * exp(I * kappa * r) * (I * kappa * r - 1) ( z.mu_j ) / r^3
-                            // to A_i.
-                            
-                            const float factor = (
-                                  z[0] * mu[j_loc][0]
-                                + z[1] * mu[j_loc][1]
-                                + z[2] * mu[j_loc][2]
-                            );
-                            
-                            const float b_0 = factor * a_0;
-                            const float b_1 = factor * a_1;
-
-                            if( Re_double_layer )
-                            {
-                                A_i[j_loc][0] += b_0 * c[2][0];
-                                A_i[j_loc][1] += b_1 * c[2][0];
-                            }
-                            if( Im_double_layer )
-                            {
-                                A_i[j_loc][0] -= b_1 * c[2][1];
-                                A_i[j_loc][1] += b_0 * c[2][1];
-                            }
-                        }
-                        
-                        if( Re_adjdbl_layer || Im_adjdbl_layer )
-                        {
-                            // We have to add
-                            // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
-                            // to A_i.
-                            
-                            const float factor = - (
-                                  z[0] * nu_i[0]
-                                + z[1] * nu_i[1]
-                                + z[2] * nu_i[2]
-                            );
-                            
-                            const float b_0 = factor * a_0;
-                            const float b_1 = factor * a_1;
-                            
-                            if( Re_adjdbl_layer )
-                            {
-                                A_i[j_loc][0] += b_0 * c[3][0];
-                                A_i[j_loc][1] += b_1 * c[3][0];
-                            }
-                            if( Im_adjdbl_layer )
-                            {
-                                A_i[j_loc][0] -= b_1 * c[3][1];
-                                A_i[j_loc][1] += b_0 * c[3][1];
-                            }
-                        }
-                    }
+//                    A_i[j_loc][0] = 0.f;
+//                    A_i[j_loc][1] = 0.f;
+//
+//                    if( Re_single_layer && Im_single_layer )
+//                    {
+//                        A_i[j_loc][0] += (c[1][0] * CosKappaR - c[1][1] * SinKappaR) * r_inv;
+//                        A_i[j_loc][1] += (c[1][0] * SinKappaR + c[1][1] * CosKappaR) * r_inv ;
+//                    }
+//                    else if (Re_single_layer )
+//                    {
+//                        A_i[j_loc][0] += (c[1][0] * CosKappaR) * r_inv;
+//                        A_i[j_loc][1] += (c[1][0] * SinKappaR) * r_inv;
+//                    }
+//                    else if (Im_single_layer )
+//                    {
+//                        A_i[j_loc][0] += (- c[1][1] * SinKappaR) * r_inv;
+//                        A_i[j_loc][1] += (+ c[1][1] * CosKappaR) * r_inv;
+//                    }
+//
+//
+//
+//                    if( Re_double_layer || Im_double_layer
+//                        ||
+//                        Re_adjdbl_layer || Im_adjdbl_layer
+//                    )
+//                    {
+//                        const float r3_inv = r_inv * r_inv * r_inv;
+//                        const float KappaRCosKappaR = KappaR * CosKappaR;
+//                        const float KappaRSinKappaR = KappaR * SinKappaR;
+//
+//                        const float a_0 = -(KappaRSinKappaR + CosKappaR) * r3_inv;
+//                        const float a_1 =  (KappaRCosKappaR - SinKappaR) * r3_inv;
+//
+//
+//                        if( Re_double_layer || Im_double_layer )
+//                        {
+//                            // We have to add
+//                            // c[2] * exp(I * kappa * r) * (I * kappa * r - 1) ( z.mu_j ) / r^3
+//                            // to A_i.
+//
+//                            const float factor = (
+//                                  z[0] * mu[j_loc][0]
+//                                + z[1] * mu[j_loc][1]
+//                                + z[2] * mu[j_loc][2]
+//                            );
+//
+//                            const float b_0 = factor * a_0;
+//                            const float b_1 = factor * a_1;
+//
+//                            if( Re_double_layer )
+//                            {
+//                                A_i[j_loc][0] += b_0 * c[2][0];
+//                                A_i[j_loc][1] += b_1 * c[2][0];
+//                            }
+//                            if( Im_double_layer )
+//                            {
+//                                A_i[j_loc][0] -= b_1 * c[2][1];
+//                                A_i[j_loc][1] += b_0 * c[2][1];
+//                            }
+//                        }
+//
+//                        if( Re_adjdbl_layer || Im_adjdbl_layer )
+//                        {
+//                            // We have to add
+//                            // c[3] * exp(I * kappa * r) * (I * kappa * r - 1) ( - z.nu_i ) / r^3
+//                            // to A_i.
+//
+//                            const float factor = - (
+//                                  z[0] * nu_i[0]
+//                                + z[1] * nu_i[1]
+//                                + z[2] * nu_i[2]
+//                            );
+//
+//                            const float b_0 = factor * a_0;
+//                            const float b_1 = factor * a_1;
+//
+//                            if( Re_adjdbl_layer )
+//                            {
+//                                A_i[j_loc][0] += b_0 * c[3][0];
+//                                A_i[j_loc][1] += b_1 * c[3][0];
+//                            }
+//                            if( Im_adjdbl_layer )
+//                            {
+//                                A_i[j_loc][0] -= b_1 * c[3][1];
+//                                A_i[j_loc][1] += b_0 * c[3][1];
+//                            }
+//                        }
+//                    }
                     
                 } // for( int j_loc = 0; j_loc < block_size; ++j_loc )
             }

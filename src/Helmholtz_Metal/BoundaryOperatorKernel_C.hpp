@@ -7,9 +7,14 @@ public:
     {
         // This is to blame.
         
+        //DEBUGGING_BEGIN
         zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
         
         ModifiedC();
+        
+        PrintBooleans();
+        
+        //DEBUGGING_END
         
         std::string name ("BoundaryOperatorKernel_C");
         
