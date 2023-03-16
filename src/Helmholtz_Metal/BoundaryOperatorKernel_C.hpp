@@ -7,10 +7,8 @@ public:
     {
         // This is to blame.
         
-        zerofy_buffer( B_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) );
         zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
         
-        ModifiedB();
         ModifiedC();
         
         std::string name ("BoundaryOperatorKernel_C");
