@@ -78,7 +78,6 @@ public:
         
         JobPointers<Int> job_ptr(simplex_count/i_blk_size, OMP_thread_count);
 
-
         for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
         {
             #pragma omp parallel for num_threads( OMP_thread_count)

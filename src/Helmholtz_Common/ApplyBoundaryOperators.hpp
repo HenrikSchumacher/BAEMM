@@ -89,14 +89,12 @@ public:
         // The same as above, but assumes that
         ASSERT_INT(I_ext);
         ASSERT_COMPLEX(C_ext);
-        
-//        tic(ClassName()+"::ApplyBoundaryOperators_PL");
+
         ptic(ClassName()+"::ApplyBoundaryOperators_PL");
         
         if( wave_chunk_count < 1 )
         {
             ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
-//            toc(ClassName()+"::ApplyBoundaryOperators_PL");
             return;
         }
         
@@ -105,8 +103,6 @@ public:
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
-
-//        PrintBooleans();
         
         RequireBuffers( wave_count );
         
@@ -121,12 +117,11 @@ public:
                 wave_count
             );
 
-            B_loaded = true;
-            ModifiedB( int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) );
-
+            ModifiedB();
+            C_loaded = true;
+            
             // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C( kappa, c );
-            C_loaded = true;
             
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
@@ -171,5 +166,4 @@ public:
         }
         
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
-//        toc(ClassName()+"::ApplyBoundaryOperators_PL");
     }

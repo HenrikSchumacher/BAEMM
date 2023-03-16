@@ -39,20 +39,12 @@ void RequireBuffers( const Int wave_count_  )
 
 void ModifiedB()
 {
-    B_buf->didModifyRange({0, B_buf->length()});
-}
-
-void ModifiedB( const LInt n )
-{
-    B_buf->didModifyRange({0, n * sizeof(Complex)});
+    B_buf->didModifyRange({0, int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) });
+    B_loaded = true;
 }
 
 void ModifiedC()
 {
-    C_buf->didModifyRange({0, C_buf->length()});
-}
-
-void ModifiedC( const LInt n )
-{
-    C_buf->didModifyRange({0, n * sizeof(Complex)});
+    C_buf->didModifyRange({0, int_cast<LInt>(wave_count) * int_cast<LInt>(ldC) });
+    C_loaded = true;
 }

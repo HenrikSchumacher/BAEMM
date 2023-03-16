@@ -25,10 +25,12 @@ void RequireBuffers( const Int wave_count_ )
     }
 }
 
-void ModifiedB() {}
+void ModifiedB()
+{
+    B_loaded = true;
+}
 
-void ModifiedB( const LInt n ) {}
-
-void ModifiedC() {}
-
-void ModifiedC( const LInt n ) {}
+void ModifiedC()
+{
+    C_loaded = true;
+}

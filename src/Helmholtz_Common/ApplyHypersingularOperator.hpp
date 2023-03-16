@@ -87,11 +87,10 @@ public:
             wave_count
         );
 
-        B_loaded = true;
-        ModifiedB( int_cast<LInt>(wave_count_3) * int_cast<LInt>(ldB) );
-
-        BoundaryOperatorKernel_C( kappa3, c3 );
+        ModifiedB();
         C_loaded = true;
+        
+        BoundaryOperatorKernel_C( kappa3, c3 );
 
         // TODO: Apply diagonal part of single layer boundary operator.
         

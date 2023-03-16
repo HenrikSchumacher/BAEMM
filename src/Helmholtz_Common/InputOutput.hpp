@@ -33,8 +33,6 @@ public:
     
     void ReadB( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
-//            tic("ReadB");
-        
         RequireBuffers( wave_count_ );
 
         #pragma omp parallel for num_threads( OMP_thread_count )
@@ -43,9 +41,7 @@ public:
             copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
         }
         
-        ModifiedB( int_cast<LInt>(simplex_count) * int_cast<LInt>(ldB) );
-        B_loaded = true;
-//            toc("ReadB");
+        ModifiedB();
     }
     
     void ReadB( ptr<Complex> input, const Int wave_count_ )
@@ -64,7 +60,6 @@ public:
     
     void ReadC( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
-//            tic("ReadC");
         RequireBuffers( wave_count_ );
         
         #pragma omp parallel for num_threads( OMP_thread_count )
@@ -73,10 +68,7 @@ public:
             copy_buffer( &input[ld_input * i], &C_ptr[ldC * i], wave_count );
         }
         
-        ModifiedC( int_cast<LInt>(simplex_count) * ldC );
-        C_loaded = true;
-        
-//            toc("ReadC");
+        ModifiedC();
     }
     
     void ReadC( ptr<Complex> input, const Int wave_count_ )
@@ -86,13 +78,9 @@ public:
     
     void WriteC( mut<Complex> output, const Int ld_output )
     {
-//            tic("WriteC");
-        
         #pragma omp parallel for num_threads( OMP_thread_count )
         for( Int i = 0; i < simplex_count; ++i )
         {
             copy_buffer( &C_ptr[ldC * i], &output[ld_output * i], wave_count );
         }
-        
-//            toc("WriteC");
     }
