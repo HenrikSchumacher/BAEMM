@@ -8,6 +8,7 @@ public:
         // This is to blame.
         
         //DEBUGGING_BEGIN
+        ModifiedB();
         zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
         
         ModifiedC();
