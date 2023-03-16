@@ -7,15 +7,15 @@ public:
     {
         // This is to blame.
         
-        //DEBUGGING_BEGIN
-        ModifiedB();
-        zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
-        
-        ModifiedC();
-        
-        PrintBooleans();
-        
-        //DEBUGGING_END
+//        //DEBUGGING_BEGIN
+//        ModifiedB();
+//        zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
+//
+//        ModifiedC();
+//
+//        PrintBooleans();
+//
+//        //DEBUGGING_END
         
         std::string name ("BoundaryOperatorKernel_C");
         
@@ -83,8 +83,6 @@ public:
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 
-        // DEBUGGING
-        dump(max_threads);
 //        if(block_size != max_threads)
 //        {
 //            wprint(ClassName()+"::ApplyBoundaryOperators: block_size != max_threads");
