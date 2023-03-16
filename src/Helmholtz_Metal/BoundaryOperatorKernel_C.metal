@@ -154,7 +154,7 @@ constant constexpr float one     = static_cast<float>(1);
                     y [j_loc][1] = 0.f;
                     y [j_loc][2] = 0.f;
                     
-                    if( Re_adjdbl_layer || Im_adjdbl_layer )
+                    if( Re_double_layer || Re_double_layer )
                     {
                         mu[j_loc][0] = 0.f;
                         mu[j_loc][1] = 0.f;
