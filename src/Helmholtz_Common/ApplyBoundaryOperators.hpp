@@ -69,6 +69,8 @@ public:
         const I_ext wave_chunk_size_
     )
     {
+        // This one is to blame.
+        
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
         ASSERT_INT(I_ext);

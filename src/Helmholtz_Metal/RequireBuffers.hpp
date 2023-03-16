@@ -35,16 +35,21 @@ void RequireBuffers( const Int wave_count_  )
      
         // Clearing out the right border and the bottom of the buffers is obsolete, because newBuffer already zerofies all bytes.
     }
+    else
+    {
+        zerofy_buffer( B_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) );
+        zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
+    }
 }
 
 void ModifiedB()
 {
-    B_buf->didModifyRange({0, int_cast<LInt>(wave_count) * int_cast<LInt>(ldB) });
+    B_buf->didModifyRange({0, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) });
     B_loaded = true;
 }
 
 void ModifiedC()
 {
-    C_buf->didModifyRange({0, int_cast<LInt>(wave_count) * int_cast<LInt>(ldC) });
+    C_buf->didModifyRange({0, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) });
     C_loaded = true;
 }
