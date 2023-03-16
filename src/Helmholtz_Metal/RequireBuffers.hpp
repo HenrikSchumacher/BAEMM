@@ -35,11 +35,6 @@ void RequireBuffers( const Int wave_count_  )
      
         // Clearing out the right border and the bottom of the buffers is obsolete, because newBuffer already zerofies all bytes.
     }
-    else
-    {
-        zerofy_buffer( B_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) );
-        zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
-    }
 }
 
 void ModifiedB()
