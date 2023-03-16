@@ -123,10 +123,10 @@ public:
             C_loaded = true;
             
             // Apply off-diagonal part of integral operators.
-            BoundaryOperatorKernel_C( kappa, c );
+//            BoundaryOperatorKernel_C( kappa, c );
             
             // Apply diagonal of single layer operator.
-            ApplySingleLayerDiagonal( kappa, c );
+//            ApplySingleLayerDiagonal( kappa, c );
             
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
