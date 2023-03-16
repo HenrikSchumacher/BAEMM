@@ -82,6 +82,8 @@ public:
 
         const NS::Integer max_threads = pipeline->maxTotalThreadsPerThreadgroup();
 
+        // DEBUGGING
+        dump(max_threads);
 //        if(block_size != max_threads)
 //        {
 //            wprint(ClassName()+"::ApplyBoundaryOperators: block_size != max_threads");
@@ -114,6 +116,12 @@ public:
         // Execute the command buffer.
         command_buffer->commit();
         command_buffer->waitUntilCompleted();
+        
+        //DEBUGGING_BEGIN
+        zerofy_buffer( C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) );
+        
+        ModifiedC();
+        //DEBUGGING_END
         
 //        toc(tag);
         ptoc(tag);
