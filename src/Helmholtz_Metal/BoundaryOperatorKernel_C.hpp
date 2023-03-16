@@ -5,6 +5,8 @@ public:
         const CoefficientContainer_T & c_
     )
     {
+        // This is to blame.
+        
         std::string name ("BoundaryOperatorKernel_C");
         
         if( !B_loaded )

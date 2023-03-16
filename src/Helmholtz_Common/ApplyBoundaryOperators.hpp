@@ -69,8 +69,6 @@ public:
         const I_ext wave_chunk_size_
     )
     {
-        // This one is to blame.
-        
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
         ASSERT_INT(I_ext);
@@ -123,13 +121,11 @@ public:
             C_loaded = true;
             
             // Apply off-diagonal part of integral operators.
-//            BoundaryOperatorKernel_C( kappa, c );
+            BoundaryOperatorKernel_C( kappa, c );
             
             // Apply diagonal of single layer operator.
-//            ApplySingleLayerDiagonal( kappa, c );
-            
-            copy_buffer( B_ptr, C_ptr, int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) );
-            
+            ApplySingleLayerDiagonal( kappa, c );
+                        
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             AvOpTransp.Dot(
