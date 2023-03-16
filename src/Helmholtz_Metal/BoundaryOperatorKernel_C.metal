@@ -304,20 +304,20 @@ constant constexpr float one     = static_cast<float>(1);
             threadgroup_barrier(mem_flags::mem_threadgroup);
 
             
-            // Do the actual matrix-matrix multiplication.
-            for( int j_loc = 0; j_loc < block_size; ++j_loc )
-            {
-                for( int k = 0; k < k_chunk_size; ++k )
-                {
-                    C_i[k][0] +=   A_i[j_loc][0] * B[j_loc][k][0]
-                                 - A_i[j_loc][1] * B[j_loc][k][1];
-
-                    C_i[k][1] +=   A_i[j_loc][0] * B[j_loc][k][1]
-                                 + A_i[j_loc][1] * B[j_loc][k][0];
-                }
-            }
-            
-            threadgroup_barrier(mem_flags::mem_threadgroup);
+//            // Do the actual matrix-matrix multiplication.
+//            for( int j_loc = 0; j_loc < block_size; ++j_loc )
+//            {
+//                for( int k = 0; k < k_chunk_size; ++k )
+//                {
+//                    C_i[k][0] +=   A_i[j_loc][0] * B[j_loc][k][0]
+//                                 - A_i[j_loc][1] * B[j_loc][k][1];
+//
+//                    C_i[k][1] +=   A_i[j_loc][0] * B[j_loc][k][1]
+//                                 + A_i[j_loc][1] * B[j_loc][k][0];
+//                }
+//            }
+//            
+//            threadgroup_barrier(mem_flags::mem_threadgroup);
             
         } // for( int j_block = 0; j_block < block_count; ++j_block )
         
