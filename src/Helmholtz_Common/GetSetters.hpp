@@ -9,7 +9,7 @@ public:
     {
         return simplex_count;
     }
-    
+
     const Sparse_T & MassMatrix() const
     {
         return Mass;

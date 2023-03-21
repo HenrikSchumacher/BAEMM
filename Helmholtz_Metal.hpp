@@ -141,6 +141,18 @@ namespace BAEMM
 #include "src/Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
         
 //#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
+    
+    public:
+        
+        const float * VertexCoordinates() const
+        {
+            return vertex_coords.data();
+        }
+
+        const float * TriangleCoordinates() const
+        {
+            return reinterpret_cast<const float *>(tri_coords->contents());
+        }
         
     public:
         

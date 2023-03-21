@@ -1,6 +1,6 @@
 public:
 
-    template<typename R_ext, typename C_ext, typename I_ext>
+    template<typename B_ext, typename C_ext, typename I_ext>
     void ApplyAvOp_PL(
         const C_ext alpha, const B_ext * B_in,  const I_ext ldB_in,
         const C_ext beta,        C_ext * C_out, const I_ext ldC_out,
@@ -23,7 +23,7 @@ public:
 
     }
 
-    template<typename R_ext, typename C_ext, typename I_ext>
+    template<typename B_ext, typename C_ext, typename I_ext>
     void ApplyAvOpTransp_PL(
         const C_ext alpha, const B_ext * B_in,  const I_ext ldB_in,
         const C_ext beta,        C_ext * C_out, const I_ext ldC_out,

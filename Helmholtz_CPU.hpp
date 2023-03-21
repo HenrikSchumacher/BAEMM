@@ -86,6 +86,18 @@ namespace BAEMM
 
 
 //#include "src/Helmholtz_CPU/SingleLayer.hpp"
+
+    public:
+        
+        const float * VertexCoordinates() const
+        {
+            return vertex_coords.data();
+        }
+
+        const float * TriangleCoordinates() const
+        {
+            return tri_coords.data();
+        }
         
     public:
         
