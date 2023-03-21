@@ -132,6 +132,8 @@ namespace BAEMM
 
 #include "src/Helmholtz_Metal/RequireBuffers.hpp"
         
+#include "src/Helmholtz_Common/ApplyOperators.hpp"
+        
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
