@@ -30,7 +30,7 @@ public:
         char *source_str, *source_str_temp;
         size_t source_size;
 
-        fp = std::fopen("../FarFieldOperatorKernel_C.cl", "r");
+        fp = std::fopen("../HerglotzWaveKernel_C.cl", "r");
         if (!fp) {
                 fprintf(stderr, "Failed to load kernel.\n");
                 exit(1);
@@ -69,7 +69,7 @@ public:
         printf("%s\n", result);
                 
         // Create the OpenCL kernel
-        cl_kernel kernel = clCreateKernel(program, "FarFieldOperatorKernel_C", &ret);
+        cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel_C", &ret);
         
         // Set the arguments of the kernel
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);

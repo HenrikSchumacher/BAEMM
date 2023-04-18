@@ -121,10 +121,10 @@ public:
             
             // Apply off-diagonal part of integral operators.
             FarFieldOperatorKernel_C( kappa, c );
-                     
+    
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             memcpy(C_out,C_ptr,wave_count * meas_count * sizeof(Complex));
         }       
-        ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
     }

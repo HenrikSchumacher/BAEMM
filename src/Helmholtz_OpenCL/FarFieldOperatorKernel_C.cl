@@ -1,7 +1,7 @@
 __constant float2 zero    = (float2)(0.0f,0.0f);
 __constant float one     = 1.0f;
 
-__kernel void BoundaryOperatorKernel_C(
+__kernel void FarFieldOperatorKernel_C(
         const __global float4 * mid_points          , 
         const __global float4 * normals             , 
         const __global float3 * meas_directions     , 
