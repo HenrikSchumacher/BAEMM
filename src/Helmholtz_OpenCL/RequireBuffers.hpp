@@ -1,0 +1,180 @@
+void RequireBuffers( const Int wave_count_  )
+{
+    wave_count       = wave_count_;
+    wave_chunk_count = GetWaveChunkCount(wave_count);
+    ldB = ldC        = wave_chunk_count * wave_chunk_size;
+    
+    const LInt new_size = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
+
+    if(
+       (B_buf == NULL) || (C_buf == NULL)
+       ||
+       (new_size > std::min(B_size, C_size ) )
+    )
+    {        
+//        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
+        B_size = C_size = new_size;
+
+        if(B_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,(void*)B_ptr,0,NULL,NULL);
+        }
+        if(C_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,(void*)C_ptr,0,NULL,NULL);
+        }
+        clFinish(command_queue);
+
+        B_loaded = false;
+        C_loaded = false;
+
+        B_buf_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size, NULL, &ret);
+
+        C_buf_pin = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size, NULL, &ret);
+
+        B_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            B_buf_pin, CL_TRUE,
+                                            CL_MAP_WRITE, 0, new_size, 0,
+                                            NULL, NULL, NULL);
+        
+        C_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            C_buf_pin, CL_TRUE,
+                                            CL_MAP_READ, 0, new_size, 0,
+                                            NULL, NULL, NULL);
+     
+        
+        B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY,
+        new_size, NULL, &ret);
+
+        C_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+        new_size, NULL, &ret);
+    }
+}
+
+void RequireBuffersFarField( const Int wave_count_  )
+{
+    wave_count       = wave_count_;
+    wave_chunk_count = GetWaveChunkCount(wave_count);
+    ldB = ldC        = wave_chunk_count * wave_chunk_size;
+    Int rows = (meas_count - 1)/block_size + 1;
+
+    const LInt new_size_B = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
+    const LInt new_size_C = int_cast<LInt>(rows) * int_cast<LInt>(ldC) * sizeof(Complex);
+    
+    if(
+       (B_buf == NULL) || (C_buf == NULL)
+       ||
+       (new_size_C > C_size) || (new_size_B > B_size)
+    )
+    {        
+//        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
+        B_size = new_size_B;
+        C_size = new_size_C;
+
+        if(B_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,(void*)B_ptr,0,NULL,NULL);
+        }
+        if(C_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,(void*)C_ptr,0,NULL,NULL);
+        }
+        clFinish(command_queue);
+
+        B_loaded = false;
+        C_loaded = false;
+
+        B_buf_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size_B, NULL, &ret);
+
+        C_buf_pin = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size_C, NULL, &ret);
+
+        B_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            B_buf_pin, CL_TRUE,
+                                            CL_MAP_WRITE, 0, new_size_B, 0,
+                                            NULL, NULL, NULL);
+        
+        C_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            C_buf_pin, CL_TRUE,
+                                            CL_MAP_READ, 0, new_size_C, 0,
+                                            NULL, NULL, NULL);
+     
+        
+        B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY,
+        new_size_B, NULL, &ret);
+
+        C_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+        new_size_C, NULL, &ret);
+    }
+}
+
+void RequireBuffersHerglotzWave( const Int wave_count_  )
+{
+    wave_count       = wave_count_;
+    wave_chunk_count = GetWaveChunkCount(wave_count);
+    ldB = ldC        = wave_chunk_count * wave_chunk_size;
+    Int rows = (meas_count - 1)/block_size + 1;
+
+    const LInt new_size_C = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
+    const LInt new_size_B = int_cast<LInt>(rows) * int_cast<LInt>(ldC) * sizeof(Complex);
+    
+    if(
+       (B_buf == NULL) || (C_buf == NULL)
+       ||
+       (new_size_C > C_size) || (new_size_B > B_size)
+    )
+    {        
+//        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
+        B_size = new_size_B;
+        C_size = new_size_C;
+
+        if(B_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,(void*)B_ptr,0,NULL,NULL);
+        }
+        if(C_ptr)
+        {
+            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,(void*)C_ptr,0,NULL,NULL);
+        }
+        clFinish(command_queue);
+
+        B_loaded = false;
+        C_loaded = false;
+
+        B_buf_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size_B, NULL, &ret);
+
+        C_buf_pin = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,
+        new_size_C, NULL, &ret);
+
+        B_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            B_buf_pin, CL_TRUE,
+                                            CL_MAP_WRITE, 0, new_size_B, 0,
+                                            NULL, NULL, NULL);
+        
+        C_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
+                                            C_buf_pin, CL_TRUE,
+                                            CL_MAP_READ, 0, new_size_C, 0,
+                                            NULL, NULL, NULL);
+     
+        
+        B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY,
+        new_size_B, NULL, &ret);
+
+        C_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+        new_size_C, NULL, &ret);
+    }
+}
+
+void ModifiedB()
+{
+    B_loaded = true;
+}
+
+void ModifiedC()
+{
+    C_loaded = true;
+}
