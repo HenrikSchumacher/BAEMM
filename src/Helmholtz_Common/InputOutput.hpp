@@ -1,4 +1,6 @@
 public:
+
+    
     
     Complex & B( const Int i, const Int k )
     {
@@ -9,17 +11,6 @@ public:
     {
         return B_ptr[ldB * i + k];
     }
-    
-    
-//        Complex * C_ptr()
-//        {
-//            return reinterpret_cast<Complex *>(C_buf->contents());
-//        }
-//
-//        const Complex * C_ptr() const
-//        {
-//            return reinterpret_cast<Complex *>(C_buf->contents());
-//        }
     
     Complex & C( const Int i, const Int k )
     {
@@ -48,7 +39,7 @@ public:
         ReadB( input, wave_count_, wave_count_ );
     }
     
-    void WriteB( mut<Complex> output, const Int ld_output )
+    void WriteB( mut<Complex> output, const Int ld_output ) const
     {
         #pragma omp parallel for num_threads( OMP_thread_count )
         for( Int i = 0; i < simplex_count; ++i )
@@ -75,7 +66,7 @@ public:
         ReadC( input, wave_count_, wave_count_ );
     }
     
-    void WriteC( mut<Complex> output, const Int ld_output )
+    void WriteC( mut<Complex> output, const Int ld_output ) const
     {
         #pragma omp parallel for num_threads( OMP_thread_count )
         for( Int i = 0; i < simplex_count; ++i )

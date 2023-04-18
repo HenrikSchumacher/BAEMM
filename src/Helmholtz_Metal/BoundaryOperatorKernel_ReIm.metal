@@ -94,7 +94,7 @@ constant constexpr float one     = static_cast<float>(1);
     
     
     // Typically, k_chunk_count is much smaller than block_count.
-    // Since loading and writing to device memory is very expensive, it might be a better to make
+    // Since loading and writing to device memory is very expensive, it might be better to make
     // the loop over the k_chunks the outer loop and pay the (small) price of recomputing A multiple times.
     for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
     {

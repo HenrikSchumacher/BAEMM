@@ -20,7 +20,6 @@ public:
             Scalar::Zero<Complex>, C_out, ldC_out,
             cols
         );
-
     }
 
     template<typename B_ext, typename C_ext, typename I_ext>
@@ -43,5 +42,4 @@ public:
             beta,  C_out, ldC_out,
             cols
         );
-
     }

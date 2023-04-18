@@ -1,0 +1,114 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      4171,        106]
+NotebookOptionsPosition[      3640,         90]
+NotebookOutlinePosition[      4035,        106]
+CellTagsIndexPosition[      3992,        103]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData["Exit"], "Input",
+ CellChangeTimes->{{3.874760451429117*^9, 3.87476045189067*^9}},
+ CellLabel->
+  "In[337]:=",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+
+Cell[BoxData[{
+ RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"LoadPackages", "[", "\"\<Geometries\>\"", "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.8747604120371637`*^9, 3.874760425272643*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
+
+Cell[BoxData[
+ RowBox[{"Do", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"M", "=", 
+     RowBox[{"SphereMesh", "[", "k", "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"Export", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"FileNameJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"ParentDirectory", "[", 
+          RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ",", 
+         "\"\<Meshes\>\"", ",", 
+         RowBox[{"\"\<Sphere_\>\"", "<>", 
+          RowBox[{"IntegerString", "[", 
+           RowBox[{
+            RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+           "]"}], "<>", "\"\<T.txt\>\""}]}], "}"}], "]"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+       RowBox[{"\"\<dom_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", 
+        ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{"Threshold", "[", 
+           RowBox[{
+            RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+            RowBox[{"10", "^", 
+             RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+          "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+       "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"k", ",", "1", ",", "7"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.890814228701207*^9, 3.890814235178507*^9}, {
+  3.890814639455668*^9, 3.890814655121436*^9}},
+ CellLabel->"In[28]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+},
+WindowSize->{1496, 905},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"13.2 for Mac OS X ARM (64-bit) (January 30, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"ae61ea60-2f0f-4f23-81ee-6dfca12eb8a4"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 178, 3, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+Cell[739, 25, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
+Cell[1059, 32, 2577, 56, 392, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+}
+]
+*)
+
