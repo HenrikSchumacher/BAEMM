@@ -4,7 +4,8 @@ private:
 
     const Int vertex_count;
     const Int simplex_count;
-
+    const Int meas_count = 0;
+    
     Tensor2<Real,Int> vertex_coords;
     Tensor2<Int ,Int> triangles;
 
@@ -19,6 +20,7 @@ private:
     Real * restrict normals_ptr         = nullptr;
     Real * restrict single_diag_ptr     = nullptr;
     Real * restrict tri_coords_ptr      = nullptr;
+    Real * restrict meas_directions_ptr  = nullptr;
 
     Complex * restrict B_ptr = nullptr;
     Complex * restrict C_ptr = nullptr;

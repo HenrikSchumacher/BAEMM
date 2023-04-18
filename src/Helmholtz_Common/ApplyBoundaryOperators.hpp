@@ -103,7 +103,7 @@ public:
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
         Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
-        
+
         RequireBuffers( wave_count );
         
         if( Re_single_layer || Im_single_layer ||

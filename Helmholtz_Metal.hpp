@@ -59,7 +59,7 @@ namespace BAEMM
         NS::SharedPtr<MTL::Buffer> C_buf;
         
     public:
-        
+        using NS::StringEncoding::UTF8StringEncoding;
         static constexpr auto Managed = MTL::ResourceStorageModeManaged;
         
         template<typename ExtReal,typename ExtInt>

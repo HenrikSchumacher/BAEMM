@@ -75,9 +75,9 @@ public:
         const int k_chunk_size  = wave_chunk_size;
         const int k_chunk_count = kappa_.Size();
         const int k_ld          = kappa_.Size() * k_chunk_size;  // Leading dim of B and C.
-        
-        JobPointers<Int> job_ptr(simplex_count/i_blk_size, OMP_thread_count);
 
+        JobPointers<Int> job_ptr(simplex_count/i_blk_size, OMP_thread_count);
+        
         for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
         {
             #pragma omp parallel for num_threads( OMP_thread_count)

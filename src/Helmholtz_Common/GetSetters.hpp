@@ -56,12 +56,23 @@ public:
         return block_size;
     }
 
+    const WaveNumberContainer_T& GetWaveNumbers() const
+    {
+        return kappa;
+    }
+
+    const CoefficientContainer_T& GetCoefficients() const
+    {
+        return c;
+    }
+
+
     void SetBlockSize( const Int block_size_ )
     {
         block_size    = block_size_;
         block_count   = CeilDivide( simplex_count, block_size);
         rows_rounded  = block_count * block_size;
-        
+
         B_loaded = false;
         C_loaded = false;
     }
@@ -85,7 +96,6 @@ public:
     {
         return mid_points_ptr;
     }
-
 
     void UseDiagonal( const bool use_it )
     {

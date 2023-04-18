@@ -62,7 +62,7 @@ namespace BAEMM
         
         Tensor2<Complex,Int> B_buf;
         Tensor2<Complex,Int> C_buf;
-        
+public:        
 #include "src/Helmholtz_Common/Initialize.hpp"
             
 #include "src/Helmholtz_Common/InputOutput.hpp"

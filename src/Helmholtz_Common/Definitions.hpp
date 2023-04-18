@@ -14,8 +14,6 @@ public:
     using WaveNumberContainer_T  = Tensor1<Real   ,Int>;
     using CoefficientContainer_T = Tensor2<Complex,Int>;
     
-    using NS::StringEncoding::UTF8StringEncoding;
-    
     static constexpr Real zero  = 0;
     static constexpr Real one   = 1;
     static constexpr Real two   = 2;

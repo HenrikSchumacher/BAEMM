@@ -49,7 +49,7 @@ public:
             Int i_0 = triangles(i,0);
             Int i_1 = triangles(i,1);
             Int i_2 = triangles(i,2);
-            
+
             tri_coords_ptr[12*i+ 0] = x_0[0] = vertex_coords(i_0,0);
             tri_coords_ptr[12*i+ 1] = x_0[1] = vertex_coords(i_0,1);
             tri_coords_ptr[12*i+ 2] = x_0[2] = vertex_coords(i_0,2);

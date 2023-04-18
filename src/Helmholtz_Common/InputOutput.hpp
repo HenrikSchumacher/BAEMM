@@ -34,13 +34,12 @@ public:
     void ReadB( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
         RequireBuffers( wave_count_ );
-
         #pragma omp parallel for num_threads( OMP_thread_count )
         for( Int i = 0; i < simplex_count; ++i )
         {
             copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
         }
-        
+
         ModifiedB();
     }
     
