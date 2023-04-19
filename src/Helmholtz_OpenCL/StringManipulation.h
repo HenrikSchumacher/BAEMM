@@ -73,7 +73,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     {
         strcat(result,"__constant bool Im_adjdbl_layer = true;\n");
     }
-    str_length += strlen(result);
+    str_length = strlen(str) + strlen(result);
     strcat(result,str);
 
     return result;

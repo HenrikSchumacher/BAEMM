@@ -32,7 +32,8 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
+        R_ext factor = 1 / (one_over_four_pi * meas_count);
+        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -75,7 +76,8 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
+        R_ext factor = 1 / (one_over_four_pi * meas_count);
+        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }

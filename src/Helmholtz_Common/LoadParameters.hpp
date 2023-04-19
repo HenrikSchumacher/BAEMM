@@ -1,11 +1,29 @@
 public:
-
     template<typename R_ext, typename C_ext, typename I_ext>
     void LoadParameters(
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
         const I_ext wave_chunk_size_
+    )
+    {
+        LoadParameters(
+            kappa_list,
+            coeff_list,
+            wave_count_,
+            wave_chunk_size_,
+            (R_ext)1
+        );
+    }
+
+
+    template<typename R_ext, typename C_ext, typename I_ext>
+    void LoadParameters(
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_,
+        const R_ext factor
     )
     {
         ASSERT_INT(I_ext);
@@ -49,15 +67,15 @@ public:
             Re_mass_matrix  = Re_mass_matrix  || (real(z) != Scalar::Zero<Real>);
             Im_mass_matrix  = Im_mass_matrix  || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi;
+            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi * factor;
             Re_single_layer = Re_single_layer || (real(z) != Scalar::Zero<Real>);
             Im_single_layer = Im_single_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi;
+            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi * factor;
             Re_double_layer = Re_double_layer || (real(z) != Scalar::Zero<Real>);
             Im_double_layer = Im_double_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi;
+            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi * factor;
             Re_adjdbl_layer = Re_adjdbl_layer || (real(z) != Scalar::Zero<Real>);
             Im_adjdbl_layer = Im_adjdbl_layer || (imag(z) != Scalar::Zero<Real>);
         }

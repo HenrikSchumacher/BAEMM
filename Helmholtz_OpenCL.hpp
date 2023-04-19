@@ -91,7 +91,7 @@ namespace BAEMM
             clEnqueueWriteBuffer(command_queue, normals, CL_FALSE, 0,
                                 4 * simplex_count * sizeof(Real), normals_ptr, 0, NULL, NULL);   
             clEnqueueWriteBuffer(command_queue, meas_directions, CL_FALSE, 0,
-                                3 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
+                                4 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
         }
         
         ~Helmholtz_OpenCL()
@@ -149,10 +149,14 @@ namespace BAEMM
 #include "src/Helmholtz_Common/ApplyFarFieldOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
+
+#include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
 #include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
 
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
+
+#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
         
 //#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
     

@@ -10,7 +10,6 @@ public:
         memcpy(coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
 
         int n = simplex_count;
-        size_t size4 = 4 * n * sizeof(float);
 
         size_t max_work_group_size; //check for maximal size of work group
         ret = clGetDeviceInfo(
@@ -23,21 +22,12 @@ public:
         }
         
         // Load the kernel source code into the array source_str
-        std::FILE *fp;
-        const char* const_source_str;
-        char *source_str, *source_str_temp;
+        char *source_str;
         size_t source_size;
 
-        fp = std::fopen("../BoundaryOperatorKernel_C.cl", "r");
-        if (!fp) {
-                fprintf(stderr, "Failed to load kernel.\n");
-                exit(1);
-        }
-        source_str_temp = (char*)malloc(MAX_SOURCE_SIZE);
-        source_size = std::fread( source_str_temp, 1, MAX_SOURCE_SIZE, fp);
-        std::fclose( fp );
-        const_source_str = source_str_temp;
-        source_str = manipulate_string(const_source_str,coeff,block_size,wave_chunk_size,source_size);
+        source_str = manipulate_string(
+#include "BoundaryOperatorKernel_C.cl"                
+                ,coeff,block_size,wave_chunk_size,source_size);
 
         // Create the rest of the memory buffers on the device for each vector 
         cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
@@ -59,10 +49,13 @@ public:
 
         // Build the program
         ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
-        char result[16384];
-        size_t size;
-        ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-        printf("%s", result);
+        if (ret != 0)
+        {
+                char result[16384];
+                size_t size;
+                ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
+                printf("%s", result);
+        }
                 
         // Create the OpenCL kernel
         cl_kernel kernel = clCreateKernel(program, "BoundaryOperatorKernel_C", &ret);
@@ -98,7 +91,7 @@ public:
         ret = clReleaseMemObject(d_wave_count);
 
         free(source_str);
-        free(source_str_temp);
+        free(kappa);
         free(coeff);
         return 0;
         }

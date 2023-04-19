@@ -4,7 +4,7 @@ public:
     {
         const uint size     =     simplex_count * sizeof(Real);
         const uint size4    = 4 * simplex_count * sizeof(Real);
-        const uint size3    = 3 * meas_count * sizeof(Real);
+        const uint msize4    = 4 * meas_count * sizeof(Real);
 
         // Allocate pinned memory in Host buffer
         mid_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
@@ -23,7 +23,7 @@ public:
         3 * size4, NULL, &ret);
 
         meas_directions_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        size3, NULL, &ret);
+        msize4, NULL, &ret);
 
         // Map properties to pinned pointers
         mid_points_ptr      = (Real*)clEnqueueMapBuffer(command_queue,
@@ -49,10 +49,18 @@ public:
                                             NULL, NULL, NULL);
         meas_directions_ptr = (Real*)clEnqueueMapBuffer(command_queue,
                                             meas_directions_pin, CL_TRUE,
-                                            CL_MAP_WRITE, 0, size3, 0,
+                                            CL_MAP_WRITE, 0, msize4, 0,
                                             NULL, NULL, NULL);
 
-        memcpy(meas_directions_ptr,meas_directions_,size3);
+        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+        for( Int i = 0; i < meas_count; ++i )
+        {
+            meas_directions_ptr[4*i+0] = meas_directions_[3*i+0];
+            meas_directions_ptr[4*i+1] = meas_directions_[3*i+1];
+            meas_directions_ptr[4*i+2] = meas_directions_[3*i+2];
+            meas_directions_ptr[4*i+3] = zero;
+        }
+
         // Allocate memory in device buffer
         mid_points = clCreateBuffer(context, CL_MEM_READ_ONLY,
         size4, NULL, &ret);
@@ -70,5 +78,5 @@ public:
         // 3 * size4, NULL, &ret);
 
         meas_directions = clCreateBuffer(context, CL_MEM_READ_ONLY,
-        size3, NULL, &ret);
+        msize4, NULL, &ret);
     }
