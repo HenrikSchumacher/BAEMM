@@ -39,6 +39,7 @@ public:
                         break;
                     }
                 }
+                break;
             }
             case 16:
             {
@@ -70,6 +71,7 @@ public:
                         break;
                     }
                 }
+                break;
             }
             case 32:
             {
@@ -101,6 +103,7 @@ public:
                         break;
                     }
                 }
+                break;
             }
             case 64:
             {
@@ -132,6 +135,7 @@ public:
                         break;
                     }
                 }
+                break;
             }
             default:
             {
