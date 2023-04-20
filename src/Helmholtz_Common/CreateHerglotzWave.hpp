@@ -32,8 +32,8 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        R_ext factor = 1 / (one_over_four_pi * meas_count);
-        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
+        R_ext factor = four_pi / meas_count;
+        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -76,7 +76,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        R_ext factor = 1 / (one_over_four_pi * meas_count);
+        R_ext factor = four_pi / meas_count;
         LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -92,20 +92,16 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_COMPLEX(C_ext);
 
-        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptic(ClassName()+"::CreateHerglotzWave_PL");
         
         if( wave_chunk_count < 1 )
         {
-            ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+            ptoc(ClassName()+"::CreateHerglotzWave_PL");
             return;
         }
         
-    
-        const Int ldB_in  = int_cast<Int>(ldB_in_ );
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
-        Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
-
         RequireBuffers( wave_count );
         
         if( Re_single_layer || Im_single_layer ||
@@ -126,5 +122,5 @@ public:
                 wave_count
             );
         }
-        ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptoc(ClassName()+"::CreateHerglotzWave_PL");
     }

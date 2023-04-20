@@ -150,11 +150,15 @@ namespace BAEMM
         
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
 
+#include "src/Helmholtz_Common/CreateIncidentWave.hpp"
+
 #include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
 #include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
 
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
+
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_C.hpp"
 
 #include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
         
