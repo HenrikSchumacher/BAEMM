@@ -2,6 +2,9 @@ public:
 
 #include "TemplateHardcode.hpp"
 
+    // kernel code for the incident wave in the classic inverse obstacle scattering problem with the Helmholtz equation
+    // calculates element wise (c0 + i*k*c1*<d,n>)*e^(i*k*<d,x>) for wave number k, wave vector d, mid points(!) x, and simplex normals n
+
     void IncidentWaveKernel_C(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_,

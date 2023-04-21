@@ -1,12 +1,13 @@
 public:
         struct kernel_list{
-                cl_program program;
                 cl_mem d_kappa;
                 cl_mem d_coeff;
                 cl_mem d_n;
                 cl_mem d_wave_count;
         };
 
+        // the idea of this host code is to keep the compiled program and uploaded buffers as far as possible to accelerate
+        // the use in a linear solver where a variability on sizes and coefficients is unneeded in the iterations
         int BoundaryOperatorKernel_C(
                 ) 
         {
@@ -119,12 +120,13 @@ public:
             clFinish(command_queue);
             
             kernel_list list;
-            list.program = program;
             list.d_kappa = d_kappa;
             list.d_coeff = d_coeff;
             list.d_n = d_n;
             list.d_wave_count = d_wave_count;
             
+            // clean up
+            ret = clReleaseProgram(program);
             free(source_str);
             free(Kappa);
             free(Coeff);
@@ -140,7 +142,6 @@ public:
                 ret = clFinish(command_queue);
                 ret = clFlush(command_queue);
                 ret = clReleaseKernel(global_kernel);
-                ret = clReleaseProgram(list->program);
                 ret = clReleaseMemObject(list->d_kappa);
                 ret = clReleaseMemObject(list->d_coeff);
                 ret = clReleaseMemObject(list->d_n);

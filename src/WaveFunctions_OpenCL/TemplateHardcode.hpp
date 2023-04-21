@@ -1,5 +1,6 @@
 public:
 
+    // hardcoded template cases for wave_count and wave_chunk_count for loop unrolling in IncidentWaveKernel
     void IncidentWaveKernel_C_temp(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_,

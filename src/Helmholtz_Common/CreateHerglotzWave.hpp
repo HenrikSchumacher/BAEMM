@@ -82,6 +82,8 @@ public:
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
+
+    // creates a herglotz wave with kernel B_in in the WEAK FORM
     template<typename C_ext, typename I_ext>
     void CreateHerglotzWave_PL(
         const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -116,6 +118,7 @@ public:
             // Apply off-diagonal part of integral operators.
             HerglotzWaveKernel_C( kappa, c );
                         
+            // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C_ptr, ldC,
                 beta,  C_out, ldC_out,

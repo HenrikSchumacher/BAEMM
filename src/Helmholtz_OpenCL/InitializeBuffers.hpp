@@ -51,7 +51,8 @@ public:
                                             meas_directions_pin, CL_TRUE,
                                             CL_MAP_WRITE, 0, msize4, 0,
                                             NULL, NULL, NULL);
-
+                                            
+        // copy measurement directions
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < meas_count; ++i )
         {

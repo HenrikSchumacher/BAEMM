@@ -1,9 +1,12 @@
 public:
+
+        // kernel host code for the herglotz wave function with kernel g (which is saved in B_ptr) evaluated on the triangle midpoints
         int HerglotzWaveKernel_C(
                 const WaveNumberContainer_T  & kappa_,
                 const CoefficientContainer_T & c_       
                 ) 
         {
+        // allocate local host pointers for the device buffers to use
         Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
         memcpy(Kappa, kappa_.data(), 4 * sizeof(Real));
         Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));

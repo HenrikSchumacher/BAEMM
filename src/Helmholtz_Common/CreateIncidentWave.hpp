@@ -104,6 +104,7 @@ public:
         CreateIncidentWave_PL( alpha, incident_directions, beta, C_out, ldC_out );
     }
 
+// creates wave_count incident waves for the scattering problem in the WEAK FORM
     template<typename R_ext,typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
         const C_ext alpha, ptr<R_ext> incident_directions,
@@ -134,6 +135,7 @@ public:
 
             IncidentWaveKernel_C( kappa, c , reinterpret_cast<const Real*>(incident_directions),C);
            
+            // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C, ldC,
                 beta,  C_out, ldC_out,

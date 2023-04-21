@@ -80,6 +80,8 @@ public:
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
+
+    // Applies the boundary operators in the WEAK FORM to the input pointer
     template<typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -111,6 +113,7 @@ public:
             Re_adjdbl_layer || Im_adjdbl_layer
         )
         {
+            // use averaging operator to get from PL to PC boundary functions
             AvOp.Dot(
                 Scalar::One<Complex>,  B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
@@ -128,6 +131,7 @@ public:
                         
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
+            // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C_ptr, ldC,
                 beta,  C_out, ldC_out,
@@ -168,7 +172,7 @@ public:
         ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
     }
 
-
+    // this application method is used for the solver mode of the boundary operator kernels
     template<typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const I_ext ld_in_,
