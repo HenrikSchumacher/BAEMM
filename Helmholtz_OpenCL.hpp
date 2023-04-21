@@ -25,6 +25,7 @@ namespace BAEMM
         cl_platform_id platform_id = NULL;
         cl_device_id device_id = NULL;
         cl_context context;
+        cl_kernel global_kernel;
 
         cl_command_queue command_queue;
         
@@ -155,6 +156,8 @@ namespace BAEMM
 #include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
 #include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
+
+#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C_SolverMode.hpp"
 
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
 

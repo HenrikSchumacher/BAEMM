@@ -65,11 +65,12 @@ public:
     //     Complex * C 
     // )
     // {
-    //     #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-    //     for( Int i = 0; i < simplex_count; ++i )
+    //     Int i,chunk,j;
+    //     #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(chunk) private(j)
+    //     for( i = 0; i < simplex_count; ++i )
     //     {
     //         LOOP_UNROLL_FULL
-    //         for ( Int j = 0; j < wave_chunk_size; ++j )
+    //         for ( j = 0; j < wave_chunk_size; ++j )
     //         {
     //             Real w_vec[3] = { incident_directions[3*j + 0], incident_directions[3*j + 1]
     //                                 , incident_directions[3*j + 2] };
@@ -81,7 +82,7 @@ public:
     //                         + normals_ptr[4*i + 2] * w_vec[2];
                                 
     //             LOOP_UNROLL_FULL
-    //             for( Int chunk = 0; chunk < wave_chunk_count; ++chunk )
+    //             for( chunk = 0; chunk < wave_chunk_count; ++chunk )
     //             {
     //                 Real Kappa = kappa_[chunk];
     //                 Complex Coeff[2] = {c_[chunk][1],c_[chunk][2]};

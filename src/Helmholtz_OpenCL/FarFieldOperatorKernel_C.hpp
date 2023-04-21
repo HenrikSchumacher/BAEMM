@@ -4,10 +4,10 @@ public:
                 const CoefficientContainer_T & c_       
                 ) 
         {
-        float* kappa = (float*)malloc(wave_chunk_count * 4 * sizeof(float));
-        memcpy(kappa, kappa_.data(), 4 * sizeof(float));
-        Complex* coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
-        memcpy(coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
+        Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
+        memcpy(Kappa, kappa_.data(), 4 * sizeof(Real));
+        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
+        memcpy(Coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
 
         int n = simplex_count;
         int m = meas_count;
@@ -28,13 +28,13 @@ public:
 
         source_str = manipulate_string(
 #include "FarFieldOperatorKernel_C.cl"
-        ,coeff,block_size,wave_chunk_size,source_size);
+        ,Coeff,block_size,wave_chunk_size,source_size);
 
         // Create the rest of the memory buffers on the device for each vector 
         cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                wave_chunk_count * sizeof(float), kappa, &ret);
+                wave_chunk_count * sizeof(Real), Kappa, &ret);
         cl_mem d_coeff = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                4 * wave_chunk_count * sizeof(Complex), coeff, &ret);
+                4 * wave_chunk_count * sizeof(Complex), Coeff, &ret);
         cl_mem d_n = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
                 sizeof(int), &n, &ret);
         cl_mem d_m = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
@@ -99,7 +99,7 @@ public:
         ret = clReleaseMemObject(d_wave_count);
 
         free(source_str);
-        free(kappa);
-        free(coeff);
+        free(Kappa);
+        free(Coeff);
         return 0;
         }

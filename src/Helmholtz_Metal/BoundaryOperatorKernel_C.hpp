@@ -128,3 +128,8 @@ public:
         
         ptoc(tag);
     }
+
+    void BoundaryOperatorKernel_C(
+    )
+    {
+    }
