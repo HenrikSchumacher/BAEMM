@@ -84,7 +84,7 @@ void WriteCoordinates(
     Tensor2<R_ext,I_ext>        & coords
 )
 { 
-    mut<R_ext> V = coords.data();
+    ptr<R_ext> V = coords.data();
     
     fstream file;
     file.open("coords.bin",ios::out | ios::binary );
@@ -106,7 +106,7 @@ void WriteInOut(
     Tensor2<T,I_ext>                & B_out
 )
 {   
-    mut<T> B = B_out.data();
+    ptr<T> B = B_out.data();
     
     fstream file;
     file.open("B.bin",ios::out | ios::binary );
