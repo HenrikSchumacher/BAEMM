@@ -3,9 +3,9 @@ BÄMM! - a brute force approach for the boundary element method
 
 Operator application:
 In the following we use the following typename aliases:
-C_ext: user defined complex type
-R_ext: user defined real type
-I_ext: user defined int type
+    C_ext: user defined complex type
+    R_ext: user defined real type
+    I_ext: user defined int type
 
 Boundary operators:
     You, for single uses of the operator, applicate the boundary operators normally on a PL-function by calling
@@ -52,7 +52,7 @@ Boundary operators:
 
 Boundary to Farfield map:
 
-The application works quite exactly as for the boundary operators:
+    The application works quite exactly as for the boundary operators:
 
     ApplyFarFieldOperators_PL(
                 const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
