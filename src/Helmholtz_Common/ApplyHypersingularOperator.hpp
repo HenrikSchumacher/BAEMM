@@ -90,65 +90,24 @@ public:
         ModifiedB();
         C_loaded = true;
         
+        // TODO: Check whether kappa3 and c3 are set up correctly.
+        
         BoundaryOperatorKernel_C( kappa3, c3 );
-
-        // TODO: Apply diagonal part of single layer boundary operator.
         
-        // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
+        addTo = Scalar::One<C_ext>;
         
-        AvOpTransp.Dot(
+        // We have tp apply also the diagonal of the single layer boundary operator.
+        
+        // TODO: Take ApplySingleLayerDiagonal.hpp and adapt it.
+        // Maybe this does the job already:
+        // TODO: Test this!
+        ApplySingleLayerDiagonal( kappa3, c3 );
+        
+        CurlOpTransp.Dot(
             alpha, C_ptr, ldC,
             beta,  C_out, ldC_out,
             wave_count
         );
-        
-        addTo = Scalar::One<C_ext>;
-        
-        
-        // Apply diagonal of single layer boundary operators.
-
-        Tensor1<Complex,Int> I_kappa ( wave_chunk_count );
-        
-        const Int border_size = wave_count - wave_chunk_size * (wave_chunk_count - 1);
-        
-        for( Int chunk = 0; chunk < wave_chunk_count_3; ++chunk )
-        {
-            I_kappa[chunk] = Complex( - imag(kappa[chunk]), real(kappa[chunk]) );
-        }
-        
-        // TODO: Hier weitermachen.
-        
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for( Int i = 0; i < simplex_count; ++i )
-        {
-            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-            {
-                const Int pos = ldB * i + wave_chunk_size * chunk;
-                
-                const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
-                
-                combine_buffers<Scalar::Flag::Generic, Scalar::Flag::Plus>(
-                    factor,               &B_ptr[pos],
-                    Scalar::One<Complex>, &C_ptr[pos],
-                    wave_chunk_size
-                );
-            }
-            
-            {
-                const Int chunk = wave_chunk_count - 1;
-                
-                const Int pos = ldB * i + wave_chunk_size * chunk;
-                
-                const Complex factor = c(chunk,1) * (single_diag_ptr[i] + I_kappa[chunk] * areas_ptr[i]);
-                
-                combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Plus>(
-                    factor,               &B_ptr[pos],
-                    Scalar::One<Complex>, &C_ptr[pos],
-                    border_size
-                );
-            }
-        }
-        
 
         ptoc(ClassName()+"::ApplyHypersingularOperator_PL");
     }
