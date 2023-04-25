@@ -1,10 +1,11 @@
+R"(
 __constant float2 zero    = (float2)(0.0f,0.0f);
 __constant float one     = 1.0f;
 
-__kernel void BoundaryOperatorKernel_C(
+__kernel void HerglotzWaveKernel_C(
         const __global float4 * mid_points          , 
         const __global float4 * normals             , 
-        const __global float3 * meas_directions     , 
+        const __global float4 * meas_directions     , 
         const __global float2 * B_global            , 
               __global       float2 * C_global      , 
               __constant     float  * kappa_buf     , 
@@ -69,7 +70,7 @@ __kernel void BoundaryOperatorKernel_C(
                 
                 if( j < m )
                 {
-                    y[j_loc] = meas_directions[j];
+                    y[j_loc] = meas_directions[j].xyz;
                 }
                 else
                 {                    
@@ -117,13 +118,13 @@ __kernel void BoundaryOperatorKernel_C(
 
                         if( Re_double_layer )
                         {
-                            A_i[j_loc].x += dKappaRSinKappaR * c[1].x;
+                            A_i[j_loc].x -= dKappaRSinKappaR * c[1].x;
                             A_i[j_loc].y -= dKappaRCosKappaR * c[1].x;
                         }
                         if( Im_double_layer )
                         {
                             A_i[j_loc].x += dKappaRCosKappaR * c[1].y;
-                            A_i[j_loc].y += dKappaRSinKappaR * c[1].y;
+                            A_i[j_loc].y -= dKappaRSinKappaR * c[1].y;
                         }
                     }                    
                 }
@@ -172,3 +173,4 @@ __kernel void BoundaryOperatorKernel_C(
         } 
     }
 }
+)"

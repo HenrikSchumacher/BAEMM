@@ -1,11 +1,29 @@
 public:
-
     template<typename R_ext, typename C_ext, typename I_ext>
     void LoadParameters(
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
         const I_ext wave_chunk_size_
+    )
+    {
+        LoadParameters(
+            kappa_list,
+            coeff_list,
+            wave_count_,
+            wave_chunk_size_,
+            (R_ext)1
+        );
+    }
+
+
+    template<typename R_ext, typename C_ext, typename I_ext>
+    void LoadParameters(
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_,
+        const R_ext factor
     )
     {
         ASSERT_INT(I_ext);
@@ -49,18 +67,41 @@ public:
             Re_mass_matrix  = Re_mass_matrix  || (real(z) != Scalar::Zero<Real>);
             Im_mass_matrix  = Im_mass_matrix  || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi;
+            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi * factor;
             Re_single_layer = Re_single_layer || (real(z) != Scalar::Zero<Real>);
             Im_single_layer = Im_single_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi;
+            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi * factor;
             Re_double_layer = Re_double_layer || (real(z) != Scalar::Zero<Real>);
             Im_double_layer = Im_double_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi;
+            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi * factor;
             Re_adjdbl_layer = Re_adjdbl_layer || (real(z) != Scalar::Zero<Real>);
             Im_adjdbl_layer = Im_adjdbl_layer || (imag(z) != Scalar::Zero<Real>);
         }
+    }
+
+    template<typename R_ext, typename C_ext, typename I_ext>
+    void LoadCoefficients(
+        const R_ext kappa_,
+        const C_ext coeff_0,
+        const C_ext coeff_1,
+        const C_ext coeff_2,
+        const C_ext coeff_3,
+        const Int wave_count_,
+        const Int wave_chunk_size_
+    )
+    {
+        LoadCoefficients(
+            kappa_,
+            coeff_0,
+            coeff_1,
+            coeff_2,
+            coeff_3,
+            wave_count_,
+            wave_chunk_size_,
+            (R_ext)1
+        );
     }
 
 
@@ -72,7 +113,8 @@ public:
         const C_ext coeff_2,
         const C_ext coeff_3,
         const Int wave_count_,
-        const Int wave_chunk_size_
+        const Int wave_chunk_size_,
+        const R_ext factor
     )
     {
         ASSERT_INT(I_ext);
@@ -98,9 +140,9 @@ public:
         // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
         Complex z [4] {
             static_cast<Complex>(coeff_0),
-            static_cast<Complex>(coeff_1) * one_over_four_pi,
-            static_cast<Complex>(coeff_2) * one_over_four_pi,
-            static_cast<Complex>(coeff_3) * one_over_four_pi
+            static_cast<Complex>(coeff_1) * one_over_four_pi * factor,
+            static_cast<Complex>(coeff_2) * one_over_four_pi * factor,
+            static_cast<Complex>(coeff_3) * one_over_four_pi * factor
         };
         
         Re_mass_matrix  = (real(z[0]) != Scalar::Zero<Real>);

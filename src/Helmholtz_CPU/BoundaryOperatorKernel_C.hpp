@@ -212,3 +212,8 @@ public:
         
         ptoc(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
     }
+
+    void BoundaryOperatorKernel_C(
+    )
+    {
+    }

@@ -1,3 +1,4 @@
+R"(
 __constant float2 zero    = (float2)(0.0f,0.0f);
 __constant float one     = 1.0f;
 
@@ -232,3 +233,4 @@ __kernel void BoundaryOperatorKernel_C(
         } 
     }
 }
+)"

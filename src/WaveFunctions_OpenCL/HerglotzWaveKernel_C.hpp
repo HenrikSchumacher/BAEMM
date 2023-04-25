@@ -1,18 +1,19 @@
 public:
-        int FarFieldOperatorKernel_C(
+
+        // kernel host code for the herglotz wave function with kernel g (which is saved in B_ptr) evaluated on the triangle midpoints
+        int HerglotzWaveKernel_C(
                 const WaveNumberContainer_T  & kappa_,
                 const CoefficientContainer_T & c_       
                 ) 
         {
-        float* kappa = (float*)malloc(wave_chunk_count * 4 * sizeof(float));
-        memcpy(kappa, kappa_.data(), 4 * sizeof(float));
-        Complex* coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
-        memcpy(coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
+        // allocate local host pointers for the device buffers to use
+        Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
+        memcpy(Kappa, kappa_.data(), 4 * sizeof(Real));
+        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
+        memcpy(Coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
 
         int n = simplex_count;
         int m = meas_count;
-        size_t size4 = 4 * n * sizeof(float);
-        size_t size3 = 3 * m * sizeof(float);
 
         size_t max_work_group_size; //check for maximal size of work group
         ret = clGetDeviceInfo(
@@ -25,27 +26,18 @@ public:
         }
 
         // Load the kernel source code into the array source_str
-        std::FILE *fp;
-        const char* const_source_str;
-        char *source_str, *source_str_temp;
+        char *source_str;
         size_t source_size;
 
-        fp = std::fopen("../FarFieldOperatorKernel_C.cl", "r");
-        if (!fp) {
-                fprintf(stderr, "Failed to load kernel.\n");
-                exit(1);
-        }
-        source_str_temp = (char*)malloc(MAX_SOURCE_SIZE);
-        source_size = std::fread( source_str_temp, 1, MAX_SOURCE_SIZE, fp);
-        std::fclose( fp );
-        const_source_str = source_str_temp;
-        source_str = manipulate_string(const_source_str,coeff,block_size,wave_chunk_size,source_size);
+        source_str = manipulate_string(
+#include "HerglotzWaveKernel_C.cl"
+        ,Coeff,block_size,wave_chunk_size,source_size);
 
         // Create the rest of the memory buffers on the device for each vector 
         cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                wave_chunk_count * sizeof(float), kappa, &ret);
+                wave_chunk_count * sizeof(Real), Kappa, &ret);
         cl_mem d_coeff = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                4 * wave_chunk_count * sizeof(Complex), coeff, &ret);
+                4 * wave_chunk_count * sizeof(Complex), Coeff, &ret);
         cl_mem d_n = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
                 sizeof(int), &n, &ret);
         cl_mem d_m = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
@@ -63,13 +55,16 @@ public:
 
         // Build the program
         ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
-        char result[16384];
-        size_t size;
-        ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-        printf("%s\n", result);
+        if (ret != 0)
+        {
+                char result[16384];
+                size_t size;
+                ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
+                printf("%s\n", result);
+        }
                 
         // Create the OpenCL kernel
-        cl_kernel kernel = clCreateKernel(program, "FarFieldOperatorKernel_C", &ret);
+        cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel_C", &ret);
         
         // Set the arguments of the kernel
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
@@ -106,7 +101,7 @@ public:
         ret = clReleaseMemObject(d_wave_count);
 
         free(source_str);
-        free(source_str_temp);
-        free(coeff);
+        free(Kappa);
+        free(Coeff);
         return 0;
         }

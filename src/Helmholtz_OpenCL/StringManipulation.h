@@ -12,6 +12,7 @@
 
 char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k_chunk_size, size_t& str_length)
 {
+    // first we add definitions of block_size and k_chunk_size as macros to the kernel string
     char* result;
     result = (char*)malloc(MAX_SOURCE_SIZE);
     strcat(result , "#define  block_size ");
@@ -21,6 +22,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     sprintf(result , "%s %d" , result, k_chunk_size);
     strcat(result,"\n");
     
+    // now we add booleans for the coefficients being !=0, important as we need global booleans for the threads to interpret them right simultaneously
     if (coeff[1].real() == 0.0f)
     {
         strcat(result,"__constant bool Re_single_layer = false;\n");
@@ -73,8 +75,10 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     {
         strcat(result,"__constant bool Im_adjdbl_layer = true;\n");
     }
-    str_length += strlen(result);
+
+    // update string length and add the original source string
     strcat(result,str);
+    str_length = strlen(result);
 
     return result;
 }   

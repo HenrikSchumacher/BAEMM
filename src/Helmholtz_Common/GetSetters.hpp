@@ -56,6 +56,11 @@ public:
         return block_size;
     }
 
+    Int GetMeasCount() const
+    {
+        return meas_count;
+    }
+
     const WaveNumberContainer_T& GetWaveNumbers() const
     {
         return kappa;

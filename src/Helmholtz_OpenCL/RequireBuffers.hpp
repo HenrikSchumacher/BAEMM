@@ -1,3 +1,7 @@
+// After a increasement of the size of either the input or output we nee to reallocate the space  on both, the host and device
+// The size of the allocated space depends on the requested kernel
+// For details on the allocation process refer to "InitializeBuffers.hpp"
+
 void RequireBuffers( const Int wave_count_  )
 {
     wave_count       = wave_count_;
@@ -15,6 +19,7 @@ void RequireBuffers( const Int wave_count_  )
 //        print(ClassName()+"::RequireBuffers: Reallocating buffer to size "+ToString(rows_rounded)+" * "+ToString(ldB)+" = "+ToString(rows_rounded * ldB)+".");
         B_size = C_size = new_size;
 
+        // remove the connection between host- and device buffer if existing
         if(B_ptr)
         {
             ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,(void*)B_ptr,0,NULL,NULL);
@@ -23,7 +28,7 @@ void RequireBuffers( const Int wave_count_  )
         {
             ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,(void*)C_ptr,0,NULL,NULL);
         }
-        clFinish(command_queue);
+        clFinish(command_queue); // ensure the queue to be done before reallocating
 
         B_loaded = false;
         C_loaded = false;
@@ -58,7 +63,7 @@ void RequireBuffersFarField( const Int wave_count_  )
     wave_count       = wave_count_;
     wave_chunk_count = GetWaveChunkCount(wave_count);
     ldB = ldC        = wave_chunk_count * wave_chunk_size;
-    Int rows = (meas_count - 1)/block_size + 1;
+    Int rows = block_size * ((meas_count - 1)/block_size + 1);
 
     const LInt new_size_B = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
     const LInt new_size_C = int_cast<LInt>(rows) * int_cast<LInt>(ldC) * sizeof(Complex);
@@ -116,10 +121,10 @@ void RequireBuffersHerglotzWave( const Int wave_count_  )
     wave_count       = wave_count_;
     wave_chunk_count = GetWaveChunkCount(wave_count);
     ldB = ldC        = wave_chunk_count * wave_chunk_size;
-    Int rows = (meas_count - 1)/block_size + 1;
+    Int rows = block_size * ((meas_count - 1)/block_size + 1);
 
-    const LInt new_size_C = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
-    const LInt new_size_B = int_cast<LInt>(rows) * int_cast<LInt>(ldC) * sizeof(Complex);
+    const LInt new_size_C = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) * sizeof(Complex);
+    const LInt new_size_B = int_cast<LInt>(rows) * int_cast<LInt>(ldB) * sizeof(Complex);
     
     if(
        (B_buf == NULL) || (C_buf == NULL)

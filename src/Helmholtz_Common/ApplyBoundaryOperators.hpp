@@ -80,6 +80,8 @@ public:
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
+
+    // Applies the boundary operators in the WEAK FORM to the input pointer
     template<typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -111,6 +113,7 @@ public:
             Re_adjdbl_layer || Im_adjdbl_layer
         )
         {
+            // use averaging operator to get from PL to PC boundary functions
             AvOp.Dot(
                 Scalar::One<Complex>,  B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
@@ -122,6 +125,97 @@ public:
             
             // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C( kappa, c );
+            
+            // Apply diagonal of single layer operator.
+            ApplySingleLayerDiagonal( kappa, c );
+                        
+            // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
+            
+            // use transpose averaging operator to get from PC to PL boundary functions
+            AvOpTransp.Dot(
+                alpha, C_ptr, ldC,
+                beta,  C_out, ldC_out,
+                wave_count
+            );
+            
+            addTo = Scalar::One<C_ext>;
+        }
+        
+        // Apply mass matrix.
+        if( Re_mass_matrix || Im_mass_matrix )
+        {
+            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
+            {
+                const Scalar::Complex<C_ext> factor
+                        = alpha * static_cast<C_ext>(c[chunk][0]);
+                
+                Mass.Dot(
+                    factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                    addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                    wave_chunk_size
+                );
+            }
+            {
+                const Int chunk = wave_chunk_count - 1;
+                const Scalar::Complex<C_ext> factor
+                        = alpha * static_cast<C_ext>(c[chunk][0]);
+                
+                Mass.Dot(
+                    factor, &B_in [wave_chunk_size * chunk], ldB_in,
+                    addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
+                    wave_count - wave_chunk_size*chunk
+                );
+            }
+            
+        }
+        
+        ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+    }
+
+    // this application method is used for the solver mode of the boundary operator kernels
+    template<typename C_ext, typename I_ext>
+    void ApplyBoundaryOperators_PL(
+        const I_ext ld_in_,
+        const C_ext alpha, ptr<C_ext> B_in,
+        const C_ext beta,  mut<C_ext> C_out
+    )
+    {
+        // The same as above, but assumes that
+        ASSERT_INT(I_ext);
+        ASSERT_COMPLEX(C_ext);
+
+        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
+        
+        if( wave_chunk_count < 1 )
+        {
+            ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+            return;
+        }
+        
+    
+        const Int ldB_in  = int_cast<Int>(ld_in_ );
+        const Int ldC_out = int_cast<Int>(ld_in_ );
+        
+        Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
+
+        RequireBuffers( wave_count );
+        
+        if( Re_single_layer || Im_single_layer ||
+            Re_double_layer || Im_double_layer ||
+            Re_adjdbl_layer || Im_adjdbl_layer
+        )
+        {
+            AvOp.Dot(
+                Scalar::One<Complex>,  B_in,  ldB_in,
+                Scalar::Zero<Complex>, B_ptr, ldB,
+                wave_count
+            );
+
+            ModifiedB();
+            C_loaded = true;
+            
+            // Apply off-diagonal part of integral operators.
+            BoundaryOperatorKernel_C();
             
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );

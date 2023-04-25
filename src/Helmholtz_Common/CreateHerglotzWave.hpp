@@ -32,7 +32,8 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
+        R_ext factor = four_pi / meas_count;
+        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -75,11 +76,14 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
+        R_ext factor = four_pi / meas_count;
+        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
+
+    // creates a herglotz wave with kernel B_in in the WEAK FORM
     template<typename C_ext, typename I_ext>
     void CreateHerglotzWave_PL(
         const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -90,20 +94,16 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_COMPLEX(C_ext);
 
-        ptic(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptic(ClassName()+"::CreateHerglotzWave_PL");
         
         if( wave_chunk_count < 1 )
         {
-            ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+            ptoc(ClassName()+"::CreateHerglotzWave_PL");
             return;
         }
         
-    
-        const Int ldB_in  = int_cast<Int>(ldB_in_ );
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
-        Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
-
         RequireBuffers( wave_count );
         
         if( Re_single_layer || Im_single_layer ||
@@ -118,11 +118,12 @@ public:
             // Apply off-diagonal part of integral operators.
             HerglotzWaveKernel_C( kappa, c );
                         
+            // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C_ptr, ldC,
                 beta,  C_out, ldC_out,
                 wave_count
             );
         }
-        ptoc(ClassName()+"::ApplyBoundaryOperators_PL");
+        ptoc(ClassName()+"::CreateHerglotzWave_PL");
     }
