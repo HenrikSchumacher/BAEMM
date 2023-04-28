@@ -24,7 +24,7 @@ int main()
     for (int i = 0; i < n * wave_chunk_size; i++)
     {
         //B[i] = std::exp(Complex(0.0f,(float)i));
-        B[i] = std::exp(Complex(0.0f,float(i)));
+        B[i] = Complex(1.0f,0.0f);
     }
 
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
@@ -63,7 +63,7 @@ int main()
     tic("outer");
     bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f);
     toc("outer");
-    
+
     H_GPU.DestroyKernel(&list);
 
     tic("CPU");
