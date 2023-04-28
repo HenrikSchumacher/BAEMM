@@ -12,7 +12,7 @@ int main()
     BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
     BAEMM::Helmholtz_OpenCL H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
     
-    Int n = H_GPU.GetMeasCount();
+    Int n = H_GPU.VertexCount();
     const Int wave_count = 64;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
@@ -71,7 +71,7 @@ int main()
 
     float error = 0;
     float abs = 0;
-    for (int i = 0; i < H_GPU.VertexCount(); i++)
+    for (int i = 0; i < n; i++)
     {   
         for (int j = 0; j < wave_count; j++)
         {
