@@ -10,15 +10,13 @@ using Complex = std::complex<float>;
 int main()
 {
     BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
-    BAEMM::Helmholtz_OpenCL H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
+    BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
     
     Int n = H_GPU.VertexCount();
     const Int wave_count = 64;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
 
-
-    Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
     Complex*B = (Complex*)malloc(wave_count * n * sizeof(Complex));
 
     for (int i = 0; i < n * wave_chunk_size; i++)
