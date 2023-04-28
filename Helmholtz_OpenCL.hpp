@@ -1,9 +1,12 @@
 #pragma once
 
-#include <C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/include/CL/cl.h>
+#include <CL/cl.h>
 
 #include <complex>
 #include "Tensors/Tensors.hpp"
+#include <cblas.h>
+#include "Tensors/GMRES.hpp"
+#include "Tensors/ConjugateGradient.hpp"
 
 namespace BAEMM
 {
@@ -145,7 +148,7 @@ namespace BAEMM
 #include "src/Helmholtz_OpenCL/StringManipulation.h"
 
 #include "src/Helmholtz_OpenCL/RequireBuffers.hpp"
-        
+
 #include "src/Helmholtz_Common/ApplyOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
@@ -167,7 +170,10 @@ namespace BAEMM
 #include "src/WaveFunctions_OpenCL/IncidentWaveKernel_C.hpp"
 
 #include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
-        
+
+#include "src/Helmholtz_Common/FarField.hpp"
+
+
 //#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
     
     public:

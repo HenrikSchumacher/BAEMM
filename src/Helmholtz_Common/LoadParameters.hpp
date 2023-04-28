@@ -88,8 +88,8 @@ public:
         const C_ext coeff_1,
         const C_ext coeff_2,
         const C_ext coeff_3,
-        const Int wave_count_,
-        const Int wave_chunk_size_
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
     )
     {
         LoadCoefficients(
@@ -112,8 +112,8 @@ public:
         const C_ext coeff_1,
         const C_ext coeff_2,
         const C_ext coeff_3,
-        const Int wave_count_,
-        const Int wave_chunk_size_,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_,
         const R_ext factor
     )
     {
