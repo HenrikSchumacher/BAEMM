@@ -86,7 +86,7 @@ BAEMM::Helmholtz_CPU read_CPU(const std::string & filename)
     using namespace Tensors;
     using namespace Tools;
 
-    const std::string path = "C:/msys64/home/janni";
+    const std::string path = "/HOME1/users/guests/jannr";
     std::string file_name = path + filename;
     std::cout << file_name << std::endl;
     Tensor2<Real, Int> coords;
@@ -106,7 +106,7 @@ BAEMM::Helmholtz_OpenCL read_OpenCL(const std::string & filename)
     using namespace Tensors;
     using namespace Tools;
 
-    const std::string path = "C:/msys64/home/janni";
+    const std::string path = "/HOME1/users/guests/jannr";
     std::string file_name = path + filename;
 
     Tensor2<Real, Int> coords;
