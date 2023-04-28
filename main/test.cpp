@@ -64,11 +64,12 @@ int main()
     bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.0001f);
     H_GPU.DestroyKernel(&list);
 
+    tic("CPU");
     H_CPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),C,wave_count,
                                     Complex(-1.0f,0.0f),B,wave_count,
                                     kappa,coeff,wave_count,wave_chunk_size
                                     );
-
+    toc("CPU");
     float error = 0;
     float abs = 0;
     for (int i = 0; i < n; i++)
