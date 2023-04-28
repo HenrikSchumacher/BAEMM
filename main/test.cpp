@@ -1,9 +1,9 @@
 #include <iostream> 
 #include <fstream> 
-// #include <cblas.h>
+#include <cblas.h>
 #include "read.hpp"
-// #include "../../../Tensors/GMRES.hpp"
-// #include "../../../Tensors/ConjugateGradient.hpp"
+#include "../Tensors/GMRES.hpp"
+#include "../Tensors/ConjugateGradient.hpp"
 
 using Complex = std::complex<float>;
 
