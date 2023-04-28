@@ -41,7 +41,7 @@ int main()
     H_GPU.SetBlockSize(64);
     H_GPU.UseDiagonal(true);
 
-    GMRES<64,std::complex<float>,size_t,side::Left> gmres(n,30,8);
+    GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
 
     BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
