@@ -32,7 +32,7 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = (float)i + 2.0f;
+        kappa[i] = 2.0f*((float)i + 1.0f);
         coeff[wave_chunk_count*i + 0] = Complex(0.5f,0.0f);
         coeff[wave_chunk_count*i + 1] = Complex(0.0f,-kappa[i].0f);
         coeff[wave_chunk_count*i + 2] = Complex(1.0f,0.0f);
@@ -43,7 +43,7 @@ int main()
     H_GPU.SetBlockSize(64);
     H_GPU.UseDiagonal(true);
 
-    GMRES<16,std::complex<float>,size_t,side::Left> gmres(n,100,8);
+    GMRES<64,std::complex<float>,size_t,side::Left> gmres(n,100,8);
 
     BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
@@ -60,8 +60,10 @@ int main()
                 {
                     memcpy(y,x,wave_count * n * sizeof(Complex));
                 };
-  
-    bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.0001f);
+    tic("outer");
+    bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f);
+    toc("outer");
+    
     H_GPU.DestroyKernel(&list);
 
     tic("CPU");
