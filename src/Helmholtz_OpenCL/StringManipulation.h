@@ -13,7 +13,7 @@
 char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k_chunk_size, size_t& str_length)
 {
     // first we add definitions of block_size and k_chunk_size as macros to the kernel string
-    char* result = (char*)calloc(MAX_SOURCE_SIZE);
+    char* result = (char*)calloc(1,MAX_SOURCE_SIZE);
     strcat(result , "#define  block_size ");
     sprintf(result , "%s %d" , result , block_size);
     strcat(result,"\n");
