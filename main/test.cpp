@@ -31,8 +31,8 @@ int main()
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
         kappa[i] = 2.0f*((float)i + 1.0f);
-        coeff[wave_chunk_count*i + 0] = Complex(0.5f,0.0f);
-        coeff[wave_chunk_count*i + 1] = Complex(0.0f,-kappa[i]);
+        coeff[wave_chunk_count*i + 0] = Complex(0.0f,0.0f);
+        coeff[wave_chunk_count*i + 1] = Complex(0.0f,0.0f);
         coeff[wave_chunk_count*i + 2] = Complex(1.0f,0.0f);
         coeff[wave_chunk_count*i + 3] = Complex(0.0f,0.0f);
     }
@@ -44,31 +44,31 @@ int main()
     H_GPU.SetBlockSize(block_size);
     H_GPU.UseDiagonal(true);
 
-    GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
+    // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
 
-    BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+    // BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
-    auto A = [&H_GPU, &n, &wave_count]( const Complex * x, Complex *y )
-                {
-                    tic("inner");
-                    H_GPU.ApplyBoundaryOperators_PL(wave_count,
-                                    Complex(1.0f,0.0f),x,
-                                    Complex(0.0f,0.0f),y
-                                    );
-                    toc("inner");
-                };
-    auto P = [&n, &wave_count]( const Complex * x, Complex *y )
-                {
-                    memcpy(y,x,wave_count * n * sizeof(Complex));
-                };
-    tic("outer");
-    bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f,5);
-    toc("outer");
+    // auto A = [&H_GPU, &n, &wave_count]( const Complex * x, Complex *y )
+    //             {
+    //                 tic("inner");
+    //                 H_GPU.ApplyBoundaryOperators_PL(wave_count,
+    //                                 Complex(1.0f,0.0f),x,
+    //                                 Complex(0.0f,0.0f),y
+    //                                 );
+    //                 toc("inner");
+    //             };
+    // auto P = [&n, &wave_count]( const Complex * x, Complex *y )
+    //             {
+    //                 memcpy(y,x,wave_count * n * sizeof(Complex));
+    //             };
+    // tic("outer");
+    // bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f,5);
+    // toc("outer");
 
-    H_GPU.DestroyKernel(&list);
+    // H_GPU.DestroyKernel(&list);
 
     tic("CPU");
-    H_CPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),C,wave_count,
+    H_GPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),C,wave_count,
                                     Complex(-1.0f,0.0f),B,wave_count,
                                     kappa,coeff,wave_count,wave_chunk_size
                                     );
