@@ -9,8 +9,8 @@ using Complex = std::complex<float>;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
-    BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
+    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+    BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H_GPU.VertexCount();
     const Int wave_count = 64;
@@ -38,6 +38,7 @@ int main()
     }
 
     Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
+
     Int block_size;
     std::cin >> block_size;
     H_GPU.SetBlockSize(block_size);
