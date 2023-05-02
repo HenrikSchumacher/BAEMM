@@ -217,10 +217,10 @@ public:
 
             ModifiedB();
             C_loaded = true;
-            
+            tic("kernel");
             // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C();
-            
+            toc("kernel");
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
                         
