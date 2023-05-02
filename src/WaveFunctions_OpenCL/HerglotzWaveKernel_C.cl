@@ -140,7 +140,7 @@ __kernel void HerglotzWaveKernel_C(
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
                     B[j_loc][k].x = B_j_blk[k].x;
-                    B[j_loc][k].y = -B_j_blk[k].y;
+                    B[j_loc][k].y -= B_j_blk[k].y;
                 }
             }
                         

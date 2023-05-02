@@ -19,8 +19,8 @@ public:
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));     //weak representation of the incident wave
         C_ext*  phi             = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
         
-        ConjugateGradient<solver_count,std::complex<float>,size_t> cg(n,100,8);
-        GMRES<solver_count,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
 
         // create weak representation of the negative incident wave
         for(int i = 0 ; i < wave_chunk_count_ ; i++)
@@ -103,7 +103,7 @@ public:
 
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
     void AdjointDerivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
-                    C_ext* inc_directions,  const I_ext& wave_chunk_size_, 
+                    R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     C_ext* g, R_ext* C_out, 
                     R_ext cg_tol, R_ext gmres_tol)
     {
@@ -120,7 +120,6 @@ public:
 
         const I_ext  n                      = SimplexCount();
         const I_ext  wave_count_            = wave_chunk_count_ * wave_chunk_size_;
-        const R_ext  one_over_wave_count    = 1 / ((R_ext)wave_count);
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
         C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
@@ -130,8 +129,8 @@ public:
         C_ext*  dv_dn           = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(Complex));
         
-        ConjugateGradient<solver_count,std::complex<float>,size_t> cg(n,100,8);
-        GMRES<solver_count,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
 
         // create weak representation of the negative incident wave
         for(int i = 0 ; i < wave_chunk_count_ ; i++)
@@ -209,8 +208,9 @@ public:
 
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct(du_dn,dv_dn,wave_product,n,wave_count,true);
-
-        MultiplyWithNormals(wave_product,C_out,one_over_wave_count, cg_tol)
+        
+        //calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
+        MultiplyWithNormals_PL(wave_product,C_out,-( 1 /(R_ext)wave_count ), cg_tol);
 
         free(inc_coeff);
         free(coeff);
@@ -221,70 +221,67 @@ public:
         free(wave_product);
     }
 
-    // calculate B_in .* normals
-    void MultiplyWithNormals_PL( ptr<Complex> B_in, mut<Complex> C_out, C_ext factor, const R_ext cg_tol)
+    // calculate factor * Re(B_in) .* normals
+    template<typename R_ext, typename C_ext>
+    void MultiplyWithNormals_PL( ptr<C_ext> B_in, mut<R_ext> C_out, R_ext factor, const R_ext cg_tol)
     {
+        const R_ext One  = static_cast<R_ext>(1.0f);
+        const R_ext Zero = static_cast<R_ext>(0.0f);
+
         const Int m = SimplexCount();
         const Int n = VertexCount();
-        Complex* B = (Complex*)malloc(m * sizeof(Complex));
-        Complex* C = (Complex*)malloc(3 *m * sizeof(Complex));
 
-        ConjugateGradient<3,std::complex<float>,size_t> cg(n,100,8);
+        Complex*    B = (Complex*)malloc(m * sizeof(Complex));
+        Real*       C = (Real*)malloc(3 * m * sizeof(Complex));        
+        R_ext* C_weak = (R_ext*)malloc( 3 * n * sizeof(R_ext));
 
-        auto id = [&]( const Complex * x, Complex *y )
+        ConjugateGradient<3,R_ext,size_t> cg(n,100,8);
+
+        auto id = [&]( const R_ext * x, R_ext *y )
         {
-            memcpy(y,x,wave_count * n * sizeof(C_ext));
+            memcpy(y,x,3 * n * sizeof(R_ext));
         };
 
-        auto mass = [&]( const C_ext * x, C_ext *y )
+        auto mass = [&]( const R_ext * x, R_ext *y )
         {
-            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-            {
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_chunk_size
-                );
-            }
-            {
-                const Int chunk = wave_chunk_count - 1;
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_count - wave_chunk_size*chunk
-                );
-            }
+            Mass.Dot(
+                One, x, 3,
+                Zero, y, 3,
+                3
+            );
         };
-
+        
         // make the input from PL to a PC function
         AvOp.Dot(
-                factor,  B_in,  1,
+                Complex(1.0f,0.0f),  B_in,  1,
                 Complex(0.0f,0.0f), B, 1,
                 1
             );
-        
+
+        Int i,j;
         // pointwise multiplication of the STRONG FORM with the normals
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
         for( i = 0; i < m; ++i )
         {
-            Complex a_i = B[i] * (1/areas_ptr[i]);
+            Real a_i = B[i].real() / areas_ptr[i];
             LOOP_UNROLL_FULL
             for( j = 0; j < 3; ++j )
             {
-                C[i * columns + j] = normals_ptr[i * columns + j] * a_i;
+                C[i * 3 + j] = normals_ptr[i * 3 + j] * a_i;
             }
         }
 
-        realloc( B, 3 * n * sizeof(Complex));
         // retransf. from PC to PL
         AvOpTransp.Dot(
-                Complex(1.0f,0.0f), C, 3,
-                Complex(0.0f,0.0f),  B, 3,
+                factor, C, 3,
+                Zero,  C_weak, 3,
                 3
             );
+
         // apply M^(-1) to get trong form
-        bool succeeded = cg(mass,id,B,3,C_out,3,cg_tol);    
+        bool succeeded = cg(mass,id,C_weak,3,C_out,3,cg_tol);    
 
         free(B);
         free(C);
+        free(C_weak);
     }

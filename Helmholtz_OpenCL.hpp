@@ -171,6 +171,8 @@ namespace BAEMM
 
 #include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
 
+#include "src/LinearAlgebraUtilities/HadamardProduct.hpp"
+
 #include "src/Helmholtz_Common/FarField.hpp"
 
 

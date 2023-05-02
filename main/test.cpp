@@ -38,7 +38,9 @@ int main()
     }
 
     Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
-    H_GPU.SetBlockSize(32);
+    Int block_size;
+    std::cin << block_size;
+    H_GPU.SetBlockSize(block_size);
     H_GPU.UseDiagonal(true);
 
     GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);

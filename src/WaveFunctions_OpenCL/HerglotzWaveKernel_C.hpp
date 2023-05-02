@@ -1,6 +1,6 @@
 public:
 
-        // kernel host code for the herglotz wave function with kernel g (which is saved in B_ptr) evaluated on the triangle midpoints
+        // kernel host code for the herglotz wave function with kernel conj(g) (which is saved in B_ptr) evaluated on the triangle midpoints
         int HerglotzWaveKernel_C(
                 const WaveNumberContainer_T  & kappa_,
                 const CoefficientContainer_T & c_       
