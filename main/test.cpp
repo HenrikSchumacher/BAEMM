@@ -79,7 +79,7 @@ int main()
     {   
         for (int j = 0; j < wave_count; j++)
         {
-            std::complex<float> C_GPU = B[wave_count*i + j];
+            std::complex<float> C_GPU = C[wave_count*i + j];
             // std::complex<float> C_CPU = H_CPU.C(i,j);
             abs = std::abs(C_GPU);
             if (abs > error)
