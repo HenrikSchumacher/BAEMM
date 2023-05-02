@@ -68,8 +68,8 @@ int main()
     // H_GPU.DestroyKernel(&list);
 
     tic("CPU");
-    H_GPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),C,wave_count,
-                                    Complex(0.0f,0.0f),B,wave_count,
+    H_GPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),B,wave_count,
+                                    Complex(0.0f,0.0f),C,wave_count,
                                     kappa,coeff,wave_count,wave_chunk_size
                                     );
     toc("CPU");
