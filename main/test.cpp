@@ -65,17 +65,17 @@ int main()
     // bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f,5);
     // toc("outer");
 
-    tic("inner");
+    tic("GPU");
     H_GPU.ApplyBoundaryOperators_PL(wave_count,
-                    Complex(1.0f,0.0f),x,
-                    Complex(0.0f,0.0f),y
+                    Complex(1.0f,0.0f),B,
+                    Complex(0.0f,0.0f),C
                     );
-    toc("inner");
+    toc("GPU");
     H_GPU.DestroyKernel(&list);
 
     tic("CPU");
     H_CPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),B,wave_count,
-                                    Complex(0.0f,0.0f),C,wave_count,
+                                    Complex(-1.0f,0.0f),C,wave_count,
                                     kappa,coeff,wave_count,wave_chunk_size
                                     );
     toc("CPU");
