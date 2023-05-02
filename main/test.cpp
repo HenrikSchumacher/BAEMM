@@ -46,7 +46,7 @@ int main()
 
     // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
 
-    // BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+    BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
     // auto A = [&H_GPU, &n, &wave_count]( const Complex * x, Complex *y )
     //             {
@@ -65,10 +65,16 @@ int main()
     // bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f,5);
     // toc("outer");
 
-    // H_GPU.DestroyKernel(&list);
+    tic("inner");
+    H_GPU.ApplyBoundaryOperators_PL(wave_count,
+                    Complex(1.0f,0.0f),x,
+                    Complex(0.0f,0.0f),y
+                    );
+    toc("inner");
+    H_GPU.DestroyKernel(&list);
 
     tic("CPU");
-    H_GPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),B,wave_count,
+    H_CPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),B,wave_count,
                                     Complex(0.0f,0.0f),C,wave_count,
                                     kappa,coeff,wave_count,wave_chunk_size
                                     );

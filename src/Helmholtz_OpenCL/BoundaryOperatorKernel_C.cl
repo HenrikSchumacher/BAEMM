@@ -53,6 +53,14 @@ __kernel void BoundaryOperatorKernel_C(
         }
     }
     
+    for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
+    {   
+        const __private float  kappa = kappa_buf[k_chunk];
+        const __private float2 c [4] = {coeff[4*k_chunk + 0],coeff[4*k_chunk + 1],
+                                    coeff[4*k_chunk + 2],coeff[4*k_chunk + 3]};
+
+        __private float2 C_i [k_chunk_size] = {zero};
+        
         for( int j_block = 0; j_block < block_count; ++j_block )
         {
             {
@@ -83,15 +91,7 @@ __kernel void BoundaryOperatorKernel_C(
                 }
                 
                 barrier(CLK_LOCAL_MEM_FENCE);
-            }    
-            for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
-            {   
-                const __private float  kappa = kappa_buf[k_chunk];
-                const __private float2 c [4] = {coeff[4*k_chunk + 0],coeff[4*k_chunk + 1],
-                                            coeff[4*k_chunk + 2],coeff[4*k_chunk + 3]};
-
-                __private float2 C_i [k_chunk_size] = {zero};
-
+                
                 for( int j_loc = 0; j_loc < block_size; ++j_loc )
                 {
                     const int j = block_size * j_block + j_loc;
@@ -189,47 +189,48 @@ __kernel void BoundaryOperatorKernel_C(
                         }
                     }                    
                 }
-
+            }
             
+            {
+                const int j_loc  = get_local_id(0);
+                const int j      = block_size * j_block + j_loc;
+
+                __global const float2 * B_j_blk = &B_global[k_ld * j + k_chunk_size * k_chunk];
+
+                #pragma unroll
+                for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    const int j_loc  = get_local_id(0);
-                    const int j      = block_size * j_block + j_loc;
-
-                    __global const float2 * B_j_blk = &B_global[k_ld * j + k_chunk_size * k_chunk];
-
-                    #pragma unroll
-                    for( int k = 0; k < k_chunk_size; ++k )
-                    {
-                        B[j_loc][k] = B_j_blk[k];
-                    }
+                    B[j_loc][k] = B_j_blk[k];
                 }
-                            
-                barrier(CLK_LOCAL_MEM_FENCE);
+            }
+                        
+            barrier(CLK_LOCAL_MEM_FENCE);
 
-                for( int j_loc = 0; j_loc < block_size; ++j_loc )
+            for( int j_loc = 0; j_loc < block_size; ++j_loc )
+            {
+                #pragma unroll
+                for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    #pragma unroll
-                    for( int k = 0; k < k_chunk_size; ++k )
-                    {
-                        C_i[k].x +=   A_i[j_loc].x * B[j_loc][k].x
-                                    - A_i[j_loc].y * B[j_loc][k].y;
+                    C_i[k].x +=   A_i[j_loc].x * B[j_loc][k].x
+                                 - A_i[j_loc].y * B[j_loc][k].y;
 
-                        C_i[k].y +=   A_i[j_loc].x * B[j_loc][k].y
-                                    + A_i[j_loc].y * B[j_loc][k].x;
-                    }
+                    C_i[k].y +=   A_i[j_loc].x * B[j_loc][k].y
+                                 + A_i[j_loc].y * B[j_loc][k].x;
                 }
-                
-                barrier(CLK_LOCAL_MEM_FENCE);   
-                {
-                    __global float2 * C_i_blk = &C_global[k_ld * i + k_chunk_size * k_chunk];
-
-                    #pragma unroll
-                    for( int k = 0; k < k_chunk_size; ++k )
-                    {
-                        C_i_blk[k] += C_i[k];
-                    } 
-                } 
-            }        
+            }
+            
+            barrier(CLK_LOCAL_MEM_FENCE);            
         }
+
+        {
+            __global float2 * C_i_blk = &C_global[k_ld * i + k_chunk_size * k_chunk];
+
+            #pragma unroll
+            for( int k = 0; k < k_chunk_size; ++k )
+            {
+                C_i_blk[k] = C_i[k];
+            }
+        } 
+    }
 }
 )"
