@@ -39,7 +39,7 @@ int main()
 
     Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
     Int block_size;
-    std::cin << block_size;
+    std::cin >> block_size;
     H_GPU.SetBlockSize(block_size);
     H_GPU.UseDiagonal(true);
 
