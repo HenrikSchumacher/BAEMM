@@ -10,7 +10,7 @@ public:
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext  n          = VertexCount();
+        const Int     n          = VertexCount();
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;       
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
@@ -35,16 +35,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, wave, phi, wave_chunk_count_, cg_tol, gmres_tol );      
-
-        // set up the bdry operator and solve
-        for(int i = 0 ; i < wave_chunk_count_ ; i++)
-        {
-            coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
-            coeff[4 * i + 2] = One;
-            coeff[4 * i + 3] = Zero;
-        }
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, cg_tol, gmres_tol );      
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -52,6 +43,7 @@ public:
                             );
 
         free(inc_coeff);
+        free(coeff);
         free(phi);
         free(wave);
     }
@@ -75,7 +67,7 @@ public:
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext  n          = VertexCount();
+        const Int    n           = VertexCount();
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
         
 
@@ -84,6 +76,7 @@ public:
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));     //weak representation of the incident wave
         C_ext*  du_dn           = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
+        C_ext*  du_dn_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
         R_ext*  h_n             = (R_ext*)malloc(n * sizeof(Real));
         C_ext*  phi             = (C_ext*)malloc(wave_count_ * n * sizeof(Complex));
 
@@ -103,7 +96,7 @@ public:
 
         DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol ); 
 
-        DotWithNormals( h, h_n, cg_tol );
+        DotWithNormals_PL( h, h_n, cg_tol );
 
         Int i,j;
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
@@ -112,30 +105,42 @@ public:
             LOOP_UNROLL_FULL
             for( j = 0; j < wave_count_; ++j )
             {
-                du_dn[i * wave_count_ + j] *= h_n[i];
+                du_dn[i * wave_count_ + j] *= -h_n[i];
             }
         }
-
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, du_dn, phi, wave_chunk_count_, cg_tol, gmres_tol);
-
-        // set up the bdry operator and solve
-        for(int i = 0 ; i < wave_chunk_count_ ; i++)
+        
+        // apply mass to du_dn to get weak representation
+        for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
         {
-            coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
-            coeff[4 * i + 2] = One;
-            coeff[4 * i + 3] = Zero;
+            Mass.Dot(
+                One, &du_dn [wave_chunk_size * chunk], wave_count,
+                Zero,  &du_dn_weak[wave_chunk_size * chunk], wave_count,
+                wave_chunk_size
+            );
         }
+        {
+            const Int chunk = wave_chunk_count - 1;
+            Mass.Dot(
+                One, &du_dn [wave_chunk_size * chunk], wave_count,
+                Zero,  &du_dn_weak[wave_chunk_size * chunk], wave_count,
+                wave_count - wave_chunk_size*chunk
+            );
+        }
+
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, wave_chunk_count_, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
-                            kappa,c.data(), wave_count_, wave_chunk_size_
+                            kappa,coeff, wave_count_, wave_chunk_size_
                             );
 
         free(inc_coeff);
+        free(coeff);
         free(phi);
         free(wave);
-
+        free(incident_wave);
+        free(du_dn);
+        free(h_n);
     }
 
 
@@ -156,7 +161,7 @@ public:
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext  n                      = VertexCount();
+        const Int    n                      = VertexCount();
         const I_ext  wave_count_            = wave_chunk_count_ * wave_chunk_size_;
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
@@ -204,22 +209,21 @@ public:
         free(wave_product);
     }
 
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
-    void BoundaryPotential(const R_ext* kappa, C_ext * wave, C_ext* phi, I_ext wave_chunk_count_, R_ext cg_tol, R_ext gmres_tol)
+    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, I_ext wave_chunk_count_, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext n = VertexCount();
-
-        C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
+        const Int      n = VertexCount();
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
-         auto mass = [&]( const C_ext * x, C_ext *y )
+        auto mass = [&]( const C_ext * x, C_ext *y )
         {
             for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
             {
@@ -272,6 +276,7 @@ public:
         DestroyKernel(&list);
     }
 
+
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
     void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* du_dn, I_ext wave_chunk_count_, R_ext cg_tol, R_ext gmres_tol)
     {
@@ -279,7 +284,7 @@ public:
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext n    = VertexCount();
+        const Int   n    = VertexCount();
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(Complex));
 
@@ -339,8 +344,11 @@ public:
         bool succeeded = gmres(A,P,wave,wave_count,du_dn,wave_count,gmres_tol,10);
 
         DestroyKernel(&list);
+
+        free(coeff);
     }
 
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // calculate factor * Re(B_in) .* normals
     template<typename R_ext, typename C_ext>
@@ -408,38 +416,38 @@ public:
     }
 
 
-    // calculate factor * Re(B_in) .* normals
-    template<typename R_ext, typename C_ext>
+    // calculate <B_in , normals>
+    template<typename R_ext>
     void DotWithNormals_PL( ptr<R_ext> B_in, mut<R_ext> C_out, const R_ext cg_tol)
     {
         const R_ext One  = static_cast<R_ext>(1.0f);
         const R_ext Zero = static_cast<R_ext>(0.0f);
 
-        const Int m = SimplexCount();
-        const Int n = VertexCount();
+        const Int   m = SimplexCount();
+        const Int   n = VertexCount();
 
-        Real*    B = (Real*)malloc(3 * m * sizeof(Complex));
-        Real*       C = (Real*)malloc( m * sizeof(Complex));        
+        Real*       B = (Real*)malloc( 3 * m * sizeof(Real));
+        Real*       C = (Real*)malloc( m * sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
 
         ConjugateGradient<1,R_ext,size_t> cg(n,100,8);
 
         auto id = [&]( const R_ext * x, R_ext *y )
         {
-            memcpy(y,x,3 * n * sizeof(R_ext));
+            memcpy(y,x, n * sizeof(R_ext));
         };
 
         auto mass = [&]( const R_ext * x, R_ext *y )
         {
             Mass.Dot(
-                One, x, 3,
-                Zero, y, 3,
-                3
+                One, x, 1,
+                Zero, y, 1,
+                1
             );
         };
         
         // make the input from PL to a PC function
-        AvOp.Dot(
+        AvOp.Dot( 
                 1.0f,  B_in,  3,
                 0.0f, B, 3,
                 3
@@ -450,10 +458,11 @@ public:
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
         for( i = 0; i < m; ++i )
         {
+            Real a_i = 1.0f / areas_ptr[i];
             LOOP_UNROLL_FULL
             for( j = 0; j < 3; ++j )
             {
-                C[i] += normals_ptr[i * 4 + j] * B[i * 3 + j];
+                C[i] += normals_ptr[i * 4 + j] * B[i * 3 + j] * a_i;
             }
         }
 
@@ -463,10 +472,10 @@ public:
                 Zero,  C_weak, 1,
                 1
             );
-
+        
         // apply M^(-1) to get trong form
         bool succeeded = cg(mass,id,C_weak,1,C_out,1,cg_tol);    
-
+        
         free(B);
         free(C);
         free(C_weak);
