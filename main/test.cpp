@@ -19,23 +19,25 @@ int main()
 
     Real* B = (Real*)malloc(3 * n * sizeof(Real));
 
-    // for (int i = 0; i < n * wave_chunk_size; i++)
-    // {
-    //     //B[i] = std::exp(Complex(0.0f,(float)i));
-    //     B[i] = Complex(1.0f,0.0f);
-    // }
+    for (int i = 0; i < n; i++)
     {
-        using namespace Tensors;
-        using namespace Tools;
-
-        const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T.txt";
-        std::string file_name = path;
-        Tensor2<Real, Int> coords;
-        Tensor2<Int, Int> simplices;
-        
-        ReadFromFile<Real, Int>(file_name, coords, simplices);
-        memcpy(B,coords.data(),3 * n * sizeof(Real));
+        //B[i] = std::exp(Complex(0.0f,(float)i));
+        B[i] = 1.0f;
+        B[i] = 0.0f;
+        B[i] = 0.0f;
     }
+    // {
+    //     using namespace Tensors;
+    //     using namespace Tools;
+
+    //     const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T.txt";
+    //     std::string file_name = path;
+    //     Tensor2<Real, Int> coords;
+    //     Tensor2<Int, Int> simplices;
+        
+    //     ReadFromFile<Real, Int>(file_name, coords, simplices);
+    //     memcpy(B,coords.data(),3 * n * sizeof(Real));
+    // }
 
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
     Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
