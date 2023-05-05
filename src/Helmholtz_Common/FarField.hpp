@@ -88,14 +88,14 @@ public:
             inc_coeff[4 * i + 2] = One;
             inc_coeff[4 * i + 3] = Zero;
         }
-
+        
         CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
+        tic("DtN");
         DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol ); 
-
+        toc("DtN");
         DotWithNormals_PL( h, h_n, cg_tol );
 
         Int i,j;
@@ -126,9 +126,9 @@ public:
                 wave_count - wave_chunk_size*chunk
             );
         }
-
+        tic("Pot");
         BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, wave_chunk_count_, cg_tol, gmres_tol);
-
+        toc("Pot");
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
                             kappa,coeff, wave_count_, wave_chunk_size_
