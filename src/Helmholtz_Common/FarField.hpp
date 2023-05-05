@@ -336,11 +336,12 @@ public:
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
+            std::cout << x[0] << std::endl;
+            std::cout << x[n * wave_count - 1 ] << std::endl;
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
-            std::cout << y[0] << std::endl;
-            std::cout << y[n * wave_count] << std::endl;
+
         };
 
         // solve for the normal derivatives of the near field solutions
