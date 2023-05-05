@@ -295,6 +295,8 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
+            std::cout << x[0] << std::endl;
+            std::cout << x[n * wave_count - 1 ] << std::endl;
             for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
             {
                 Mass.Dot(
@@ -336,8 +338,6 @@ public:
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
-            std::cout << x[0] << std::endl;
-            std::cout << x[n * wave_count - 1 ] << std::endl;
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
