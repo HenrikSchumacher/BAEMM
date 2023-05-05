@@ -148,13 +148,13 @@ def normal_function(i):
 #     normals = np.multiply(n,1/np.linalg.norm(n,axis=0))
 #     return normals
 
-f = open("C:\msys64\home\janni\github\BAEMM\src\Helmholtz_OpenCL\Test_Items\mesh.json")
+f = open("/HOME1/users/guests/jannr/github/BAEMM/src/Helmholtz_OpenCL/Test_Items/mesh.json")
 data = json.load(f)
 vertices = np.array(data["Vertices"])
 connectivity = np.array(data["Connectivity"])
 f.close()
 
-f = open("C:\msys64\home\janni\github\BAEMM\src\Helmholtz_OpenCL\Test_Items\meas.json")
+f = open("/HOME1/users/guests/jannr/github/BAEMM/src/Helmholtz_OpenCL/Test_Items/meas.json")
 data = json.load(f)
 measurement_directions = np.array(data["Vertices"])
 f.close()
