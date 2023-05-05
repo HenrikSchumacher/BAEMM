@@ -94,11 +94,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
         
-        std::cout << wave_count << std::endl;
-        for (int i = 600000 ; i < 600050 ; i++)
-        {
-            std::cout << incident_wave[i] << std::endl;
-        }
+
         DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol ); 
 
         DotWithNormals_PL( h, h_n, cg_tol );
