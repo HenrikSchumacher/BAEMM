@@ -9,7 +9,7 @@ using Complex = std::complex<float>;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/Sphere_00081920T.txt");
+    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H_GPU.VertexCount();
@@ -19,18 +19,18 @@ int main()
 
     Real* B = (Real*)malloc(3 * n * sizeof(Real));
 
-    for (int i = 0; i < n; i++)
-    {
-        //B[i] = std::exp(Complex(0.0f,(float)i));
-        // B[i] = 1.0f;
-        // B[i] = 0.0f;
-        // B[i] = 0.0f;
-    }
+    // for (int i = 0; i < n; i++)
+    // {
+    //     B[i] = std::exp(Complex(0.0f,(float)i));
+    //     B[i] = 1.0f;
+    //     B[i] = 0.0f;
+    //     B[i] = 0.0f;
+    // }
     {
         using namespace Tensors;
         using namespace Tools;
 
-        const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T.txt";
+        const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
         std::string file_name = path;
         Tensor2<Real, Int> coords;
         Tensor2<Int, Int> simplices;

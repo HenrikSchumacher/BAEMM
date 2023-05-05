@@ -93,6 +93,7 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
+        
         std::cout << wave_count << std::endl;
         for (int i = 600000 ; i < 600050 ; i++)
         {
@@ -299,7 +300,6 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
-            std::cout << wave_count << std::endl;
             for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
             {
                 Mass.Dot(
