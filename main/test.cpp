@@ -28,7 +28,7 @@ int main()
         using namespace Tensors;
         using namespace Tools;
 
-        const std::string path = "C:/msys64/home/janni/github/BAEMM/Meshes/Sphere_00081920T.txt";
+        const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T.txt";
         std::string file_name = path;
         Tensor2<Real, Int> coords;
         Tensor2<Int, Int> simplices;
