@@ -50,7 +50,7 @@ int main()
         // coeff[wave_chunk_count*i + 3] = Complex(0.0f,0.0f);
     }
 
-    Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
+    Complex* C = (Complex*)malloc(wave_count * H_GPU.GetMeasCount() * sizeof(Complex));
     for (int i = 0 ; i < 4; i++)
     {
         inc[12*i + 0] = 1.0f;
