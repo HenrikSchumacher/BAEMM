@@ -140,6 +140,7 @@ public:
         free(wave);
         free(incident_wave);
         free(du_dn);
+        free(du_dn_weak);
         free(h_n);
     }
 
