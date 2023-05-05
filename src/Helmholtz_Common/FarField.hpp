@@ -94,7 +94,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
         std::cout << wave_count << std::endl;
-        for (int i = 0 ; i < 50 ; i++)
+        for (int i = 600000 ; i < 600050 ; i++)
         {
             std::cout << incident_wave[i] << std::endl;
         }
