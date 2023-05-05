@@ -93,7 +93,11 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
+        std::cout << wave_count << std::endl;
+        for (int i = 0 ; i < 50 ; i++)
+        {
+            std::cout << incident_wave[i] << std::endl;
+        }
         DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol ); 
 
         DotWithNormals_PL( h, h_n, cg_tol );
@@ -295,8 +299,6 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
-            std::cout << x[0] << std::endl;
-            std::cout << x[n * wave_count - 1 ] << std::endl;
             for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
             {
                 Mass.Dot(
