@@ -2,9 +2,9 @@ public:
 
     void InitializeBuffers(int simplex_count, const Real* meas_directions_)
     {
-        const uint size     =     simplex_count * sizeof(Real);
-        const uint size4    = 4 * simplex_count * sizeof(Real);
-        const uint msize4    = 4 * meas_count * sizeof(Real);
+        const Int size     =     simplex_count * sizeof(Real);
+        const Int size4    = 4 * simplex_count * sizeof(Real);
+        const Int msize4    = 4 * meas_count * sizeof(Real);
 
         // Allocate pinned memory in Host buffer
         mid_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,

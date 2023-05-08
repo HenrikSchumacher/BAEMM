@@ -148,13 +148,13 @@ def normal_function(i):
 #     normals = np.multiply(n,1/np.linalg.norm(n,axis=0))
 #     return normals
 
-f = open("/HOME1/users/guests/jannr/github/BAEMM/src/Helmholtz_OpenCL/Test_Items/mesh.json")
+f = open("/HOME1/users/guests/jannr/github/BAEMM/main/mesh.json")
 data = json.load(f)
 vertices = np.array(data["Vertices"])
 connectivity = np.array(data["Connectivity"])
 f.close()
 
-f = open("/HOME1/users/guests/jannr/github/BAEMM/src/Helmholtz_OpenCL/Test_Items/meas.json")
+f = open("/HOME1/users/guests/jannr/github/BAEMM/main/meas.json")
 data = json.load(f)
 measurement_directions = np.array(data["Vertices"])
 f.close()
@@ -188,8 +188,8 @@ ret = calc_DFF(connectivity,vertices,2,incident_directions,measurement_direction
 # normals = vertex_normals(space)
 # ret = (1 - 4j) * Herglotz_wave(space,2,measurement_directions,g) + (-2 + 1j) * Herglotz_wave_dnormal(space,normals,2,measurement_directions,g)
 
-test_real = np.loadtxt("C:\msys64\home\janni\github\BAEMM\src\Helmholtz_OpenCL\Test_Items\data_real.txt").transpose()
-test_imag = np.loadtxt("C:\msys64\home\janni\github\BAEMM\src\Helmholtz_OpenCL\Test_Items\data_imag.txt").transpose()
+test_real = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_real.txt").transpose()
+test_imag = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_imag.txt").transpose()
 
 res = ret - test_real[0:4,:] - 1j *test_imag[0:4,:]
 error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))
