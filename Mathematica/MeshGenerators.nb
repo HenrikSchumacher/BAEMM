@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      4301,        107]
-NotebookOptionsPosition[      3728,         90]
-NotebookOutlinePosition[      4165,        107]
-CellTagsIndexPosition[      4122,        104]
+NotebookDataLength[      4347,        107]
+NotebookOptionsPosition[      3774,         90]
+NotebookOutlinePosition[      4211,        107]
+CellTagsIndexPosition[      4168,        104]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -82,11 +82,11 @@ Cell[BoxData[
        "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], ",", 
    "\[IndentingNewLine]", 
    RowBox[{"{", 
-    RowBox[{"k", ",", "1", ",", "7"}], "}"}]}], "]"}]], "Input",
+    RowBox[{"k", ",", "0", ",", "7"}], "}"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.890814228701207*^9, 3.890814235178507*^9}, {
   3.890814639455668*^9, 3.890814655121436*^9}, {3.892525374253192*^9, 
-  3.8925253784650583`*^9}},
- CellLabel->"In[3]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+  3.8925253784650583`*^9}, {3.892526214867255*^9, 3.892526215035695*^9}},
+ CellLabel->"In[4]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
 },
 WindowSize->{1496, 905},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
@@ -108,7 +108,7 @@ CellTagsIndex->{}
 Notebook[{
 Cell[558, 20, 173, 2, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
 Cell[734, 24, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
-Cell[1054, 31, 2670, 57, 417, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+Cell[1054, 31, 2716, 57, 417, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
 }
 ]
 *)
