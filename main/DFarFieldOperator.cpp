@@ -33,7 +33,7 @@ int main()
 
     ReadCoordinates(vertex_count, coords);
 
-    const Int wave_count = wave_chunk_count * wave_chunk_size;
+    Int wave_count = wave_chunk_count * wave_chunk_size;
 
     Int dim = 3;
     ReadInOut(vertex_count, dim, B_in);
