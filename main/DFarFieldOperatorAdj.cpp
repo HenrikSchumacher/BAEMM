@@ -73,8 +73,8 @@ int main()
             break;
         }
     }
-    
-    WriteInOut(vertex_count, 3, B_out);
+    Int dim = 3;
+    WriteInOut(vertex_count, dim, B_out);
 
     return 0;
 }

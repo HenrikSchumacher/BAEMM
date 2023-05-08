@@ -35,7 +35,8 @@ int main()
 
     const Int wave_count = wave_chunk_count * wave_chunk_size;
 
-    ReadInOut(vertex_count, 3, B_in);
+    Int dim = 3;
+    ReadInOut(vertex_count, dim, B_in);
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
