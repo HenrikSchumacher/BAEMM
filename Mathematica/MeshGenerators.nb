@@ -10,25 +10,24 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      4171,        106]
-NotebookOptionsPosition[      3640,         90]
-NotebookOutlinePosition[      4035,        106]
-CellTagsIndexPosition[      3992,        103]
+NotebookDataLength[      4301,        107]
+NotebookOptionsPosition[      3728,         90]
+NotebookOutlinePosition[      4165,        107]
+CellTagsIndexPosition[      4122,        104]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 Cell[BoxData["Exit"], "Input",
  CellChangeTimes->{{3.874760451429117*^9, 3.87476045189067*^9}},
- CellLabel->
-  "In[337]:=",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+ CellLabel->"In[2]:=",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
 
 Cell[BoxData[{
  RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"LoadPackages", "[", "\"\<Geometries\>\"", "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.8747604120371637`*^9, 3.874760425272643*^9}},
- CellLabel->"In[5]:=",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
+ CellLabel->"In[1]:=",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
 
 Cell[BoxData[
  RowBox[{"Do", "[", "\[IndentingNewLine]", 
@@ -73,7 +72,7 @@ Cell[BoxData[
             RowBox[{"10", "^", 
              RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
           RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], 
-        ",", "\[IndentingNewLine]", 
+        ",", "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
         RowBox[{"ExportString", "[", 
          RowBox[{
           RowBox[{
@@ -85,11 +84,13 @@ Cell[BoxData[
    RowBox[{"{", 
     RowBox[{"k", ",", "1", ",", "7"}], "}"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.890814228701207*^9, 3.890814235178507*^9}, {
-  3.890814639455668*^9, 3.890814655121436*^9}},
- CellLabel->"In[28]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+  3.890814639455668*^9, 3.890814655121436*^9}, {3.892525374253192*^9, 
+  3.8925253784650583`*^9}},
+ CellLabel->"In[3]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
 },
 WindowSize->{1496, 905},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
+TaggingRules-><|"TryRealOnly" -> False|>,
 FrontEndVersion->"13.2 for Mac OS X ARM (64-bit) (January 30, 2023)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"ae61ea60-2f0f-4f23-81ee-6dfca12eb8a4"
@@ -105,9 +106,9 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 178, 3, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
-Cell[739, 25, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
-Cell[1059, 32, 2577, 56, 392, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+Cell[558, 20, 173, 2, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+Cell[734, 24, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
+Cell[1054, 31, 2670, 57, 417, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
 }
 ]
 *)
