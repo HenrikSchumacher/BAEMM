@@ -29,13 +29,14 @@ int main()
     Tensor2<Real,Int>       B_in;
     Tensor2<Complex,Int>    B_out;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incindet_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
-    const Int wave_count = wave_chunk_count * wave_chunk_size;
+    Int wave_count = wave_chunk_count * wave_chunk_size;
 
-    ReadInOut(vertex_count, 3, B_in);
+    Int dim = 3;
+    ReadInOut(vertex_count, dim, B_in);
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,

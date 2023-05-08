@@ -1,7 +1,7 @@
-#include <sys/types.h>
-#include <complex>
 #include <iostream>
 #include <fstream> 
+#include <sys/types.h>
+#include <complex>
 
 using uint = unsigned int;
 
@@ -32,7 +32,7 @@ int main()
 
     ReadCoordinates(vertex_count, coords);
 
-    const Int wave_count = wave_chunk_count * wave_chunk_size;
+    Int wave_count = wave_chunk_count * wave_chunk_size;
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,

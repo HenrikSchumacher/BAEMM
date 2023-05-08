@@ -29,11 +29,11 @@ int main()
     Tensor2<Complex,Int>    B_in;
     Tensor2<Real,Int>       B_out;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incindet_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
-    const Int wave_count = wave_chunk_count * wave_chunk_size;
+    Int wave_count = wave_chunk_count * wave_chunk_size;
 
     ReadInOut(meas_count, wave_count, B_in);
 
@@ -73,8 +73,8 @@ int main()
             break;
         }
     }
-    
-    WriteInOut(vertex_count, 3, B_out);
+    Int dim = 3;
+    WriteInOut(vertex_count, dim, B_out);
 
     return 0;
 }
