@@ -5,9 +5,9 @@
 
 using uint = unsigned int;
 
-#include "../../../Helmholtz_OpenCL.hpp"
-#include "../../../ReadWrite/ReadFiles.hpp"
-#include "../../../ReadWrite/WriteFiles.hpp"
+#include "../Helmholtz_OpenCL.hpp"
+#include "../ReadWrite/ReadFiles.hpp"
+#include "../ReadWrite/WriteFiles.hpp"
 
 using namespace Tools;
 using namespace Tensors;
