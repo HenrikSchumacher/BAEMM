@@ -29,7 +29,7 @@ int main()
     Tensor2<Real,Int>       B_in;
     Tensor2<Complex,Int>    B_out;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incindet_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
