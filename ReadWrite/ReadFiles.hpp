@@ -1,5 +1,3 @@
-#include <iostream>
-
 using namespace Tools;
 using namespace Tensors;
 using namespace std;
@@ -43,10 +41,10 @@ void ReadFixes(
     s >> str;
     s >> wave_chunk_count;
 
-    valprint("simplex_count",simplex_count);
-    valprint("meas_count",meas_count);
-    valprint("wave_chunk_size",wave_chunk_size);
-    valprint("wave_chunk_count",wave_chunk_count);   
+    // valprint("simplex_count",simplex_count);
+    // valprint("meas_count",meas_count);
+    // valprint("wave_chunk_size",wave_chunk_size);
+    // valprint("wave_chunk_count",wave_chunk_count);   
     
     simplices            = Tensor2<I_ext, I_ext>(  simplex_count,3   );
     meas_directions      = Tensor2<R_ext,I_ext>(  meas_count, 3     );

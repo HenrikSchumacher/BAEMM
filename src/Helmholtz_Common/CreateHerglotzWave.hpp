@@ -83,7 +83,7 @@ public:
     }
 
 
-    // creates a herglotz wave with kernel B_in in the WEAK FORM
+    // creates a herglotz wave with kernel conj(B_in) in the WEAK FORM
     template<typename C_ext, typename I_ext>
     void CreateHerglotzWave_PL(
         const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,

@@ -1,5 +1,3 @@
-#include <iostream>
-
 using namespace Tools;
 using namespace Tensors;
 using namespace std;
@@ -41,6 +39,11 @@ void WriteFixes(
     ptr<R_ext>       I = incident_directions.data();
     ptr<R_ext>       K = kappa.data();
 
+    for(int i = 0; i < wave_chunk_count ; i++)
+    {
+        s << K[i] << " "; 
+    }
+    
     for(int i = 0; i < wave_chunk_size ; i++)
     {
         for(int j = 0; j < 3 ; j++)
@@ -48,11 +51,6 @@ void WriteFixes(
             s << I[i * 3 + j] << " "; 
         }
         s << "\n";
-    }
-    
-    for(int i = 0; i < wave_chunk_count ; i++)
-    {
-        s << K[i] << " "; 
     }
     
     fstream file;

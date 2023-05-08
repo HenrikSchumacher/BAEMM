@@ -32,7 +32,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
+        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
         ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
@@ -122,10 +122,10 @@ public:
 
             ModifiedB();
             C_loaded = true;
-            
+
             // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C( kappa, c );
-            
+
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
                         
@@ -139,6 +139,10 @@ public:
             );
             
             addTo = Scalar::One<C_ext>;
+        }
+        else
+        {
+            addTo = beta * Scalar::One<C_ext>;
         }
         
         // Apply mass matrix.
@@ -213,10 +217,10 @@ public:
 
             ModifiedB();
             C_loaded = true;
-            
+
             // Apply off-diagonal part of integral operators.
             BoundaryOperatorKernel_C();
-            
+
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
                         
@@ -229,6 +233,10 @@ public:
             );
             
             addTo = Scalar::One<C_ext>;
+        }
+        else
+        {
+            addTo = beta * Scalar::One<C_ext>;
         }
         
         // Apply mass matrix.

@@ -22,10 +22,11 @@ public:
                 ret = clEnqueueNDRangeKernel(command_queue, global_kernel, 1, NULL, 
                         &global_item_size, &local_item_size, 
                         0, NULL, NULL);
+
                 // Read the memory buffer C on the device to the local variable C
                 ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, 
                         wave_count * simplex_count * sizeof(Complex), C_ptr, 0, NULL, NULL);
-                        
+    
                 clFinish(command_queue);
                 return 0;
         }
