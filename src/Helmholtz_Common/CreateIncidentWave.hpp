@@ -133,7 +133,7 @@ public:
             Complex* C = (Complex*)malloc(ldC * simplex_count * sizeof(Complex));
 
             Real* incident_directions = (Real*)malloc(3 * wave_chunk_size *sizeof(Real));
-            type_cast(incident_directions, incident_directions_, 3 * wave_chunk_size, OMP_thread_count);
+            type_cast(incident_directions, incident_directions_, 3 * wave_chunk_size, 1);
 
             IncidentWaveKernel_C( kappa, c , incident_directions, C);
 
