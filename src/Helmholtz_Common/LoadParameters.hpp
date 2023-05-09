@@ -12,7 +12,7 @@ public:
             coeff_list,
             wave_count_,
             wave_chunk_size_,
-            (R_ext)1
+            static_cast<R_ext>(1)
         );
     }
 
@@ -67,15 +67,15 @@ public:
             Re_mass_matrix  = Re_mass_matrix  || (real(z) != Scalar::Zero<Real>);
             Im_mass_matrix  = Im_mass_matrix  || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi * factor;
+            z = c[k][1] = static_cast<Complex>(coeff_list[4*k+1]) * one_over_four_pi * static_cast<Real>(factor);
             Re_single_layer = Re_single_layer || (real(z) != Scalar::Zero<Real>);
             Im_single_layer = Im_single_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi * factor;
+            z = c[k][2] = static_cast<Complex>(coeff_list[4*k+2]) * one_over_four_pi * static_cast<Real>(factor);
             Re_double_layer = Re_double_layer || (real(z) != Scalar::Zero<Real>);
             Im_double_layer = Im_double_layer || (imag(z) != Scalar::Zero<Real>);
             
-            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi * factor;
+            z = c[k][3] = static_cast<Complex>(coeff_list[4*k+3]) * one_over_four_pi * static_cast<Real>(factor);
             Re_adjdbl_layer = Re_adjdbl_layer || (real(z) != Scalar::Zero<Real>);
             Im_adjdbl_layer = Im_adjdbl_layer || (imag(z) != Scalar::Zero<Real>);
         }
@@ -100,7 +100,7 @@ public:
             coeff_3,
             wave_count_,
             wave_chunk_size_,
-            (R_ext)1
+            static_cast<R_ext>(1)
         );
     }
 
@@ -140,9 +140,9 @@ public:
         // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
         Complex z [4] {
             static_cast<Complex>(coeff_0),
-            static_cast<Complex>(coeff_1) * one_over_four_pi * factor,
-            static_cast<Complex>(coeff_2) * one_over_four_pi * factor,
-            static_cast<Complex>(coeff_3) * one_over_four_pi * factor
+            static_cast<Complex>(coeff_1) * one_over_four_pi * static_cast<Real>(factor),
+            static_cast<Complex>(coeff_2) * one_over_four_pi * static_cast<Real>(factor),
+            static_cast<Complex>(coeff_3) * one_over_four_pi * static_cast<Real>(factor)
         };
         
         Re_mass_matrix  = (real(z[0]) != Scalar::Zero<Real>);

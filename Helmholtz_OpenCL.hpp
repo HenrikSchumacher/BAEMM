@@ -64,9 +64,9 @@ namespace BAEMM
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             ptr<ExtReal> meas_directions_, ExtInt meas_count_,
-            int OMP_thread_count_
+            ExtInt OMP_thread_count_
         )
-        :   OMP_thread_count ( OMP_thread_count_                    )
+        :   OMP_thread_count ( int_cast<Int>(OMP_thread_count_)     )
         ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
         ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
@@ -89,7 +89,7 @@ namespace BAEMM
             command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // initialize the Opencl buffers and host pointers
-            InitializeBuffers(simplex_count,reinterpret_cast<const Real*>(meas_directions_));
+            InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
             clEnqueueWriteBuffer(command_queue, mid_points, CL_FALSE, 0,
@@ -132,7 +132,8 @@ namespace BAEMM
             ret = clReleaseContext(context);
             ret = clReleaseDevice(device_id);
         }
-        
+#include "src/TypeCast.hpp"
+
 #include "src/Helmholtz_OpenCL/InitializeBuffers.hpp"    
 
 #include "src/Helmholtz_Common/Initialize.hpp"

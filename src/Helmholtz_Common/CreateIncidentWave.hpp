@@ -44,8 +44,8 @@ public:
             }
         }
 
-        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_,four_pi);
-        
+        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_,static_cast<R_ext>(four_pi));
+
         CreateIncidentWave_PL( alpha, incident_directions, beta, C_out, ldC_out );
     }
 
@@ -99,15 +99,15 @@ public:
             }
         }
 
-        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_,four_pi);
-        
+        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_,static_cast<R_ext>(four_pi));
+
         CreateIncidentWave_PL( alpha, incident_directions, beta, C_out, ldC_out );
     }
 
 // creates wave_count incident waves for the scattering problem in the WEAK FORM
     template<typename R_ext,typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
-        const C_ext alpha, ptr<R_ext> incident_directions,
+        const C_ext alpha, ptr<R_ext> incident_directions_,
         const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_
     )
     {
@@ -131,10 +131,12 @@ public:
         )
         {   
             Complex* C = (Complex*)malloc(ldC * simplex_count * sizeof(Complex));
-            // Apply off-diagonal part of integral operators.
 
-            IncidentWaveKernel_C( kappa, c , reinterpret_cast<const Real*>(incident_directions),C);
-           
+            Real* incident_directions = (Real*)malloc(3 * wave_chunk_size *sizeof(Real));
+            type_cast(incident_directions, incident_directions_, 3 * wave_chunk_size, OMP_thread_count);
+
+            IncidentWaveKernel_C( kappa, c , incident_directions, C);
+
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C, ldC,

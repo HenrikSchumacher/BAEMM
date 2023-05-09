@@ -32,7 +32,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        R_ext factor = four_pi / meas_count;
+        R_ext factor = static_cast<R_ext>(four_pi / meas_count);
         LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -76,7 +76,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        R_ext factor = four_pi / meas_count;
+        R_ext factor = static_cast<R_ext>(four_pi / meas_count);
         LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_, factor);
         
         CreateHerglotzWave_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -109,8 +109,8 @@ public:
         if( Re_single_layer || Im_single_layer ||
             Re_double_layer || Im_double_layer
         )
-        {
-            memcpy(B_ptr,B_in,wave_count * meas_count * sizeof(Complex));
+        {   
+            type_cast(B_ptr, B_in ,wave_count * meas_count, OMP_thread_count);
 
             ModifiedB();
             C_loaded = true;

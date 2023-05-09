@@ -1,7 +1,9 @@
 public:
 
-    void InitializeBuffers(int simplex_count, const Real* meas_directions_)
+    template<typename I_ext, typename R_ext>
+    void InitializeBuffers(I_ext simplex_count_, const R_ext* meas_directions_)
     {
+        Int simplex_count = (Int)simplex_count_;
         const Int size     =     simplex_count * sizeof(Real);
         const Int size4    = 4 * simplex_count * sizeof(Real);
         const Int msize4    = 4 * meas_count * sizeof(Real);
@@ -56,9 +58,9 @@ public:
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for( Int i = 0; i < meas_count; ++i )
         {
-            meas_directions_ptr[4*i+0] = meas_directions_[3*i+0];
-            meas_directions_ptr[4*i+1] = meas_directions_[3*i+1];
-            meas_directions_ptr[4*i+2] = meas_directions_[3*i+2];
+            meas_directions_ptr[4*i+0] = (Real)meas_directions_[3*i+0];
+            meas_directions_ptr[4*i+1] = (Real)meas_directions_[3*i+1];
+            meas_directions_ptr[4*i+2] = (Real)meas_directions_[3*i+2];
             meas_directions_ptr[4*i+3] = zero;
         }
 
