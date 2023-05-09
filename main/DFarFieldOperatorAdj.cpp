@@ -27,7 +27,6 @@ int main()
     Tensor1<Real,Int>       kappa;
     Tensor2<Real,Int>       coords;
     Tensor2<Complex,Int>    B_in;
-    Tensor2<Real,Int>       B_out;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
 
@@ -48,7 +47,7 @@ int main()
 
     Int dim = 3;
 
-    B_out = Tensor2<Real,Int>(  vertex_count, dim  );
+    Tensor2<Real,Int>    B_out(  vertex_count, 3  );
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.001);

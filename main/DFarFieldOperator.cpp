@@ -27,7 +27,6 @@ int main()
     Tensor1<Real,Int>       kappa;
     Tensor2<Real,Int>       coords;
     Tensor2<Real,Int>       B_in;
-    Tensor2<Complex,Int>    B_out;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
 
@@ -47,7 +46,7 @@ int main()
     H.UseDiagonal(true);
     H.SetBlockSize(64);
 
-    B_out = Tensor2<Real,Int>(  meas_count, wave_count  );
+    Tensor2<Complex,Int>    B_out(  meas_count, wave_count  );
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.001);
