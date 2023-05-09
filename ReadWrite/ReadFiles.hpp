@@ -123,7 +123,7 @@ void ReadInOut(
     Tensor2<T,I_ext>          & B_in
 )
 {   
-    B_in    = Tensor2<T,I_ext>(     columns, rows    );
+    B_in    = Tensor2<T,I_ext>(   rows ,  columns    );
     
     mut<T> B = B_in.data();
     

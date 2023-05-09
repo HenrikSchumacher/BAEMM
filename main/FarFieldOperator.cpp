@@ -29,7 +29,7 @@ int main()
     Tensor2<Complex,Int>    B_out;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
-    std::cout << vertex_count << std::endl;
+
     ReadCoordinates(vertex_count, coords);
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
@@ -39,9 +39,11 @@ int main()
         simplices.data(), simplex_count, 
         meas_directions.data(), meas_count, int_cast<Int>(16)
         );
-    std::cout << "H" << std::endl;
+
     H.UseDiagonal(true);
     H.SetBlockSize(64);
+
+    B_out = Tensor2<R_ext,I_ext>(  meas_count, wave_count  );
     
     Real cg_tol = static_cast<Real>(0.000001);
     Real gmres_tol = static_cast<Real>(0.0001);
@@ -56,7 +58,6 @@ int main()
         }
         case 16:
         {
-            std::cout << "FF" << std::endl;
             H.FarField<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), cg_tol, gmres_tol);
             break;
