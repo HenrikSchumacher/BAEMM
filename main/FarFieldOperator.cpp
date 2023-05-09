@@ -73,7 +73,7 @@ int main()
             break;
         }
     }
-    for (i = 0; i < 16 ; i++)
+    for (int i = 0; i < 16 ; i++)
     {
         std::cout << B_out(1,i) << std::endl;
     }
