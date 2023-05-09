@@ -41,7 +41,7 @@ int main()
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
-        meas_directions.data(), meas_count, 16
+        meas_directions.data(), meas_count, int_cast<Int>(16)
         );
 
     H.UseDiagonal(true);
