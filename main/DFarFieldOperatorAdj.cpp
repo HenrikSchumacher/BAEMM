@@ -48,7 +48,7 @@ int main()
 
     Int dim = 3;
 
-    B_out = Tensor2<R_ext,I_ext>(  vertex_count, dim  );
+    B_out = Tensor2<Real,Int>(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.001);

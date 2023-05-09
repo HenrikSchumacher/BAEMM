@@ -43,7 +43,7 @@ int main()
     H.UseDiagonal(true);
     H.SetBlockSize(64);
 
-    B_out = Tensor2<R_ext,I_ext>(  meas_count, wave_count  );
+    B_out = Tensor2<Real,Int>(  meas_count, wave_count  );
     
     Real cg_tol = static_cast<Real>(0.000001);
     Real gmres_tol = static_cast<Real>(0.0001);
