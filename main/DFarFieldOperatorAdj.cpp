@@ -46,30 +46,33 @@ int main()
     H.UseDiagonal(true);
     H.SetBlockSize(64);
 
+    Real cg_tol = static_cast<Real>(0.00001);
+    Real gmres_tol = static_cast<Real>(0.001);
+
     switch (wave_count)
     {
         case 8:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), 0.00001f, 0.001f);
+                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), 0.00001f, 0.001f);
+                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), 0.00001f, 0.001f);
+                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), 0.00001f, 0.001f);
+                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
             break;
         }
     }

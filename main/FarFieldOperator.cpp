@@ -42,35 +42,41 @@ int main()
 
     H.UseDiagonal(true);
     H.SetBlockSize(64);
+    
+    Real cg_tol = static_cast<Real>(0.000001);
+    Real gmres_tol = static_cast<Real>(0.0001);
 
     switch (wave_count)
     {
         case 8:
         {
             H.FarField<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), 0.000001f, 0.0001f);
+                        B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
             H.FarField<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), 0.000001f, 0.0001f);
+                        B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
             H.FarField<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), 0.000001f, 0.0001f);
+                        B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
             H.FarField<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), 0.000001f, 0.0001f);
+                        B_out.data(), cg_tol, gmres_tol);
             break;
         }
     }
-    
+    for (i = 0; i < 16 ; i++)
+    {
+        std::cout << B_out(1,i) << std::endl;
+    }
     WriteInOut(meas_count, wave_count, B_out);
 
     return 0;
