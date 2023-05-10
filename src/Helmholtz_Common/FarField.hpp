@@ -34,10 +34,7 @@ public:
                             Zero, wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << wave[i] << std::endl;
-        }
+
         BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, cg_tol, gmres_tol );      
         for (int i = 0 ; i < 16; i++)
         {
@@ -117,24 +114,13 @@ public:
         }
         
         // apply mass to du_dn to get weak representation
-        for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-        {
-            Mass.Dot(
-                One, &du_dn [wave_chunk_size * chunk], wave_count,
-                Zero,  &du_dn_weak[wave_chunk_size * chunk], wave_count,
-                wave_chunk_size
-            );
-        }
-        {
-            const Int chunk = wave_chunk_count - 1;
-            Mass.Dot(
-                One, &du_dn [wave_chunk_size * chunk], wave_count,
-                Zero,  &du_dn_weak[wave_chunk_size * chunk], wave_count,
-                wave_count - wave_chunk_size*chunk
-            );
-        }
+        Mass.Dot(
+            One, du_dn, wave_count_,
+            Zero,  du_dn_weak, wave_count_,
+            wave_count_
+        );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, wave_chunk_count_, cg_tol, gmres_tol);
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -200,8 +186,8 @@ public:
 
 
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol );
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, wave_chunk_count_, cg_tol, gmres_tol );
+        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
+        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
 
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
@@ -220,7 +206,7 @@ public:
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
-    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, I_ext wave_chunk_count_, R_ext cg_tol, R_ext gmres_tol)
+    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
@@ -233,22 +219,11 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
-            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-            {
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_chunk_size
-                );
-            }
-            {
-                const Int chunk = wave_chunk_count - 1;
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_count - wave_chunk_size*chunk
-                );
-            }
+            Mass.Dot(
+                One, x, wave_count,
+                Zero,  y, wave_count,
+                wave_count
+            );
         };
 
         auto id = [&]( const C_ext * x, C_ext *y )
@@ -286,7 +261,7 @@ public:
 
 
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
-    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* du_dn, I_ext wave_chunk_count_, R_ext cg_tol, R_ext gmres_tol)
+    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* du_dn, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -302,22 +277,11 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
-            for( Int chunk = 0; chunk < wave_chunk_count - 1; ++chunk )
-            {
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_chunk_size
-                );
-            }
-            {
-                const Int chunk = wave_chunk_count - 1;
-                Mass.Dot(
-                    One, &x [wave_chunk_size * chunk], wave_count,
-                    Zero,  &y[wave_chunk_size * chunk], wave_count,
-                    wave_count - wave_chunk_size*chunk
-                );
-            }
+            Mass.Dot(
+                One, x, wave_count,
+                Zero,  y, wave_count,
+                wave_count
+            );
         };
 
         auto id = [&]( const C_ext * x, C_ext *y )
