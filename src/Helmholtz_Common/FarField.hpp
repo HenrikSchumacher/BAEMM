@@ -16,7 +16,7 @@ public:
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
-        C_ext*  phi             = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
@@ -36,10 +36,7 @@ public:
                             );
 
         BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, cg_tol, gmres_tol );      
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << phi[i] << std::endl;
-        }
+
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
                             kappa,coeff, wave_count_, wave_chunk_size_
@@ -78,10 +75,10 @@ public:
         C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
-        C_ext*  du_dn           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  du_dn_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
         R_ext*  h_n             = (R_ext*)malloc(n * sizeof(R_ext));
-        C_ext*  phi             = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
 
         // create weak representation of the negative incident wave
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
@@ -161,8 +158,8 @@ public:
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
         C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
-        C_ext*  du_dn           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
-        C_ext*  dv_dn           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
+        C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
 
         // create weak representation of the negative incident wave
@@ -252,10 +249,6 @@ public:
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
-            for (int i = 0 ; i < 16; i++)
-            {
-                std::cout << y[i] << std::endl;
-            }
         };
 
         bool succeeded = gmres(A,P,wave,wave_count,phi,wave_count,gmres_tol,10);
