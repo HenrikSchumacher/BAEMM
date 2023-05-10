@@ -35,7 +35,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, cg_tol, gmres_tol );      
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, cg_tol, gmres_tol );      
         for (int i = 0 ; i < 16; i++)
         {
             std::cout << phi[i] << std::endl;
@@ -98,7 +98,7 @@ public:
                             );
         
 
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, wave_chunk_count_, cg_tol, gmres_tol ); 
+        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol ); 
 
         DotWithNormals_PL( h, h_n, cg_tol );
 
