@@ -74,7 +74,10 @@ int main()
             break;
         }
     }
-
+    for (int i = 0 ; i < 16; i++)
+    {
+        std::cout << B_out(0,i) << std::endl;
+    }
     WriteInOut(meas_count, wave_count, B_out);
 
     return 0;
