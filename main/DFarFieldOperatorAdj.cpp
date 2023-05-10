@@ -35,7 +35,10 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     ReadInOut(meas_count, wave_count, B_in);
-
+    for (i = 0 ; i < 16; i++)
+    {
+        std::cout << B_in(0,i) << std::endl;
+    }
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
