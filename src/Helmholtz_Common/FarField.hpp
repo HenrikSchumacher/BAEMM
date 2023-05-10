@@ -35,7 +35,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, cg_tol, gmres_tol );      
+        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, cg_tol, gmres_tol );      
         for (int i = 0 ; i < 16; i++)
         {
             std::cout << phi[i] << std::endl;
@@ -98,7 +98,7 @@ public:
                             );
         
 
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol ); 
+        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol ); 
 
         DotWithNormals_PL( h, h_n, cg_tol );
 
@@ -120,7 +120,7 @@ public:
             wave_count_
         );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, cg_tol, gmres_tol);
+        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -186,8 +186,8 @@ public:
 
 
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
+        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
+        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
 
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
@@ -205,13 +205,13 @@ public:
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<typename R_ext, typename C_ext,I_ext solver_count>
     void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext  n   = static_cast<I_ext>(VertexCount());
+        const Int  n     = VertexCount();
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
@@ -237,7 +237,7 @@ public:
         };
 
         // set up the bdry operator and solve
-        for(I_ext i = 0 ; i < wave_chunk_count ; i++)
+        for(Int i = 0 ; i < wave_chunk_count ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
             coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
@@ -260,16 +260,16 @@ public:
     }
 
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<typename R_ext, typename C_ext,I_ext solver_count>
     void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* du_dn, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
-        const I_ext  n   = static_cast<I_ext>(VertexCount());
+        const Int    n   = VertexCount();
 
-        C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
+        C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count * 4 * sizeof(C_ext));
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
@@ -295,7 +295,7 @@ public:
         };
 
         // set up the bdry operator and solve
-        for(I_ext i = 0 ; i < wave_chunk_count ; i++)
+        for(Int i = 0 ; i < wave_chunk_count ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
             coeff[4 * i + 1] = -I;
