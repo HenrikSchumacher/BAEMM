@@ -45,7 +45,7 @@ int main()
     Tensor2<Complex,Int>    B_out(  meas_count, wave_count  );
     
     Real cg_tol = static_cast<Real>(0.000001);
-    Real gmres_tol = static_cast<Real>(0.0001);
+    Real gmres_tol = static_cast<Real>(0.00001);
 
     switch (wave_count)
     {
