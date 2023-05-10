@@ -49,9 +49,9 @@ __kernel void HerglotzWaveKernel_C(
 
         if( Re_double_layer || Im_double_layer )
         {
-            nu_i[0] = 0.f;
-            nu_i[1] = 0.f;
-            nu_i[2] = 1.f;
+            nu_i.x = 0.f;
+            nu_i.y = 0.f;
+            nu_i.z = 1.f;
         }
     }
     
