@@ -129,12 +129,12 @@ void ReadInOut(
     
     fstream file;
     file.open("B.bin",ios::in | ios::binary );
-    file.read( (char*)B , sizeof(T) * rows * columns );
     if( !file )
     {
         eprint("ReadFromFile: File B.bin could not be opened.");
         
         return;
     }
+    file.read( (char*)B , sizeof(T) * rows * columns );
     file.close();
 }

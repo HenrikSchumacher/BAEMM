@@ -54,7 +54,7 @@ void WriteFixes(
     }
     
     fstream file;
-    file.open("simplices.bin",ios::out | ios::binary );
+    file.open("simplices.bin",ios::out | ios::binary | ios::trunc);
     file.write( (char*)S , sizeof(I_ext) * 3 * simplex_count );
     if( !file )
     {
@@ -64,7 +64,7 @@ void WriteFixes(
     }
     file.close();
 
-    file.open("meas_directions.bin",ios::out | ios::binary );
+    file.open("meas_directions.bin",ios::out | ios::binary | ios::trunc);
     file.write( (char*)M , sizeof(R_ext) * 3 * meas_count );
     if( !file )
     {
@@ -85,7 +85,7 @@ void WriteCoordinates(
     ptr<R_ext> V = coords.data();
     
     fstream file;
-    file.open("coords.bin",ios::out | ios::binary );
+    file.open("coords.bin",ios::out | ios::binary | ios::trunc);
     file.write( (char*)V , sizeof(R_ext) * 3 * vertex_count );
     if( !file )
     {
@@ -107,7 +107,7 @@ void WriteInOut(
     ptr<T> B = B_out.data();
     
     fstream file;
-    file.open("B.bin",ios::out | ios::binary );
+    file.open("B.bin",ios::out | ios::binary | ios::trunc);
     file.write( (char*)B , sizeof(T) * rows * columns );
     if( !file )
     {
