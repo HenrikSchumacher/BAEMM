@@ -34,9 +34,15 @@ public:
                             Zero, wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << wave[i] << std::endl;
+        }
         BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, cg_tol, gmres_tol );      
-
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << phi[i] << std::endl;
+        }
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
                             kappa,coeff, wave_count_, wave_chunk_size_
