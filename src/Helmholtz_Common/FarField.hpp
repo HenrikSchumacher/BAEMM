@@ -252,6 +252,10 @@ public:
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
+            for (int i = 0 ; i < 16; i++)
+            {
+                std::cout << y[i] << std::endl;
+            }
         };
 
         bool succeeded = gmres(A,P,wave,wave_count,phi,wave_count,gmres_tol,10);
