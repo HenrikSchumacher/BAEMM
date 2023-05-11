@@ -273,7 +273,6 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
-            std::cout << wave_count << std::endl;
             Mass.Dot(
                 One, x, wave_count,
                 Zero,  y, wave_count,
@@ -309,7 +308,7 @@ public:
                             );
             for (int i = 0 ; i < 16; i++)
             {
-                std::cout << du_dn[i] << std::endl;
+                std::cout << y[i] << std::endl;
             }
         };
 
