@@ -175,30 +175,16 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << incident_wave[i] << std::endl;
-        }
+
         CreateHerglotzWave_PL(One, g, wave_count_,
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << herglotz_wave[i] << std::endl;
-        }
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << du_dn[i] << std::endl;
-        }
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << dv_dn[i] << std::endl;
-        }
+
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
@@ -287,6 +273,7 @@ public:
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
+            std::cout << wave_count << std::endl;
             Mass.Dot(
                 One, x, wave_count,
                 Zero,  y, wave_count,
@@ -320,7 +307,10 @@ public:
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
-
+            for (int i = 0 ; i < 16; i++)
+            {
+                std::cout << du_dn[i] << std::endl;
+            }
         };
 
         // solve for the normal derivatives of the near field solutions
