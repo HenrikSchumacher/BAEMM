@@ -175,17 +175,30 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << incident_wave[i] << std::endl;
+        }
         CreateHerglotzWave_PL(One, g, wave_count_,
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << herglotz_wave[i] << std::endl;
+        }
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
-
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << dudn[i] << std::endl;
+        }
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << dvdn[i] << std::endl;
+        }
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
@@ -210,8 +223,8 @@ public:
 
         const Int  n     = VertexCount();
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
@@ -268,8 +281,8 @@ public:
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count * 4 * sizeof(C_ext));
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
@@ -334,7 +347,7 @@ public:
         Real*       C = (Real*)malloc(3 * m * sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( 3 * n * sizeof(R_ext));
 
-        ConjugateGradient<3,R_ext,size_t> cg(n,100,8);
+        ConjugateGradient<3,R_ext,size_t> cg(n,100,OMP_thread_count);
 
         auto id = [&]( const R_ext * x, R_ext *y )
         {
@@ -400,7 +413,7 @@ public:
         Real*       C = (Real*)malloc( m * sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
 
-        ConjugateGradient<1,R_ext,size_t> cg(n,100,8);
+        ConjugateGradient<1,R_ext,size_t> cg(n,100,OMP_thread_count);
 
         auto id = [&]( const R_ext * x, R_ext *y )
         {
