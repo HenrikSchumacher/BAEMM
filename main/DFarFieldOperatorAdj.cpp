@@ -37,7 +37,7 @@ int main()
     ReadInOut(meas_count, wave_count, B_in);
     for (int i = 0 ; i < 16; i++)
     {
-        std::cout << B_in(0,i) << std::endl;
+        std::cout << B_in(1,i) << std::endl;
     }
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
@@ -82,7 +82,13 @@ int main()
             break;
         }
     }
-
+    for (int i = 0 ; i < 3; i++)
+    {
+        for (int j = 0 ; j < 3; j++)
+        {
+            std::cout << B_out(1,j) << std::endl;
+        }
+    }
     WriteInOut(vertex_count, dim, B_out);
 
     return 0;
