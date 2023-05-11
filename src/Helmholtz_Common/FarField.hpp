@@ -193,11 +193,11 @@ public:
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
         for (int i = 0 ; i < 16; i++)
         {
-            std::cout << dudn[i] << std::endl;
+            std::cout << du_dn[i] << std::endl;
         }
         for (int i = 0 ; i < 16; i++)
         {
-            std::cout << dvdn[i] << std::endl;
+            std::cout << dv_dn[i] << std::endl;
         }
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
