@@ -264,7 +264,7 @@ public:
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
         const Int    n   = VertexCount();
-        std::cout << wave_chunk_count << std::endl;
+
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count * 4 * sizeof(C_ext));
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
@@ -306,10 +306,6 @@ public:
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
-            for (int i = 0 ; i < 16; i++)
-            {
-                std::cout << y[i] << std::endl;
-            }
         };
 
         // solve for the normal derivatives of the near field solutions

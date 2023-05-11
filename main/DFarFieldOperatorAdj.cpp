@@ -35,9 +35,19 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     ReadInOut(meas_count, wave_count, B_in);
-    for (int i = 0 ; i < 16; i++)
+    for (int j = 0 ; j < 3; j++)
     {
-        std::cout << B_in(1,i) << std::endl;
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << B_in(j,i) << std::endl;
+        }
+    }
+    for (int j = 9598 ; j < 9561; j++)
+    {
+        for (int i = 0 ; i < 16; i++)
+        {
+            std::cout << B_in(j,i) << std::endl;
+        }
     }
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
