@@ -42,7 +42,7 @@ int main()
             std::cout << B_in(j,i) << std::endl;
         }
     }
-    for (int j = 9598 ; j < 9561; j++)
+    for (int j = 2560 ; j < 2563; j++)
     {
         for (int i = 0 ; i < 16; i++)
         {
