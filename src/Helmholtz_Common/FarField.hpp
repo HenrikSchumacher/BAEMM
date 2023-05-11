@@ -264,7 +264,7 @@ public:
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
         const Int    n   = VertexCount();
-
+        std::cout << wave_chunk_count << std::endl;
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count * 4 * sizeof(C_ext));
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
