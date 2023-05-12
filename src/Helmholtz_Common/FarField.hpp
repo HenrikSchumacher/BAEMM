@@ -182,7 +182,7 @@ public:
                             );
         for (i = 0; i < 16 * 4800)
         {
-            if(isnan(herglotz_wave))
+            if(isnan(herglotz_wave[i]))
             {
                 std::cout << i << std::endl;
             }
