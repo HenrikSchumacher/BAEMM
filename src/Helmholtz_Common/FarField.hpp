@@ -157,7 +157,7 @@ public:
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
-        C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
+        C_ext*  herglotz_wave   = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));     //weak representation of the herglotz wave
         C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
