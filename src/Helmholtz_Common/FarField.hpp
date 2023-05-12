@@ -184,19 +184,16 @@ public:
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
-        int m_u = 0, m_v = 0;
-        for (int j = 0 ; j < 2562; j++)
+        Real m_u = 0, m_v = 0;
+        for (int j = 0 ; j < 16*2562; j++)
         {
-            for (int i = 0 ; i < 16; i++)
+            if( std::abs(du_dn[i] > m_u)  )
             {
-                if( std::abs(du_dn > m_u)  )
-                {
-                    m_u = du_dn;
-                }
-                if( std::abs(dv_dn > m_v)  )
-                {
-                    m_v = dv_dn;
-                }
+                m_u = std::abs(dv_dn[i]);
+            }
+            if( std::abs(dv_dn[i] > m_v)  )
+            {
+                m_v = std::abs(dv_dn[i];
             }
         }
         std::cout << e_u << std::endl;
