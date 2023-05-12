@@ -187,11 +187,11 @@ public:
         Real m_u = 0, m_v = 0;
         for (int j = 0 ; j < 16*2562; j++)
         {
-            if( std::abs(du_dn[j] > m_u)  )
+            if( std::abs(du_dn[j]) > m_u  )
             {
                 m_u = std::abs(dv_dn[j]);
             }
-            if( std::abs(dv_dn[j] > m_v)  )
+            if( std::abs(dv_dn[j]) > m_v  )
             {
                 m_v = std::abs(dv_dn[j]);
             }
