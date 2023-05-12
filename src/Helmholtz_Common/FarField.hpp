@@ -196,8 +196,8 @@ public:
                 m_v = std::abs(dv_dn[j]);
             }
         }
-        std::cout << e_u << std::endl;
-        std::cout << e_v << std::endl;
+        std::cout << m_u << std::endl;
+        std::cout << m_v << std::endl;
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
