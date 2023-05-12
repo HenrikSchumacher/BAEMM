@@ -193,7 +193,7 @@ public:
             }
             if( std::abs(dv_dn[i] > m_v)  )
             {
-                m_v = std::abs(dv_dn[i];
+                m_v = std::abs(dv_dn[i]);
             }
         }
         std::cout << e_u << std::endl;
