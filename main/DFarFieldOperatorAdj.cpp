@@ -35,20 +35,17 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     ReadInOut(meas_count, wave_count, B_in);
-    for (int j = 0 ; j < 3; j++)
+    for (int j = 0 ; j < 2562; j++)
     {
         for (int i = 0 ; i < 16; i++)
         {
-            std::cout << B_in(j,i) << std::endl;
+            if( isnan( B_in(j,i) )  )
+            {
+                std::cout << "nan" << std::endl;
+            }
         }
     }
-    for (int j = 2560 ; j < 2563; j++)
-    {
-        for (int i = 0 ; i < 16; i++)
-        {
-            std::cout << B_in(j,i) << std::endl;
-        }
-    }
+    
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
@@ -93,13 +90,7 @@ int main()
             break;
         }
     }
-    for (int i = 0 ; i < 3; i++)
-    {
-        for (int j = 0 ; j < 3; j++)
-        {
-            std::cout << B_out(1,j) << std::endl;
-        }
-    }
+
     WriteInOut(vertex_count, dim, B_out);
 
     return 0;

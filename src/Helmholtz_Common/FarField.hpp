@@ -184,7 +184,23 @@ public:
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
-
+        int m_u = 0, m_v = 0;
+        for (int j = 0 ; j < 2562; j++)
+        {
+            for (int i = 0 ; i < 16; i++)
+            {
+                if( std::abs(du_dn > m_u)  )
+                {
+                    m_u = du_dn;
+                }
+                if( std::abs(dv_dn > m_v)  )
+                {
+                    m_v = dv_dn;
+                }
+            }
+        }
+        std::cout << e_u << std::endl;
+        std::cout << e_v << std::endl;
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
@@ -287,7 +303,17 @@ public:
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
+            std::cout << " P_in" << std::endl;
+            for (int i = 0 ; i < 16 ; i++)
+            {
+                std::cout << x[i] << std::endl;
+            }
             bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
+            std::cout << " P_out" << std::endl;
+            for (int i = 0 ; i < 16 ; i++)
+            {
+                std::cout << y[i] << std::endl;
+            }
         };
 
         // set up the bdry operator and solve
@@ -303,9 +329,19 @@ public:
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
+            std::cout << " A_in" << std::endl;
+            for (int i = 0 ; i < 16 ; i++)
+            {
+                std::cout << y[i] << std::endl;
+            }
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
+            std::cout << " A_out" << std::endl;
+            for (int i = 0 ; i < 16 ; i++)
+            {
+                std::cout << y[i] << std::endl;
+            }
         };
 
         // solve for the normal derivatives of the near field solutions
