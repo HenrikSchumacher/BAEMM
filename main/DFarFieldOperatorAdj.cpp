@@ -35,16 +35,6 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     ReadInOut(meas_count, wave_count, B_in);
-    for (int j = 0 ; j < 2562; j++)
-    {
-        for (int i = 0 ; i < 16; i++)
-        {
-            if( isnan( B_in(j,i) )  )
-            {
-                std::cout << "nan" << std::endl;
-            }
-        }
-    }
     
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
