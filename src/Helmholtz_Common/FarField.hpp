@@ -182,7 +182,7 @@ public:
                             );
         for (int i = 0; i < 16 * 4800;i++)
         {
-            if(isnan(std::abs(herglotz_wave[i])))
+            if(std::abs(herglotz_wave[i])> 1000)
             {
                 std::cout << i << std::endl;
             }
