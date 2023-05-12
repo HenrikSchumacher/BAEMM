@@ -301,14 +301,6 @@ public:
         auto P = [&]( const C_ext * x, C_ext *y )
         {
             bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
-            std::cout << "P" << std::endl;
-            for (int i = 0 ; i < 16 * 2562; i++)
-            {
-                if( isnan(y[i].real()) || isnan(y[i].imag()) )  
-                {
-                    std::cout << i << std::endl;
-                }
-            }
         };
 
         // set up the bdry operator and solve
@@ -327,14 +319,6 @@ public:
             ApplyBoundaryOperators_PL(
                             wave_count, One,x,Zero,y
                             );
-            std::cout << "A" << std::endl;
-            for (int i = 0 ; i < 16 * 2562; i++)
-            {
-                if( isnan(y[i].real()) || isnan(y[i].imag()) )  
-                {
-                    std::cout << i << std::endl;
-                }
-            }
         };
 
         // solve for the normal derivatives of the near field solutions
