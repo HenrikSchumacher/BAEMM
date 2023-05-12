@@ -180,7 +180,7 @@ public:
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        for (int i = 0; i < 16 * 4800,i++)
+        for (int i = 0; i < 16 * 4800;i++)
         {
             if(isnan(std::abs(herglotz_wave[i])))
             {
