@@ -175,16 +175,14 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
+        for(int i = 0; i < 16*2562; i++)
+        {
+            std::cout << g[i] << std::endl;
+        }
         CreateHerglotzWave_PL(One, g, wave_count_,
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-
-        for(int i = 0; i < 16*4800; i++)
-        {
-            std::cout << herglotz_wave[i] << std::endl;
-        }
         
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
