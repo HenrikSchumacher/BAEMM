@@ -80,8 +80,11 @@ int main()
             break;
         }
     }
-
-    WriteInOut(vertex_count, dim, B_out);
+    for(int i = 0; i < 3; i++)
+    {
+        std::cout << B(0,i) << std::endl;
+    }
+    // WriteInOut(vertex_count, dim, B_out);
 
     return 0;
 }

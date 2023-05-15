@@ -189,22 +189,8 @@ public:
         }
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
-        std::cout << "h" << std::endl;
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
-        Real m_u = 0, m_v = 0;
-        for (int j = 0 ; j < 16*2562; j++)
-        {
-            if( std::abs(du_dn[j]) > m_u  )
-            {
-                m_u = std::abs(du_dn[j]);
-            }
-            if( std::abs(dv_dn[j]) > m_v  )
-            {
-                m_v = std::abs(dv_dn[j]);
-            }
-        }
-        std::cout << m_u << std::endl;
-        std::cout << m_v << std::endl;
+
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
