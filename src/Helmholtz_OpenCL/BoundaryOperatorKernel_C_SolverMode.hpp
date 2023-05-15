@@ -142,7 +142,7 @@ public:
                 // Clean up
                 ret = clFinish(command_queue);
                 ret = clFlush(command_queue);
-//                ret = clReleaseKernel(global_kernel);
+                ret = clReleaseKernel(global_kernel);
                 ret = clReleaseMemObject(list->d_kappa);
                 ret = clReleaseMemObject(list->d_coeff);
                 ret = clReleaseMemObject(list->d_n);
