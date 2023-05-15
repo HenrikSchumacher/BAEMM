@@ -111,11 +111,19 @@ public:
         )
         {   
             type_cast(B_ptr, B_in ,wave_count * meas_count, OMP_thread_count);
-
+            Real B_max = 0;
+            for(int i = 0 ; i < 2562; i++)
+            {
+                if(std::abs(B_ptr[i])> B_max)
+                {
+                    B_max = std::abs(B_ptr[i]);
+                }
+            }
+            std::cout << B_max << std::endl;
             ModifiedB();
             C_loaded = true;
             
-            // Apply off-diagonal part of integral operators.
+
             HerglotzWaveKernel_C( kappa, c );
                         
             // use transpose averaging operator to get from PC to PL boundary functions
