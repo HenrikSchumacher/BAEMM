@@ -7,9 +7,9 @@ public:
                 ) 
         {
         // allocate local host pointers for the device buffers to use
-        Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
-        memcpy(Kappa, kappa_.data(), 4 * sizeof(Real));
-        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
+        Real* Kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
+        memcpy(Kappa, kappa_.data(), wave_chunk_count * sizeof(Real));
+        Complex* Coeff = (Complex*)calloc(wave_chunk_count * 4, sizeof(Complex));
         memcpy(Coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
 
         int n = simplex_count;
@@ -47,7 +47,7 @@ public:
 
         // write to buffers
         clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0,
-                                rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
+                                m * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
 
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, 
