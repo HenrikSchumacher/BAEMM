@@ -241,18 +241,18 @@ public:
             coeff[4 * i + 3] = Zero;
         }
 
-        // kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+        kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
             ApplyBoundaryOperators_PL(
-                            One,x,wave_count, Zero,y,wave_count
+                            wave_count, One,x,Zero,y
                             );
         };
 
         bool succeeded = gmres(A,P,wave,wave_count,phi,wave_count,gmres_tol,10);
 
-        // DestroyKernel(&list);
+        DestroyKernel(&list);
     }
 
 
@@ -299,19 +299,19 @@ public:
             coeff[4 * i + 3] = One;
         }
 
-        kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+        // kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
             ApplyBoundaryOperators_PL(
-                            wave_count, One,x,Zero,y
+                             One,x,wave_count,Zero,y,wave_count
                             );
         };
 
         // solve for the normal derivatives of the near field solutions
         bool succeeded = gmres(A,P,wave,wave_count,neumann_trace,wave_count,gmres_tol,10);
 
-        DestroyKernel(&list);
+        // DestroyKernel(&list);
 
         free(coeff);
     }
