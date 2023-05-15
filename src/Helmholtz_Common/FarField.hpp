@@ -157,7 +157,7 @@ public:
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
-        C_ext*  herglotz_wave   = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));     //weak representation of the herglotz wave
+        C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
         C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
@@ -180,13 +180,7 @@ public:
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        for (int i = 0; i < 16 * 4800;i++)
-        {
-            if(std::abs(herglotz_wave[i])> 1000)
-            {
-                std::cout << i << std::endl;
-            }
-        }
+
         // solve for the normal derivatives of the near field solutions
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );

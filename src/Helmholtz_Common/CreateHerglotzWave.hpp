@@ -104,7 +104,7 @@ public:
         
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
-        RequireBuffers( wave_count );
+        RequireBuffersHerglotzWave( wave_count );
         
         if( Re_single_layer || Im_single_layer ||
             Re_double_layer || Im_double_layer
