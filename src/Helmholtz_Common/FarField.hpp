@@ -180,17 +180,14 @@ public:
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        R_ext h_max = 0;
+
         for(int i = 0; i < 16*4800; i++)
         {
-            if(std::abs(herglotz_wave[i]) > h_max)
-            {
-                h_max = std::abs(herglotz_wave[i]);
-            }
+            std::cout << herglotz_wave[i] << std::endl;
         }
-        std::cout << h_max << std::endl;
+        
         // solve for the normal derivatives of the near field solutions
-        // DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
+        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
