@@ -9,7 +9,7 @@ public:
         // allocate local host pointers for the device buffers to use
         Real* Kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
         memcpy(Kappa, kappa_.data(), wave_chunk_count * sizeof(Real));
-        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4, sizeof(Complex));
+        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
         memcpy(Coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
 
         int n = simplex_count;
