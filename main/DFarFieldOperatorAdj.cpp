@@ -37,11 +37,14 @@ int main()
     ReadInOut(meas_count, wave_count, B_in);
     std::cout << kappa(0)<< std::endl;
     std::cout << kappa(1)<< std::endl;
-    for ( int i = 0; i < 16*2562; i++)
+    for ( int i = 0; i < 2562; i++)
     {
-        if(isnan(std::abs(B_in(i,j)))|| std::abs(B(i,j)) > 100)
+        for ( int j = 0; j < 16; j++)
         {
-            std::cout << B_in(i,j) << std::endl;
+            if(isnan(std::abs(B_in(i,j)))|| std::abs(B_in(i,j)) > 100)
+            {
+                std::cout << B_in(i,j) << std::endl;
+            }
         }
     }
     BAEMM::Helmholtz_OpenCL H (
