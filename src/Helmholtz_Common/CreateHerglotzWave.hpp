@@ -117,15 +117,11 @@ public:
             
 
             HerglotzWaveKernel_C( kappa, c );
-            Real B_max = 0;
+
             for(int i = 0 ; i < 16 * 4800; i++)
             {
-                if(std::abs(C_ptr[i])> B_max)
-                {
-                    B_max = std::abs(C_ptr[i]);
-                }
-            }
-            std::cout << B_max << std::endl;            
+                std::cout << std::abs(C_ptr[i])<< std::endl;
+            }      
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C_ptr, ldC,
