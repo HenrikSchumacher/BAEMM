@@ -48,8 +48,8 @@ public:
             RequireBuffers( wave_count );
 
 
-            Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
-            memcpy(Kappa, kappa.data(), 4 * sizeof(Real));
+            Real* Kappa = (Real*)malloc(wave_chunk_count *  sizeof(Real));
+            memcpy(Kappa, kappa.data(), wave_chunk_count *  sizeof(Real));
             Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
             memcpy(Coeff, c.data(), wave_chunk_count * 4 * sizeof(Complex));
 
@@ -142,7 +142,7 @@ public:
                 // Clean up
                 ret = clFinish(command_queue);
                 ret = clFlush(command_queue);
-                ret = clReleaseKernel(global_kernel);
+//                ret = clReleaseKernel(global_kernel);
                 ret = clReleaseMemObject(list->d_kappa);
                 ret = clReleaseMemObject(list->d_coeff);
                 ret = clReleaseMemObject(list->d_n);

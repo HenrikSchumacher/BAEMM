@@ -182,8 +182,7 @@ public:
                             );
         
         // solve for the normal derivatives of the near field solutions
-        // DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
-        std::cout << "h" << std::endl;
+        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
@@ -258,7 +257,7 @@ public:
 
 
     template<typename R_ext, typename C_ext,Int solver_count>
-    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* du_dn, R_ext cg_tol, R_ext gmres_tol)
+    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -310,7 +309,7 @@ public:
         };
 
         // solve for the normal derivatives of the near field solutions
-        bool succeeded = gmres(A,P,wave,wave_count,du_dn,wave_count,gmres_tol,10);
+        bool succeeded = gmres(A,P,wave,wave_count,neumann_trace,wave_count,gmres_tol,10);
 
         DestroyKernel(&list);
 
