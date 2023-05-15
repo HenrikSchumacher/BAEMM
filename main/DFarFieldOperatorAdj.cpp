@@ -39,7 +39,7 @@ int main()
     std::cout << kappa(1)<< std::endl;
     for ( int i = 0; i < 16*2562; i++)
     {
-        if(isnan(B_in(i,j))|| B(i,j) > 100)
+        if(isnan(std::abs(B_in(i,j)))|| std::abs(B(i,j)) > 100)
         {
             std::cout << B_in(i,j) << std::endl;
         }
