@@ -82,7 +82,7 @@ int main()
     }
     for(int i = 0; i < 3; i++)
     {
-        std::cout << B(0,i) << std::endl;
+        std::cout << B_out(0,i) << std::endl;
     }
     // WriteInOut(vertex_count, dim, B_out);
 
