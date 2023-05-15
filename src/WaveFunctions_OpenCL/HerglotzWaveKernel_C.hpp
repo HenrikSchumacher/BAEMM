@@ -62,10 +62,10 @@ public:
                 ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
                 printf("%s\n", result);
         }
-                
+        std::cout << ret << std::endl;
         // Create the OpenCL kernel
         cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel_C", &ret);
-        
+        std::cout << ret << std::endl;
         // Set the arguments of the kernel
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
         ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&normals);
@@ -85,10 +85,11 @@ public:
         ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, 
                 &global_item_size, &local_item_size, 
                 0, NULL, NULL);
+        std::cout << ret << std::endl;
         // Read the memory buffer C on the device to the local variable C
         ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, 
                 wave_count * n * sizeof(Complex), C_ptr, 0, NULL, NULL);
-
+        std::cout << ret << std::endl;
         // Clean up
         ret = clFinish(command_queue);
         ret = clFlush(command_queue);

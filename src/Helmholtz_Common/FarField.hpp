@@ -175,10 +175,7 @@ public:
                             Zero, incident_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
-        for(int i = 0; i < 16*2562; i++)
-        {
-            std::cout << g[i] << std::endl;
-        }
+
         CreateHerglotzWave_PL(One, g, wave_count_,
                             Zero, herglotz_wave, wave_count_,
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
