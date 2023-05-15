@@ -182,7 +182,7 @@ public:
                             );
         
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
+        // DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol );
         std::cout << "h" << std::endl;
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
         
