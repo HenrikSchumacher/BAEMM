@@ -377,7 +377,8 @@ public:
                 3
             );
 
-        // apply M^(-1) to get trong form
+        // apply M^(-1) to get trong form     
+        zerofy_buffer(C_out, static_cast<size_t>(3 * n), int_cast<Int>(16));
         bool succeeded = cg(mass,id,C_weak,3,C_out,3,cg_tol);    
 
         free(B);

@@ -47,8 +47,8 @@ int main()
 
     Int dim = 3;
 
-    Tensor2<Real,Int>    B_out(  vertex_count, 3  );
-    zerofy_buffer(B_out.data(), static_cast<size_t>(3 * vertex_count), int_cast<Int>(16));
+    Tensor2<Real,Int>    B_out(  vertex_count, dim  );
+    zerofy_buffer(B_out.data(), static_cast<size_t>(dim * vertex_count), int_cast<Int>(16));
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.001);
