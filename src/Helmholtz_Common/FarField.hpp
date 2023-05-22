@@ -229,6 +229,7 @@ public:
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
+            zerofy_buffer(y, (size_t)(wave_count * n), OMP_thread_count);
             bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
         };
 
@@ -287,6 +288,7 @@ public:
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
+            zerofy_buffer(y, (size_t)(wave_count * n), OMP_thread_count);
             bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
         };
 
@@ -299,7 +301,7 @@ public:
             coeff[4 * i + 3] = One;
         }
 
-        // kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+        kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
@@ -311,7 +313,7 @@ public:
         // solve for the normal derivatives of the near field solutions
         bool succeeded = gmres(A,P,wave,wave_count,neumann_trace,wave_count,gmres_tol,10);
 
-        // DestroyKernel(&list);
+        DestroyKernel(&list);
 
         free(coeff);
     }
