@@ -189,7 +189,7 @@ public:
         HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
 
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
-        MultiplyWithNormals_PL(wave_product,C_out,-( 1 /(R_ext)wave_count_ ), cg_tol);
+        MultiplyWithNormals_PL(wave_product,C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
         free(inc_coeff);
         free(du_dn);
@@ -397,7 +397,7 @@ public:
         const Int   n = VertexCount();
 
         Real*       B = (Real*)malloc( 3 * m * sizeof(Real));
-        Real*       C = (Real*)malloc( m * sizeof(Real));        
+        Real*       C = (Real*)calloc( m, sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
 
         ConjugateGradient<1,R_ext,size_t> cg(n,100,OMP_thread_count);
