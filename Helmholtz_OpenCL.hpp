@@ -25,7 +25,6 @@ namespace BAEMM
         // OpenCL utilities
         cl_int ret; // return value of the OpenCL commands for bug identification
         
-        cl_platform_id platform_id = NULL;  
         cl_device_id device_id = NULL;
         cl_context context;
         cl_kernel global_kernel;    // globally saved OpenCL Kernel. Only used in the kernel for the solver mode
@@ -60,7 +59,7 @@ namespace BAEMM
     public:
     
         template<typename ExtReal,typename ExtInt>
-        Helmholtz_OpenCL(
+        explicit Helmholtz_OpenCL(
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             ptr<ExtReal> meas_directions_, ExtInt meas_count_,
@@ -72,17 +71,55 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
-        // ,   device           ( device_                              )
         {
 //            tic(ClassName());        
 
-             // Get platform and device information
+             // Get platform and device information            
+            cl_platform_id platform_id;  
             cl_uint ret_num_devices;
             cl_uint ret_num_platforms;
 
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
             ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 1, 
                                     &device_id, &ret_num_devices);
+
+            context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
+
+            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+
+            // initialize the Opencl buffers and host pointers
+            InitializeBuffers(simplex_count,meas_directions_);
+            Initialize();     
+            
+            clEnqueueWriteBuffer(command_queue, mid_points, CL_FALSE, 0,
+                                4 * simplex_count * sizeof(Real), mid_points_ptr, 0, NULL, NULL);
+            clEnqueueWriteBuffer(command_queue, normals, CL_FALSE, 0,
+                                4 * simplex_count * sizeof(Real), normals_ptr, 0, NULL, NULL);   
+            clEnqueueWriteBuffer(command_queue, meas_directions, CL_FALSE, 0,
+                                4 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
+        }
+
+        template<typename ExtReal,typename ExtInt>
+        Helmholtz_OpenCL(
+            ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
+            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            ptr<ExtReal> meas_directions_, ExtInt meas_count_,
+            cl_device_id device_,
+            ExtInt OMP_thread_count_
+        )
+        :   OMP_thread_count ( int_cast<Int>(OMP_thread_count_)     )
+        ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
+        ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
+        ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
+        ,   triangles        ( triangles_,     simplex_count, 3     )
+        ,   meas_count       ( int_cast<Int>(meas_count_)           )
+        ,   device_id        ( device_                              )
+        {
+//            tic(ClassName());        
+
+             // Get platform and device information
+            cl_uint ret_num_devices;
+            cl_uint ret_num_platforms;
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
