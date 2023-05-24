@@ -8,9 +8,9 @@ public:
         {
                 // allocate local host pointers for the device buffers to use
                 Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
-                memcpy(Kappa, kappa_.data(), 4 * sizeof(Real));
+                kappa.Write(Kappa);
                 Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
-                memcpy(Coeff, c_.data(), wave_chunk_count * 4 * sizeof(Complex));
+                c.Write(Coeff);
 
                 int n = simplex_count;
                 int m = meas_count;

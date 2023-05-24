@@ -94,3 +94,7 @@ Wave function assembly:
         )
 
     coeff[:][0] and coeff[:][3] will again be ignored for all wave assemblies.
+
+Far Field Operators:
+The far field operator, its directional derivative and the $L^2$-adjoint of its directional derivative are implemented in FarField.hpp.
+Also there are executables in the "main" folder for the direct application from "ouside". They read their data from data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin and the differential operators read their input from B.bin. The result is again written to B.bin.

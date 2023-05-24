@@ -18,6 +18,9 @@ using Complex = std::complex<Real>;
 
 int main()
 {
+    // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin.
+    // The input for the adjoint of the derivative of the FarField operator is read from B.bin, the operator is calculated and again written to B.bin
+
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
 
@@ -48,7 +51,6 @@ int main()
     Int dim = 3;
 
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
-    zerofy_buffer(B_out.data(), static_cast<size_t>(dim * vertex_count), int_cast<Int>(16));
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.001);

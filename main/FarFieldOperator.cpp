@@ -18,6 +18,9 @@ using Complex = std::complex<Real>;
 
 int main()
 {
+    // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin,
+    // calculates the FarField pattern and writes it to B.bin
+
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
 
