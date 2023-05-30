@@ -1,0 +1,2 @@
+#!/bin/bash
+g++ -g -O3 -DNDEBUG -I/HOME1/users/guests/jannr/github/BAEMM -I/HOME1/users/guests/jannr/anaconda3/envs/BEM/include -fopenmp -L/HOME1/users/guests/jannr/anaconda3/envs/BEM/lib -lgomp -lOpenCL -lopenblas GaussNewtonStep.cpp -o /HOME1/users/guests/jannr/BEM/GaussNewton
