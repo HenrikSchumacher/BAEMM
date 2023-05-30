@@ -198,7 +198,7 @@ public:
         free(wave_product);
     }
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<typename I_ext, typename R_ext, typename C_ext, I_ext solver_count>
     void GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     // Operator M, Operator P,
@@ -212,18 +212,18 @@ public:
 
         C_ext*  DFa           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
 
-        AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-                        h, DFa, cg_tol, gmres_tol_inner);
         Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+                        h, DFa, cg_tol, gmres_tol_inner);
+        AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                         DFa, C_out, cg_tol, gmres_tol_inner);
 
         // GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
 
         // auto A = [&]( const R_ext * x, R_ext *y )
         // {   
-        //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-        //                 x, DFa, cg_tol, gmres_tol_inner);
         //     Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+        //                 x, DFa, cg_tol, gmres_tol_inner);
+        //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
         //                 DFa, y, cg_tol, gmres_tol_inner);
         //     M(x,y); // The metric m has to return y + M*y
         // };
