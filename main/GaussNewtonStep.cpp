@@ -82,7 +82,7 @@ int main()
         }
     }
     
-    WriteInOut(meas_count, wave_count, B_out);
+    WriteInOut(vertex_count, dim, B_out);
 
     return 0;
 }
