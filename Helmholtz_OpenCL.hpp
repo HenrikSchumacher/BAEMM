@@ -59,7 +59,7 @@ namespace BAEMM
     public:
     
         template<typename ExtReal,typename ExtInt>
-        explicit Helmholtz_OpenCL(
+        Helmholtz_OpenCL(
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             ptr<ExtReal> meas_directions_, ExtInt meas_count_,
