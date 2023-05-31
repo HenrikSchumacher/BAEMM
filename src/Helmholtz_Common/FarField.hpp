@@ -77,7 +77,7 @@ public:
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
         C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  du_dn_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
-        R_ext*  h_n             = (R_ext*)malloc(n * sizeof(R_ext));
+        R_ext*  h_n             = (R_ext*)calloc(n, sizeof(R_ext));
         C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
 
         // create weak representation of the negative incident wave
@@ -231,6 +231,7 @@ public:
         // zerofy_buffer(C_out, (size_t)(3 * n), OMP_thread_count);
 
         // bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
+        free(DFa);
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
