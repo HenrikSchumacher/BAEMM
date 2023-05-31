@@ -82,6 +82,11 @@ namespace BAEMM
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
             ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 1, 
                                     &device_id, &ret_num_devices);
+            
+            if (ret_num_devices == 0)
+            {
+                eprint(ClassName()+": No GPU-OpenCL device available.");
+            }
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
@@ -104,7 +109,7 @@ namespace BAEMM
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             ptr<ExtReal> meas_directions_, ExtInt meas_count_,
-            cl_device_id device_,
+            ExtInt device_num,
             ExtInt OMP_thread_count_
         )
         :   OMP_thread_count ( int_cast<Int>(OMP_thread_count_)     )
@@ -113,13 +118,30 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
-        ,   device_id        ( device_                              )
         {
 //            tic(ClassName());        
 
              // Get platform and device information
+            cl_platform_id platform_id;  
             cl_uint ret_num_devices;
             cl_uint ret_num_platforms;
+            cl_device_id device_id_list[8];
+
+            ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
+            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8, 
+                                  device_id_list, &ret_num_devices);
+            if (device_num < ret_num_devices)           
+            {           
+                device_id = device_id_list[device_num];
+            }
+            else if (ret_num_devices == 0)
+            {
+                eprint(ClassName()+": No GPU-OpenCL device available.");
+            }
+            else
+            {
+                device_id = device_id_list[0];
+            }
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
