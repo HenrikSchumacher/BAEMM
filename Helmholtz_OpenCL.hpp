@@ -189,7 +189,6 @@ namespace BAEMM
             ret = clReleaseMemObject(C_buf);
             ret = clReleaseCommandQueue(command_queue);
             ret = clReleaseContext(context);
-            ret = clReleaseDevice(device_id);
         }
 #include "src/TypeCast.hpp"
 
