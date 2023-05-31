@@ -9,6 +9,7 @@ void ReadFixes(
     I_ext                 & meas_count,
     I_ext                 & wave_chunk_count,
     I_ext                 & wave_chunk_size,
+    I_ext                 & GPU_device,
     Tensor2<I_ext,I_ext>  & simplices,
     Tensor2<R_ext,I_ext>  & meas_directions,
     Tensor2<R_ext,I_ext>  & incident_directions,
@@ -26,6 +27,9 @@ void ReadFixes(
     
     string str;
     
+    s >> str;
+    s >> GPU_device;
+
     s >> str;
     s >> vertex_count;
 

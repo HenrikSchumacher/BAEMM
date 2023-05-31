@@ -19,10 +19,11 @@ using Complex = std::complex<Real>;
 int main()
 {
     // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin.
-    // The direction of the derivative is read from B.bin, then the directional derivative of the FarField operator is calculated and written to B.bin
+    // The direction of the derivative is read from B.bin, then the Gauss Newton step is calculated.
 
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
+    Int GPU_device;
 
     Tensor2<Int,Int>        simplices;
     Tensor2<Real,Int>       meas_directions;
@@ -31,7 +32,7 @@ int main()
     Tensor2<Real,Int>       coords;
     Tensor2<Real,Int>       B_in;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
@@ -43,7 +44,8 @@ int main()
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
-        meas_directions.data(), meas_count, int_cast<Int>(16)
+        meas_directions.data(), meas_count, GPU_device,
+        int_cast<Int>(16)
         );
 
     H.UseDiagonal(true);

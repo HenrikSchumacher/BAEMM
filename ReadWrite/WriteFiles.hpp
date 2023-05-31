@@ -9,6 +9,7 @@ void WriteFixes(
     const I_ext                 & meas_count,
     const I_ext                 & wave_chunk_count,
     const I_ext                 & wave_chunk_size,
+    const I_ext                 & GPU_device,
     Tensor2<I_ext,I_ext>        & simplices,
     Tensor2<R_ext,I_ext>        & meas_directions,
     Tensor2<R_ext,I_ext>        & incident_directions,
@@ -24,6 +25,8 @@ void WriteFixes(
         return;
     }
 
+    s << "GPU_device_num" << GPU_device << "\n";
+    
     s << "vertex_count " << vertex_count << "\n";
 
     s << "simplex_count " << simplex_count << "\n";

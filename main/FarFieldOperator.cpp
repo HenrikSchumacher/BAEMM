@@ -23,6 +23,7 @@ int main()
 
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
+    Int GPU_device;
 
     Tensor2<Real,Int>       coords;
     Tensor2<Int,Int>        simplices;
@@ -30,7 +31,7 @@ int main()
     Tensor2<Real,Int>       incident_directions;
     Tensor1<Real,Int>       kappa;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, simplices, meas_directions, incident_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
@@ -39,7 +40,8 @@ int main()
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
-        meas_directions.data(), meas_count, int_cast<Int>(16)
+        meas_directions.data(), meas_count, 
+        GPU_device, int_cast<Int>(16)
         );
 
     H.UseDiagonal(true);
