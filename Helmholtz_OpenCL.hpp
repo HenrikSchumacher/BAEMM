@@ -85,7 +85,7 @@ namespace BAEMM
             
             if (ret_num_devices == 0)
             {
-                eprint(ClassName()+": No GPU-OpenCL device available.");
+                eprint(ClassName()+": No OpenCL GPU device available.");
             }
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
@@ -130,13 +130,14 @@ namespace BAEMM
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
             ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8, 
                                   device_id_list, &ret_num_devices);
-            if (device_num < ret_num_devices)           
+
+            if (ret_num_devices == 0)
+            {
+                eprint(ClassName()+": No OpenCL GPU device available.");
+            }
+            else if (device_num < ret_num_devices)           
             {           
                 device_id = device_id_list[device_num];
-            }
-            else if (ret_num_devices == 0)
-            {
-                eprint(ClassName()+": No GPU-OpenCL device available.");
             }
             else
             {

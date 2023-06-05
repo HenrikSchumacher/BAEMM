@@ -25,7 +25,7 @@ void WriteFixes(
         return;
     }
 
-    s << "GPU_device_num" << GPU_device << "\n";
+    s << "GPU_device_num " << GPU_device << "\n";
     
     s << "vertex_count " << vertex_count << "\n";
 

@@ -44,8 +44,8 @@ int main()
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
-        meas_directions.data(), meas_count, GPU_device,
-        int_cast<Int>(16)
+        meas_directions.data(), meas_count, 
+        GPU_device, int_cast<Int>(16)
         );
 
     H.UseDiagonal(true);

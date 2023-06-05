@@ -341,7 +341,7 @@ public:
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
             ApplyBoundaryOperators_PL(
-                             One,x,wave_count,Zero,y,wave_count
+                             wave_count,One,x,Zero,y
                             );
         };
 
@@ -357,7 +357,7 @@ public:
 
     // calculate factor * Re(B_in) .* normals
     template<typename R_ext, typename C_ext>
-    void MultiplyWithNormals_PL( ptr<C_ext> B_in, mut<R_ext> C_out, R_ext factor, const R_ext cg_tol)
+    void MultiplyWithNormals_PL( const C_ext* B_in, R_ext* C_out, R_ext factor, const R_ext cg_tol)
     {
         const R_ext One  = static_cast<R_ext>(1.0f);
         const R_ext Zero = static_cast<R_ext>(0.0f);
@@ -424,7 +424,7 @@ public:
 
     // calculate <B_in , normals>
     template<typename R_ext>
-    void DotWithNormals_PL( ptr<R_ext> B_in, mut<R_ext> C_out, const R_ext cg_tol)
+    void DotWithNormals_PL( const R_ext* B_in, R_ext* C_out, const R_ext cg_tol)
     {
         const R_ext One  = static_cast<R_ext>(1.0f);
         const R_ext Zero = static_cast<R_ext>(0.0f);

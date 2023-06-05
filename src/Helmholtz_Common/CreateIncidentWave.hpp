@@ -145,6 +145,7 @@ public:
             );
 
             free(C);
+            free(incident_directions);
         }
         ptoc(ClassName()+"::CreateIncidentWave_PL");
     }
