@@ -31,13 +31,12 @@ public:
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(chunk) private(j)
         for( i = 0; i < simplex_count; ++i )
         {
-            LOOP_UNROLL_FULL
             for( chunk = 0; chunk < wave_chunk_count; ++chunk )
             {
                 Real Kappa = kappa_[chunk];
                 Complex Coeff[2] = {c_[chunk][1],c_[chunk][2]};
 
-                LOOP_UNROLL_FULL
+                LOOP_UNROLL(8)
                 for ( j = 0; j < wave_chunk_size; ++j )
                 {
                     Real w_vec[3] = { incident_directions[3*j + 0], incident_directions[3*j + 1]

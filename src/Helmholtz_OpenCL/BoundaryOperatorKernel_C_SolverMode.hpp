@@ -71,7 +71,7 @@ public:
 
             source_str = manipulate_string(
 #include "BoundaryOperatorKernel_C.cl"                
-                    ,Coeff,block_size,wave_chunk_size,source_size);
+                    ,block_size,wave_chunk_size,source_size);
 
             // Create the rest of the memory buffers on the device for each vector 
             cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY,

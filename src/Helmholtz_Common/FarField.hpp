@@ -73,8 +73,7 @@ public:
 
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
-        C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
+        C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave  
         C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  du_dn_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
         R_ext*  h_n             = (R_ext*)calloc(n, sizeof(R_ext));
@@ -99,14 +98,14 @@ public:
 
         DotWithNormals_PL( h, h_n, cg_tol );
 
-        Int i,j;
+        I_ext i,j;
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
         for( i = 0; i < n; ++i )
         {
-            LOOP_UNROLL_FULL
-            for( j = 0; j < wave_count_; ++j )
+            LOOP_UNROLL(8)
+            for( j = 0; j < solver_count; ++j )
             {
-                du_dn[i * wave_count_ + j] *= -h_n[i];
+                du_dn[i * solver_count + j] *= -h_n[i];
             }
         }
         
@@ -127,7 +126,6 @@ public:
         free(inc_coeff);
         free(coeff);
         free(phi);
-        free(wave);
         free(incident_wave);
         free(du_dn);
         free(du_dn_weak);
@@ -398,7 +396,7 @@ public:
         for( i = 0; i < m; ++i )
         {
             Real a_i = B[i].real() / areas_ptr[i];
-            LOOP_UNROLL_FULL
+            LOOP_UNROLL(3)
             for( j = 0; j < 3; ++j )
             {
                 C[i * 3 + j] = normals_ptr[i * 4 + j] * a_i;

@@ -10,7 +10,7 @@
 
 #define  MAX_SOURCE_SIZE (0x100000)
 
-char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k_chunk_size, size_t& str_length)
+char* manipulate_string(const char* str, Int& block_size, Int& k_chunk_size, size_t& str_length)
 {
     // first we add definitions of block_size and k_chunk_size as macros to the kernel string
     char* result = (char*)malloc(MAX_SOURCE_SIZE);
@@ -22,7 +22,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     strcat(result,"\n");
     
     // now we add booleans for the coefficients being !=0, important as we need global booleans for the threads to interpret them right simultaneously
-    if (coeff[1].real() == 0.0f)
+    if (!Re_single_layer)
     {
         strcat(result,"__constant bool Re_single_layer = false;\n");
     }
@@ -30,7 +30,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     {
         strcat(result,"__constant bool Re_single_layer = true;\n");
     }
-    if (coeff[1].imag() == 0.0f)
+    if (!Im_single_layer)
     {
         strcat(result,"__constant bool Im_single_layer = false;\n");
     }
@@ -40,7 +40,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     }
 
 
-    if (coeff[2].real() == 0.0f)
+    if (!Re_double_layer)
     {
         strcat(result,"__constant bool Re_double_layer = false;\n");
     }
@@ -48,7 +48,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     {
         strcat(result,"__constant bool Re_double_layer = true;\n");
     }
-    if (coeff[2].imag() == 0.0f)
+    if (!Im_double_layer)
     {
         strcat(result,"__constant bool Im_double_layer = false;\n");
     }
@@ -58,7 +58,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     }
 
 
-    if (coeff[3].real() == 0.0f)
+    if (!Re_adjdbl_layer)
     {
         strcat(result,"__constant bool Re_adjdbl_layer = false;\n");
     }
@@ -66,7 +66,7 @@ char* manipulate_string(const char* str, Complex* coeff, Int& block_size, Int& k
     {
         strcat(result,"__constant bool Re_adjdbl_layer = true;\n");
     }
-    if (coeff[3].imag() == 0.0f)
+    if (!Im_adjdbl_layer)
     {
         strcat(result,"__constant bool Im_adjdbl_layer = false;\n");
     }
