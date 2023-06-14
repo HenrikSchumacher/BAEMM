@@ -84,12 +84,12 @@ int main()
 
     fstream file ("neumann_data_scat.bin");
     
-    if( file )
+    if( std::exists(file) )
     {
         std::remove("neumann_data_scat.bin");
     }
 
     file.close();
-    
+
     return 0;
 }
