@@ -62,7 +62,7 @@ int main()
 
     std::fstream file ("neumann_data_scat.bin");
     
-    if( std::exists(file) )
+    if( file.good() )
     {
         ReadInOut(vertex_count, wave_count, neumann_data_scat,"neumann_data_scat.bin");
         neumann_data_scat_ptr = neumann_data_scat.data();
@@ -98,7 +98,7 @@ int main()
 
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
-    if( !std::exists(file) )
+    if( !file.good() )
     {
         neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
         neumann_data_scat.Read(neumann_data_scat_ptr);
