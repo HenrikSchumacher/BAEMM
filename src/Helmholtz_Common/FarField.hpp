@@ -53,7 +53,7 @@ public:
     void Derivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const R_ext* h, C_ext* C_out, 
-                    C_ext* neumann_data_scat_ptr,
+                    C_ext** pdu_dn,                 //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the derivative of the bdry to Farfield map. 
@@ -72,14 +72,14 @@ public:
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
         
 
-        C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
-        C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave  
-        C_ext*  du_dn_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
-        R_ext*  h_n             = (R_ext*)calloc(n, sizeof(R_ext));
-        C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
-
+        C_ext*  inc_coeff                     = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
+        C_ext*  coeff                         = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
+        C_ext*  incident_wave                 = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave 
+        C_ext*  boundary_conditions           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+        C_ext*  boundary_conditions_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        R_ext*  h_n                           = (R_ext*)calloc(n, sizeof(R_ext));
+        C_ext*  phi                           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+        
         // create weak representation of the negative incident wave
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
         {
@@ -89,20 +89,18 @@ public:
             inc_coeff[4 * i + 3] = Zero;
         }
         
-        if (neumann_data_scat_ptr == NULL)
+        if (*pdu_dn == NULL)
         {
+            *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
                                 kappa, inc_coeff, wave_count_, wave_chunk_size_
                                 );
             
 
-            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol ); 
+            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
         }
-        else
-        {
-            memcpy(du_dn,neumann_data_scat_ptr,wave_count_ * n * sizeof(C_ext));
-        }
+
 
         DotWithNormals_PL( h, h_n, cg_tol );
 
@@ -113,18 +111,18 @@ public:
             LOOP_UNROLL(8)
             for(I_ext j = 0; j < solver_count; ++j )
             {
-                du_dn[i * solver_count + j] *= -h_n[i];
+                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] -h_n[i];
             }
         }
         
         // apply mass to du_dn to get weak representation
         Mass.Dot(
-            One, du_dn, wave_count_,
-            Zero,  du_dn_weak, wave_count_,
+            One, boundary_conditions, wave_count_,
+            Zero,  boundary_conditions_weak, wave_count_,
             wave_count_
         );
 
-        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, du_dn_weak, phi, cg_tol, gmres_tol);
+        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -135,8 +133,8 @@ public:
         free(coeff);
         free(phi);
         free(incident_wave);
-        free(du_dn);
-        free(du_dn_weak);
+        free(boundary_conditions);
+        free(boundary_conditions_weak);
         free(h_n);
     }
 
@@ -144,7 +142,7 @@ public:
     void AdjointDerivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const C_ext* g, R_ext* C_out, 
-                    C_ext* neumann_data_scat_ptr,
+                    C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the adjoint to the derivative of the bdry to Farfield map. 
@@ -164,7 +162,6 @@ public:
         C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
         C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
-        C_ext*  du_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
 
@@ -177,19 +174,16 @@ public:
             inc_coeff[4 * i + 3] = Zero;
         }
 
-        if (neumann_data_scat_ptr == NULL)
+        if (*pdu_dn == NULL)
         {
+            *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
                                 kappa, inc_coeff, wave_count_, wave_chunk_size_
                                 );
             
 
-            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, du_dn, cg_tol, gmres_tol ); 
-        }
-        else
-        {
-            memcpy(du_dn,neumann_data_scat_ptr,wave_count_ * n * sizeof(C_ext));
+            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
@@ -201,13 +195,12 @@ public:
         DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
-        HadamardProduct( du_dn, dv_dn, wave_product, n, wave_count_, true);
+        HadamardProduct( *pdu_dn, dv_dn, wave_product, n, wave_count_, true);
 
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
         MultiplyWithNormals_PL(wave_product,C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
         free(inc_coeff);
-        free(du_dn);
         free(dv_dn);
         free(incident_wave);
         free(herglotz_wave);

@@ -60,11 +60,11 @@ int main()
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
 
-    std::fstream file ("neumann_data_scat.bin");
+    std::fstream file ("NeumannDataScat.bin");
     
     if( file.good() )
     {
-        ReadInOut(vertex_count, wave_count, neumann_data_scat,"neumann_data_scat.bin");
+        ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
         neumann_data_scat_ptr = neumann_data_scat.data();
     }
 
@@ -73,25 +73,25 @@ int main()
         case 8:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
             H.AdjointDerivative_FF<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
     }
@@ -99,10 +99,10 @@ int main()
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
     if( !file.good() )
-    {
+    {        
         neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
         neumann_data_scat.Read(neumann_data_scat_ptr);
-        WriteInOut(vertex_count, wave_count, neumann_data_scat,"neumann_data_scat.bin");
+        WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
     }
 
     file.close();

@@ -82,11 +82,11 @@ int main()
 
     WriteInOut(meas_count, wave_count, B_out, "B.bin");
 
-    fstream file("neumann_data_scat.bin");
+    fstream file("NeumannDataScat.bin");
     
     if( file.good() )
     {
-        std::remove("neumann_data_scat.bin");
+        std::remove("NeumannDataScat.bin");
     }
 
     file.close();

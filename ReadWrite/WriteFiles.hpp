@@ -105,14 +105,14 @@ void WriteInOut(
     const I_ext                     & rows,
     const I_ext                     & columns,
     Tensor2<T,I_ext>                & B_out,
-    const char*                       filename
+    string                       filename
 )
 {   
     ptr<T> B = B_out.data();
     
-    ofstream file;
+    fstream file;
 
-    file.open(filename,ios::out | ios::binary | ios::trunc);
+    file.open(filename, ios::out | ios::binary | ios::trunc);
     file.write( (char*)B , sizeof(T) * rows * columns );
 
     file.close();
