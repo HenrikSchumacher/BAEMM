@@ -110,14 +110,10 @@ void WriteInOut(
 {   
     ptr<T> B = B_out.data();
     
-    fstream file;
+    ofstream file;
+
     file.open(filename,ios::out | ios::binary | ios::trunc);
     file.write( (char*)B , sizeof(T) * rows * columns );
-    if( !file )
-    {
-        eprint("WriteToFile: File B.bin could not be opened.");
-        
-        return;
-    }
+
     file.close();
 }
