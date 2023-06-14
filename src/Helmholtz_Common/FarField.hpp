@@ -89,7 +89,7 @@ public:
             inc_coeff[4 * i + 3] = Zero;
         }
         
-        if (!neumann_data_scat_ptr)
+        if (neumann_data_scat_ptr == NULL)
         {
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
@@ -177,7 +177,7 @@ public:
             inc_coeff[4 * i + 3] = Zero;
         }
 
-        if (!neumann_data_scat_ptr)
+        if (neumann_data_scat_ptr == NULL)
         {
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
@@ -408,14 +408,14 @@ public:
                 1
             );
 
-        Int i,j;
+
         // pointwise multiplication of the STRONG FORM with the normals
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
-        for( i = 0; i < m; ++i )
+        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+        for(Int i = 0; i < m; ++i )
         {
             Real a_i = B[i].real() / areas_ptr[i];
             LOOP_UNROLL(3)
-            for( j = 0; j < 3; ++j )
+            for(Int j = 0; j < 3; ++j )
             {
                 C[i * 3 + j] = normals_ptr[i * 4 + j] * a_i;
             }
@@ -475,14 +475,14 @@ public:
                 3
             );
 
-        Int i,j;
+
         // pointwise multiplication of the STRONG FORM with the normals
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
-        for( i = 0; i < m; ++i )
+        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
+        for(Int i = 0; i < m; ++i )
         {
             Real a_i = 1.0f / areas_ptr[i];
             LOOP_UNROLL_FULL
-            for( j = 0; j < 3; ++j )
+            for(Int j = 0; j < 3; ++j )
             {
                 C[i] += normals_ptr[i * 4 + j] * B[i * 3 + j] * a_i;
             }
