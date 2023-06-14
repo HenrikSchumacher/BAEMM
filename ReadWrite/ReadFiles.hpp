@@ -124,7 +124,8 @@ template<typename T, typename I_ext>
 void ReadInOut(
     I_ext                     & rows,
     I_ext                     & columns,
-    Tensor2<T,I_ext>          & B_in
+    Tensor2<T,I_ext>          & B_in,
+    const char*                 filename
 )
 {   
     B_in    = Tensor2<T,I_ext>(   rows ,  columns    );
@@ -132,7 +133,7 @@ void ReadInOut(
     mut<T> B = B_in.data();
     
     fstream file;
-    file.open("B.bin",ios::in | ios::binary );
+    file.open(filename,ios::in | ios::binary );
     if( !file )
     {
         eprint("ReadFromFile: File B.bin could not be opened.");

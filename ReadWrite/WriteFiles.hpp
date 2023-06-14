@@ -104,13 +104,14 @@ template<typename T, typename I_ext>
 void WriteInOut(
     const I_ext                     & rows,
     const I_ext                     & columns,
-    Tensor2<T,I_ext>                & B_out
+    Tensor2<T,I_ext>                & B_out,
+    const char*                       filename
 )
 {   
     ptr<T> B = B_out.data();
     
     fstream file;
-    file.open("B.bin",ios::out | ios::binary | ios::trunc);
+    file.open(filename,ios::out | ios::binary | ios::trunc);
     file.write( (char*)B , sizeof(T) * rows * columns );
     if( !file )
     {

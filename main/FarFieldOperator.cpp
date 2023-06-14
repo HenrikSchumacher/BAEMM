@@ -80,7 +80,16 @@ int main()
         }
     }
 
-    WriteInOut(meas_count, wave_count, B_out);
+    WriteInOut(meas_count, wave_count, B_out, "B.bin");
+
+    fstream file ("neumann_data_scat.bin");
+    
+    if( file )
+    {
+        std::remove("neumann_data_scat.bin");
+    }
+
+    file.close();
     
     return 0;
 }

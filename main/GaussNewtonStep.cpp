@@ -8,6 +8,7 @@ using uint = unsigned int;
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
 #include "../ReadWrite/WriteFiles.hpp"
+// #include "../../Repulsor"
 
 using namespace Tools;
 using namespace Tensors;
@@ -39,7 +40,7 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     Int dim = 3;
-    ReadInOut(vertex_count, dim, B_in);
+    ReadInOut(meas_count, wave_count, B_in);
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
@@ -47,6 +48,41 @@ int main()
         meas_directions.data(), meas_count, 
         GPU_device, int_cast<Int>(16)
         );
+
+    constexpr Int ambient_dimension = 3;
+    constexpr Int domain_dimension = 2;
+    constexpr Int thread_count = 8;
+
+    // std::unique_ptr<SimplicialMeshBase<Real,Int,Real,Real>> M = MakeSimplicialMesh<REAL,INT,REAL,REAL>(
+    //     coords.data(),  vertex_count, ambient_dimension,
+    //     simplices.data(),  simplex_count, domain_dimension+1,
+    //     thread_count
+    // );
+
+    // M->cluster_tree_settings.split_threshold                        =  2;
+    // M->cluster_tree_settings.thread_count                           =  0; // take as many threads as there are used by SimplicialMesh M
+    // M->block_cluster_tree_settings.far_field_separation_parameter   =  0.5;
+    // M->adaptivity_settings.theta                                    = 10.0;
+
+    // M->GetClusterTree();
+    // M->GetBlockClusterTree();
+
+    // Tensor2<Real,Int> diff ( vertex_count, ambient_dimension );
+
+    // const double alpha  = 6;
+    // const double beta   = 12;
+    // const double weight = 1;
+
+    // M->SetTangentPointExponents(alpha, beta);
+    // M->SetTangentPointWeight(weight);
+
+    // bool add_to = true;
+    // auto A = [&]( const R_ext * x, R_ext *y )
+    //     {   
+            
+    //         M->TangentPointEnergy_Differential(x, add_to);
+    //         memccpy(y,x,vertex_count*3*sizeof(R_ext));
+    //     };
 
     H.UseDiagonal(true);
     H.SetBlockSize(64);
