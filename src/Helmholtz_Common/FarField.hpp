@@ -111,7 +111,7 @@ public:
             LOOP_UNROLL(8)
             for(I_ext j = 0; j < solver_count; ++j )
             {
-                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] -h_n[i];
+                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * h_n[i];
             }
         }
         
