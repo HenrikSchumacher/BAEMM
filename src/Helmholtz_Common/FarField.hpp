@@ -18,9 +18,6 @@ public:
         C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
         C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,8);
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,8);
-
         // create weak representation of the negative incident wave
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
         {
@@ -72,26 +69,29 @@ public:
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
         
 
-        C_ext*  inc_coeff                     = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  coeff                         = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  incident_wave                 = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave 
-        C_ext*  boundary_conditions           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+        C_ext*  boundary_conditions           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext)); 
         C_ext*  boundary_conditions_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
         R_ext*  h_n                           = (R_ext*)calloc(n, sizeof(R_ext));
         C_ext*  phi                           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
         
-        // create weak representation of the negative incident wave
-        for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
-        {
-            inc_coeff[4 * i + 0] = Zero;
-            inc_coeff[4 * i + 1] = -I;
-            inc_coeff[4 * i + 2] = One;
-            inc_coeff[4 * i + 3] = Zero;
-        }
         
         if (*pdu_dn == NULL)
-        {
+        {            
+            C_ext*  inc_coeff                     = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
+            C_ext*  incident_wave                 = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave 
+
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+
+            // create weak representation of the negative incident wave
+            for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
+            {
+                inc_coeff[4 * i + 0] = Zero;
+                inc_coeff[4 * i + 1] = -I;
+                inc_coeff[4 * i + 2] = One;
+                inc_coeff[4 * i + 3] = Zero;
+            }
+
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
                                 kappa, inc_coeff, wave_count_, wave_chunk_size_
@@ -99,6 +99,9 @@ public:
             
 
             DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
+
+            free(inc_coeff);
+            free(incident_wave);
         }
 
 
@@ -129,10 +132,8 @@ public:
                             kappa,coeff, wave_count_, wave_chunk_size_
                             );
 
-        free(inc_coeff);
         free(coeff);
         free(phi);
-        free(incident_wave);
         free(boundary_conditions);
         free(boundary_conditions_weak);
         free(h_n);
@@ -159,24 +160,26 @@ public:
         const I_ext  n                      = static_cast<I_ext>(VertexCount());
         const I_ext  wave_count_            = wave_chunk_count_ * wave_chunk_size_;
 
-        C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
         C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
         C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
 
-        // create weak representation of the negative incident wave
-        for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
-        {
-            inc_coeff[4 * i + 0] = Zero;
-            inc_coeff[4 * i + 1] = -I;
-            inc_coeff[4 * i + 2] = One;
-            inc_coeff[4 * i + 3] = Zero;
-        }
 
         if (*pdu_dn == NULL)
         {
+            C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
+            C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
+            
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+
+            // create weak representation of the negative incident wave
+            for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
+            {
+                inc_coeff[4 * i + 0] = Zero;
+                inc_coeff[4 * i + 1] = -I;
+                inc_coeff[4 * i + 2] = One;
+                inc_coeff[4 * i + 3] = Zero;
+            }
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
                                 kappa, inc_coeff, wave_count_, wave_chunk_size_
@@ -184,6 +187,9 @@ public:
             
 
             DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
+
+            free(inc_coeff);
+            free(incident_wave);
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
@@ -200,9 +206,7 @@ public:
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
         MultiplyWithNormals_PL(wave_product,C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
-        free(inc_coeff);
         free(dv_dn);
-        free(incident_wave);
         free(herglotz_wave);
         free(wave_product);
     }
@@ -212,7 +216,8 @@ public:
     //                 const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
     //                 // Operator M, Operator P,
     //                 const R_ext* h, R_ext* C_out, 
-    //                 R_ext cg_tol, R_ext gmres_tol_inner //, R_ext gmres_tol_outer
+    //                 C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
+    //                 R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
     //                 )
     // {
     //     // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
@@ -222,24 +227,24 @@ public:
     //     C_ext*  DFa           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
 
     //     Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     h, DFa, cg_tol, gmres_tol_inner);
+    //                     h, DFa, pdu_dn, cg_tol, gmres_tol_inner);
     //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     DFa, C_out, cg_tol, gmres_tol_inner);
+    //                     DFa, C_out, pdu_dn, cg_tol, gmres_tol_inner);
 
-    //     // GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
+    //     GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
 
-    //     // auto A = [&]( const R_ext * x, R_ext *y )
-    //     // {   
-    //     //     Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //     //                 x, DFa, cg_tol, gmres_tol_inner);
-    //     //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //     //                 DFa, y, cg_tol, gmres_tol_inner);
-    //     //     M(x,y); // The metric m has to return y + M*y
-    //     // };
+    //     auto A = [&]( const R_ext * x, R_ext *y )
+    //     {   
+    //         Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+    //                     x, DFa, cg_tol, gmres_tol_inner);
+    //         AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+    //                     DFa, y, cg_tol, gmres_tol_inner);
+    //         M(x,y); // The metric m has to return y + M*y
+    //     };
 
-    //     // zerofy_buffer(C_out, (size_t)(3 * n), OMP_thread_count);
+    //     zerofy_buffer(C_out, (size_t)(3 * n), OMP_thread_count);
 
-    //     // bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,20);
+    //     bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
     //     free(DFa);
     // }
 

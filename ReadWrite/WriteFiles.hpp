@@ -105,7 +105,7 @@ void WriteInOut(
     const I_ext                     & rows,
     const I_ext                     & columns,
     Tensor2<T,I_ext>                & B_out,
-    string                       filename
+    const char                      * filename
 )
 {   
     ptr<T> B = B_out.data();
