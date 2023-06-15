@@ -63,8 +63,10 @@ int main()
     
     if( file.good() )
     {       
+        neumann_data_scat_ptr = (Complex*)malloc(wave_count * vertex_count * sizeof(Complex)); 
+
         ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
-        neumann_data_scat_ptr = neumann_data_scat.data();
+        neumann_data_scat.Write(neumann_data_scat_ptr);
     }
 
     switch (wave_count)
