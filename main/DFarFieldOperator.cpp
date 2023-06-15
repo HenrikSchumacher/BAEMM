@@ -56,18 +56,18 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0005);
 
-    Tensor2<Complex,Int> neumann_data_scat;
-    Complex* neumann_data_scat_ptr = NULL;
+    // Tensor2<Complex,Int> neumann_data_scat;
+    // Complex* neumann_data_scat_ptr = NULL;
 
-    std::fstream file ("NeumannDataScat.bin");
+    // std::fstream file ("NeumannDataScat.bin");
     
-    if( file.good() )
-    {       
-        neumann_data_scat_ptr = (Complex*)malloc(wave_count * vertex_count * sizeof(Complex)); 
+    // if( file.good() )
+    // {       
+    //     neumann_data_scat_ptr = (Complex*)malloc(wave_count * vertex_count * sizeof(Complex)); 
 
-        ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
-        neumann_data_scat.Write(neumann_data_scat_ptr);
-    }
+    //     ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
+    //     neumann_data_scat_ptr = neumann_data_scat.data();
+    // }
 
     switch (wave_count)
     {
@@ -99,15 +99,15 @@ int main()
     
     WriteInOut(meas_count, wave_count, B_out, "B.bin");
 
-    if( !file.good() )
-    {        
-        neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
-        neumann_data_scat.Read(neumann_data_scat_ptr);
+    // if( !file.good() )
+    // {        
+    //     neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
+    //     neumann_data_scat.Read(neumann_data_scat_ptr);
 
-        WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
-    }
+    //     WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
+    // }
 
-    file.close();
+    // file.close();
 
     return 0;
 }

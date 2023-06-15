@@ -106,16 +106,14 @@ public:
 
         DotWithNormals_PL( h, h_n, cg_tol );
 
-
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for(I_ext i = 0; i < n; ++i )
         {
             LOOP_UNROLL(8)
-            for(I_ext j = 0; j < wave_count_; ++j )
+            for(I_ext j = 0; j < solver_count; ++j )
             {
-                boundary_conditions[i * wave_count_ + j] = (*pdu_dn)[i * wave_count_ + j] * h_n[i];
+                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * (- h_n[i]);
             }
-            std::cout << (*pdu_dn)[i * wave_count_ ] << std::endl;
         }
         
         // apply mass to the boundary conditions to get weak representation
