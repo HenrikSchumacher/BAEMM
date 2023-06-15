@@ -160,26 +160,28 @@ public:
         const I_ext  n                      = static_cast<I_ext>(VertexCount());
         const I_ext  wave_count_            = wave_chunk_count_ * wave_chunk_size_;
 
+
+        C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
         C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
         C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
         C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
 
+        // create weak representation of the negative incident wave
+        for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
+        {
+            inc_coeff[4 * i + 0] = Zero;
+            inc_coeff[4 * i + 1] = -I;
+            inc_coeff[4 * i + 2] = One;
+            inc_coeff[4 * i + 3] = Zero;
+        }
 
         if (*pdu_dn == NULL)
         {
-            C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
             C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
             
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
-            // create weak representation of the negative incident wave
-            for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
-            {
-                inc_coeff[4 * i + 0] = Zero;
-                inc_coeff[4 * i + 1] = -I;
-                inc_coeff[4 * i + 2] = One;
-                inc_coeff[4 * i + 3] = Zero;
-            }
+            
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave, wave_count_,
                                 kappa, inc_coeff, wave_count_, wave_chunk_size_
@@ -188,7 +190,6 @@ public:
 
             DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
 
-            free(inc_coeff);
             free(incident_wave);
         }
 
@@ -206,6 +207,7 @@ public:
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
         MultiplyWithNormals_PL(wave_product,C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
+        free(inc_coeff);
         free(dv_dn);
         free(herglotz_wave);
         free(wave_product);
