@@ -115,7 +115,6 @@ public:
             {
                 boundary_conditions[i * wave_count_ + j] = (*pdu_dn)[i * wave_count_ + j] * h_n[i];
             }
-            std::cout << (*pdu_dn)[i * wave_count_ ] << std::endl;
         }
         
         // apply mass to the boundary conditions to get weak representation
