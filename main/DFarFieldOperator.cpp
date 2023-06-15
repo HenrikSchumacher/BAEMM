@@ -68,7 +68,7 @@ int main()
         ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
         std::cout << neumann_data_scat(0,0) << std::endl;
         neumann_data_scat.Write(neumann_data_scat_ptr);
-        std::cout << neumann_data_scat[0] << std::endl;
+        std::cout << neumann_data_scat_ptr[0] << std::endl;
     }
 
     switch (wave_count)
