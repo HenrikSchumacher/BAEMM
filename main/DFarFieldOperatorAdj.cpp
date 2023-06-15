@@ -104,6 +104,7 @@ int main()
     {        
         neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
         neumann_data_scat.Read(neumann_data_scat_ptr);
+
         WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
     }
 

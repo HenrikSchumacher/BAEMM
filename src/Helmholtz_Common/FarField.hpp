@@ -75,7 +75,6 @@ public:
         R_ext*  h_n                           = (R_ext*)calloc(n, sizeof(R_ext));
         C_ext*  phi                           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
         
-        
         if (*pdu_dn == NULL)
         {            
             C_ext*  inc_coeff                     = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
@@ -112,13 +111,14 @@ public:
         for(I_ext i = 0; i < n; ++i )
         {
             LOOP_UNROLL(8)
-            for(I_ext j = 0; j < solver_count; ++j )
+            for(I_ext j = 0; j < wave_count_; ++j )
             {
-                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * h_n[i];
+                boundary_conditions[i * wave_count_ + j] = (*pdu_dn)[i * wave_count_ + j] * h_n[i];
             }
+            std::cout << boundary_conditions[i * wave_count_ ] << std::endl;
         }
         
-        // apply mass to du_dn to get weak representation
+        // apply mass to the boundary conditions to get weak representation
         Mass.Dot(
             One, boundary_conditions, wave_count_,
             Zero,  boundary_conditions_weak, wave_count_,
