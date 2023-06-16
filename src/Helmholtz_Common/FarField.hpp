@@ -32,7 +32,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -97,7 +97,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
 
             free(inc_coeff);
             free(incident_wave);
@@ -123,7 +123,7 @@ public:
             wave_count_
         );
 
-        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -310,7 +310,7 @@ public:
     }
 
 
-    template<typename R_ext, typename C_ext,Int solver_count>
+    template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
     void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, 
                             I_ext& wave_chunk_count_, I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
@@ -320,6 +320,8 @@ public:
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
         const Int    n   = VertexCount();
+
+        const I_ext wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
 
