@@ -252,7 +252,7 @@ public:
 
     template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
     void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
-                            I_ext& wave_chunk_count_, I_ext& wave_chunk_size_, 
+                            const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
@@ -312,7 +312,7 @@ public:
 
     template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
     void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, 
-                            I_ext& wave_chunk_count_, I_ext& wave_chunk_size_, 
+                            const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
