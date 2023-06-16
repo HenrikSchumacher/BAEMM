@@ -2,6 +2,8 @@
 
 #include <CL/cl.h>
 
+#define TOOLS_ENABLE_PROFILER
+
 #include <complex>
 #include "Tensors/Tensors.hpp"
 #include <cblas.h>
@@ -72,6 +74,9 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
+            std::filesystem::path path {    std::filesystem::current_path()  };
+            std::string path_string{    path.u8string()    };
+            Profiler::Clear( path_string );
 //            tic(ClassName());        
 
              // Get platform and device information            
@@ -119,6 +124,9 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
+            std::filesystem::path path {    std::filesystem::current_path()  };
+            std::string path_string{    path.u8string()    };
+            Profiler::Clear( path_string );
 //            tic(ClassName());        
 
              // Get platform and device information

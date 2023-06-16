@@ -98,15 +98,19 @@ int main()
 
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
-    // if( !file.good() )
-    // {        
-    //     neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
-    //     neumann_data_scat.Read(neumann_data_scat_ptr);
+    if( !file.good() )
+    {        
+        neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
+        neumann_data_scat.Read(neumann_data_scat_ptr);
 
-    //     WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
-    // }
+        WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
+    }
+    else
+    {       
+        free(neumann_data_scat_ptr);
+    }
 
-    // file.close();
+    file.close();
 
     return 0;
 }

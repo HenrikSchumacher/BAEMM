@@ -5,6 +5,7 @@ public:
                     R_ext* inc_directions,  const I_ext& wave_chunk_size_, C_ext* C_out, 
                     R_ext cg_tol, R_ext gmres_tol)
     {
+        ptic(ClassName()+"::FarField");
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
@@ -13,36 +14,40 @@ public:
         const I_ext  n           = static_cast<I_ext>(VertexCount());
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;       
 
-        C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  coeff           = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  wave            = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
-        C_ext*  phi             = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
+        Tensor2<C_ext,I_ext>  inc_coeff ( wave_chunk_count_, 4 );
+        Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
+        Tensor2<C_ext,I_ext>  wave  (  wave_count_, n  );     //weak representation of the incident wave
+        Tensor2<C_ext,I_ext>  phi   (wave_count_, n);
+
+        C_ext* inc_coeff_ptr = inc_coeff.data();
+
+        phi.SetZero();
 
         // create weak representation of the negative incident wave
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
         {
-            inc_coeff[4 * i + 0] = Zero;
-            inc_coeff[4 * i + 1] = -One;
-            inc_coeff[4 * i + 2] = Zero;
-            inc_coeff[4 * i + 3] = Zero;
+            inc_coeff_ptr[4 * i + 0] = Zero;
+            inc_coeff_ptr[4 * i + 1] = -One;
+            inc_coeff_ptr[4 * i + 2] = Zero;
+            inc_coeff_ptr[4 * i + 3] = Zero;
         }
 
+
         CreateIncidentWave_PL(One, inc_directions, wave_chunk_size_,
-                            Zero, wave, wave_count_,
-                            kappa, inc_coeff, wave_count_, wave_chunk_size_
+                            Zero, wave.data(), wave_count_,
+                            kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
-        ApplyFarFieldOperators_PL( One, phi, wave_count_,
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff.data(), wave.data(), phi.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
+
+
+        ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
                             Zero, C_out, wave_count_,
                             kappa,coeff, wave_count_, wave_chunk_size_
                             );
 
-        free(inc_coeff);
-        free(coeff);
-        free(phi);
-        free(wave);
+        ptoc(ClassName()+"::FarField");
     }
 
 
@@ -60,6 +65,7 @@ public:
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
         // phi is the bdry potential for the incident wave dudn *(<h , n>), the solution is the far field to this
         // Formulas follow from Thortens book
+        ptic(ClassName()+"::Derivative_FF");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -69,42 +75,46 @@ public:
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
         
 
-        C_ext*  coeff                         = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  boundary_conditions           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext)); 
-        C_ext*  boundary_conditions_weak      = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
-        R_ext*  h_n                           = (R_ext*)calloc(n, sizeof(R_ext));
-        C_ext*  phi                           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
-        
+        Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
+        Tensor2<C_ext,I_ext>  boundary_conditions (    wave_count_, n  ); 
+        Tensor2<C_ext,I_ext>  boundary_conditions_weak (   wave_count_, n );
+        Tensor1<R_ext,I_ext>  h_n  (   n  );
+        Tensor2<C_ext,I_ext>  phi  (   wave_count_, n  ); 
+
+        C_ext* boundary_conditions_ptr = boundary_conditions.data();
+
+        h_n.SetZero();
+        phi.SetZero();
+
         if (*pdu_dn == NULL)
         {            
-            C_ext*  inc_coeff                     = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-            C_ext*  incident_wave                 = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));  //weak representation of the incident wave 
+            Tensor2<C_ext,I_ext>  inc_coeff (  wave_chunk_count_, 4  );
+            Tensor2<C_ext,I_ext>  incident_wave (  wave_count_, n );  //weak representation of the incident wave 
+            
+            C_ext* inc_coeff_ptr = inc_coeff.data();
 
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             // create weak representation of the negative incident wave
             for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
             {
-                inc_coeff[4 * i + 0] = Zero;
-                inc_coeff[4 * i + 1] = -I;
-                inc_coeff[4 * i + 2] = One;
-                inc_coeff[4 * i + 3] = Zero;
+                inc_coeff_ptr[4 * i + 0] = Zero;
+                inc_coeff_ptr[4 * i + 1] = -I;
+                inc_coeff_ptr[4 * i + 2] = One;
+                inc_coeff_ptr[4 * i + 3] = Zero;
             }
 
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
-                                Zero, incident_wave, wave_count_,
-                                kappa, inc_coeff, wave_count_, wave_chunk_size_
+                                Zero, incident_wave.data(), wave_count_,
+                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
                                 );
             
 
-            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
-
-            free(inc_coeff);
-            free(incident_wave);
+            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
         }
 
 
-        DotWithNormals_PL( h, h_n, cg_tol );
+        DotWithNormals_PL( h, h_n.data(), cg_tol );
 
         #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
         for(I_ext i = 0; i < n; ++i )
@@ -112,29 +122,26 @@ public:
             LOOP_UNROLL(8)
             for(I_ext j = 0; j < solver_count; ++j )
             {
-                boundary_conditions[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * (- h_n[i]);
+                boundary_conditions_ptr[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * (- h_n(i));
             }
         }
         
         // apply mass to the boundary conditions to get weak representation
         Mass.Dot(
-            One, boundary_conditions, wave_count_,
-            Zero,  boundary_conditions_weak, wave_count_,
+            One, boundary_conditions.data(), wave_count_,
+            Zero,  boundary_conditions_weak.data(), wave_count_,
             wave_count_
         );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff.data(), boundary_conditions_weak.data(), phi.data(), 
+                                                            wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
 
-        ApplyFarFieldOperators_PL( One, phi, wave_count_,
+        ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
                             Zero, C_out, wave_count_,
-                            kappa,coeff, wave_count_, wave_chunk_size_
+                            kappa,coeff.data(), wave_count_, wave_chunk_size_
                             );
 
-        free(coeff);
-        free(phi);
-        free(boundary_conditions);
-        free(boundary_conditions_weak);
-        free(h_n);
+        ptoc(ClassName()+"::Derivative_FF");
     }
 
     template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
@@ -150,6 +157,7 @@ public:
         // A := (1/2) * I - i * kappa * SL + DL'
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
         // anh phi_h = A\herglotz_wave is the normal derivative of the solution with inc wave herglotz_wave
+        ptoc(ClassName()+"::AdjointDerivative_FF");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -159,56 +167,57 @@ public:
         const I_ext  wave_count_            = wave_chunk_count_ * wave_chunk_size_;
 
 
-        C_ext*  inc_coeff       = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
-        C_ext*  herglotz_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the herglotz wave
-        C_ext*  dv_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext));
-        C_ext*  wave_product    = (C_ext*)malloc(n * sizeof(C_ext));
+        Tensor2<C_ext,I_ext>  inc_coeff (  wave_chunk_count_, 4  );
+        Tensor2<C_ext,I_ext>  herglotz_wave (  wave_count_, n  );     //weak representation of the herglotz wave
+        Tensor2<C_ext,I_ext>  dv_dn (  wave_count_, n  );
+        Tensor1<C_ext,I_ext>  wave_product (   n   );
+
+        C_ext* inc_coeff_ptr = inc_coeff.data();
+
+        dv_dn.SetZero();
 
         // create weak representation of the negative incident wave
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
         {
-            inc_coeff[4 * i + 0] = Zero;
-            inc_coeff[4 * i + 1] = -I;
-            inc_coeff[4 * i + 2] = One;
-            inc_coeff[4 * i + 3] = Zero;
+            inc_coeff_ptr[4 * i + 0] = Zero;
+            inc_coeff_ptr[4 * i + 1] = -I;
+            inc_coeff_ptr[4 * i + 2] = One;
+            inc_coeff_ptr[4 * i + 3] = Zero;
         }
 
         if (*pdu_dn == NULL)
         {
-            C_ext*  incident_wave   = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));     //weak representation of the incident wave
+            Tensor2<C_ext,I_ext>  incident_wave (  wave_count_, n );  //weak representation of the incident wave 
             
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
-                                Zero, incident_wave, wave_count_,
-                                kappa, inc_coeff, wave_count_, wave_chunk_size_
+                                Zero, incident_wave.data(), wave_count_,
+                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
                                 );
             
 
-            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
 
             free(incident_wave);
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
-                            Zero, herglotz_wave, wave_count_,
-                            kappa, inc_coeff, wave_count_, wave_chunk_size_
+                            Zero, herglotz_wave.data(), wave_count_,
+                            kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
                             );
         
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
+        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave.data(), dv_dn.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
-        HadamardProduct( *pdu_dn, dv_dn, wave_product, n, wave_count_, true);
+        HadamardProduct( *pdu_dn, dv_dn.data(), wave_product.data(), n, wave_count_, true);
 
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
-        MultiplyWithNormals_PL(wave_product,C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
+        MultiplyWithNormals_PL(wave_product.data(),C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
-        free(inc_coeff);
-        free(dv_dn);
-        free(herglotz_wave);
-        free(wave_product);
+        ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
     // template<typename I_ext, typename R_ext, typename C_ext, I_ext solver_count>
@@ -255,6 +264,8 @@ public:
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
+        ptic(ClassName()+"::BoundaryPotential");
+
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
@@ -307,6 +318,8 @@ public:
         bool succeeded = gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
 
         DestroyKernel(&list);
+
+        ptoc(ClassName()+"::BoundaryPotential");
     }
 
 
@@ -315,6 +328,7 @@ public:
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
+        ptic(ClassName()+"::DirichletToNeumann");
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
@@ -373,6 +387,8 @@ public:
         DestroyKernel(&list);
 
         free(coeff);
+
+        ptoc(ClassName()+"::DirichletToNeumann");
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
