@@ -32,7 +32,7 @@ public:
                             kappa, inc_coeff, wave_count_, wave_chunk_size_
                             );
 
-        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, cg_tol, gmres_tol );      
+        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, wave, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -97,7 +97,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
+            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
 
             free(inc_coeff);
             free(incident_wave);
@@ -123,7 +123,7 @@ public:
             wave_count_
         );
 
-        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, cg_tol, gmres_tol);
+        BoundaryPotential<R_ext,C_ext,solver_count>( kappa, coeff, boundary_conditions_weak, phi, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi, wave_count_,
                             Zero, C_out, wave_count_,
@@ -186,7 +186,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, cg_tol, gmres_tol ); 
+            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave, *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
 
             free(incident_wave);
         }
@@ -197,7 +197,7 @@ public:
                             );
         
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, cg_tol, gmres_tol );
+        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave, dv_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( *pdu_dn, dv_dn, wave_product, n, wave_count_, true);
@@ -250,13 +250,17 @@ public:
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    template<typename R_ext, typename C_ext,Int solver_count>
-    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, R_ext cg_tol, R_ext gmres_tol)
+    template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
+    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
+                            I_ext& wave_chunk_count_, I_ext& wave_chunk_size_, 
+                            R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
 
         const Int  n     = VertexCount();
+
+        const I_ext wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
@@ -265,25 +269,25 @@ public:
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
             Mass.Dot(
-                One, x, wave_count,
-                Zero,  y, wave_count,
-                wave_count
+                One, x, wave_count_,
+                Zero,  y, wave_count_,
+                wave_count_
             );
         };
 
         auto id = [&]( const C_ext * x, C_ext *y )
         {
-            memcpy(y,x,wave_count * n * sizeof(C_ext));
+            memcpy(y,x,wave_count_ * n * sizeof(C_ext));
         };
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count * n), OMP_thread_count);
-            bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
+            zerofy_buffer(y, (size_t)(wave_count_ * n), OMP_thread_count);
+            bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
         };
 
         // set up the bdry operator and solve
-        for(Int i = 0 ; i < wave_chunk_count ; i++)
+        for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
             coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
@@ -291,23 +295,25 @@ public:
             coeff[4 * i + 3] = Zero;
         }
 
-        kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+        kernel_list list = LoadKernel(kappa,coeff,wave_count_,wave_chunk_size_);
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
             ApplyBoundaryOperators_PL(
-                            wave_count, One,x,Zero,y
+                            wave_count_, One,x,Zero,y
                             );
         };
 
-        bool succeeded = gmres(A,P,wave,wave_count,phi,wave_count,gmres_tol,10);
+        bool succeeded = gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
 
         DestroyKernel(&list);
     }
 
 
     template<typename R_ext, typename C_ext,Int solver_count>
-    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, R_ext cg_tol, R_ext gmres_tol)
+    void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, 
+                            I_ext& wave_chunk_count_, I_ext& wave_chunk_size_, 
+                            R_ext cg_tol, R_ext gmres_tol)
     {
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -315,7 +321,7 @@ public:
 
         const Int    n   = VertexCount();
 
-        C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count * 4 * sizeof(C_ext));
+        C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
 
         ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
@@ -324,25 +330,25 @@ public:
         auto mass = [&]( const C_ext * x, C_ext *y )
         {
             Mass.Dot(
-                One, x, wave_count,
-                Zero,  y, wave_count,
-                wave_count
+                One, x, wave_count_,
+                Zero,  y, wave_count_,
+                wave_count_
             );
         };
 
         auto id = [&]( const C_ext * x, C_ext *y )
         {
-            memcpy(y,x,wave_count * n * sizeof(C_ext));
+            memcpy(y,x,wave_count_ * n * sizeof(C_ext));
         };
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count * n), OMP_thread_count);
-            bool succeeded = cg(mass,id,x,wave_count,y,wave_count,cg_tol);
+            zerofy_buffer(y, (size_t)(wave_count_ * n), OMP_thread_count);
+            bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
         };
 
         // set up the bdry operator and solve
-        for(Int i = 0 ; i < wave_chunk_count ; i++)
+        for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
             coeff[4 * i + 1] = -I;
@@ -350,17 +356,17 @@ public:
             coeff[4 * i + 3] = One;
         }
 
-        kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+        kernel_list list = LoadKernel(kappa,coeff,wave_count_,wave_chunk_size_);
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
             ApplyBoundaryOperators_PL(
-                             wave_count,One,x,Zero,y
+                             wave_count_,One,x,Zero,y
                             );
         };
 
         // solve for the normal derivatives of the near field solutions
-        bool succeeded = gmres(A,P,wave,wave_count,neumann_trace,wave_count,gmres_tol,10);
+        bool succeeded = gmres(A,P,wave,wave_count_,neumann_trace,wave_count_,gmres_tol,10);
 
         DestroyKernel(&list);
 
