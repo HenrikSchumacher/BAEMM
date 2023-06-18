@@ -5,7 +5,7 @@
 #include <QuartzCore/QuartzCore.hpp>
 
 #include <complex>
-#include "Tensors/Tensors.hpp"
+//#include "Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
@@ -67,9 +67,9 @@ namespace BAEMM
             NS::SharedPtr<MTL::Device> & device_,
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
-            int OMP_thread_count_
+            int CPU_thread_count_
         )
-        :   OMP_thread_count ( OMP_thread_count_                    )
+        :   CPU_thread_count ( CPU_thread_count_                    )
         ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
         ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )

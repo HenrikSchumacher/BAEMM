@@ -110,7 +110,7 @@ public:
             Re_double_layer || Im_double_layer
         )
         {   
-            type_cast(B_ptr, B_in ,wave_count * meas_count, OMP_thread_count);
+            type_cast(B_ptr, B_in ,wave_count * meas_count, CPU_thread_count);
 
             ModifiedB();
             C_loaded = true;    

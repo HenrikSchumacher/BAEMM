@@ -55,14 +55,18 @@ public:
                                             NULL, NULL, NULL);
                                             
         // copy measurement directions
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for( Int i = 0; i < meas_count; ++i )
-        {
-            meas_directions_ptr[4*i+0] = static_cast<Real>(meas_directions_[3*i+0]);
-            meas_directions_ptr[4*i+1] = static_cast<Real>(meas_directions_[3*i+1]);
-            meas_directions_ptr[4*i+2] = static_cast<Real>(meas_directions_[3*i+2]);
-            meas_directions_ptr[4*i+3] = zero;
-        }
+        
+        //CheckThis
+        ParallelDo(
+            [=]( const Int i )
+            {
+                meas_directions_ptr[4*i+0] = static_cast<Real>(meas_directions_[3*i+0]);
+                meas_directions_ptr[4*i+1] = static_cast<Real>(meas_directions_[3*i+1]);
+                meas_directions_ptr[4*i+2] = static_cast<Real>(meas_directions_[3*i+2]);
+                meas_directions_ptr[4*i+3] = zero;
+            },
+            meas_count, CPU_thread_count
+        );
 
         // Allocate memory in device buffer
         mid_points = clCreateBuffer(context, CL_MEM_READ_ONLY,

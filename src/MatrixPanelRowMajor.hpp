@@ -131,13 +131,13 @@ namespace HeavyMetal
         }
         
         
-        void ToRowMajor( mut<Scalar> B, Int OMP_thread_count ) const
+        void ToRowMajor( mut<Scalar> B, Int CPU_thread_count ) const
         {
             // Slower than necessary, but should do it for now.
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];
 
-            #pragma omp parallel for num_threads(OMP_thread_count) schedule(static)
+            #pragma omp parallel for num_threads(CPU_thread_count) schedule(static)
             for( Int i = 0; i < d_0; ++i )
             {
                 for( Int j = 0; j < d_1; ++j )
@@ -147,13 +147,13 @@ namespace HeavyMetal
             }
         }
         
-        void FromRowMajor( mut<Scalar> B, Int OMP_thread_count )
+        void FromRowMajor( mut<Scalar> B, Int CPU_thread_count )
         {
             // Slower than necessary, but should do it for now.
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];
 
-            #pragma omp parallel for num_threads(OMP_thread_count) schedule(static)
+            #pragma omp parallel for num_threads(CPU_thread_count) schedule(static)
             for( Int i = 0; i < d_0; ++i )
             {
                 for( Int j = 0; j < d_1; ++j )
@@ -163,24 +163,24 @@ namespace HeavyMetal
             }
         }
         
-        void ToPanelRowMajor( mut<Scalar> B, Int OMP_thread_count ) const
+        void ToPanelRowMajor( mut<Scalar> B, Int CPU_thread_count ) const
         {
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];
 
-            #pragma omp parallel for num_threads(OMP_thread_count) schedule(static)
+            #pragma omp parallel for num_threads(CPU_thread_count) schedule(static)
             for( Int i = 0; i < d_0; ++i )
             {
                 copy_buffer( &buffer[dim_internal[1]*i], &B[d_1 * i], d_1 );
             }
         }
         
-        void FromPanelRowMajor( mut<Scalar> B, Int OMP_thread_count )
+        void FromPanelRowMajor( mut<Scalar> B, Int CPU_thread_count )
         {
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];
 
-            #pragma omp parallel for num_threads(OMP_thread_count) schedule(static)
+            #pragma omp parallel for num_threads(CPU_thread_count) schedule(static)
             for( Int i = 0; i < d_0; ++i )
             {
                 copy_buffer( &B[d_1 * i], &buffer[dim_internal[1]*i], d_1 );

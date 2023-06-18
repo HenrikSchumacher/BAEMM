@@ -116,15 +116,24 @@ public:
 
         DotWithNormals_PL( h, h_n.data(), cg_tol );
 
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for(I_ext i = 0; i < n; ++i )
-        {
-            LOOP_UNROLL(8)
-            for(I_ext j = 0; j < solver_count; ++j )
-            {
-                boundary_conditions_ptr[i * solver_count + j] = (*pdu_dn)[i * solver_count + j] * (- h_n(i));
+            
+        // CheckThis
+        ParallelDo(
+            [boundary_conditions_ptr,&h_n,&pdu_dn]( const I_ext i )
+            {   
+                pts<R_ext> a = &(*pdu_dn)[i * solver_count];
+                pts<R_ext> b = h_n.data();
+                mut<R_ext> c = &boundary_conditions_ptr[i * solver_count];
+                
+                
+                LOOP_UNROLL(8)
+                for(I_ext j = 0; j < solver_count; ++j )
+                {
+                    c[j] = - a[j] * b[j];
+                }
             }
-        }
+            I_ext(n), I_ext(CPU_thread_count)
+        );
         
         // apply mass to the boundary conditions to get weak representation
         Mass.Dot(
@@ -240,7 +249,7 @@ public:
     //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
     //                     DFa, C_out, pdu_dn, cg_tol, gmres_tol_inner);
 
-    //     GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
+    //     GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
 
     //     auto A = [&]( const R_ext * x, R_ext *y )
     //     {   
@@ -251,7 +260,7 @@ public:
     //         M(x,y); // The metric m has to return y + M*y
     //     };
 
-    //     zerofy_buffer(C_out, (size_t)(3 * n), OMP_thread_count);
+    //     zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
 
     //     bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
     //     free(DFa);
@@ -273,8 +282,8 @@ public:
 
         const I_ext wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,CPU_thread_count);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
@@ -293,7 +302,7 @@ public:
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count_ * n), OMP_thread_count);
+            zerofy_buffer(y, (size_t)(wave_count_ * n), CPU_thread_count);
             bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
         };
 
@@ -339,8 +348,8 @@ public:
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,OMP_thread_count);
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,OMP_thread_count);
+        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,CPU_thread_count);
+        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
         auto mass = [&]( const C_ext * x, C_ext *y )
@@ -359,7 +368,7 @@ public:
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count_ * n), OMP_thread_count);
+            zerofy_buffer(y, (size_t)(wave_count_ * n), CPU_thread_count);
             bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
         };
 
@@ -407,7 +416,7 @@ public:
         Real*       C = (Real*)malloc(3 * m * sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( 3 * n * sizeof(R_ext));
 
-        ConjugateGradient<3,R_ext,size_t> cg(n,100,OMP_thread_count);
+        ConjugateGradient<3,R_ext,size_t> cg(n,100,CPU_thread_count);
 
         auto id = [&]( const R_ext * x, R_ext *y )
         {
@@ -432,16 +441,19 @@ public:
 
 
         // pointwise multiplication of the STRONG FORM with the normals
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for(Int i = 0; i < m; ++i )
-        {
-            Real a_i = B[i].real() / areas_ptr[i];
-            LOOP_UNROLL(3)
-            for(Int j = 0; j < 3; ++j )
+        // CheckThis
+        ParallelDo(
+            [=]( const Int i )
             {
-                C[i * 3 + j] = normals_ptr[i * 4 + j] * a_i;
-            }
-        }
+                Real a_i = B[i].real() / areas_ptr[i];
+                LOOP_UNROLL(3)
+                for(Int j = 0; j < 3; ++j )
+                {
+                    C[i * 3 + j] = normals_ptr[i * 4 + j] * a_i;
+                }
+            },
+            m, CPU_thread_count
+        );
 
         // retransf. from PC to PL
         AvOpTransp.Dot(
@@ -474,7 +486,7 @@ public:
         Real*       C = (Real*)calloc( m, sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
 
-        ConjugateGradient<1,R_ext,size_t> cg(n,100,OMP_thread_count);
+        ConjugateGradient<1,R_ext,size_t> cg(n,100,CPU_thread_count);
 
         auto id = [&]( const R_ext * x, R_ext *y )
         {
@@ -499,16 +511,19 @@ public:
 
 
         // pointwise multiplication of the STRONG FORM with the normals
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for(Int i = 0; i < m; ++i )
-        {
-            Real a_i = 1.0f / areas_ptr[i];
-            LOOP_UNROLL_FULL
-            for(Int j = 0; j < 3; ++j )
+        // CheckThis
+        ParallelDo(
+            [=]( const Int i )
             {
-                C[i] += normals_ptr[i * 4 + j] * B[i * 3 + j] * a_i;
-            }
-        }
+                Real a_i = 1.0f / areas_ptr[i];
+                LOOP_UNROLL_FULL
+                for(Int j = 0; j < 3; ++j )
+                {
+                    C[i] += normals_ptr[i * 4 + j] * B[i * 3 + j] * a_i;
+                }
+            },
+            m, CPU_thread_count
+        );
 
         // retransf. from PC to PL
         AvOpTransp.Dot(

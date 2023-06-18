@@ -1,11 +1,7 @@
 public:
 
     template<typename S, typename T, typename I>
-    void type_cast(T* C, const S* B, I length, I OMP_thread_count)
+    void type_cast(T* C, const S* B, I length, I CPU_thread_count)
     {
-        #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static )
-        for(I i = 0; i < length; i++)
-        {
-            C[i] = static_cast<T>(B[i]);
-        }
+        copy_buffer(B, C, length, CPU_thread_count);
     }

@@ -8,27 +8,21 @@ public:
         I i,j;
         if(!ld_sum)
         {
-            #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
-            for( i = 0; i < rows; ++i )
-            {
-                LOOP_UNROLL_FULL
-                for( j = 0; j < columns; ++j )
-                {
-                    C[i * columns + j] = A[i * columns + j] * B[i * columns + j];
-                }
-            }
+            //CheckThis
+            zip_buffers(
+                Zippers::Times(), A, B, C ), rows * columns, CPU_thread_count
+            );
         }
         else
         {
-            #pragma omp parallel for num_threads( OMP_thread_count ) schedule( static ) private(i) private(j)
-            for( i = 0; i < rows; ++i )
-            {
-                C[i] = 0;
-                LOOP_UNROLL_FULL
-                for( j = 0; j < columns; ++j )
+            //CheckThis
+            ParallelDo(
+                [=]( const I i )
                 {
-                    C[i] += A[i * columns + j] * B[i * columns + j];
-                }
-            }
+                    C[i] = dot_buffers( &A[i * columns], &B[i * columns], columns );
+                },
+                rows,
+                CPU_thread_count
+            );
         }
     }

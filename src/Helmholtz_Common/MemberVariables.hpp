@@ -1,6 +1,6 @@
 private:
 
-    const Int OMP_thread_count = 1;
+    const Int CPU_thread_count = 1;
 
     const Int vertex_count;
     const Int simplex_count;

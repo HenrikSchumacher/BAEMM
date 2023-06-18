@@ -6,15 +6,16 @@
 
 //#define OBJC_DEBUG_MISSING_POOLS = YES
 
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-
-#include <Foundation/Foundation.hpp>
-#include <Metal/Metal.hpp>
-#include <Accelerate/Accelerate.h>
+//#define NS_PRIVATE_IMPLEMENTATION
+//#define MTL_PRIVATE_IMPLEMENTATION
+//
+//#include <Foundation/Foundation.hpp>
+//#include <Metal/Metal.hpp>
+//#include <Accelerate/Accelerate.h>
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
+#include "Tensors/Tensors.hpp"
 #include "../Helmholtz_CPU.hpp"
 #include "../Helmholtz_Metal.hpp"
 
@@ -102,8 +103,6 @@ using Complex       = std::complex<Real>;
 int main(int argc, const char * argv[])
 {
     //    using namespace Repulsor;
-    using namespace Tensors;
-    using namespace Tools;
     //    using namespace BAEMM;
     
     
@@ -136,19 +135,11 @@ int main(int argc, const char * argv[])
     print("");
     print("");
     
-    int OMP_thread_count_0;
-#pragma omp parallel
-    {
-        OMP_thread_count_0 = omp_get_num_threads();
-    }
-    valprint("Initial number of OpenMP threads", OMP_thread_count_0);
+    int CPU_thread_count = 8;
+    //    int CPU_thread_count = 1;
+    omp_set_num_threads(CPU_thread_count);
     
-    
-    int OMP_thread_count = 8;
-    //    int OMP_thread_count = 1;
-    omp_set_num_threads(OMP_thread_count);
-    
-    valprint("number of OpenMP threads",OMP_thread_count);
+    valprint("number of CPU threads",CPU_thread_count);
     
     print("");
     print("");
@@ -165,7 +156,7 @@ int main(int argc, const char * argv[])
     BAEMM::Helmholtz_CPU H_CPU (
         coords.data(),    coords.Dimension(0),
         simplices.data(), simplices.Dimension(0),
-        OMP_thread_count
+        CPU_thread_count
     );
     
     
@@ -190,7 +181,7 @@ int main(int argc, const char * argv[])
         coords.Dimension(0),        // number of vertices
         simplices.data(),           // pointer to an array of ints or long ints
         simplices.Dimension(0),     // number of simplices
-        OMP_thread_count            // number of OpenMP threads to use.
+        CPU_thread_count            // number of CPU threads to use.
     );
     
     // Some matrices to hold data.
@@ -199,7 +190,7 @@ int main(int argc, const char * argv[])
     Tensor2<Complex,Int> Y     ( H_Metal.VertexCount(), wave_count );
     
     // Generate some random input data.
-    X.Random(OMP_thread_count_0);
+    X.Random(CPU_thread_count);
     // Loading a buffer would also work
     // X.Read( some_buffer );
     

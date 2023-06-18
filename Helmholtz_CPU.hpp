@@ -1,7 +1,7 @@
 #pragma once
 
 #include <complex>
-#include "Tensors/Tensors.hpp"
+//#include "Tensors/Tensors.hpp"
 
 namespace BAEMM
 {
@@ -21,9 +21,9 @@ namespace BAEMM
         Helmholtz_CPU(
             ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
-            Int OMP_thread_count_
+            Int CPU_thread_count_
         )
-        :   OMP_thread_count ( OMP_thread_count_                )
+        :   CPU_thread_count ( CPU_thread_count_                )
         ,   vertex_count     ( int_cast<Int>(vertex_count_)     )
         ,   simplex_count    ( int_cast<Int>(simplex_count_)    )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3 )

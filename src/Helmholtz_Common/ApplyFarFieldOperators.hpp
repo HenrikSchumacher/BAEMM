@@ -128,7 +128,7 @@ public:
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             // hier eintragsweise casten
-            type_cast(C_out, C_ptr,wave_count * meas_count, OMP_thread_count);
+            type_cast(C_out, C_ptr,wave_count * meas_count, CPU_thread_count);
         }       
         ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
     }

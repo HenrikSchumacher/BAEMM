@@ -322,8 +322,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-Xpreprocessor",
-					"-fopenmp",
 					"-flto",
 					"-fno-math-errno",
 					"-ffast-math",
@@ -331,7 +329,6 @@
 				OTHER_LDFLAGS = (
 					"-lm",
 					"-ldl",
-					"-lomp",
 				);
 				SDKROOT = macosx;
 			};
@@ -394,8 +391,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-Xpreprocessor",
-					"-fopenmp",
 					"-flto",
 					"-fno-math-errno",
 					"-ffast-math",
@@ -403,7 +398,6 @@
 				OTHER_LDFLAGS = (
 					"-lm",
 					"-ldl",
-					"-lomp",
 				);
 				SDKROOT = macosx;
 			};

@@ -25,11 +25,15 @@ public:
     void ReadB( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
         RequireBuffers( wave_count_ );
-        #pragma omp parallel for num_threads( OMP_thread_count )
-        for( Int i = 0; i < simplex_count; ++i )
-        {
-            copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
-        }
+        
+        //CheckThis
+        ParallelDo(
+            [=]( const Int i )
+            {
+                copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
+            },
+            simplex_count, CPU_thread_count
+        );
 
         ModifiedB();
     }
@@ -41,22 +45,28 @@ public:
     
     void WriteB( mut<Complex> output, const Int ld_output ) const
     {
-        #pragma omp parallel for num_threads( OMP_thread_count )
-        for( Int i = 0; i < simplex_count; ++i )
-        {
-            copy_buffer( &B_ptr[ldB * i], &output[ld_output * i], wave_count );
-        }
+        //CheckThis
+        ParallelDo(
+            [=]( const Int i )
+            {
+                copy_buffer( &B_ptr[ldB * i], &output[ld_output * i], wave_count );
+            },
+            simplex_count, CPU_thread_count
+        );
     }
     
     void ReadC( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
         RequireBuffers( wave_count_ );
         
-        #pragma omp parallel for num_threads( OMP_thread_count )
-        for( Int i = 0; i < simplex_count; ++i )
-        {
-            copy_buffer( &input[ld_input * i], &C_ptr[ldC * i], wave_count );
-        }
+        //CheckThis
+        ParallelDo(
+            [=]( const Int i )
+            {
+                copy_buffer( &input[ld_input * i], &C_ptr[ldC * i], wave_count );
+            },
+            simplex_count, CPU_thread_count
+        );
         
         ModifiedC();
     }
@@ -68,9 +78,12 @@ public:
     
     void WriteC( mut<Complex> output, const Int ld_output ) const
     {
-        #pragma omp parallel for num_threads( OMP_thread_count )
-        for( Int i = 0; i < simplex_count; ++i )
-        {
-            copy_buffer( &C_ptr[ldC * i], &output[ld_output * i], wave_count );
-        }
+        //CheckThis
+        ParallelDo(
+            [=]( const Int i )
+            {
+                copy_buffer( &C_ptr[ldC * i], &output[ld_output * i], wave_count );
+            },
+            simplex_count, CPU_thread_count
+        );
     }
