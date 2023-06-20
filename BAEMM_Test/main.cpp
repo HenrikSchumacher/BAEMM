@@ -6,16 +6,12 @@
 
 //#define OBJC_DEBUG_MISSING_POOLS = YES
 
-//#define NS_PRIVATE_IMPLEMENTATION
-//#define MTL_PRIVATE_IMPLEMENTATION
-//
-//#include <Foundation/Foundation.hpp>
-//#include <Metal/Metal.hpp>
-//#include <Accelerate/Accelerate.h>
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
-#include "Tensors/Tensors.hpp"
 #include "../Helmholtz_CPU.hpp"
 #include "../Helmholtz_Metal.hpp"
 

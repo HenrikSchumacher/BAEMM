@@ -5,7 +5,7 @@
 #include <QuartzCore/QuartzCore.hpp>
 
 #include <complex>
-//#include "Tensors/Tensors.hpp"
+#include "Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
