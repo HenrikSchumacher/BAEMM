@@ -9,9 +9,10 @@ public:
         if(!ld_sum)
         {
             //CheckThis
-            zip_buffers(
-                Zippers::Times(), A, B, C ), rows * columns, CPU_thread_count
-            );
+                zip_buffers(
+                    Zippers::Times<T,T,T>(), A, B, C,
+                    rows * columns, CPU_thread_count
+                    );
         }
         else
         {

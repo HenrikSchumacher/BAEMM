@@ -3,6 +3,12 @@
 #include <complex>
 #include "Tensors/Tensors.hpp"
 
+#include <complex>
+#include "Tensors/Tensors.hpp"
+#include <cblas.h>
+#include "Tensors/GMRES.hpp"
+#include "Tensors/ConjugateGradient.hpp"
+
 namespace BAEMM
 {
     using namespace Tools;
