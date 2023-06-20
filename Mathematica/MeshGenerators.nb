@@ -10,17 +10,18 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      4347,        107]
-NotebookOptionsPosition[      3774,         90]
-NotebookOutlinePosition[      4211,        107]
-CellTagsIndexPosition[      4168,        104]
+NotebookDataLength[     15269,        353]
+NotebookOptionsPosition[     14219,        331]
+NotebookOutlinePosition[     14656,        348]
+CellTagsIndexPosition[     14613,        345]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 Cell[BoxData["Exit"], "Input",
  CellChangeTimes->{{3.874760451429117*^9, 3.87476045189067*^9}},
- CellLabel->"In[2]:=",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+ CellLabel->
+  "In[322]:=",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
 
 Cell[BoxData[{
  RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
@@ -86,7 +87,247 @@ Cell[BoxData[
  CellChangeTimes->{{3.890814228701207*^9, 3.890814235178507*^9}, {
   3.890814639455668*^9, 3.890814655121436*^9}, {3.892525374253192*^9, 
   3.8925253784650583`*^9}, {3.892526214867255*^9, 3.892526215035695*^9}},
- CellLabel->"In[4]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+ CellLabel->"In[4]:=",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"M", "=", 
+   RowBox[{"ToMesh", "@", 
+    RowBox[{"BoundaryDiscretizeRegion", "[", 
+     RowBox[{
+      RowBox[{"Ball", "[", "]"}], ",", 
+      RowBox[{"MaxCellMeasure", "->", 
+       RowBox[{"4", 
+        RowBox[{"Pi", "/", "31500"}]}]}]}], "]"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"ParentDirectory", "[", 
+       RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ",", "\"\<Meshes\>\"", 
+      ",", 
+      RowBox[{"\"\<Sphere_\>\"", "<>", 
+       RowBox[{"IntegerString", "[", 
+        RowBox[{
+         RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+        "]"}], "<>", "\"\<T.txt\>\""}]}], "}"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+    RowBox[{"\"\<dom_dim \>\"", ",", 
+     RowBox[{"IntegerString", "[", 
+      RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+     ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+     RowBox[{"IntegerString", "[", 
+      RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+     "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", ",", 
+     
+     RowBox[{"IntegerString", "[", 
+      RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", ",", 
+     "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+     RowBox[{"IntegerString", "[", 
+      RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", ",",
+      "\[IndentingNewLine]", 
+     RowBox[{"ExportString", "[", 
+      RowBox[{
+       RowBox[{"Threshold", "[", 
+        RowBox[{
+         RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+         RowBox[{"10", "^", 
+          RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+       RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], ",", 
+     "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
+     RowBox[{"ExportString", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+       "\"\<Table\>\"", ",", 
+       RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+    "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], "Input",
+ CellChangeTimes->{{3.896261907952094*^9, 3.896261908774096*^9}, 
+   3.8962620564104147`*^9},
+ CellLabel->"In[3]:=",ExpressionUUID->"532b3e56-ebb4-4237-98bc-c8af0c8f7407"],
+
+Cell[BoxData[
+ RowBox[{"Do", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"M", "=", 
+     RowBox[{"SpotSurface", "[", "k", "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"Export", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"FileNameJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"ParentDirectory", "[", 
+          RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ",", 
+         "\"\<Meshes\>\"", ",", 
+         RowBox[{"\"\<Spot_\>\"", "<>", 
+          RowBox[{"IntegerString", "[", 
+           RowBox[{
+            RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+           "]"}], "<>", "\"\<T.txt\>\""}]}], "}"}], "]"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+       RowBox[{"\"\<dom_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", 
+        ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{"Threshold", "[", 
+           RowBox[{
+            RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+            RowBox[{"10", "^", 
+             RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], 
+        ",", "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+          "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+       "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"k", ",", "0", ",", "3"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.896262174843172*^9, 3.8962621860329123`*^9}},
+ CellLabel->"In[6]:=",ExpressionUUID->"d7bd49b5-2941-49ea-963e-636ab1976d71"],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.896262169733164*^9, 
+  3.8962621791692257`*^9}},ExpressionUUID->"d24d126a-27ad-4df3-8dcc-\
+ccc1f7e23bfd"],
+
+Cell[BoxData[
+ RowBox[{"Do", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"M", "=", 
+     RowBox[{"BobSurface", "[", "k", "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"Export", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"FileNameJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"ParentDirectory", "[", 
+          RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ",", 
+         "\"\<Meshes\>\"", ",", 
+         RowBox[{"\"\<Bob_\>\"", "<>", 
+          RowBox[{"IntegerString", "[", 
+           RowBox[{
+            RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+           "]"}], "<>", "\"\<T.txt\>\""}]}], "}"}], "]"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+       RowBox[{"\"\<dom_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", 
+        ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{"Threshold", "[", 
+           RowBox[{
+            RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+            RowBox[{"10", "^", 
+             RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], 
+        ",", "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+          "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+       "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"k", ",", "0", ",", "2"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.8962622083098993`*^9, 3.896262238606086*^9}, {
+  3.896262301334757*^9, 
+  3.896262301432933*^9}},ExpressionUUID->"cd714f89-3fde-4cce-a6be-\
+fc8408a66879"],
+
+Cell[BoxData[
+ RowBox[{"Do", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"M", "=", 
+     RowBox[{"BlubSurface", "[", "k", "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"Export", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"FileNameJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"ParentDirectory", "[", 
+          RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ",", 
+         "\"\<Meshes\>\"", ",", 
+         RowBox[{"\"\<Blub_\>\"", "<>", 
+          RowBox[{"IntegerString", "[", 
+           RowBox[{
+            RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+           "]"}], "<>", "\"\<T.txt\>\""}]}], "}"}], "]"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+       RowBox[{"\"\<dom_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+        "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", 
+        ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{"Threshold", "[", 
+           RowBox[{
+            RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+            RowBox[{"10", "^", 
+             RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], 
+        ",", "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
+        RowBox[{"ExportString", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+          "\"\<Table\>\"", ",", 
+          RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+       "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"k", ",", "0", ",", "2"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.896262245986245*^9, 3.896262249644177*^9}, {
+  3.896262299277289*^9, 
+  3.896262299381538*^9}},ExpressionUUID->"a8874307-d925-4cd0-bd31-\
+e25207d89c35"]
 },
 WindowSize->{1496, 905},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
@@ -106,9 +347,14 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 173, 2, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
-Cell[734, 24, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
-Cell[1054, 31, 2716, 57, 417, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"]
+Cell[558, 20, 178, 3, 41, "Input",ExpressionUUID->"ef9dd491-ec45-416c-8fdc-dc274ececae3"],
+Cell[739, 25, 317, 5, 67, "Input",ExpressionUUID->"1e31beb4-8770-45d5-8dcd-2a2fa4d4eb8b"],
+Cell[1059, 32, 2716, 57, 417, "Input",ExpressionUUID->"281e1cfe-b25e-4d11-b419-a6fa72bcf272"],
+Cell[3778, 91, 2500, 58, 367, "Input",ExpressionUUID->"532b3e56-ebb4-4237-98bc-c8af0c8f7407"],
+Cell[6281, 151, 2571, 55, 417, "Input",ExpressionUUID->"d7bd49b5-2941-49ea-963e-636ab1976d71"],
+Cell[8855, 208, 154, 3, 41, "Input",ExpressionUUID->"d24d126a-27ad-4df3-8dcc-ccc1f7e23bfd"],
+Cell[9012, 213, 2600, 57, 417, "Input",ExpressionUUID->"cd714f89-3fde-4cce-a6be-fc8408a66879"],
+Cell[11615, 272, 2600, 57, 417, "Input",ExpressionUUID->"a8874307-d925-4cd0-bd31-e25207d89c35"]
 }
 ]
 *)
