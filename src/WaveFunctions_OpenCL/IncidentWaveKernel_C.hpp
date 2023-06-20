@@ -36,7 +36,7 @@ public:
                     Complex Coeff[2] = {c_[chunk][1],c_[chunk][2]};
 
                     LOOP_UNROLL(8)
-                    for ( j = 0; j < wave_chunk_size; ++j )
+                    for (Int j = 0; j < wave_chunk_size; ++j )
                     {
                         Real w_vec[3] = { incident_directions[3*j + 0], incident_directions[3*j + 1]
                                         , incident_directions[3*j + 2] };

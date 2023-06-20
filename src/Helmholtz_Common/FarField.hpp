@@ -121,9 +121,9 @@ public:
         ParallelDo(
             [boundary_conditions_ptr,&h_n,&pdu_dn]( const I_ext i )
             {   
-                pts<R_ext> a = &(*pdu_dn)[i * solver_count];
-                pts<R_ext> b = h_n.data();
-                mut<R_ext> c = &boundary_conditions_ptr[i * solver_count];
+                ptr<C_ext> a = &(*pdu_dn)[i * solver_count];
+                ptr<R_ext> b = h_n.data();
+                mut<C_ext> c = &boundary_conditions_ptr[i * solver_count];
                 
                 
                 LOOP_UNROLL(8)
@@ -131,7 +131,7 @@ public:
                 {
                     c[j] = - a[j] * b[j];
                 }
-            }
+            },
             I_ext(n), I_ext(CPU_thread_count)
         );
         
