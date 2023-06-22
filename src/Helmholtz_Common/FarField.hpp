@@ -17,7 +17,7 @@ public:
         Tensor2<C_ext,I_ext>  inc_coeff ( wave_chunk_count_, 4 );
         Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
         Tensor2<C_ext,I_ext>  wave  (  wave_count_, n  );     //weak representation of the incident wave
-        Tensor2<C_ext,I_ext>  phi   (wave_count_, n);
+        Tensor2<C_ext,I_ext>  phi   (   wave_count_, n);
 
         C_ext* inc_coeff_ptr = inc_coeff.data();
 
@@ -44,7 +44,7 @@ public:
 
         ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
                             Zero, C_out, wave_count_,
-                            kappa,coeff, wave_count_, wave_chunk_size_
+                            kappa,coeff.data(), wave_count_, wave_chunk_size_
                             );
 
         ptoc(ClassName()+"::FarField");
