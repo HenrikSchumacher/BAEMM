@@ -54,7 +54,7 @@ int main()
     Tensor2<Complex,Int>    B_out(  meas_count, wave_count  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0005);
+    Real gmres_tol = static_cast<Real>(0.001);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;

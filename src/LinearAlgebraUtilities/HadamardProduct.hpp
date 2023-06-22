@@ -7,12 +7,11 @@ public:
     {   
         I i,j;
         if(!ld_sum)
-        {
-            //CheckThis
-                zip_buffers(
-                    Zippers::Times<T,T,T>(), A, B, C,
-                    rows * columns, CPU_thread_count
-                    );
+        {   
+            // //CheckThis
+            //     zip_buffers(
+            //     Zippers::Times<T,T,T>(), A, B, C , rows * columns, CPU_thread_count
+            // );
         }
         else
         {
@@ -22,8 +21,8 @@ public:
                 {
                     C[i] = dot_buffers( &A[i * columns], &B[i * columns], columns );
                 },
-                rows,
-                CPU_thread_count
+                int_cast<I>(rows),
+                int_cast<I>(CPU_thread_count)
             );
         }
     }

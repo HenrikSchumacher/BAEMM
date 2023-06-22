@@ -129,7 +129,7 @@ public:
                 LOOP_UNROLL(8)
                 for(I_ext j = 0; j < solver_count; ++j )
                 {
-                    c[j] = - a[j] * b[j];
+                    c[j] = - a[j] * b[i];
                 }
             },
             I_ext(n), I_ext(CPU_thread_count)
@@ -208,8 +208,6 @@ public:
             
 
             DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
-
-            free(incident_wave);
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
