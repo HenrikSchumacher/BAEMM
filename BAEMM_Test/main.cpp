@@ -9,6 +9,9 @@
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 
+#define LAPACK_DISABLE_NAN_CHECK
+#define ACCELERATE_NEW_LAPACK
+#include <Accelerate/Accelerate.h>
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
