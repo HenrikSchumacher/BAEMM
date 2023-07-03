@@ -165,7 +165,7 @@ public:
         // A := (1/2) * I - i * kappa * SL + DL'
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
         // anh phi_h = A\herglotz_wave is the normal derivative of the solution with inc wave herglotz_wave
-        ptoc(ClassName()+"::AdjointDerivative_FF");
+        ptic(ClassName()+"::AdjointDerivative_FF");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
