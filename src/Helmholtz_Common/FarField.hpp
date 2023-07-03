@@ -226,42 +226,36 @@ public:
         ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
-    // template<typename I_ext, typename R_ext, typename C_ext, I_ext solver_count>
-    // void GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
-    //                 const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
-    //                 // Operator M, Operator P,
-    //                 const R_ext* h, R_ext* C_out, 
-    //                 C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
-    //                 R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
-    //                 )
-    // {
-    //     // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
-    //     const I_ext  n           = static_cast<I_ext>(VertexCount());
-    //     const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
+    template<typename I_ext, I_ext solver_count, typename R_ext, typename C_ext, typename Operator>
+    void GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
+                    const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
+                    Operator M, Operator P,
+                    const R_ext* h, R_ext* C_out, 
+                    C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
+                    )
+    {
+        // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
+        const I_ext  n           = static_cast<I_ext>(VertexCount());
+        const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-    //     C_ext*  DFa           = (C_ext*)malloc(wave_count_ * n * sizeof(C_ext));
+        GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
+        
+        Tensor2<C_ext,I_ext>  DF (  wave_count_, n  );
 
-    //     Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     h, DFa, pdu_dn, cg_tol, gmres_tol_inner);
-    //     AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     DFa, C_out, pdu_dn, cg_tol, gmres_tol_inner);
+        auto A = [&]( const R_ext * x, R_ext *y )
+        {   
+            Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+                        x, DF.data(), pdu_dn, cg_tol, gmres_tol_inner);
+            AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+                        DF.data(), y, pdu_dn, cg_tol, gmres_tol_inner);
+            M(x,y); // The metric m has to return y + M*y
+        };
 
-    //     GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
+        zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
 
-    //     auto A = [&]( const R_ext * x, R_ext *y )
-    //     {   
-    //         Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     x, DFa, cg_tol, gmres_tol_inner);
-    //         AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-    //                     DFa, y, cg_tol, gmres_tol_inner);
-    //         M(x,y); // The metric m has to return y + M*y
-    //     };
-
-    //     zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
-
-    //     bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
-    //     free(DFa);
-    // }
+        bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
+    }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 

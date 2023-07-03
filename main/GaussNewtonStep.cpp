@@ -4,6 +4,7 @@
 #include <fstream> 
 
 using uint = unsigned int;
+using LInt = long long;
 
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
@@ -12,6 +13,7 @@ using uint = unsigned int;
 
 using namespace Tools;
 using namespace Tensors;
+using namespace Repulsor;
 
 using Int = int;
 using Real = float;
@@ -24,14 +26,17 @@ int main()
 
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
-    Int GPU_device;
+    Int GPU_device;   
+    Real regpar;
+
+    constexpr Int thread_count = 16;
 
     Tensor2<Int,Int>        simplices;
     Tensor2<Real,Int>       meas_directions;
     Tensor2<Real,Int>       incident_directions;
     Tensor1<Real,Int>       kappa;
     Tensor2<Real,Int>       coords;
-    Tensor2<Real,Int>       B_in;
+    Tensor2<Complex,Int>    B_in;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, simplices, meas_directions, incident_directions, kappa);
 
@@ -46,43 +51,8 @@ int main()
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
         meas_directions.data(), meas_count, 
-        GPU_device, int_cast<Int>(16)
+        GPU_device, thread_count
         );
-
-    constexpr Int ambient_dimension = 3;
-    constexpr Int domain_dimension = 2;
-    constexpr Int thread_count = 8;
-
-    // std::unique_ptr<SimplicialMeshBase<Real,Int,Real,Real>> M = MakeSimplicialMesh<REAL,INT,REAL,REAL>(
-    //     coords.data(),  vertex_count, ambient_dimension,
-    //     simplices.data(),  simplex_count, domain_dimension+1,
-    //     thread_count
-    // );
-
-    // M->cluster_tree_settings.split_threshold                        =  2;
-    // M->cluster_tree_settings.thread_count                           =  0; // take as many threads as there are used by SimplicialMesh M
-    // M->block_cluster_tree_settings.far_field_separation_parameter   =  0.5;
-    // M->adaptivity_settings.theta                                    = 10.0;
-
-    // M->GetClusterTree();
-    // M->GetBlockClusterTree();
-
-    // Tensor2<Real,Int> diff ( vertex_count, ambient_dimension );
-
-    // const double alpha  = 6;
-    // const double beta   = 12;
-    // const double weight = 1;
-
-    // M->SetTangentPointExponents(alpha, beta);
-    // M->SetTangentPointWeight(weight);
-
-    // bool add_to = true;
-    // auto A = [&]( const R_ext * x, R_ext *y )
-    //     {   
-            
-    //         M->TangentPointEnergy_Differential(x, add_to);
-    //         memccpy(y,x,vertex_count*3*sizeof(R_ext));
-    //     };
 
     H.UseDiagonal(true);
     H.SetBlockSize(64);
@@ -92,35 +62,137 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0005);
 
+    Tensor2<Complex,Int> neumann_data_scat;
+    Complex* neumann_data_scat_ptr = NULL;
+
+    std::fstream file ("NeumannDataScat.bin");
+    
+    if( file.good() )
+    {
+        ReadInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
+        neumann_data_scat_ptr = neumann_data_scat.data();
+    }
+
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
+    using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
+
+    constexpr Int NRHS = 3;
+
+    Mesh_Ptr_T M = std::make_shared<Mesh_T>(
+        coords.data(),  vertex_count,
+        simplices.data(),  simplex_count,
+        thread_count
+        );
+
+    M->cluster_tree_settings.split_threshold                        =  2;
+    M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
+    M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125f;
+    M->adaptivity_settings.theta                                    = 10.0f;
+
+    const Real q  = 6;
+    const Real p  = 12;
+    const Real s = (p - 2) / q;
+
+    TangentPointEnergy0<Mesh_T>       tpe        (q,p);
+    TangentPointMetric0<Mesh_T>       tpm        (q,p);
+    PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
+
+    // The operator for the metric.
+    auto A = [&]( ptr<Real> X, mut<Real> Y )
+    {
+        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
+    };
+
+    Real one_over_regpar = 1/regpar;
+
+    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
+
+    mut<Real> Z  = Z_buffer.data();
+
+    // The operator for the preconditioner.
+    auto P = [&]( ptr<Real> X, mut<Real> Y )
+    {
+        M->H1Solve( X, Y, NRHS );
+        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
+        M->H1Solve( Z, Y, NRHS );
+    };
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Real gmres_tol_outer = 0.005;
+
+    Tensor2<Real,Int> DE (vertex_count,3);
+    Tensor2<Real,Int> grad (vertex_count,3);
+
+    ptr<Real> DE_ptr = DE.data();
+    mut<Real> grad_ptr = grad.data();
+
+    tpe.Differential( *M ).Write( DE_ptr );
+
     switch (wave_count)
     {
         case 8:
         {
-            H.GaussNewtonStep<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
+            H.AdjointDerivative_FF<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+
+            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
+
+            H.GaussNewtonStep<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 16:
         {
-            H.GaussNewtonStep<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
+            H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+
+            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
+
+            H.GaussNewtonStep<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 32:
         {
-            H.GaussNewtonStep<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
+            H.AdjointDerivative_FF<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+
+            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
+
+            H.GaussNewtonStep<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 64:
         {
-            H.GaussNewtonStep<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), cg_tol, gmres_tol);
+            H.AdjointDerivative_FF<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+
+            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
+
+            H.GaussNewtonStep<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
     }
     
     WriteInOut(vertex_count, dim, B_out);
+
+    if( !file.good() )
+    {        
+        neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
+        neumann_data_scat.Read(neumann_data_scat_ptr);
+
+        WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
+    }
+    else
+    {       
+        free(neumann_data_scat_ptr);
+    }
+
+    file.close();
 
     return 0;
 }

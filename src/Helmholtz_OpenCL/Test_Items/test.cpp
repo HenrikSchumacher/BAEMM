@@ -2,22 +2,30 @@
 #include <fstream> 
 #include <cblas.h>
 #include "read.hpp"
-#include "../Tensors/GMRES.hpp"
-#include "../Tensors/ConjugateGradient.hpp"
+
+#include "../../../Repulsor/Repulsor.hpp"
+
 
 using Complex = std::complex<Real>;
+using LInt = long long;
+using SReal = Real;
+using ExtReal = Real;
+
+using namespace Tools;
+using namespace Tensors;
+using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
-    Int n = H_GPU.VertexCount();
+    Int n = H.VertexCount();
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
 
-    Complex* B = (Complex*)malloc(16 * H_GPU.GetMeasCount() * sizeof(Complex));
+    Complex* B = (Complex*)malloc(16 * H.GetMeasCount() * sizeof(Complex));
 
     Int thread_count = 4;
 
@@ -49,7 +57,7 @@ int main()
         kappa[i] = 2.0f*((float)i + 1.0f);
     }
 
-    Real* C = (Real*)malloc(3 * vertex_count * sizeof(Real));
+    Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     for (int i = 0 ; i < 4; i++)
     {
@@ -67,7 +75,7 @@ int main()
         inc[12*i + 11] = 1/std::sqrt(3.0f);
     }
 
-    H_GPU.UseDiagonal(true);
+    H.UseDiagonal(true);
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0005);
@@ -82,7 +90,7 @@ int main()
 
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
         coords.data(),  n,
-        simplices.data(),  H_GPU.SimplexCount(),
+        simplices.data(),  H.SimplexCount(),
         thread_count
         );
 
@@ -114,30 +122,29 @@ int main()
     // The operator for the preconditioner.
     auto P = [&]( ptr<Real> X, mut<Real> Y )
     {
-        M.H1Solve( X, Y, NRHS );
+        M->H1Solve( X, Y, NRHS );
         pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
-        M.H1Solve( Z, Y, NRHS );
+        M->H1Solve( Z, Y, NRHS );
     };
-
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Real gmres_tol_outer = 0.005;
 
-    Tensor2<Real,Int> DE (vertex_count,3);
-    Tensor2<Real,Int> grad (vertex_count,3);
+    Tensor2<Real,Int> DE (n,3);
+    Tensor2<Real,Int> grad (n,3);
 
     ptr<Real> DE_ptr = DE.data();
-    mut<Real> grad_ptr = ptr.data();
+    mut<Real> grad_ptr = grad.data();
 
     tpe.Differential( *M ).Write( DE_ptr );
 
-    H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+    H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                        B, grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
-    combine_buffers(regpar,DE_ptr,Scalar::One<Real>,grad_ptr,vertex_count * 3, thread_count);
+    combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,1.0f,grad_ptr,n * 3, thread_count);
 
-    H.GaussNewtonStep<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+    H.GaussNewtonStep<Int,16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
+                A, P, grad_ptr, C, &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
 
     
     // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
@@ -192,18 +199,18 @@ int main()
     // }
     // std::cout << "error= " << error << std::endl;
     std::ofstream fout_r("data_real.txt");
-    std::ofstream fout_i("data_imag.txt");
+    // std::ofstream fout_i("data_imag.txt");
     if(fout_r.is_open() && fout_r.is_open())
 	{
-		for(int i = 0; i < H_GPU.GetMeasCount() ; i++)
+		for(int i = 0; i < n ; i++)
 		{
-            for(int j = 0; j < wave_count ; j++)
+            for(int j = 0; j < 3 ; j++)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                fout_r << C[i * 3 + j] << " "; 
+                // fout_i << C[i * wave_count + j].imag() << " "; 
             }
             fout_r << "\n";
-            fout_i << "\n";
+            // fout_i << "\n";
 		}
 	}            
 
