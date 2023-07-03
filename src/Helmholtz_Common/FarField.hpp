@@ -83,7 +83,6 @@ public:
 
         C_ext* boundary_conditions_ptr = boundary_conditions.data();
 
-        h_n.SetZero();
         phi.SetZero();
 
         if (*pdu_dn == NULL)
@@ -461,7 +460,7 @@ public:
             );
 
         // apply M^(-1) to get trong form     
-        zerofy_buffer(C_out, static_cast<size_t>(3 * n), int_cast<Int>(16));
+        zerofy_buffer(C_out, static_cast<size_t>(3 * n), CPU_thread_count);
         bool succeeded = cg(mass,id,C_weak,3,C_out,3,cg_tol);    
 
         free(B);
@@ -531,6 +530,7 @@ public:
             );
         
         // apply M^(-1) to get trong form
+        zerofy_buffer(C_out, static_cast<size_t>(n), CPU_thread_count);
         bool succeeded = cg(mass,id,C_weak,1,C_out,1,cg_tol);    
         
         free(B);
