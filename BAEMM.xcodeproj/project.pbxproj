@@ -39,6 +39,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF7045762A52E9250073D08A /* Repulsor */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Repulsor; sourceTree = "<group>"; };
 		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF73BBF62997FE3400526B7D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Metal_Experiments.entitlements; sourceTree = "<group>"; };
@@ -97,6 +98,7 @@
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
+				AF7045762A52E9250073D08A /* Repulsor */,
 				AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */,
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
@@ -187,7 +189,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					AF73BBF32997FE3400526B7D = {
 						CreatedOnToolsVersion = 14.2;
@@ -242,6 +244,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -254,6 +257,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -293,6 +297,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -325,6 +330,7 @@
 					"-flto",
 					"-fno-math-errno",
 					"-ffast-math",
+					"-pthread",
 				);
 				OTHER_LDFLAGS = (
 					"-lm",
@@ -367,6 +373,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -394,6 +401,7 @@
 					"-flto",
 					"-fno-math-errno",
 					"-ffast-math",
+					"-pthread",
 				);
 				OTHER_LDFLAGS = (
 					"-lm",
@@ -409,6 +417,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = BAEMM_Test/BAEMM_Test.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -421,6 +430,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = BAEMM_Test/BAEMM_Test.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
