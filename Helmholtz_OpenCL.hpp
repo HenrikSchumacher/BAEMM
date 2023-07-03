@@ -5,15 +5,17 @@
 #define TOOLS_ENABLE_PROFILER
 
 #include <complex>
-#include "Tensors/Tensors.hpp"
+#include "Repulsor/Repulsor.hpp"
+
 #include <cblas.h>
-#include "Tensors/GMRES.hpp"
-#include "Tensors/ConjugateGradient.hpp"
+#include "Repulsor/Tensors/GMRES.hpp"
+#include "Repulsor/Tensors/ConjugateGradient.hpp"
 
 namespace BAEMM
 {
     using namespace Tools;
     using namespace Tensors;
+    using namespace Repulsor;
     using cmplx  = cl_float2;
     using float4 = cl_float4;
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1

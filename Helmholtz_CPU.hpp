@@ -1,18 +1,17 @@
 #pragma once
 
 #include <complex>
-#include "Tensors/Tensors.hpp"
+#include "Repulsor/Repulsor.hpp"
 
-#include <complex>
-#include "Tensors/Tensors.hpp"
 //#include <cblas.h>
-#include "Tensors/GMRES.hpp"
-#include "Tensors/ConjugateGradient.hpp"
+#include "Repulsor/Tensors/GMRES.hpp"
+#include "Repulsor/Tensors/ConjugateGradient.hpp"
 
 namespace BAEMM
 {
     using namespace Tools;
     using namespace Tensors;
+    using namespace Repulsor;
     
     class Helmholtz_CPU
     {

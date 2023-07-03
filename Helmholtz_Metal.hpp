@@ -5,7 +5,8 @@
 #include <QuartzCore/QuartzCore.hpp>
 
 #include <complex>
-#include "Tensors/Tensors.hpp"
+#include "Repulsor/Repulsor.hpp"
+#include "Repulsor/Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
@@ -33,6 +34,7 @@ namespace BAEMM
 {
     using namespace Tools;
     using namespace Tensors;
+    using namespace Repulsor;
     
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
