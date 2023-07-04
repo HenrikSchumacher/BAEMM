@@ -1,6 +1,9 @@
 #pragma once
 
 #include <complex>
+#include <cblas.h>
+#include <lapack.h>
+
 #include "Repulsor/Repulsor.hpp"
 
 //#include <cblas.h>
