@@ -56,25 +56,25 @@ int main()
     {
         case 8:
         {
-            H.FarField<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
-            H.FarField<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
-            H.FarField<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
-            H.FarField<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), cg_tol, gmres_tol);
             break;
         }

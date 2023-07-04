@@ -71,25 +71,25 @@ int main()
     {
         case 8:
         {
-            H.Derivative_FF<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.Derivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
-            H.Derivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.Derivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
-            H.Derivative_FF<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.Derivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
-            H.Derivative_FF<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.Derivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             break;
         }

@@ -133,20 +133,20 @@ int main()
     Tensor2<Real,Int> DE (n,3);
     Tensor2<Real,Int> grad (n,3);
 
+    tpe.Differential( *M ).Write( DE.data() );
+
     ptr<Real> DE_ptr = DE.data();
     mut<Real> grad_ptr = grad.data();
 
-    tpe.Differential( *M ).Write( DE_ptr );
-
-    H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
                         B, grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
     combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,1.0f,grad_ptr,n * 3, thread_count);
 
-    H.GaussNewtonStep<Int,16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
+    H.GaussNewtonStep<16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
                 A, P, grad_ptr, C, &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
 
-    
+
     // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);

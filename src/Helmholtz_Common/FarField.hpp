@@ -1,6 +1,6 @@
 public:
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void FarField(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     R_ext* inc_directions,  const I_ext& wave_chunk_size_, C_ext* C_out, 
                     R_ext cg_tol, R_ext gmres_tol)
@@ -39,7 +39,7 @@ public:
                             );
 
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff.data(), wave.data(), phi.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
+        BoundaryPotential<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
 
         ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
@@ -51,7 +51,7 @@ public:
     }
 
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void Derivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const R_ext* h, C_ext* C_out, 
@@ -109,7 +109,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
         }
 
 
@@ -141,7 +141,7 @@ public:
             wave_count_
         );
 
-        BoundaryPotential<I_ext,R_ext,C_ext,solver_count>( kappa, coeff.data(), boundary_conditions_weak.data(), phi.data(), 
+        BoundaryPotential<solver_count>( kappa, coeff.data(), boundary_conditions_weak.data(), phi.data(), 
                                                             wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
@@ -152,7 +152,7 @@ public:
         ptoc(ClassName()+"::Derivative_FF");
     }
 
-    template<typename I_ext, typename R_ext, typename C_ext,I_ext solver_count>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void AdjointDerivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const C_ext* g, R_ext* C_out, 
@@ -206,7 +206,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
@@ -215,7 +215,7 @@ public:
                             );
         
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<I_ext,R_ext,C_ext,solver_count>( kappa, herglotz_wave.data(), dv_dn.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
+        DirichletToNeumann<solver_count>( kappa, herglotz_wave.data(), dv_dn.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( *pdu_dn, dv_dn.data(), wave_product.data(), n, wave_count_, true);
@@ -226,10 +226,10 @@ public:
         ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
-    template<typename I_ext, I_ext solver_count, typename R_ext, typename C_ext, typename Operator>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
     void GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
-                    Operator M, Operator P,
+                    M_T M, P_T P,
                     const R_ext* h, R_ext* C_out, 
                     C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
@@ -245,9 +245,9 @@ public:
 
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
-            Derivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+            Derivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                         x, DF.data(), pdu_dn, cg_tol, gmres_tol_inner);
-            AdjointDerivative_FF<I_ext,R_ext,C_ext,solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+            AdjointDerivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                         DF.data(), y, pdu_dn, cg_tol, gmres_tol_inner);
             M(x,y); // The metric m has to return y + M*y
         };
@@ -259,7 +259,7 @@ public:
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
@@ -323,7 +323,7 @@ public:
     }
 
 
-    template<typename I_ext, typename R_ext, typename C_ext,Int solver_count>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void DirichletToNeumann(const R_ext* kappa, C_ext * wave, C_ext* neumann_trace, 
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)

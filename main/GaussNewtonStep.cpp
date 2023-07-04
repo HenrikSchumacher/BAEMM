@@ -27,6 +27,7 @@ int main()
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
     Int GPU_device;   
+    
     Real regpar;
 
     constexpr Int thread_count = 16;
@@ -125,54 +126,54 @@ int main()
     Tensor2<Real,Int> DE (vertex_count,3);
     Tensor2<Real,Int> grad (vertex_count,3);
 
+    tpe.Differential( *M ).Write( DE.data() );
+    
     ptr<Real> DE_ptr = DE.data();
     mut<Real> grad_ptr = grad.data();
-
-    tpe.Differential( *M ).Write( DE_ptr );
 
     switch (wave_count)
     {
         case 8:
         {
-            H.AdjointDerivative_FF<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
-            H.GaussNewtonStep<Int,Real,Complex,8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 16:
         {
-            H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.AdjointDerivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
-            H.GaussNewtonStep<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 32:
         {
-            H.AdjointDerivative_FF<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.AdjointDerivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
-            H.GaussNewtonStep<Int,Real,Complex,32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 64:
         {
-            H.AdjointDerivative_FF<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            H.AdjointDerivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
-            H.GaussNewtonStep<Int,Real,Complex,64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
@@ -195,4 +196,18 @@ int main()
     file.close();
 
     return 0;
+}
+
+void read_regpar (Real& regpar)
+{
+    ifstream s ("regpar.txt");
+    
+    if( !s.good() )
+    {
+        eprint("ReadFromFile: File regpar.txt could not be opened.");
+        
+        return;
+    }
+    
+    s >> regpar;
 }
