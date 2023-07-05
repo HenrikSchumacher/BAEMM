@@ -75,7 +75,7 @@ int main()
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
+    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
     constexpr Int NRHS = 3;
@@ -184,7 +184,7 @@ int main()
         }
     }
     
-    WriteInOut(vertex_count, dim, B_out);
+    WriteInOut(vertex_count, dim, B_out, "B.bin");
 
     if( !file.good() )
     {        
