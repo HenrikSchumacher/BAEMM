@@ -493,7 +493,7 @@ public:
 
         auto id = [&]( const T * x, T *y )
         {
-            memcpy(y,x, n * sizeof(T));
+            memcpy(y,x, ld * n * sizeof(T));
         };
 
         auto mass = [&]( const T * x, T *y )
@@ -505,6 +505,6 @@ public:
             );
         };
 
-        zerofy_buffer(C_out, static_cast<size_t>(n), CPU_thread_count);
+        zerofy_buffer(C_out, ld * static_cast<size_t>(n), CPU_thread_count);
         bool succeeded = cg(mass,id,B_in,ld,C_out,ld,cg_tol);  
     }
