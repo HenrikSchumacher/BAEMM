@@ -474,15 +474,15 @@ public:
         free(C_weak);
     }
 
-    template<typename I, typename T>
-    void ApplyMass(const T* B_in, T* C_out, const I ld)
-    {
-        Mass.Dot(
-            Tools::Scalar::One<T>, B_in, ld,
-            Tools::Scalar::Zero<T>, C_out, ld,
-            ld
-        ); 
-    }
+    // template<typename I, typename T>
+    // void ApplyMass(const T* B_in, T* C_out, const I ld)
+    // {
+    //     Mass.Dot(
+    //         Tools::Scalar::One<T>, B_in, ld,
+    //         Tools::Scalar::Zero<T>, C_out, ld,
+    //         ld
+    //     ); 
+    // }
 
     template<size_t solver_count, typename I, typename T, typename R>
     void ApplyMassInverse(const T* B_in, T* C_out, const I ld, const R cg_tol)

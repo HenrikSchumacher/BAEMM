@@ -37,7 +37,7 @@ int main()
     Tensor2<Real,Int>       incident_directions;
     Tensor1<Real,Int>       kappa;
     Tensor2<Real,Int>       coords;
-    Tensor2<Complex,Int>    B_in;
+    Tensor2<Real,Int>       B_in;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, simplices, meas_directions, incident_directions, kappa);
 
@@ -123,63 +123,30 @@ int main()
 
     Real gmres_tol_outer = 0.005;
 
-    Tensor2<Real,Int> DE (vertex_count,3);
-    Tensor2<Real,Int> grad (vertex_count,3);
-    Tensor2<Real,Int> grad_strong (vertex_count,3);
-
-    tpe.Differential( *M ).Write( DE.data() );
-    
-    ptr<Real> DE_ptr = DE.data();
-    mut<Real> grad_ptr = grad.data();
-
     switch (wave_count)
     {
         case 8:
         {
-            H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
-            H.ApplyMass( grad_strong.data(), grad_ptr, 3 );
-
-            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
-
             H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 16:
         {
-            H.AdjointDerivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
-            H.ApplyMass( grad_strong.data(), grad_ptr, 3 );
-
-            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
-
             H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 32:
         {
-            H.AdjointDerivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
-            H.ApplyMass( grad_strong.data(), grad_ptr, 3 );
-
-            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
-
             H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 64:
         {
-            H.AdjointDerivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
-            H.ApplyMass( grad_strong.data(), grad_ptr, 3 );
-
-            combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
-
             H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
     }
