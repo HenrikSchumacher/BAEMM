@@ -243,16 +243,20 @@ public:
         GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
         
         Tensor2<C_ext,I_ext>  DF (  wave_count_, m  );
-        Tensor2<R_ext,I_ext>  y_weak (  3, n  );
+        Tensor2<R_ext,I_ext>  y_strong (  3, n  );
 
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
             Derivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                         x, DF.data(), pdu_dn, cg_tol, gmres_tol_inner);
             AdjointDerivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-                        DF.data(), y_weak.data(), pdu_dn, cg_tol, gmres_tol_inner);
+                        DF.data(), y_strong.data(), pdu_dn, cg_tol, gmres_tol_inner);
 
-            ApplyMassInverse<3>(y_weak.data(),y,3,cg_tol);
+            Mass.Dot(
+                Tools::Scalar::One<R_ext>, y_strong.data(), 3,
+                Tools::Scalar::Zero<R_ext>, y, 3,
+                3
+            );
 
             M(x,y); // The metric m has to return y + M*y
         };
@@ -485,9 +489,9 @@ public:
         auto mass = [&]( const T * x, T *y )
         {
             Mass.Dot(
-                Tools::Scalar::One<T>, x, 1,
-                Tools::Scalar::Zero<T>, y, 1,
-                1
+                Tools::Scalar::One<T>, x, ld,
+                Tools::Scalar::Zero<T>, y, ld,
+                ld
             );
         };
 
