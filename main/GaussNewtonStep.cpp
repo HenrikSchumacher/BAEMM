@@ -9,7 +9,6 @@ using LInt = long long;
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
 #include "../ReadWrite/WriteFiles.hpp"
-// #include "../../Repulsor"
 
 using namespace Tools;
 using namespace Tensors;
