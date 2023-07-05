@@ -125,6 +125,7 @@ int main()
 
     Tensor2<Real,Int> DE (vertex_count,3);
     Tensor2<Real,Int> grad (vertex_count,3);
+    Tensor2<Real,Int> grad_weak (vertex_count,3);
 
     tpe.Differential( *M ).Write( DE.data() );
     
@@ -136,7 +137,8 @@ int main()
         case 8:
         {
             H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), grad_weak.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
+            ApplyMassInverse<3>(grad_weak.data,grad_ptr,3,cg_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
@@ -147,7 +149,8 @@ int main()
         case 16:
         {
             H.AdjointDerivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), grad_weak.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
+            ApplyMassInverse<3>(grad_weak.data,grad_ptr,3,cg_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
@@ -158,7 +161,8 @@ int main()
         case 32:
         {
             H.AdjointDerivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), grad_weak.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
+            ApplyMassInverse<3>(grad_weak.data,grad_ptr,3,cg_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 
@@ -169,7 +173,8 @@ int main()
         case 64:
         {
             H.AdjointDerivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+                        B_in.data(), grad_weak.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
+            ApplyMassInverse<3>(grad_weak.data,grad_ptr,3,cg_tol);
 
             combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,static_cast<Real>(1.0f),grad_ptr,vertex_count * 3, thread_count);
 

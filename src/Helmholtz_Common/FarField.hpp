@@ -237,18 +237,23 @@ public:
     {
         // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
         const I_ext  n           = static_cast<I_ext>(VertexCount());
+        const I_ext  m           = static_cast<I_ext>(GetMeasCount());
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
         GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
         
-        Tensor2<C_ext,I_ext>  DF (  wave_count_, n  );
+        Tensor2<C_ext,I_ext>  DF (  wave_count_, m  );
+        Tensor2<R_ext,I_ext>  y_weak (  3, n  );
 
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
             Derivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                         x, DF.data(), pdu_dn, cg_tol, gmres_tol_inner);
             AdjointDerivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-                        DF.data(), y, pdu_dn, cg_tol, gmres_tol_inner);
+                        DF.data(), y_weak.data(), pdu_dn, cg_tol, gmres_tol_inner);
+
+            ApplyMassInverse<3>(y_weak.data(),y,3,cg_tol);
+
             M(x,y); // The metric m has to return y + M*y
         };
 
@@ -273,28 +278,13 @@ public:
 
         const I_ext wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,CPU_thread_count);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
-        auto mass = [&]( const C_ext * x, C_ext *y )
-        {
-            Mass.Dot(
-                One, x, wave_count_,
-                Zero,  y, wave_count_,
-                wave_count_
-            );
-        };
-
-        auto id = [&]( const C_ext * x, C_ext *y )
-        {
-            memcpy(y,x,wave_count_ * n * sizeof(C_ext));
-        };
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count_ * n), CPU_thread_count);
-            bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
+            ApplyMassInverse<solver_count>(x,y,wave_count_,cg_tol);
         };
 
         // set up the bdry operator and solve
@@ -339,28 +329,13 @@ public:
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
 
-        ConjugateGradient<solver_count,C_ext,size_t> cg(n,100,CPU_thread_count);
         GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
-        auto mass = [&]( const C_ext * x, C_ext *y )
-        {
-            Mass.Dot(
-                One, x, wave_count_,
-                Zero,  y, wave_count_,
-                wave_count_
-            );
-        };
-
-        auto id = [&]( const C_ext * x, C_ext *y )
-        {
-            memcpy(y,x,wave_count_ * n * sizeof(C_ext));
-        };
 
         auto P = [&]( const C_ext * x, C_ext *y )
         {
-            zerofy_buffer(y, (size_t)(wave_count_ * n), CPU_thread_count);
-            bool succeeded = cg(mass,id,x,wave_count_,y,wave_count_,cg_tol);
+            ApplyMassInverse<solver_count>(x,y,wave_count_,cg_tol);
         };
 
         // set up the bdry operator and solve
@@ -406,22 +381,6 @@ public:
         Complex*    B = (Complex*)malloc(m * sizeof(Complex));
         Real*       C = (Real*)malloc(3 * m * sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( 3 * n * sizeof(R_ext));
-
-        ConjugateGradient<3,R_ext,size_t> cg(n,100,CPU_thread_count);
-
-        auto id = [&]( const R_ext * x, R_ext *y )
-        {
-            memcpy(y,x,3 * n * sizeof(R_ext));
-        };
-
-        auto mass = [&]( const R_ext * x, R_ext *y )
-        {
-            Mass.Dot(
-                One, x, 3,
-                Zero, y, 3,
-                3
-            );
-        };
         
         // make the input from PL to a PC function
         AvOp.Dot(
@@ -451,11 +410,9 @@ public:
                 factor, C, 3,
                 Zero,  C_weak, 3,
                 3
-            );
+            );  
 
-        // apply M^(-1) to get trong form     
-        zerofy_buffer(C_out, static_cast<size_t>(3 * n), CPU_thread_count);
-        bool succeeded = cg(mass,id,C_weak,3,C_out,3,cg_tol);    
+        ApplyMassInverse<3>(C_weak,C_out,3,cg_tol);
 
         free(B);
         free(C);
@@ -476,22 +433,6 @@ public:
         Real*       B = (Real*)malloc( 3 * m * sizeof(Real));
         Real*       C = (Real*)calloc( m, sizeof(Real));        
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
-
-        ConjugateGradient<1,R_ext,size_t> cg(n,100,CPU_thread_count);
-
-        auto id = [&]( const R_ext * x, R_ext *y )
-        {
-            memcpy(y,x, n * sizeof(R_ext));
-        };
-
-        auto mass = [&]( const R_ext * x, R_ext *y )
-        {
-            Mass.Dot(
-                One, x, 1,
-                Zero, y, 1,
-                1
-            );
-        };
         
         // make the input from PL to a PC function
         AvOp.Dot( 
@@ -499,7 +440,6 @@ public:
                 0.0f, B, 3,
                 3
             );
-
 
         // pointwise multiplication of the STRONG FORM with the normals
         // CheckThis
@@ -521,13 +461,36 @@ public:
                 One, C, 1,
                 Zero,  C_weak, 1,
                 1
-            );
+            ); 
         
-        // apply M^(-1) to get trong form
-        zerofy_buffer(C_out, static_cast<size_t>(n), CPU_thread_count);
-        bool succeeded = cg(mass,id,C_weak,1,C_out,1,cg_tol);    
-        
+        ApplyMassInverse<1>(C_weak,C_out,1,cg_tol);
+
         free(B);
         free(C);
         free(C_weak);
+    }
+
+    template<size_t solver_count, typename I, typename T, typename R>
+    void ApplyMassInverse(const T* B_in, T* C_out, const I ld, const R cg_tol)
+    {
+        const I   n = VertexCount();
+
+        ConjugateGradient<solver_count,T,size_t> cg(n,200,CPU_thread_count);
+
+        auto id = [&]( const T * x, T *y )
+        {
+            memcpy(y,x, n * sizeof(T));
+        };
+
+        auto mass = [&]( const T * x, T *y )
+        {
+            Mass.Dot(
+                Tools::Scalar::One<T>, x, 1,
+                Tools::Scalar::Zero<T>, y, 1,
+                1
+            );
+        };
+
+        zerofy_buffer(C_out, static_cast<size_t>(n), CPU_thread_count);
+        bool succeeded = cg(mass,id,B_in,ld,C_out,ld,cg_tol);  
     }
