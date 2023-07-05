@@ -139,8 +139,8 @@ int main()
             H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             Mass.Dot(
-                Tools::Scalar::One<R_ext>, grad_strong.data(), 3,
-                Tools::Scalar::Zero<R_ext>, grad_ptr, 3,
+                static_cast<Real>(1.0), grad_strong.data(), 3,
+                static_cast<Real>(0.0), grad_ptr, 3,
                 3
             );
 
@@ -155,8 +155,8 @@ int main()
             H.AdjointDerivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             Mass.Dot(
-                Tools::Scalar::One<R_ext>, grad_strong.data(), 3,
-                Tools::Scalar::Zero<R_ext>, grad_ptr, 3,
+                static_cast<Real>(1.0), grad_strong.data(), 3,
+                static_cast<Real>(0.0), grad_ptr, 3,
                 3
             );
 
@@ -171,8 +171,8 @@ int main()
             H.AdjointDerivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             Mass.Dot(
-                Tools::Scalar::One<R_ext>, grad_strong.data(), 3,
-                Tools::Scalar::Zero<R_ext>, grad_ptr, 3,
+                static_cast<Real>(1.0), grad_strong.data(), 3,
+                static_cast<Real>(0.0), grad_ptr, 3,
                 3
             );
 
@@ -187,8 +187,8 @@ int main()
             H.AdjointDerivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_in.data(), grad_strong.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol);
             Mass.Dot(
-                Tools::Scalar::One<R_ext>, grad_strong.data(), 3,
-                Tools::Scalar::Zero<R_ext>, grad_ptr, 3,
+                static_cast<Real>(1.0), grad_strong.data(), 3,
+                static_cast<Real>(0.0), grad_ptr, 3,
                 3
             );
 
