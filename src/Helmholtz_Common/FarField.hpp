@@ -478,8 +478,8 @@ public:
     void ApplyMass(const T* B_in, T* C_out, const I ld)
     {
         Mass.Dot(
-            Tools::Scalar::One<T>, x, ld,
-            Tools::Scalar::Zero<T>, y, ld,
+            Tools::Scalar::One<T>, B_in, ld,
+            Tools::Scalar::Zero<T>, C_out, ld,
             ld
         ); 
     }
