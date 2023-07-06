@@ -263,7 +263,7 @@ public:
 
         zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
 
-        bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,10);
+        bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,3);
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------

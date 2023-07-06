@@ -42,6 +42,8 @@ int main()
 
     ReadCoordinates(vertex_count, coords);
 
+    ReadRegpar(regpar);
+
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     Int dim = 3;
@@ -60,7 +62,7 @@ int main()
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.005);
+    Real gmres_tol = static_cast<Real>(0.001);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
@@ -121,36 +123,39 @@ int main()
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Real gmres_tol_outer = 0.005;
+    Int succeeded;
 
     switch (wave_count)
     {
         case 8:
         {
-            H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 16:
         {
-            H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            succeeded = H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 32:
         {
-            H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            succeeded = H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
         case 64:
         {
-            H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+            succeeded = H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
                         A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
             break;
         }
     }
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
+
+    WriteSucceeded(succeeded);
 
     if( !file.good() )
     {        
@@ -169,7 +174,7 @@ int main()
     return 0;
 }
 
-void read_regpar (Real& regpar)
+void ReadRegpar (Real& regpar)
 {
     ifstream s ("regpar.txt");
     
@@ -181,4 +186,18 @@ void read_regpar (Real& regpar)
     }
     
     s >> regpar;
+}
+
+void WriteSucceeded (Int& succeeded)
+{
+    ofstream s ("suc.txt");
+    
+    if( !s.good() )
+    {
+        eprint("ReadFromFile: File regpar.txt could not be opened.");
+        
+        return;
+    }
+    
+    s << succeeded;
 }
