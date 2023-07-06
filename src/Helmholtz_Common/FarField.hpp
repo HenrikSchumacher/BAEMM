@@ -227,7 +227,7 @@ public:
     }
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
-    void GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
+    I_ext GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     M_T M, P_T P,
                     const R_ext* h, R_ext* C_out, 
@@ -264,6 +264,8 @@ public:
         zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
 
         bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,3);
+
+        return static_cast<I_ext>(succeeded);
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------

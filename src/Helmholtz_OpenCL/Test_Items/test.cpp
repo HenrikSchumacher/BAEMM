@@ -38,18 +38,18 @@ int main()
     //     B[i] = 0.0f;
     //     B[i] = 0.0f;
     // }
-    using namespace Tensors;
-    using namespace Tools;
+    // using namespace Tensors;
+    // using namespace Tools;
 
-    const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    std::string file_name = path;
-    Tensor2<Real, Int> coords;
-    Tensor2<Int, Int> simplices;
+    // const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    // std::string file_name = path;
+    // Tensor2<Real, Int> coords;
+    // Tensor2<Int, Int> simplices;
 
-    ReadFromFile<Real, Int>(file_name, coords, simplices);
+    // ReadFromFile<Real, Int>(file_name, coords, simplices);
 
-    Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
-    Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
+    // Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
+    // Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     // Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
     for (int i = 0 ; i < wave_chunk_count; i++)
@@ -83,67 +83,67 @@ int main()
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
 
-    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
-    using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
+    // using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
+    // using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
-    constexpr Int NRHS = 3;
+    // constexpr Int NRHS = 3;
 
-    Mesh_Ptr_T M = std::make_shared<Mesh_T>(
-        coords.data(),  n,
-        simplices.data(),  H.SimplexCount(),
-        thread_count
-        );
+    // Mesh_Ptr_T M = std::make_shared<Mesh_T>(
+    //     coords.data(),  n,
+    //     simplices.data(),  H.SimplexCount(),
+    //     thread_count
+    //     );
 
-    M->cluster_tree_settings.split_threshold                        =  2;
-    M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
-    M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125f;
-    M->adaptivity_settings.theta                                    = 10.0f;
+    // M->cluster_tree_settings.split_threshold                        =  2;
+    // M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
+    // M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125f;
+    // M->adaptivity_settings.theta                                    = 10.0f;
 
-    const Real q  = 6;
-    const Real p  = 12;
-    const Real s = (p - 2) / q;
+    // const Real q  = 6;
+    // const Real p  = 12;
+    // const Real s = (p - 2) / q;
 
-    TangentPointEnergy0<Mesh_T>       tpe        (q,p);
-    TangentPointMetric0<Mesh_T>       tpm        (q,p);
-    PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
+    // TangentPointEnergy0<Mesh_T>       tpe        (q,p);
+    // TangentPointMetric0<Mesh_T>       tpm        (q,p);
+    // PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
-    // The operator for the metric.
-    auto A = [&]( ptr<Real> X, mut<Real> Y )
-    {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
-    };
+    // // The operator for the metric.
+    // auto A = [&]( ptr<Real> X, mut<Real> Y )
+    // {
+    //     tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
+    // };
 
-    Real one_over_regpar = 1/regpar;
+    // Real one_over_regpar = 1/regpar;
 
-    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
+    // Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
 
-    mut<Real> Z  = Z_buffer.data();
+    // mut<Real> Z  = Z_buffer.data();
 
-    // The operator for the preconditioner.
-    auto P = [&]( ptr<Real> X, mut<Real> Y )
-    {
-        M->H1Solve( X, Y, NRHS );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
-        M->H1Solve( Z, Y, NRHS );
-    };
-    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // // The operator for the preconditioner.
+    // auto P = [&]( ptr<Real> X, mut<Real> Y )
+    // {
+    //     M->H1Solve( X, Y, NRHS );
+    //     pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
+    //     M->H1Solve( Z, Y, NRHS );
+    // };
+    // //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Real gmres_tol_outer = 0.005;
+    // Real gmres_tol_outer = 0.005;
 
-    Tensor2<Real,Int> DE (n,3);
-    Tensor2<Real,Int> grad (n,3);
+    // Tensor2<Real,Int> DE (n,3);
+    // Tensor2<Real,Int> grad (n,3);
 
-    tpe.Differential( *M ).Write( DE.data() );
+    // tpe.Differential( *M ).Write( DE.data() );
 
-    ptr<Real> DE_ptr = DE.data();
-    mut<Real> grad_ptr = grad.data();
+    // ptr<Real> DE_ptr = DE.data();
+    // mut<Real> grad_ptr = grad.data();
 
-    H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        B, grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
+    // H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    //                     B, grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
 
-    combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,1.0f,grad_ptr,n * 3, thread_count);
+    // combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,1.0f,grad_ptr,n * 3, thread_count);
 
-    H.GaussNewtonStep<16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
+    H.DerivativeAjoint<16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
                 A, P, grad_ptr, C, &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
 
 
