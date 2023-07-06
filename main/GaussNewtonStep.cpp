@@ -18,6 +18,34 @@ using Int = int;
 using Real = float;
 using Complex = std::complex<Real>;
 
+void ReadRegpar(Real& regpar)
+{
+    ifstream s ("regpar.txt");
+    
+    if( !s.good() )
+    {
+        eprint("ReadFromFile: File regpar.txt could not be opened.");
+        
+        return;
+    }
+    
+    s >> regpar;
+}
+
+void WriteSucceeded(Int& succeeded)
+{
+    ofstream s ("suc.txt");
+    
+    if( !s.good() )
+    {
+        eprint("ReadFromFile: File regpar.txt could not be opened.");
+        
+        return;
+    }
+    
+    s << succeeded;
+}
+
 int main()
 {
     // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin.
@@ -172,32 +200,4 @@ int main()
     file.close();
 
     return 0;
-}
-
-void ReadRegpar (Real& regpar)
-{
-    ifstream s ("regpar.txt");
-    
-    if( !s.good() )
-    {
-        eprint("ReadFromFile: File regpar.txt could not be opened.");
-        
-        return;
-    }
-    
-    s >> regpar;
-}
-
-void WriteSucceeded (Int& succeeded)
-{
-    ofstream s ("suc.txt");
-    
-    if( !s.good() )
-    {
-        eprint("ReadFromFile: File regpar.txt could not be opened.");
-        
-        return;
-    }
-    
-    s << succeeded;
 }
