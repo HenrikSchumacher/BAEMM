@@ -90,7 +90,7 @@ int main()
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.001);
+    Real gmres_tol = static_cast<Real>(0.0005);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
@@ -107,8 +107,6 @@ int main()
     using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
-    constexpr Int NRHS = 3;
-
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
         coords.data(),  vertex_count,
         simplices.data(),  simplex_count,
@@ -124,33 +122,32 @@ int main()
     const Real p  = 12;
     const Real s = (p - 2) / q;
 
-    TangentPointEnergy<Mesh_T>       tpe        (q,p);
     TangentPointMetric0<Mesh_T>       tpm        (q,p);
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
     // The operator for the metric.
     auto A = [&]( ptr<Real> X, mut<Real> Y )
     {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
+        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
     };
 
     Real one_over_regpar = 1/regpar;
 
-    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
+    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), dim );
 
     mut<Real> Z  = Z_buffer.data();
 
     // The operator for the preconditioner.
     auto P = [&]( ptr<Real> X, mut<Real> Y )
     {
-        M->H1Solve( X, Y, NRHS );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
-        M->H1Solve( Z, Y, NRHS );
+        M->H1Solve( X, Y, dim );
+        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
+        M->H1Solve( Z, Y, dim );
     };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Real gmres_tol_outer = 0.005;
+    Real gmres_tol_outer = 0.001;
     Int succeeded;
 
     switch (wave_count)

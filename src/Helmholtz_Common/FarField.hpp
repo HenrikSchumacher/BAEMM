@@ -16,8 +16,8 @@ public:
 
         Tensor2<C_ext,I_ext>  inc_coeff ( wave_chunk_count_, 4 );
         Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
-        Tensor2<C_ext,I_ext>  wave  (  wave_count_, n  );     //weak representation of the incident wave
-        Tensor2<C_ext,I_ext>  phi   (   wave_count_, n);
+        Tensor2<C_ext,I_ext>  wave  (  n, wave_count_  );     //weak representation of the incident wave
+        Tensor2<C_ext,I_ext>  phi   (   n, wave_count_  );
 
         C_ext* inc_coeff_ptr = inc_coeff.data();
 
@@ -76,10 +76,10 @@ public:
         
 
         Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
-        Tensor2<C_ext,I_ext>  boundary_conditions (    wave_count_, n  ); 
-        Tensor2<C_ext,I_ext>  boundary_conditions_weak (   wave_count_, n );
+        Tensor2<C_ext,I_ext>  boundary_conditions (    n, wave_count_  ); 
+        Tensor2<C_ext,I_ext>  boundary_conditions_weak (   n, wave_count_ );
         Tensor1<R_ext,I_ext>  h_n  (   n  );
-        Tensor2<C_ext,I_ext>  phi  (   wave_count_, n  ); 
+        Tensor2<C_ext,I_ext>  phi  (   n, wave_count_  ); 
 
         C_ext* boundary_conditions_ptr = boundary_conditions.data();
 
@@ -87,8 +87,8 @@ public:
 
         if (*pdu_dn == NULL)
         {            
-            Tensor2<C_ext,I_ext>  inc_coeff (  wave_chunk_count_, 4  );
-            Tensor2<C_ext,I_ext>  incident_wave (  wave_count_, n );  //weak representation of the incident wave 
+            Tensor2<C_ext,I_ext>  inc_coeff (  4, wave_chunk_count_  );
+            Tensor2<C_ext,I_ext>  incident_wave (  n, wave_count_   );  //weak representation of the incident wave 
             
             C_ext* inc_coeff_ptr = inc_coeff.data();
 
@@ -176,8 +176,8 @@ public:
 
 
         Tensor2<C_ext,I_ext>  inc_coeff (  wave_chunk_count_, 4  );
-        Tensor2<C_ext,I_ext>  herglotz_wave (  wave_count_, n  );     //weak representation of the herglotz wave
-        Tensor2<C_ext,I_ext>  dv_dn (  wave_count_, n  );
+        Tensor2<C_ext,I_ext>  herglotz_wave (  n, wave_count_  );     //weak representation of the herglotz wave
+        Tensor2<C_ext,I_ext>  dv_dn (  n, wave_count_  );
         Tensor1<C_ext,I_ext>  wave_product (   n   );
 
         C_ext* inc_coeff_ptr = inc_coeff.data();
@@ -242,8 +242,8 @@ public:
 
         GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
         
-        Tensor2<C_ext,I_ext>  DF (  wave_count_, m  );
-        Tensor2<R_ext,I_ext>  y_strong (  3, n  );
+        Tensor2<C_ext,I_ext>  DF (  m, wave_count_  );
+        Tensor2<R_ext,I_ext>  y_strong (  n, 3  );
 
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
@@ -258,7 +258,7 @@ public:
                 3
             );
 
-            M(x,y); // The metric m has to return y + M*y
+            M(x,y); // The metric m has to return y + M*x
         };
 
         zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);

@@ -3,7 +3,7 @@
 #include <cblas.h>
 #include "read.hpp"
 
-#include "../../../Repulsor/Repulsor.hpp"
+// #include "../../../Repulsor/Repulsor.hpp"
 
 
 using Complex = std::complex<Real>;
@@ -11,77 +11,81 @@ using LInt = long long;
 using SReal = Real;
 using ExtReal = Real;
 
-using namespace Tools;
-using namespace Tensors;
-using namespace Repulsor;
+// using namespace Tools;
+// using namespace Tensors;
+// using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
-    // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+        const Real q  = 6;
+    const Real p  = 12;
+    const Real s = (p - 2) / q;
+    std::cout << s << std::endl;
+    // BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+    // // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
-    Int n = H.VertexCount();
-    const Int wave_count = 16;
-    constexpr Int wave_chunk_size = 16;
-    constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
+    // Int n = H.VertexCount();
+    // const Int wave_count = 16;
+    // constexpr Int wave_chunk_size = 16;
+    // constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
 
-    Complex* B = (Complex*)malloc(16 * H.GetMeasCount() * sizeof(Complex));
+    // Complex* B = (Complex*)malloc(16 * H.GetMeasCount() * sizeof(Complex));
 
-    Int thread_count = 4;
+    // Int thread_count = 4;
 
-    Real regpar = 1.0f;
+    // Real regpar = 1.0f;
 
-    // for (int i = 0; i < n; i++)
+    // // for (int i = 0; i < n; i++)
+    // // {
+    // //     B[i] = std::exp(Complex(0.0f,(float)i));
+    // //     B[i] = 1.0f;
+    // //     B[i] = 0.0f;
+    // //     B[i] = 0.0f;
+    // // }
+    // // using namespace Tensors;
+    // // using namespace Tools;
+
+    // // const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    // // std::string file_name = path;
+    // // Tensor2<Real, Int> coords;
+    // // Tensor2<Int, Int> simplices;
+
+    // // ReadFromFile<Real, Int>(file_name, coords, simplices);
+
+    // // Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
+    // // Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
+    // // Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+
+    // for (int i = 0 ; i < wave_chunk_count; i++)
     // {
-    //     B[i] = std::exp(Complex(0.0f,(float)i));
-    //     B[i] = 1.0f;
-    //     B[i] = 0.0f;
-    //     B[i] = 0.0f;
+    //     kappa[i] = 2.0f*((float)i + 1.0f);
     // }
-    // using namespace Tensors;
-    // using namespace Tools;
 
-    // const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    // std::string file_name = path;
-    // Tensor2<Real, Int> coords;
-    // Tensor2<Int, Int> simplices;
+    // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    // ReadFromFile<Real, Int>(file_name, coords, simplices);
+    // for (int i = 0 ; i < 4; i++)
+    // {
+    //     inc[12*i + 0] = 1.0f;
+    //     inc[12*i + 1] = 0.0f;
+    //     inc[12*i + 2] = 0.0f;
+    //     inc[12*i + 3] = 0.0f;
+    //     inc[12*i + 4] = 1.0f;
+    //     inc[12*i + 5] = 0.0f;
+    //     inc[12*i + 6] = 0.0f;
+    //     inc[12*i + 7] = 0.0f;
+    //     inc[12*i + 8] = 1.0f;
+    //     inc[12*i + 9] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 10] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 11] = 1/std::sqrt(3.0f);
+    // }
 
-    // Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
-    // Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
-    // Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+    // H.UseDiagonal(true);
 
-    for (int i = 0 ; i < wave_chunk_count; i++)
-    {
-        kappa[i] = 2.0f*((float)i + 1.0f);
-    }
+    // Real cg_tol = static_cast<Real>(0.00001);
+    // Real gmres_tol = static_cast<Real>(0.0005);
 
-    Real* C = (Real*)malloc(3 * n * sizeof(Real));
-
-    for (int i = 0 ; i < 4; i++)
-    {
-        inc[12*i + 0] = 1.0f;
-        inc[12*i + 1] = 0.0f;
-        inc[12*i + 2] = 0.0f;
-        inc[12*i + 3] = 0.0f;
-        inc[12*i + 4] = 1.0f;
-        inc[12*i + 5] = 0.0f;
-        inc[12*i + 6] = 0.0f;
-        inc[12*i + 7] = 0.0f;
-        inc[12*i + 8] = 1.0f;
-        inc[12*i + 9] = 1/std::sqrt(3.0f);
-        inc[12*i + 10] = 1/std::sqrt(3.0f);
-        inc[12*i + 11] = 1/std::sqrt(3.0f);
-    }
-
-    H.UseDiagonal(true);
-
-    Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0005);
-
-    Tensor2<Complex,Int> neumann_data_scat;
-    Complex* neumann_data_scat_ptr = NULL;
+    // Tensor2<Complex,Int> neumann_data_scat;
+    // Complex* neumann_data_scat_ptr = NULL;
 
     // using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
     // using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
@@ -143,8 +147,8 @@ int main()
 
     // combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Generic>(regpar,DE_ptr,1.0f,grad_ptr,n * 3, thread_count);
 
-    H.DerivativeAjoint<16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
-                A, P, grad_ptr, C, &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
+    // H.DerivativeAjoint<16>( kappa, wave_chunk_count, inc, wave_chunk_size, 
+    //             A, P, grad_ptr, C, &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
 
 
     // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
@@ -198,26 +202,26 @@ int main()
     //     }
     // }
     // std::cout << "error= " << error << std::endl;
-    std::ofstream fout_r("data_real.txt");
-    // std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_r.is_open())
-	{
-		for(int i = 0; i < n ; i++)
-		{
-            for(int j = 0; j < 3 ; j++)
-            {
-                fout_r << C[i * 3 + j] << " "; 
-                // fout_i << C[i * wave_count + j].imag() << " "; 
-            }
-            fout_r << "\n";
-            // fout_i << "\n";
-		}
-	}            
+    // std::ofstream fout_r("data_real.txt");
+    // // std::ofstream fout_i("data_imag.txt");
+    // if(fout_r.is_open() && fout_r.is_open())
+	// {
+	// 	for(int i = 0; i < n ; i++)
+	// 	{
+    //         for(int j = 0; j < 3 ; j++)
+    //         {
+    //             fout_r << C[i * 3 + j] << " "; 
+    //             // fout_i << C[i * wave_count + j].imag() << " "; 
+    //         }
+    //         fout_r << "\n";
+    //         // fout_i << "\n";
+	// 	}
+	// }            
 
-    free(B);
-    free(C);
-    // free(coeff);
-    free(inc);
-    free(kappa);
+    // free(B);
+    // free(C);
+    // // free(coeff);
+    // free(inc);
+    // free(kappa);
     return 0;
 }
