@@ -3,9 +3,6 @@
 #include <iostream>
 #include <fstream> 
 
-using uint = unsigned int;
-using LInt = long long;
-
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
 #include "../ReadWrite/WriteFiles.hpp"
@@ -14,6 +11,8 @@ using namespace Tools;
 using namespace Tensors;
 using namespace Repulsor;
 
+using uint = unsigned int;
+using LInt = long long;
 using Int = int;
 using Real = float;
 using Complex = std::complex<Real>;
@@ -133,7 +132,7 @@ int main()
 
     Real one_over_regpar = 1/regpar;
 
-    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), dim );
+    Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
     mut<Real> Z  = Z_buffer.data();
 
