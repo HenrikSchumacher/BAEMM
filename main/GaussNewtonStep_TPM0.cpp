@@ -124,7 +124,7 @@ int main()
     const Real p  = 12;
     const Real s = (p - 2) / q;
 
-    TangentPointEnergy0<Mesh_T>       tpe        (q,p);
+    TangentPointEnergy<Mesh_T>       tpe        (q,p);
     TangentPointMetric0<Mesh_T>       tpm        (q,p);
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
