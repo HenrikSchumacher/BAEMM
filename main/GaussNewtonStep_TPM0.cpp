@@ -127,7 +127,7 @@ int main()
     // The operator for the metric.
     auto A = [&]( ptr<Real> X, mut<Real> Y )
     {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::Zero<Real>, Y, dim );
+        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
     };
 
     Real one_over_regpar = 1/regpar;
