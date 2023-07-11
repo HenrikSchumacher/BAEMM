@@ -107,7 +107,6 @@ int main()
     using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
-    constexpr Int NRHS = 3;
 
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
         coords.data(),  vertex_count,
@@ -130,21 +129,21 @@ int main()
     // The operator for the metric.
     auto A = [&]( ptr<Real> X, mut<Real> Y )
     {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
+        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
     };
 
     Real one_over_regpar = 1/regpar;
 
-    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
+    Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
     mut<Real> Z  = Z_buffer.data();
 
     // The operator for the preconditioner.
     auto P = [&]( ptr<Real> X, mut<Real> Y )
     {
-        M->H1Solve( X, Y, NRHS );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
-        M->H1Solve( Z, Y, NRHS );
+        M->H1Solve( X, Y, dim );
+        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
+        M->H1Solve( Z, Y, dim );
     };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------

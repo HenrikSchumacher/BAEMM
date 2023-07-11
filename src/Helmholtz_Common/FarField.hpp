@@ -507,6 +507,6 @@ public:
             );
         };
 
-        zerofy_buffer(C_out, ld * static_cast<size_t>(n), CPU_thread_count);
-        bool succeeded = cg(mass,id,B_in,ld,C_out,ld,cg_tol);  
+        zerofy_buffer(C_out, static_cast<size_t>(ld * n), CPU_thread_count);
+        bool succeeded = cg(mass,id,B_in,ld,C_out,ld,cg_tol);
     }
