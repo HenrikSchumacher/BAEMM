@@ -240,7 +240,7 @@ public:
         const I_ext  m           = static_cast<I_ext>(GetMeasCount());
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-        GMRES<3,R_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
+        GMRES<1,R_ext,size_t,Side::Left> gmres(3 * n,30,CPU_thread_count);
         
         Tensor2<C_ext,I_ext>  DF (  m, wave_count_  );
         Tensor2<R_ext,I_ext>  y_strong (  n, 3  );
@@ -263,7 +263,7 @@ public:
 
         zerofy_buffer(C_out, (size_t)(3 * n), CPU_thread_count);
 
-        bool succeeded = gmres(A,P,h,3,C_out,3,gmres_tol_outer,3);
+        bool succeeded = gmres(A,P,h,1,C_out,1,gmres_tol_outer,3);
 
         return static_cast<I_ext>(succeeded);
     }
