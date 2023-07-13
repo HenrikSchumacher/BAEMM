@@ -5,31 +5,32 @@ from bempp.core import opencl_kernels
 import numpy as np
 import json
 import scipy as sp
+from pytictoc import TicToc
 
 
-# def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
-#     points = bempp.api.Grid(vertices,connectivity)
-#     space = bempp.api.function_space(points, "P", 1)
+def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
+    points = bempp.api.Grid(vertices,connectivity)
+    space = bempp.api.function_space(points, "P", 1)
     
-#     SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     I = sparse.identity(space,space,space,precision = 'single').strong_form()
-#     A = ((1/2)*I + DL - 1j*wavenumber*SL)
+    SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    I = sparse.identity(space,space,space,precision = 'single').strong_form()
+    A = ((1/2)*I + DL - 1j*wavenumber*SL)
 
-#     bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
-#     opencl_kernels.set_default_gpu_device(1,0)
-#     single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber,precision = 'single')
-#     double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber,precision = 'single')
+    bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
+    opencl_kernels.set_default_gpu_device(1,0)
+    single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber,precision = 'single')
+    double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber,precision = 'single')
     
-#     wave = -incWave(space,wavenumber,incident_directions)
-#     phi = solve(space,A,wave)
-#     d = len(wave)
+    wave = -incWave(space,wavenumber,incident_directions)
+    phi = solve(space,A,wave)
+    d = len(wave)
     
-#     FF = []
-#     for i in range(d):
-#         u_inf = double_far * phi[i] - 1j * wavenumber * single_far * phi[i]
-#         FF.append(u_inf[0].tolist())
-#     return np.array(FF)
+    FF = []
+    for i in range(d):
+        u_inf = double_far * phi[i] - 1j * wavenumber * single_far * phi[i]
+        FF.append(u_inf[0].tolist())
+    return np.array(FF)
 
 # def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measurement_directions,y):
 #     points = bempp.api.Grid(vertices, connectivity)
@@ -163,30 +164,15 @@ f.close()
 points = bempp.api.Grid(vertices,connectivity)
 space = bempp.api.function_space(points, "P", 1)
 
-B = vertices
-# func = bempp.api.GridFunction(space,coefficients = B)
-
-# single_far = helmholtz_far.single_layer(space, measurement_directions, 2,precision = 'single')
-# double_far = helmholtz_far.double_layer(space, measurement_directions, 2,precision = 'single')
-
-# ret = (1 - 4j) * single_far * func + (-2 + 1j) * double_far * func
-
-# ret = ret[0]
-
-I = bempp.api.operators.boundary.sparse.identity(space,space,space,precision = 'single').weak_form()
+# B = vertices
 
 # g = np.ones(measurement_directions.shape[1]) - 1j * np.ones(measurement_directions.shape[1])
 
 # normals = vertex_normals(space)
-incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
+incident_directions = np.repeat(np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]]), 4, axis = 0)
+print(incident_directions.shape)
 
-ret = calc_DFF(connectivity,vertices,2,incident_directions,measurement_directions,B)
-
-# ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
-
-
-# normals = vertex_normals(space)
-# ret = (1 - 4j) * Herglotz_wave(space,2,measurement_directions,g) + (-2 + 1j) * Herglotz_wave_dnormal(space,normals,2,measurement_directions,g)
+ret = calc_FF(connectivity,vertices,2,incident_directions,measurement_directions)
 
 test_real = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_real.txt").transpose()
 test_imag = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_imag.txt").transpose()
