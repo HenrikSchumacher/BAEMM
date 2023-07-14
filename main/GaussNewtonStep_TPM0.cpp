@@ -49,11 +49,13 @@ int main()
 {
     // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin.
     // The direction of the derivative is read from B.bin, then the Gauss Newton step is calculated.
+    // In the case of a radial wave incident_directions are the point sources
 
     Int vertex_count, simplex_count, meas_count;
     Int wave_chunk_count, wave_chunk_size;
     Int GPU_device;   
-    
+    string wave_type;
+
     Real regpar;
 
     constexpr Int thread_count = 16;
@@ -65,7 +67,7 @@ int main()
     Tensor2<Real,Int>       coords;
     Tensor2<Real,Int>       B_in;
 
-    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, simplices, meas_directions, incident_directions, kappa);
+    ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, wave_type, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
 
@@ -89,7 +91,7 @@ int main()
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0005);
+    Real gmres_tol = static_cast<Real>(0.001);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
@@ -146,34 +148,80 @@ int main()
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Real gmres_tol_outer = 0.001;
+    Real gmres_tol_outer = 0.005;
     Int succeeded;
 
-    switch (wave_count)
+    switch (wave_type)
     {
-        case 8:
+        case "Plane":
         {
-            succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
-            break;
+            switch (wave_count)
+            {
+                case 8:
+                {
+                    succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 16:
+                {
+                    succeeded = H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 32:
+                {
+                    succeeded = H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 64:
+                {
+                    succeeded = H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                default:
+                {
+                    eprint("Non valid wave count.");
+                    break;
+                }
+            }
         }
-        case 16:
+        case "Radial":
         {
-            succeeded = H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
-            break;
-        }
-        case 32:
-        {
-            succeeded = H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
-            break;
-        }
-        case 64:
-        {
-            succeeded = H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                        A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
-            break;
+            switch (wave_count)
+            {
+                case 1:
+                {
+                    succeeded = H.GaussNewtonStep<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 2:
+                {
+                    succeeded = H.GaussNewtonStep<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 4:
+                {
+                    succeeded = H.GaussNewtonStep<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                case 8:
+                {
+                    succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                    break;
+                }
+                default:
+                {
+                    eprint("Non valid wave count.");
+                    break;
+                }
+            }
         }
     }
     

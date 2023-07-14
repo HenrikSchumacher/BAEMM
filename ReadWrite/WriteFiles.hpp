@@ -10,6 +10,7 @@ void WriteFixes(
     const I_ext                 & wave_chunk_count,
     const I_ext                 & wave_chunk_size,
     const I_ext                 & GPU_device,
+    const string                & wave_type,
     Tensor2<I_ext,I_ext>        & simplices,
     Tensor2<R_ext,I_ext>        & meas_directions,
     Tensor2<R_ext,I_ext>        & incident_directions,
@@ -36,6 +37,8 @@ void WriteFixes(
     s << "wave_chunk_size " << wave_chunk_size << "\n";
 
     s << "wave_chunk_count " << wave_chunk_count << "\n";
+
+    s << "wave_type" << "\n";
 
     ptr<I_ext>       S = simplices.data();   
     ptr<R_ext>       M = meas_directions.data();

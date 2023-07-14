@@ -1,7 +1,7 @@
 public:
 
     // hardcoded template cases for wave_count and wave_chunk_count for loop unrolling in IncidentWaveKernel
-    void IncidentWaveKernel_C_temp(
+    void IncidentWaveKernel_Plane_C_temp(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_,
         const Real * incident_directions,
@@ -16,22 +16,22 @@ public:
                 {
                     case 1:
                     {
-                        incidentWaveKernel_C<1,8>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<1,8>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 2:
                     {
-                        incidentWaveKernel_C<2,4>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<2,4>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 4:
                     {
-                        incidentWaveKernel_C<4,2>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<4,2>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 8:
                     {
-                        incidentWaveKernel_C<8,1>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<8,1>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     default:
@@ -48,22 +48,22 @@ public:
                 {
                     case 1:
                     {
-                        incidentWaveKernel_C<1,16>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<1,16>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 2:
                     {
-                        incidentWaveKernel_C<2,8>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<2,8>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 4:
                     {
-                        incidentWaveKernel_C<4,4>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<4,4>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 8:
                     {
-                        incidentWaveKernel_C<8,2>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<8,2>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     default:
@@ -80,22 +80,22 @@ public:
                 {
                     case 1:
                     {
-                        incidentWaveKernel_C<1,32>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<1,32>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 2:
                     {
-                        incidentWaveKernel_C<2,16>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<2,16>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 4:
                     {
-                        incidentWaveKernel_C<4,8>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<4,8>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 8:
                     {
-                        incidentWaveKernel_C<8,4>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<8,4>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     default:
@@ -112,22 +112,22 @@ public:
                 {
                     case 1:
                     {
-                        incidentWaveKernel_C<1,64>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<1,64>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 2:
                     {
-                        incidentWaveKernel_C<2,32>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<2,32>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 4:
                     {
-                        incidentWaveKernel_C<4,16>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<4,16>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     case 8:
                     {
-                        incidentWaveKernel_C<8,8>(kappa_,c_,incident_directions,C);
+                        incidentWaveKernel_Plane_C<8,8>(kappa_,c_,incident_directions,C);
                         break;
                     }
                     default:

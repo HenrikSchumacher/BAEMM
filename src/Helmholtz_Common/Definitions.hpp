@@ -30,3 +30,9 @@ public:
     
 //        static constexpr Real one_over_two_pi  = one / two_pi;
     static constexpr Real one_over_four_pi = one / four_pi;
+
+    enum class WaveType: unsigned char
+    {
+        Plane  = 201;
+        Radial = 202;
+    };

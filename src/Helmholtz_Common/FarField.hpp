@@ -2,7 +2,8 @@ public:
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void FarField(const R_ext* kappa, const I_ext& wave_chunk_count_, 
-                    R_ext* inc_directions,  const I_ext& wave_chunk_size_, C_ext* C_out, 
+                    R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
+                    C_ext* C_out, WaveType type, 
                     R_ext cg_tol, R_ext gmres_tol)
     {
         ptic(ClassName()+"::FarField");
@@ -35,7 +36,8 @@ public:
 
         CreateIncidentWave_PL(One, inc_directions, wave_chunk_size_,
                             Zero, wave.data(), wave_count_,
-                            kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
+                            kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,
+                            type
                             );
 
 
@@ -55,7 +57,7 @@ public:
     void Derivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const R_ext* h, C_ext* C_out, 
-                    C_ext** pdu_dn,                 //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type                //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the derivative of the bdry to Farfield map. 
@@ -105,7 +107,7 @@ public:
 
             CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave.data(), wave_count_,
-                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
+                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_, type
                                 );
             
 
@@ -156,7 +158,7 @@ public:
     void AdjointDerivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const C_ext* g, R_ext* C_out, 
-                    C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type                        //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the adjoint to the derivative of the bdry to Farfield map. 
@@ -200,9 +202,9 @@ public:
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             
-            CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
+            CreateIncidentWave_PL<type>( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave.data(), wave_count_,
-                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_
+                                kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,type
                                 );
             
 
@@ -226,12 +228,12 @@ public:
         ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
+    template<size_t solver_count, WaveType type = WaveType::Plane, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
     I_ext GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     M_T M, P_T P,
                     const R_ext* h, R_ext* C_out, 
-                    C_ext** pdu_dn,                         //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type                        //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
                     )
     {
@@ -248,9 +250,9 @@ public:
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
             Derivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-                        x, DF.data(), pdu_dn, cg_tol, gmres_tol_inner);
+                        x, DF.data(), pdu_dn, type, cg_tol, gmres_tol_inner);
             AdjointDerivative_FF<solver_count>( kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-                        DF.data(), y_strong.data(), pdu_dn, cg_tol, gmres_tol_inner);
+                        DF.data(), y_strong.data(), pdu_dn, type, cg_tol, gmres_tol_inner);
 
             Mass.Dot(
                 Tools::Scalar::One<R_ext>, y_strong.data(), 3,

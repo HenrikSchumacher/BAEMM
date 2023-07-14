@@ -10,6 +10,7 @@ void ReadFixes(
     I_ext                 & wave_chunk_count,
     I_ext                 & wave_chunk_size,
     I_ext                 & GPU_device,
+    string                & wave_type,
     Tensor2<I_ext,I_ext>  & simplices,
     Tensor2<R_ext,I_ext>  & meas_directions,
     Tensor2<R_ext,I_ext>  & incident_directions,
@@ -44,6 +45,8 @@ void ReadFixes(
     
     s >> str;
     s >> wave_chunk_count;
+
+    s >> wave_type;
 
     // valprint("simplex_count",simplex_count);
     // valprint("meas_count",meas_count);
