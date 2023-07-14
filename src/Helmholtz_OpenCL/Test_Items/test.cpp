@@ -3,8 +3,7 @@
 #include <cblas.h>
 #include "read.hpp"
 
-// #include "../../../Repulsor/Repulsor.hpp"
-
+#include "../../../Helmholtz_OpenCL.hpp"
 
 using Complex = std::complex<Real>;
 using LInt = long long;
@@ -13,10 +12,11 @@ using ExtReal = Real;
 
 using namespace Tools;
 using namespace Tensors;
+using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
@@ -73,10 +73,10 @@ int main()
     // Tensor2<Complex,Int> neumann_data_scat;
     // Complex* neumann_data_scat_ptr = NULL;
 
-    tic()
+    tic("FF");
     H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        C, cg_tol, gmres_tol);
-    toc()
+                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    toc("FF");
 
     std::ofstream fout_r("data_real.txt");
     std::ofstream fout_i("data_imag.txt");

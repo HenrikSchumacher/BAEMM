@@ -1,6 +1,6 @@
 public:
 
-    template<WaveType type, typename R_ext, typename C_ext, typename I_ext>
+    template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
         const C_ext alpha, ptr<R_ext> incident_directions,  const I_ext inc_count,
         const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,

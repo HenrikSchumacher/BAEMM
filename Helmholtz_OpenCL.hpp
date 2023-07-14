@@ -239,7 +239,9 @@ namespace BAEMM
 
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_C.hpp"
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane_C.hpp"
+
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial_C.hpp"
 
 #include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
 

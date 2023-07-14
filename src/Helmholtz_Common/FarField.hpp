@@ -57,7 +57,7 @@ public:
     void Derivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const R_ext* h, C_ext* C_out, 
-                    C_ext** pdu_dn, WaveType type                //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type,                //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the derivative of the bdry to Farfield map. 
@@ -158,7 +158,7 @@ public:
     void AdjointDerivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     const C_ext* g, R_ext* C_out, 
-                    C_ext** pdu_dn, WaveType type                        //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type,                        //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol)
     {
         // Implement the action of the adjoint to the derivative of the bdry to Farfield map. 
@@ -228,12 +228,12 @@ public:
         ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
-    template<size_t solver_count, WaveType type = WaveType::Plane, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
     I_ext GaussNewtonStep(const R_ext* kappa, const I_ext& wave_chunk_count_, 
                     const R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
                     M_T M, P_T P,
                     const R_ext* h, R_ext* C_out, 
-                    C_ext** pdu_dn, WaveType type                        //pdu_dn is the pointer to the Neumann data of the scattered wave
+                    C_ext** pdu_dn, WaveType type,                        //pdu_dn is the pointer to the Neumann data of the scattered wave
                     R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
                     )
     {

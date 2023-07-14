@@ -1,7 +1,4 @@
 public:
-
-#include "TemplateHardcode.hpp"
-
     // kernel code for the incident wave in the classic inverse obstacle scattering problem with the Helmholtz equation
     // calculates element wise (c0 + i*k*c1*<d,n>)*e^(i*k*<d,x>) for wave number k, wave vector d, mid points(!) x, and simplex normals n
 
@@ -24,12 +21,12 @@ public:
                     LOOP_UNROLL(8)
                     for (Int j = 0; j < wave_chunk_size; ++j )
                     {
-                        Real w_vec[3] = { point_sources[3*j + 0], point_sources[3*j + 1]
-                                        , point_sources[3*j + 2] };
+                        Real w_vec[3] = { point_sources[3*j + 0], point_sources[3*j + 1],
+                                          point_sources[3*j + 2] };
                     
                         Real R2 = (mid_points_ptr[4*i + 0] - w_vec[0])*(mid_points_ptr[4*i + 0] - w_vec[0]) + (mid_points_ptr[4*i + 1] - w_vec[1])*(mid_points_ptr[4*i + 1] - w_vec[1])
                         + (mid_points_ptr[4*i + 2] - w_vec[2] )*(mid_points_ptr[4*i + 2] - w_vec[2] );
-                        Real R = sqrt(r2);
+                        Real R = sqrt(R2);
                         Real one_over_R = 1/R;
                         Real one_over_R2 = 1/R2;
 
