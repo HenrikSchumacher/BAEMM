@@ -3,8 +3,6 @@
 #include <cblas.h>
 #include "read.hpp"
 
-#include "../../../Helmholtz_OpenCL.hpp"
-
 using Complex = std::complex<Real>;
 using LInt = long long;
 using SReal = Real;
