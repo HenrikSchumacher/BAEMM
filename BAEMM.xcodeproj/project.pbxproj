@@ -46,7 +46,6 @@
 		AFA1CF06298E56FF00085994 /* Notes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Notes; sourceTree = "<group>"; };
 		AFA1CF07298E56FF00085994 /* Mathematica */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Mathematica; sourceTree = "<group>"; };
 		AFA1CF09298E56FF00085994 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
-		AFA1CF0B298E56FF00085994 /* Tensors */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tensors; sourceTree = "<group>"; };
 		AFA1CF0C298E56FF00085994 /* Literature */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Literature; sourceTree = "<group>"; };
 		AFA1CF0D298E56FF00085994 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -109,7 +108,6 @@
 				AFA1CF06298E56FF00085994 /* Notes */,
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF09298E56FF00085994 /* src */,
-				AFA1CF0B298E56FF00085994 /* Tensors */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
 				AF73BBF52997FE3400526B7D /* Metal_Experiments */,
 				AFA1CEFC298E56D400085994 /* Products */,
