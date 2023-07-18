@@ -123,7 +123,7 @@ BAEMM::Helmholtz_OpenCL read_OpenCL(const std::string & filename)
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    coords.Dimension(0),
         simplices.data(), simplices.Dimension(0), 
-        meas_directions.data(),    meas_directions.Dimension(0), 8
+        meas_directions.data(),    meas_directions.Dimension(0), 1, 8
     );
     return H;
 }
