@@ -2,54 +2,61 @@
 #include <fstream> 
 #include <cblas.h>
 #include "read.hpp"
-#include "../Tensors/GMRES.hpp"
-#include "../Tensors/ConjugateGradient.hpp"
+
+#include "../../../Helmholtz_OpenCL.hpp"
 
 using Complex = std::complex<Real>;
+using LInt = long long;
+using SReal = Real;
+using ExtReal = Real;
+
+using namespace Tools;
+using namespace Tensors;
+using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H_GPU = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00040560T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
-    Int n = H_GPU.VertexCount();
+    Int n = H.VertexCount();
+    Int m = H.GetMeasCount();
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
+    Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
+    Complex* C = (Complex*)malloc(16 * n * sizeof(Complex));
 
-    Complex* B = (Complex*)malloc(16 * H_GPU.GetMeasCount() * sizeof(Complex));
+    Int thread_count = 16;
 
-    Int thread_count = 4;
+    // using namespace Tensors;
+    // using namespace Tools;
 
-    Real regpar = 1.0f;
+    // // const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    // // std::string file_name = path;
+    // // Tensor2<Real, Int> coords;
+    // // Tensor2<Int, Int> simplices;
 
-    // for (int i = 0; i < n; i++)
-    // {
-    //     B[i] = std::exp(Complex(0.0f,(float)i));
-    //     B[i] = 1.0f;
-    //     B[i] = 0.0f;
-    //     B[i] = 0.0f;
-    // }
-    using namespace Tensors;
-    using namespace Tools;
-
-    const std::string path = "/HOME1/users/guests/jannr/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    std::string file_name = path;
-    Tensor2<Real, Int> coords;
-    Tensor2<Int, Int> simplices;
-
-    ReadFromFile<Real, Int>(file_name, coords, simplices);
+    // // ReadFromFile<Real, Int>(file_name, coords, simplices);
 
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
     Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
-    // Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+    Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+
+    for(I_ext i = 0 ; i < wave_chunk_count ; i++)
+    {
+        coeff[4 * i + 0] = 0.0f;
+        coeff[4 * i + 1] = 1.0f;
+        coeff[4 * i + 2] = 0.0f;
+        coeff[4 * i + 3] = 0.0f;
+    }
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2.0f*((float)i + 1.0f);
+        kappa[i] = Scalar::Pi<Real>;
     }
 
-    Real* C = (Real*)malloc(3 * vertex_count * sizeof(Real));
+    // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     for (int i = 0 ; i < 4; i++)
     {
@@ -67,135 +74,38 @@ int main()
         inc[12*i + 11] = 1/std::sqrt(3.0f);
     }
 
-    H_GPU.UseDiagonal(true);
+    H.UseDiagonal(true);
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0005);
+    Real gmres_tol = static_cast<Real>(0.0001);
 
-    Tensor2<Complex,Int> neumann_data_scat;
-    Complex* neumann_data_scat_ptr = NULL;
+    // Tensor2<Complex,Int> neumann_data_scat;
+    // Complex* neumann_data_scat_ptr = NULL;
 
-    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,SReal,ExtReal>;
-    using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
+    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+                            Complex(0.0f,0.0f), B, wave_count,
+                            kappa, coeff, wave_count, wave_chunk_size,
+                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
+                            );
 
-    constexpr Int NRHS = 3;
+                            
+    tic("FF");
+    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    BAEMM::Helmholtz_OpenCL::kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
+ 
+    ApplyBoundaryOperators_PL(
+                    wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+                    );
 
-    Mesh_Ptr_T M = std::make_shared<Mesh_T>(
-        coords.data(),  n,
-        simplices.data(),  H_GPU.SimplexCount(),
-        thread_count
-        );
+    DestroyKernel(&list);
+    toc("FF");
 
-    M->cluster_tree_settings.split_threshold                        =  2;
-    M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
-    M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125f;
-    M->adaptivity_settings.theta                                    = 10.0f;
-
-    const Real q  = 6;
-    const Real p  = 12;
-    const Real s = (p - 2) / q;
-
-    TangentPointEnergy0<Mesh_T>       tpe        (q,p);
-    TangentPointMetric0<Mesh_T>       tpm        (q,p);
-    PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
-
-    // The operator for the metric.
-    auto A = [&]( ptr<Real> X, mut<Real> Y )
-    {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, NRHS );
-    };
-
-    Real one_over_regpar = 1/regpar;
-
-    Tensor2<Real,Int> Z_buffer  ( M->VertexCount(), NRHS );
-
-    mut<Real> Z  = Z_buffer.data();
-
-    // The operator for the preconditioner.
-    auto P = [&]( ptr<Real> X, mut<Real> Y )
-    {
-        M.H1Solve( X, Y, NRHS );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, NRHS );
-        M.H1Solve( Z, Y, NRHS );
-    };
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    Real gmres_tol_outer = 0.005;
-
-    Tensor2<Real,Int> DE (vertex_count,3);
-    Tensor2<Real,Int> grad (vertex_count,3);
-
-    ptr<Real> DE_ptr = DE.data();
-    mut<Real> grad_ptr = ptr.data();
-
-    tpe.Differential( *M ).Write( DE_ptr );
-
-    H.AdjointDerivative_FF<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), grad_ptr, &neumann_data_scat_ptr, cg_tol, gmres_tol);
-
-    combine_buffers(regpar,DE_ptr,Scalar::One<Real>,grad_ptr,vertex_count * 3, thread_count);
-
-    H.GaussNewtonStep<Int,Real,Complex,16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                A, P, grad_ptr, B_out.data(), &neumann_data_scat_ptr, cg_tol, gmres_tol, gmres_tol_outer);
-
-    
-    // GMRES<64,std::complex<float>,size_t,Side::Left> gmres(n,30,8);
-
-    // BAEMM::Helmholtz_OpenCL::kernel_list list = H_GPU.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
-
-    // auto A = [&H_GPU, &n, &wave_count]( const Complex * x, Complex *y )
-    //             {
-    //                 tic("inner");
-    //                 H_GPU.ApplyBoundaryOperators_PL(wave_count,
-    //                                 Complex(1.0f,0.0f),x,
-    //                                 Complex(0.0f,0.0f),y
-    //                                 );
-    //                 toc("inner");
-    //             };
-    // auto P = [&n, &wave_count]( const Complex * x, Complex *y )
-    //             {
-    //                 memcpy(y,x,wave_count * n * sizeof(Complex));
-    //             };
-    // tic("outer");
-    // bool succeeded = gmres(A,P,B,wave_count,C,wave_count,0.00001f,5);
-    // toc("outer");
-
-    // tic("GPU");
-    // H_GPU.ApplyBoundaryOperators_PL(wave_count,
-    //                 Complex(1.0f,0.0f),B,
-    //                 Complex(0.0f,0.0f),C
-    //                 );
-    // toc("GPU");
-    // H_GPU.DestroyKernel(&list);
-
-    // tic("CPU");
-    // H_CPU.ApplyBoundaryOperators_PL( Complex(1.0f,0.0f),B,wave_count,
-    //                                 Complex(-1.0f,0.0f),C,wave_count,
-    //                                 kappa,coeff,wave_count,wave_chunk_size
-    //                                 );
-    // toc("CPU");
-    // float error = 0;
-    // float abs = 0;
-    // for (int i = 0; i < n; i++)
-    // {   
-    //     for (int j = 0; j < wave_count; j++)
-    //     {
-    //         std::complex<float> C_GPU = C[wave_count*i + j];
-    //         // std::complex<float> C_CPU = H_CPU.C(i,j);
-    //         abs = std::abs(C_GPU);
-    //         if (abs > error)
-    //         {
-    //             error = abs;
-    //         }
-    //     }
-    // }
-    // std::cout << "error= " << error << std::endl;
     std::ofstream fout_r("data_real.txt");
     std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_r.is_open())
+    if(fout_r.is_open() && fout_i.is_open())
 	{
-		for(int i = 0; i < H_GPU.GetMeasCount() ; i++)
+		for(int i = 0; i < n ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
@@ -209,7 +119,6 @@ int main()
 
     free(B);
     free(C);
-    // free(coeff);
     free(inc);
     free(kappa);
     return 0;
