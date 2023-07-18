@@ -41,7 +41,7 @@ int main()
     Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
-    for(I_ext i = 0 ; i < wave_chunk_count ; i++)
+    for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
         coeff[4 * i + 1] = 1.0f;
@@ -92,7 +92,7 @@ int main()
     //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
     BAEMM::Helmholtz_OpenCL::kernel_list list = LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
  
-    ApplyBoundaryOperators_PL(
+    H.ApplyBoundaryOperators_PL(
                     wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
                     );
 
