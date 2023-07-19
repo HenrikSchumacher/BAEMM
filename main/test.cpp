@@ -106,7 +106,7 @@ int main()
     for (Int i = 0 ; i < 10; i++)
     {
         H.Derivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        *B_ptr, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                        B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
         // H.ApplyBoundaryOperators_PL(
         //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
         //                 );
