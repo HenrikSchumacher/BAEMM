@@ -131,5 +131,7 @@ int main()
     free(C);
     free(inc);
     free(kappa);
+    free(coeff);
+    free(wave_coeff);
     return 0;
 }
