@@ -40,6 +40,7 @@ int main()
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
     Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+    Complex * wave_coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
@@ -47,6 +48,14 @@ int main()
         coeff[4 * i + 1] = 0.0f;
         coeff[4 * i + 2] = 1.0f;
         coeff[4 * i + 3] = 0.0f;
+    }
+
+    for(Int i = 0 ; i < wave_chunk_count ; i++)
+    {
+        wave_coeff[4 * i + 0] = 0.0f;
+        wave_coeff[4 * i + 1] = 1.0f;
+        wave_coeff[4 * i + 2] = 0.0f;
+        wave_coeff[4 * i + 3] = 0.0f;
     }
 
     for (int i = 0 ; i < wave_chunk_count; i++)
