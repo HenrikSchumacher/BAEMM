@@ -88,8 +88,7 @@ int main()
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    Real** B_ptr;
-    *B_ptr = H.VertexCoordinates();
+    const Real* B = H.VertexCoordinates();
 
     // Tensor2<Complex,Int> neumann_data_scat;
     // Complex* neumann_data_scat_ptr = NULL;
