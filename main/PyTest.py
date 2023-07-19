@@ -172,17 +172,14 @@ space = bempp.api.function_space(points, "P", 1)
 # incident_directions = np.repeat(np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]]), 4, axis = 0)
 # print(incident_directions.shape)
 incident_directions = np.array([[1,0,0]])
-wave = incWave(space,np.pi,incident_directions)
-SL = helmholtz.single_layer(space,space,space,np.pi,precision = 'single').weak_form()
+wave = incWave(space,2 * np.pi,incident_directions)
+SL = helmholtz.single_layer(space,space,space,2 * np.pi,precision = 'single').weak_form()
 ret = SL * wave[0,:]
 
 # ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
-print(np.shape(ret))
-print(np.shape(test_real))
-print(np.amax(np.abs(test_real),axis = 0))
 
 res = ret - test_real[0:1,:] - 1j *test_imag[0:1,:]
 
