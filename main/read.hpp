@@ -7,7 +7,7 @@
 using uint = unsigned int;
 
 
-#include "../Helmholtz_CPU.hpp"
+// #include "../Helmholtz_CPU.hpp"
 #include "../Helmholtz_OpenCL.hpp"
 
 using namespace Tools;

@@ -86,8 +86,8 @@ int main()
                             kappa, coeff, wave_count, wave_chunk_size,
                             BAEMM::Helmholtz_OpenCL::WaveType::Plane
                             );
-    H.ApplyMassInverse(C,B,wave_count,cg_tol);
-    
+    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+
     BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     tic("FF");
     // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
