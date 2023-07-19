@@ -81,25 +81,25 @@ void ReadFromFile(
 }
 
 
-BAEMM::Helmholtz_CPU read_CPU(const std::string & filename)
-{
-    using namespace Tensors;
-    using namespace Tools;
+// BAEMM::Helmholtz_CPU read_CPU(const std::string & filename)
+// {
+//     using namespace Tensors;
+//     using namespace Tools;
 
-    const std::string path = "/HOME1/users/guests/jannr";
-    std::string file_name = path + filename;
-    std::cout << file_name << std::endl;
-    Tensor2<Real, Int> coords;
-    Tensor2<Int, Int> simplices;
-    tic("read");
-    ReadFromFile<Real, Int>(file_name, coords, simplices);
-    toc("read");
-    BAEMM::Helmholtz_CPU H_CPU (
-        coords.data(),    coords.Dimension(0),
-        simplices.data(), simplices.Dimension(0), 8
-    );
-    return H_CPU;
-}
+//     const std::string path = "/HOME1/users/guests/jannr";
+//     std::string file_name = path + filename;
+//     std::cout << file_name << std::endl;
+//     Tensor2<Real, Int> coords;
+//     Tensor2<Int, Int> simplices;
+//     tic("read");
+//     ReadFromFile<Real, Int>(file_name, coords, simplices);
+//     toc("read");
+//     BAEMM::Helmholtz_CPU H_CPU (
+//         coords.data(),    coords.Dimension(0),
+//         simplices.data(), simplices.Dimension(0), 8
+//     );
+//     return H_CPU;
+// }
 
 BAEMM::Helmholtz_OpenCL read_OpenCL(const std::string & filename)
 {
