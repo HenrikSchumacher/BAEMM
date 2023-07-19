@@ -92,10 +92,12 @@ int main()
     tic("FF");
     // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
     //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
- 
-    H.ApplyBoundaryOperators_PL(
-                    wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-                    );
+    for (Int i = 0 ; i < 10; i++)
+    {
+        H.ApplyBoundaryOperators_PL(
+                        wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+                        );
+    }
     toc("FF");
 
     H.DestroyKernel(&list);
