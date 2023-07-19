@@ -99,14 +99,14 @@ int main()
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     tic("FF");
-    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    for (Int i = 0 ; i < 10; i++)
+    {
+        H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
                         C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    // for (Int i = 0 ; i < 10; i++)
-    // {
-    //     H.ApplyBoundaryOperators_PL(
-    //                     wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-    //                     );
-    // }
+        // H.ApplyBoundaryOperators_PL(
+        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+        //                 );
+    }
     toc("FF");
 
     // H.DestroyKernel(&list);
