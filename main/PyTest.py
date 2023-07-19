@@ -178,8 +178,8 @@ ret = SL * wave[0,:]
 
 # ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 
-test_real = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_real.txt").transpose()
-test_imag = np.loadtxt("C:\msys64\home\janni\github\BAEMM\main\data_imag.txt").transpose()
+test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
+test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
 
 res = ret - test_real[0:1,:] - 1j *test_imag[0:1,:]
 error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))

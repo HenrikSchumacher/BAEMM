@@ -79,7 +79,7 @@ namespace BAEMM
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
             std::filesystem::path path {    std::filesystem::current_path()  };
-            std::string path_string{    path.u8string()    };
+            std::string path_string{    path.string()    };
             Profiler::Clear( path_string );
 //            tic(ClassName());        
 
