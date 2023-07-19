@@ -44,14 +44,14 @@ int main()
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 1.0f;
-        coeff[4 * i + 2] = 0.0f;
+        coeff[4 * i + 1] = 0.0f;
+        coeff[4 * i + 2] = 1.0f;
         coeff[4 * i + 3] = 0.0f;
     }
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2 * Scalar::Pi<Real>;
+        kappa[i] = Scalar::Pi<Real>;
     }
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
