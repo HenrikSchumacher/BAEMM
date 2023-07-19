@@ -169,21 +169,18 @@ space = bempp.api.function_space(points, "P", 1)
 # g = np.ones(measurement_directions.shape[1]) - 1j * np.ones(measurement_directions.shape[1])
 
 # normals = vertex_normals(space)
-# incident_directions = np.repeat(np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]]), 4, axis = 0)
+incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
 # print(incident_directions.shape)
-incident_directions = np.array([[1,0,0]])
-wave = incWave(space,2*np.pi,incident_directions)
-SL = helmholtz.adjoint_double_layer(space,space,space,2*np.pi,precision = 'single').weak_form()
-ret = SL * wave[0,:]
+# incident_directions = np.array([[1,0,0]])
 
-# ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
+ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
 
-res = ret - test_real[0:1,:] - 1j *test_imag[0:1,:]
+res = ret - test_real[0:4,:] - 1j *test_imag[0:4,:]
 
-error = np.amax(np.divide(np.amax(np.abs(res),axis = 0),np.amax(np.abs(ret),axis = 0)))
+error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
 
 print(error)
