@@ -80,24 +80,25 @@ int main()
     // Tensor2<Complex,Int> neumann_data_scat;
     // Complex* neumann_data_scat_ptr = NULL;
 
+
     H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), B, wave_count,
+                            Complex(0.0f,0.0f), C, wave_count,
                             kappa, coeff, wave_count, wave_chunk_size,
                             BAEMM::Helmholtz_OpenCL::WaveType::Plane
                             );
-
-                            
+    H.ApplyMassInverse(C,B,wave_count,cg_tol);
+    
+    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     tic("FF");
     // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
     //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);
  
     H.ApplyBoundaryOperators_PL(
                     wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
                     );
+    toc("FF");
 
     H.DestroyKernel(&list);
-    toc("FF");
 
     std::ofstream fout_r("data_real.txt");
     std::ofstream fout_i("data_imag.txt");
