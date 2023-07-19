@@ -172,8 +172,8 @@ space = bempp.api.function_space(points, "P", 1)
 # incident_directions = np.repeat(np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]]), 4, axis = 0)
 # print(incident_directions.shape)
 incident_directions = np.array([[1,0,0]])
-wave = incWave(space,2*np.pi,incident_directions)
-SL = helmholtz.double_layer(space,space,space,2*np.pi,precision = 'single').weak_form()
+wave = incWave(space,np.pi,incident_directions)
+SL = helmholtz.adjoint_double_layer(space,space,space,np.pi,precision = 'single').weak_form()
 ret = SL * wave[0,:]
 
 # ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
