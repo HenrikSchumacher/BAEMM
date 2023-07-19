@@ -109,7 +109,7 @@ int main()
     // }
     toc("FF");
 
-    H.DestroyKernel(&list);
+    // H.DestroyKernel(&list);
 
     std::ofstream fout_r("data_real.txt");
     std::ofstream fout_i("data_imag.txt");
