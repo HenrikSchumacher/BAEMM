@@ -173,7 +173,7 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
 
-ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
+ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
