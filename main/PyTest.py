@@ -53,35 +53,35 @@ def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_dir
 #     DFF_adj = -(1/incident_directions.shape[0])*np.multiply(normals,DFF_adj)
 #     return np.real(DFF_adj)
 
-# def calc_DFF(connectivity,vertices,wavenumber,incident_directions,measurement_directions,v):
-#     points = bempp.api.Grid(vertices, connectivity)
-#     space = bempp.api.function_space(points, "P", 1)
-#     normals = vertex_normals(space)
+def calc_DFF(connectivity,vertices,wavenumber,incident_directions,measurement_directions,v):
+    points = bempp.api.Grid(vertices, connectivity)
+    space = bempp.api.function_space(points, "P", 1)
+    normals = vertex_normals(space)
 
-#     SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     I = sparse.identity(space,space,space,precision = 'single').strong_form()
-#     A = ((1/2)*I + DL - 1j*wavenumber*SL)
+    SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    I = sparse.identity(space,space,space,precision = 'single').strong_form()
+    A = ((1/2)*I + DL - 1j*wavenumber*SL)
 
-#     DL_H = helmholtz.adjoint_double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     B = ((1/2)*I + DL_H - 1j * SL)
+    DL_H = helmholtz.adjoint_double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    B = ((1/2)*I + DL_H - 1j * SL)
 
-#     single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber)
-#     double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber)
+    single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber)
+    double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber)
 
-#     wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
+    wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
 
-#     dudn = solve(space,B,wave,"array")   
-#     hnu = np.sum(np.multiply(normals,v),0)
-#     boundary_condition = -np.multiply(dudn,hnu)
-#     phi_d = solve(space,A,boundary_condition)
+    dudn = solve(space,B,wave,"array")   
+    hnu = np.sum(np.multiply(normals,v),0)
+    boundary_condition = -np.multiply(dudn,hnu)
+    phi_d = solve(space,A,boundary_condition)
 
-#     DFF = []
-#     d = len(phi_d)
-#     for i in range(d):
-#         u_inf = double_far * phi_d[i] - 1j * wavenumber * single_far * phi_d[i]
-#         DFF.append(u_inf[0].tolist())
-#     return np.array(DFF)
+    DFF = []
+    d = len(phi_d)
+    for i in range(d):
+        u_inf = double_far * phi_d[i] - 1j * wavenumber * single_far * phi_d[i]
+        DFF.append(u_inf[0].tolist())
+    return np.array(DFF)
 
 def solve(space,A,wave,output = "wave_function"):
     d = len(wave[:,0])
@@ -173,7 +173,7 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
 
-ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
+ret = calc_DFF(connectivity,vertices,np.pi,incident_directions,measurement_directions,vertices)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()

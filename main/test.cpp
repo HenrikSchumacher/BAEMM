@@ -22,7 +22,7 @@ int main()
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
+    // Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
     Complex* C = (Complex*)malloc(16 * n * sizeof(Complex));
 
     Int thread_count = 16;
@@ -60,7 +60,7 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2*Scalar::Pi<Real>;
+        kappa[i] = Scalar::Pi<Real>;
     }
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
@@ -86,6 +86,11 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
+    Complex* neumann_data_scat_ptr = NULL;
+
+    Real** B_ptr;
+    *B_ptr = H.VertexCoordinates();
+
     // Tensor2<Complex,Int> neumann_data_scat;
     // Complex* neumann_data_scat_ptr = NULL;
 
@@ -101,8 +106,8 @@ int main()
     tic("FF");
     for (Int i = 0 ; i < 10; i++)
     {
-        H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+        H.Derivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                        *B_ptr, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
         // H.ApplyBoundaryOperators_PL(
         //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
         //                 );
@@ -127,7 +132,7 @@ int main()
 		}
 	}            
 
-    free(B);
+    // free(B);
     free(C);
     free(inc);
     free(kappa);
