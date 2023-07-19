@@ -116,9 +116,9 @@ int main(int argc, const char * argv[])
     }
     std::string path ( homedir );
     
-//        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
 //        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
-    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
+//    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
     
@@ -135,8 +135,6 @@ int main(int argc, const char * argv[])
     print("");
     
     int CPU_thread_count = 8;
-    //    int CPU_thread_count = 1;
-    omp_set_num_threads(CPU_thread_count);
     
     valprint("number of CPU threads",CPU_thread_count);
     

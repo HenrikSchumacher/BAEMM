@@ -5,8 +5,10 @@
 #include <QuartzCore/QuartzCore.hpp>
 
 #include <complex>
-#include <cblas.h>
-#include <lapack.h>
+
+#include <Accelerate/Accelerate.h>
+//#include <cblas.h>
+//#include <lapack.h>
 
 #include "Repulsor/Repulsor.hpp"
 #include "Repulsor/Tensors/Tensors.hpp"
