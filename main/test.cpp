@@ -92,7 +92,7 @@ int main()
 
     H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
                             Complex(0.0f,0.0f), C, wave_count,
-                            kappa, coeff, wave_count, wave_chunk_size,
+                            kappa, wave_coeff, wave_count, wave_chunk_size,
                             BAEMM::Helmholtz_OpenCL::WaveType::Plane
                             );
     H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
