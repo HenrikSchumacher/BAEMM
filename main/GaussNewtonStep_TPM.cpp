@@ -152,7 +152,7 @@ int main()
     Real gmres_tol_outer = 0.005;
     Int succeeded;
 
-    if wave_type == "Radial":
+    if (wave_type == "Radial"):
     {
         switch (wave_count)
         {
