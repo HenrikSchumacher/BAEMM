@@ -63,25 +63,25 @@ int main()
                 case 8:
                 {
                     H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Plane, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
                     break;
                 }
                 case 16:
                 {
                     H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Plane, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
                     break;
                 }
                 case 32:
                 {
                     H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Plane, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
                     break;
                 }
                 case 64:
                 {
                     H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Plane, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
                     break;
                 }
                 default:
@@ -98,25 +98,25 @@ int main()
                 case 1:
                 {
                     H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Radial, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
                     break;
                 }
                 case 2:
                 {
                     H.FarField<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Radial, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
                     break;
                 }
                 case 4:
                 {
                     H.FarField<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Radial, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
                     break;
                 }
                 case 8:
                 {
                     H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_out.data(), WaveType::Radial, cg_tol, gmres_tol);
+                                B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
                     break;
                 }
                 default:

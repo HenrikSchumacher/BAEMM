@@ -180,6 +180,7 @@ test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.tx
 
 res = ret - test_real[0:4,:] - 1j *test_imag[0:4,:]
 
+
 error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
 

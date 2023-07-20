@@ -91,7 +91,7 @@ int main()
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.001);
+    Real gmres_tol = static_cast<Real>(0.0005);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
@@ -148,7 +148,7 @@ int main()
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Real gmres_tol_outer = 0.005;
+    Real gmres_tol_outer = 0.001;
     Int succeeded;
 
     switch (wave_type)
@@ -160,25 +160,25 @@ int main()
                 case 8:
                 {
                     succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 16:
                 {
                     succeeded = H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 32:
                 {
                     succeeded = H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 64:
                 {
                     succeeded = H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 default:
@@ -195,25 +195,25 @@ int main()
                 case 1:
                 {
                     succeeded = H.GaussNewtonStep<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 2:
                 {
                     succeeded = H.GaussNewtonStep<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 4:
                 {
                     succeeded = H.GaussNewtonStep<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 case 8:
                 {
                     succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                                A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                     break;
                 }
                 default:
