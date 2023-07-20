@@ -91,7 +91,7 @@ int main()
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
     Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.001);
+    Real gmres_tol = static_cast<Real>(0.0005);
 
     Tensor2<Complex,Int> neumann_data_scat;
     Complex* neumann_data_scat_ptr = NULL;
@@ -149,7 +149,7 @@ int main()
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    Real gmres_tol_outer = 0.005;
+    Real gmres_tol_outer = 0.001;
     Int succeeded;
 
     if (wave_type == "Radial")

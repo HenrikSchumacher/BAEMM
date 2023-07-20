@@ -202,7 +202,7 @@ public:
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             
-            CreateIncidentWave_PL<type>( One, inc_directions, wave_chunk_size_,
+            CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave.data(), wave_count_,
                                 kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,type
                                 );
