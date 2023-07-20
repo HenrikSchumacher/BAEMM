@@ -193,7 +193,7 @@ int main()
             case 8:
             {
                 succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer);
+                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer);
                 break;
             }
             case 16:
