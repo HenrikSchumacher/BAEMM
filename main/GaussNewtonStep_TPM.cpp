@@ -185,6 +185,7 @@ int main()
                 eprint("Non valid wave count.");
                 break;
             }
+        }
     }
     else
     {
