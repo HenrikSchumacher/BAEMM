@@ -90,7 +90,7 @@ int main()
 
     // const Real* B = H.VertexCoordinates();
 
-    H.FarField<16>( kappa.data(), wave_chunk_count, inc.data(), wave_chunk_size,
+    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
                    B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);;
     // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
     //                         Complex(0.0f,0.0f), A, wave_count,
