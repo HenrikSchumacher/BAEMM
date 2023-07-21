@@ -107,7 +107,7 @@ int main()
         H.ApplyBoundaryOperators_PL(
                         wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
                         );
-        H.ApplyMassInverse<wave_count>(B,C,wave_count,cg_tol);
+        H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
     // }
     // toc("FF");
 
