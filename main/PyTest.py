@@ -8,29 +8,29 @@ import scipy as sp
 from pytictoc import TicToc
 
 
-# def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
-#     points = bempp.api.Grid(vertices,connectivity)
-#     space = bempp.api.function_space(points, "P", 1)
+def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
+    points = bempp.api.Grid(vertices,connectivity)
+    space = bempp.api.function_space(points, "P", 1)
     
-#     SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     I = sparse.identity(space,space,space,precision = 'single').strong_form()
-#     A = ((1/2)*I + DL - 1j*wavenumber*SL)
+    SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    I = sparse.identity(space,space,space,precision = 'single').strong_form()
+    A = ((1/2)*I + DL - 1j*wavenumber*SL)
 
-#     bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
-#     opencl_kernels.set_default_gpu_device(1,0)
-#     single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber,precision = 'single')
-#     double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber,precision = 'single')
+    bempp.api.POTENTIAL_OPERATOR_DEVICE_TYPE = 'gpu'
+    opencl_kernels.set_default_gpu_device(1,0)
+    single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber,precision = 'single')
+    double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber,precision = 'single')
     
-#     wave = -incWave(space,wavenumber,incident_directions)
-#     phi = solve(space,A,wave)
-#     d = len(wave)
+    wave = -incWave(space,wavenumber,incident_directions)
+    phi = solve(space,A,wave)
+    d = len(wave)
     
-#     FF = []
-#     for i in range(d):
-#         u_inf = double_far * phi[i] - 1j * wavenumber * single_far * phi[i]
-#         FF.append(u_inf[0].tolist())
-#     return np.array(FF)
+    FF = []
+    for i in range(d):
+        u_inf = double_far * phi[i] - 1j * wavenumber * single_far * phi[i]
+        FF.append(u_inf[0].tolist())
+    return np.array(FF)
 
 def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measurement_directions,y):
     points = bempp.api.Grid(vertices, connectivity)
@@ -173,7 +173,7 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
 
-y = incWave(space,np.pi,incident_directions)
+y = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
