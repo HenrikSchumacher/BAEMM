@@ -107,6 +107,7 @@ int main()
         H.ApplyBoundaryOperators_PL(
                         wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
                         );
+        H.ApplyMassInverse<wave_count>(B,C,wave_count,cg_tol);
     // }
     // toc("FF");
 
@@ -120,7 +121,7 @@ int main()
     {
         for(int j = 0; j < 16 ; j++)
         {
-            Real e = std::abs(C[i + 16*j] -a);
+            Real e = std::abs(B[i + 16*j] -a);
             if (e > error)
             {
                 error = e;
