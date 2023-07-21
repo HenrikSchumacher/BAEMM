@@ -22,8 +22,8 @@ int main()
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(16 * n * sizeof(Complex));
+    Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
+    Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     Int thread_count = 16;
 
@@ -90,9 +90,6 @@ int main()
 
     // const Real* B = H.VertexCoordinates();
 
-    Tensor2<Complex,Int> neumann_data_scat;
-    Complex* neumann_data_scat_ptr = NULL;
-
 
     H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
                             Complex(0.0f,0.0f), C, wave_count,
@@ -117,7 +114,7 @@ int main()
 
     std::ofstream fout_r("data_real.txt");
     // std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_i.is_open())
+    if(fout_r.is_open() && fout_r.is_open())
 	{
 		for(int i = 0; i < n ; i++)
 		{
