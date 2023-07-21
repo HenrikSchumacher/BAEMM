@@ -113,7 +113,7 @@ int main()
     H.DestroyKernel(&list);
 
     Real error = 0.0f;
-    Real a = Complex(0.0f,-1/2*kappa[0]);
+    Complex a = Complex(0.0f,-1/(2*kappa[0]));
     a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
 
     for(int i = 0; i < n ; i++)
