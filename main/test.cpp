@@ -23,6 +23,7 @@ int main()
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
+    Complex* A = (Complex*)malloc(16 * m * sizeof(Complex));
     Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     Int thread_count = 16;
@@ -92,11 +93,11 @@ int main()
 
 
     H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), C, wave_count,
+                            Complex(0.0f,0.0f), A, wave_count,
                             kappa, wave_coeff, wave_count, wave_chunk_size,
                             BAEMM::Helmholtz_OpenCL::WaveType::Plane
                             );
-    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    H.ApplyMassInverse<wave_count>(A,B,wave_count,cg_tol);
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     tic("FF");
