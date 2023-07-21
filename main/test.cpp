@@ -89,7 +89,7 @@ int main()
     Complex* neumann_data_scat_ptr = NULL;
 
     // const Real* B = H.VertexCoordinates();
-    for (i = 0; i < 16 * m; i++)
+    for (int i = 0; i < 16 * m; i++)
     {
         B[i] = Complex(1.0f,2.0f);
     }
