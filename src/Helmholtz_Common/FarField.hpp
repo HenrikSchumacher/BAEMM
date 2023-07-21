@@ -299,7 +299,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-1.0f));
+            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]f));
             coeff[4 * i + 2] = One;
             coeff[4 * i + 3] = Zero;
         }
@@ -350,7 +350,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));;
+            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-1.0f));;
             coeff[4 * i + 2] = Zero;
             coeff[4 * i + 3] = One;
         }
