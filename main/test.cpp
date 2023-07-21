@@ -101,17 +101,17 @@ int main()
     // H.ApplyMassInverse<wave_count>(A,B,wave_count,cg_tol);
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
-    tic("FF");
-    for (Int i = 0 ; i < 10; i++)
-    {
-        H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-        // H.ApplyBoundaryOperators_PL(
-        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-        //                 );
-    }
-    toc("FF");
-
+    // tic("FF");
+    // for (Int i = 0 ; i < 10; i++)
+    // {
+    //     H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    //                     B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    //     // H.ApplyBoundaryOperators_PL(
+    //     //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+    //     //                 );
+    // }
+    // toc("FF");
+    C = H.VertexCoordinates();
     // H.DestroyKernel(&list);
 
     std::ofstream fout_r("data_real.txt");
