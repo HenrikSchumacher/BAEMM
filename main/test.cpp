@@ -23,7 +23,7 @@ int main()
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
-    // Real* C = (Real*)malloc(3 * n * sizeof(Real));
+    Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     Int thread_count = 16;
 
@@ -100,18 +100,18 @@ int main()
     //                         );
     // H.ApplyMassInverse<wave_count>(A,B,wave_count,cg_tol);
 
-    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
-    // tic("FF");
-    // for (Int i = 0 ; i < 10; i++)
-    // {
-    //     H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-    //                     B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    //     // H.ApplyBoundaryOperators_PL(
-    //     //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-    //     //                 );
-    // }
-    // toc("FF");
-    const Real* C = H.VertexCoordinates();
+    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    tic("FF");
+    for (Int i = 0 ; i < 10; i++)
+    {
+        H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                        B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+        // H.ApplyBoundaryOperators_PL(
+        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+        //                 );
+    }
+    toc("FF");
+
     // H.DestroyKernel(&list);
 
     std::ofstream fout_r("data_real.txt");
@@ -131,7 +131,7 @@ int main()
 	}            
 
     free(B);
-    // free(C);
+    free(C);
     free(inc);
     free(kappa);
     // free(coeff);

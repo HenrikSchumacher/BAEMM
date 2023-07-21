@@ -172,14 +172,14 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
 
-# y = (1 + 2j) * np.ones((4,measurement_directions.shape[1]))
-# ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
-ret = vertices
+y = (1 + 2j) * np.ones((4,measurement_directions.shape[1]))
+ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
+
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 # test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
 
 res = ret - test_real #- 1j *test_imag[0:4,:]
-print(res[:,0:100])
+
 
 error = np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
