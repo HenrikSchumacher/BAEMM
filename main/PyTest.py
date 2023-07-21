@@ -44,7 +44,7 @@ def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measuremen
 
     wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
     dudn = solve(space,B,wave,"array")
-    
+    measurement_directions = np.transpose(measurement_directions)
     hwave = Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,np.conjugate(y)) - 1j*Herglotz_wave(space,wavenumber,measurement_directions,np.conjugate(y))
     dvdn = solve(space,B,hwave,"array")
 
@@ -172,7 +172,7 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
 
-y = (1 + 2j) * np.ones(4,measurement_directions.shape[0])
+y = (1 + 2j) * np.ones((4,measurement_directions.shape[1]))
 ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
