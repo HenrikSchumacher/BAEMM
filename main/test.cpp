@@ -127,7 +127,7 @@ int main()
             }
         }
     }
-    std::cout << error << std::endl;
+    std::cout << error/std::abs(a) << std::endl;
  
 
     // std::ofstream fout_r("data_real.txt");
