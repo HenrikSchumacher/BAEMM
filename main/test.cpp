@@ -22,8 +22,8 @@ int main()
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
-    Complex* C = (Complex*)malloc(16 * m * sizeof(Complex));
+    Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
+    Complex* C = (Complex*)malloc(16 * n * sizeof(Complex));
 
     Int thread_count = 16;
 
@@ -89,7 +89,7 @@ int main()
     Complex* neumann_data_scat_ptr = NULL;
 
     // const Real* B = H.VertexCoordinates();
-    for (int i = 0; i < 16 * m; i++)
+    for (int i = 0; i < 16 * n; i++)
     {
         B[i] = Complex(1.0f,0.0f);
     }
@@ -130,21 +130,21 @@ int main()
     std::cout << error << std::endl;
  
 
-    std::ofstream fout_r("data_real.txt");
-    // std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_r.is_open())
-	{
-		for(int i = 0; i < n ; i++)
-		{
-            for(int j = 0; j < 3 ; j++)
-            {
-                fout_r << C[i * 3 + j] << " "; 
-                // fout_i << C[i * wave_count + j].imag() << " "; 
-            }
-            fout_r << "\n";
-            // fout_i << "\n";
-		}
-	}            
+    // std::ofstream fout_r("data_real.txt");
+    // // std::ofstream fout_i("data_imag.txt");
+    // if(fout_r.is_open() && fout_r.is_open())
+	// {
+	// 	for(int i = 0; i < n ; i++)
+	// 	{
+    //         for(int j = 0; j < 3 ; j++)
+    //         {
+    //             fout_r << C[i * 3 + j] << " "; 
+    //             // fout_i << C[i * wave_count + j].imag() << " "; 
+    //         }
+    //         fout_r << "\n";
+    //         // fout_i << "\n";
+	// 	}
+	// }            
 
     free(B);
     free(C);
