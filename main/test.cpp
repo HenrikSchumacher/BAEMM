@@ -89,9 +89,10 @@ int main()
     Complex* neumann_data_scat_ptr = NULL;
 
     // const Real* B = H.VertexCoordinates();
-
-    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                   B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);;
+    for (i = 0; i < 16 * m; i++)
+    {
+        B[i] = Complex(1.0f,2.0f);
+    }
     // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
     //                         Complex(0.0f,0.0f), A, wave_count,
     //                         kappa, wave_coeff, wave_count, wave_chunk_size,
@@ -121,7 +122,7 @@ int main()
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_r << C[i * wave_count + j] << " "; 
+                fout_r << C[i * 3 + j] << " "; 
                 // fout_i << C[i * wave_count + j].imag() << " "; 
             }
             fout_r << "\n";
