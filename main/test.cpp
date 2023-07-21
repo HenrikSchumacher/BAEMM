@@ -23,7 +23,7 @@ int main()
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
-    Real* C = (Real*)malloc(3 * n * sizeof(Real));
+    // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     Int thread_count = 16;
 
@@ -111,7 +111,7 @@ int main()
     //     //                 );
     // }
     // toc("FF");
-    C = H.VertexCoordinates();
+    const Real* C = H.VertexCoordinates();
     // H.DestroyKernel(&list);
 
     std::ofstream fout_r("data_real.txt");
@@ -131,7 +131,7 @@ int main()
 	}            
 
     free(B);
-    free(C);
+    // free(C);
     free(inc);
     free(kappa);
     // free(coeff);
