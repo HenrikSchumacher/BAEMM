@@ -177,10 +177,9 @@ ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_d
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 # test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
-print(ret[:,0:10])
-print(test_real[:,0:10])
-res = ret - test_real #- 1j *test_imag[0:4,:]
 
+res = ret - test_real #- 1j *test_imag[0:4,:]
+print(res[:,0:100])
 
 error = np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
