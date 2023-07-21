@@ -100,7 +100,7 @@ int main()
     //                         );
     // H.ApplyMassInverse<wave_count>(A,B,wave_count,cg_tol);
 
-    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     tic("FF");
     for (Int i = 0 ; i < 10; i++)
     {
