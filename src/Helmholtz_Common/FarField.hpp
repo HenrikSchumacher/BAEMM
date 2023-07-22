@@ -202,7 +202,7 @@ public:
             *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             
-            CreateIncidentWave_PL<type>( One, inc_directions, wave_chunk_size_,
+            CreateIncidentWave_PL( One, inc_directions, wave_chunk_size_,
                                 Zero, incident_wave.data(), wave_count_,
                                 kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,type
                                 );
@@ -350,7 +350,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));;
+            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
             coeff[4 * i + 2] = Zero;
             coeff[4 * i + 3] = One;
         }

@@ -45,8 +45,8 @@ int main()
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 0.0f;
-        coeff[4 * i + 2] = 1.0f;
+        coeff[4 * i + 1] = 1.0f;
+        coeff[4 * i + 2] = 0.0f;
         coeff[4 * i + 3] = 0.0f;
     }
 
@@ -60,72 +60,92 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2 * Scalar::Pi<Real>;
+        kappa[i] = 1.0f;
     }
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    for (int i = 0 ; i < 4; i++)
-    {
-        inc[12*i + 0] = 1.0f;
-        inc[12*i + 1] = 0.0f;
-        inc[12*i + 2] = 0.0f;
-        inc[12*i + 3] = 0.0f;
-        inc[12*i + 4] = 1.0f;
-        inc[12*i + 5] = 0.0f;
-        inc[12*i + 6] = 0.0f;
-        inc[12*i + 7] = 0.0f;
-        inc[12*i + 8] = 1.0f;
-        inc[12*i + 9] = 1/std::sqrt(3.0f);
-        inc[12*i + 10] = 1/std::sqrt(3.0f);
-        inc[12*i + 11] = 1/std::sqrt(3.0f);
-    }
+    // for (int i = 0 ; i < 4; i++)
+    // {
+    //     inc[12*i + 0] = 1.0f;
+    //     inc[12*i + 1] = 0.0f;
+    //     inc[12*i + 2] = 0.0f;
+    //     inc[12*i + 3] = 0.0f;
+    //     inc[12*i + 4] = 1.0f;
+    //     inc[12*i + 5] = 0.0f;
+    //     inc[12*i + 6] = 0.0f;
+    //     inc[12*i + 7] = 0.0f;
+    //     inc[12*i + 8] = 1.0f;
+    //     inc[12*i + 9] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 10] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 11] = 1/std::sqrt(3.0f);
+    // }
 
     H.UseDiagonal(true);
 
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-    // Tensor2<Complex,Int> neumann_data_scat;
-    // Complex* neumann_data_scat_ptr = NULL;
+    Complex* neumann_data_scat_ptr = NULL;
 
-
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), C, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
-    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // const Real* B = H.VertexCoordinates();
+    for (int i = 0; i < 16 * n; i++)
+    {
+        B[i] = Complex(1.0f,0.0f);
+    }
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), C, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
+    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
     BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
-    tic("FF");
-    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-    //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    for (Int i = 0 ; i < 10; i++)
-    {
+    // tic("FF");
+    // for (Int i = 0 ; i < 10; i++)
+    // {
         H.ApplyBoundaryOperators_PL(
                         wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
                         );
-    }
-    toc("FF");
+        H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // }
+    // toc("FF");
 
     H.DestroyKernel(&list);
 
-    std::ofstream fout_r("data_real.txt");
-    std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_i.is_open())
-	{
-		for(int i = 0; i < n ; i++)
-		{
-            for(int j = 0; j < wave_count ; j++)
+    Real error = 0.0f;
+    Complex a = Complex(0.0f,-1/(2*kappa[0]));
+    a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
+
+    for(int i = 0; i < n ; i++)
+    {
+        for(int j = 0; j < 16 ; j++)
+        {
+            Real e = std::abs(B[i + 16*j] -a);
+            if (e > error)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                error = e;
             }
-            fout_r << "\n";
-            fout_i << "\n";
-		}
-	}            
+        }
+    }
+    std::cout << error/std::abs(a) << std::endl;
+ 
+
+    // std::ofstream fout_r("data_real.txt");
+    // // std::ofstream fout_i("data_imag.txt");
+    // if(fout_r.is_open() && fout_r.is_open())
+	// {
+	// 	for(int i = 0; i < n ; i++)
+	// 	{
+    //         for(int j = 0; j < 3 ; j++)
+    //         {
+    //             fout_r << C[i * 3 + j] << " "; 
+    //             // fout_i << C[i * wave_count + j].imag() << " "; 
+    //         }
+    //         fout_r << "\n";
+    //         // fout_i << "\n";
+	// 	}
+	// }            
 
     free(B);
     free(C);

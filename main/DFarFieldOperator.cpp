@@ -68,76 +68,73 @@ int main()
         neumann_data_scat_ptr = neumann_data_scat.data();
     }
     
-    switch (wave_type)
+    if (wave_type == "Radial")
     {
-        case "Plane":
+        switch (wave_count)
         {
-            switch (wave_count)
+            case 1:
             {
-                case 8:
-                {
-                    H.Derivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol);
-                    break;
-                }
-                case 16:
-                {
-                    H.Derivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol);
-                    break;
-                }
-                case 32:
-                {
-                    H.Derivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol);
-                    break;
-                }
-                case 64:
-                {
-                    H.Derivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Plane, cg_tol, gmres_tol);
-                    break;
-                }
-                default:
-                {
-                    eprint("Non valid wave count.");
-                    break;
-                }
+                H.Derivative_FF<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
+                break;
+            }
+            case 2:
+            {
+                H.Derivative_FF<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
+                break;
+            }
+            case 4:
+            {
+                H.Derivative_FF<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
+                break;
+            }
+            case 8:
+            {
+                H.Derivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
+                break;
+            }
+            default:
+            {
+                eprint("Non valid wave count.");
+                break;
             }
         }
-        case "Radial":
+    }
+    else
+    {       
+        switch (wave_count)
         {
-            switch (wave_count)
+            case 8:
             {
-                case 1:
-                {
-                    H.Derivative_FF<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol);
-                    break;
-                }
-                case 2:
-                {
-                    H.Derivative_FF<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol);
-                    break;
-                }
-                case 4:
-                {
-                    H.Derivative_FF<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol);
-                    break;
-                }
-                case 8:
-                {
-                    H.Derivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                                B_in.data(), B_out.data(), &neumann_data_scat_ptr, WaveType::Radial, cg_tol, gmres_tol);
-                    break;
-                }
-                default:
-                {
-                    eprint("Non valid wave count.");
-                    break;
-                }
+                H.Derivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                break;
+            }
+            case 16:
+            {
+                H.Derivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                break;
+            }
+            case 32:
+            {
+                H.Derivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                break;
+            }
+            case 64:
+            {
+                H.Derivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                break;
+            }
+            default:
+            {
+                eprint("Non valid wave count.");
+                break;
             }
         }
     }

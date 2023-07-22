@@ -32,26 +32,25 @@ def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_dir
         FF.append(u_inf[0].tolist())
     return np.array(FF)
 
-# def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measurement_directions,y):
-#     points = bempp.api.Grid(vertices, connectivity)
-#     space = bempp.api.function_space(points, "P", 1)
-#     normals = vertex_normals(space)
+def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measurement_directions,y):
+    points = bempp.api.Grid(vertices, connectivity)
+    space = bempp.api.function_space(points, "P", 1)
+    normals = vertex_normals(space)
 
-#     DL_H = helmholtz.adjoint_double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
-#     I = sparse.identity(space,space,space,precision = 'single').strong_form()
-#     B = ((1/2)*I + DL_H - 1j * SL)
+    DL_H = helmholtz.adjoint_double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
+    I = sparse.identity(space,space,space,precision = 'single').strong_form()
+    B = ((1/2)*I + DL_H - 1j * SL)
 
-#     wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
-#     dudn = solve(space,B,wave,"array")
-    
-#     measurement_directions = np.transpose(measurement_directions)
-#     hwave = Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,np.conjugate(y)) - 1j*Herglotz_wave(space,wavenumber,measurement_directions,np.conjugate(y))
-#     dvdn = solve(space,B,hwave,"array")
+    wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
+    dudn = solve(space,B,wave,"array")
+    measurement_directions = np.transpose(measurement_directions)
+    hwave = Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,np.conjugate(y)) - 1j*Herglotz_wave(space,wavenumber,measurement_directions,np.conjugate(y))
+    dvdn = solve(space,B,hwave,"array")
 
-#     DFF_adj = np.sum(np.multiply(dudn,dvdn),axis = 0)
-#     DFF_adj = -(1/incident_directions.shape[0])*np.multiply(normals,DFF_adj)
-#     return np.real(DFF_adj)
+    DFF_adj = np.sum(np.multiply(dudn,dvdn),axis = 0)
+    DFF_adj = -(1/incident_directions.shape[0])*np.multiply(normals,DFF_adj)
+    return np.real(DFF_adj)
 
 # def calc_DFF(connectivity,vertices,wavenumber,incident_directions,measurement_directions,v):
 #     points = bempp.api.Grid(vertices, connectivity)
@@ -169,21 +168,20 @@ space = bempp.api.function_space(points, "P", 1)
 # g = np.ones(measurement_directions.shape[1]) - 1j * np.ones(measurement_directions.shape[1])
 
 # normals = vertex_normals(space)
-# incident_directions = np.repeat(np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]]), 4, axis = 0)
+incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
 # print(incident_directions.shape)
-incident_directions = np.array([[1,0,0]])
-wave = incWave(space,2*np.pi,incident_directions)
-SL = helmholtz.double_layer(space,space,space,2*np.pi,precision = 'single').weak_form()
-ret = SL * wave[0,:]
+# incident_directions = np.array([[1,0,0]])
 
-# ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
+y = (1 + 2j) * np.ones((4,measurement_directions.shape[1]))
+ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
-test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
+# test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
 
-res = ret - test_real[0:1,:] - 1j *test_imag[0:1,:]
+res = ret - test_real #- 1j *test_imag[0:4,:]
 
-error = np.amax(np.divide(np.amax(np.abs(res),axis = 0),np.amax(np.abs(ret),axis = 0)))
+
+error = np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
 
 print(error)
