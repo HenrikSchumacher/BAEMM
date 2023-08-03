@@ -76,7 +76,7 @@ int main()
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
     Int dim = 3;
-    ReadInOut(meas_count, wave_count, B_in, "B.bin");
+    ReadInOut(vertex_count, 3, B_in, "B.bin");
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
