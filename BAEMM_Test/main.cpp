@@ -117,7 +117,7 @@ int main(int argc, const char * argv[])
     std::string path ( homedir );
     
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00153600T.txt";
-//        std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
+    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00038400T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00009600T.txt";
 //    std::string file_name = path + "/github/BAEMM/Meshes/TorusMesh_00000600T.txt";
     
