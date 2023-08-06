@@ -2,5 +2,5 @@
 	path = metal-cpp
 	url = git@github.com:bkaradzic/metal-cpp.git
 [submodule "Repulsor"]
-	path = Repulsor
+	path = submodules/Repulsor
 	url = git@github.com:HenrikSchumacher/Repulsor.git
