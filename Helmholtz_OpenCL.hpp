@@ -10,8 +10,8 @@
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
-#include "submodules/Repulsor/Tensors/GMRES.hpp"
-#include "submodules/Repulsor/Tensors/ConjugateGradient.hpp"
+#include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
+#include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
 namespace BAEMM
 {
