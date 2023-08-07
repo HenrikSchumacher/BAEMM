@@ -1,6 +1,8 @@
 [submodule "metal-cpp"]
-	path = metal-cpp
+	path = submodules/metal-cpp
 	url = git@github.com:bkaradzic/metal-cpp.git
-[submodule "Repulsor"]
-	path = Repulsor
+[submodule "submodules/Repulsor"]
+	path = submodules/Repulsor
 	url = git@github.com:HenrikSchumacher/Repulsor.git
+	branch = main
+	update = merge

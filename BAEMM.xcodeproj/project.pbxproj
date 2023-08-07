@@ -39,7 +39,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		AF7045762A52E9250073D08A /* Repulsor */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Repulsor; sourceTree = "<group>"; };
 		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF73BBF62997FE3400526B7D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Metal_Experiments.entitlements; sourceTree = "<group>"; };
@@ -49,7 +48,6 @@
 		AFA1CF0C298E56FF00085994 /* Literature */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Literature; sourceTree = "<group>"; };
 		AFA1CF0D298E56FF00085994 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		AFA1CF0F298E56FF00085994 /* metal-cpp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "metal-cpp"; sourceTree = "<group>"; };
 		AFA1CF10298E56FF00085994 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AFA1CF12298E572A00085994 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		AFA1CF14298E573500085994 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -59,6 +57,7 @@
 		AFA1CF23298E58F500085994 /* BAEMM_Test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BAEMM_Test.entitlements; sourceTree = "<group>"; };
 		AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
 		AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_Metal.hpp; sourceTree = "<group>"; };
+		AFC2719B2A800EA70074DD96 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,17 +96,16 @@
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
-				AF7045762A52E9250073D08A /* Repulsor */,
-				AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */,
-				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
-				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF0C298E56FF00085994 /* Literature */,
 				AFA1CF07298E56FF00085994 /* Mathematica */,
 				AFA1CF0D298E56FF00085994 /* Meshes */,
-				AFA1CF0F298E56FF00085994 /* metal-cpp */,
 				AFA1CF06298E56FF00085994 /* Notes */,
+				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
+				AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */,
+				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF09298E56FF00085994 /* src */,
+				AFC2719B2A800EA70074DD96 /* submodules */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
 				AF73BBF52997FE3400526B7D /* Metal_Experiments */,
 				AFA1CEFC298E56D400085994 /* Products */,
@@ -314,9 +312,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/opt/homebrew/opt/libomp/include,
 					/Users/Henrik/github/Repulsor,
-					"metal-cpp",
+					"submodules/metal-cpp",
 				);
 				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/libomp/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
@@ -385,9 +382,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/opt/homebrew/opt/libomp/include,
 					/Users/Henrik/github/Repulsor,
-					"metal-cpp",
+					"submodules/metal-cpp",
 				);
 				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/libomp/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;

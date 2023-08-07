@@ -10,8 +10,8 @@
 //#include <cblas.h>
 //#include <lapack.h>
 
-#include "Repulsor/Repulsor.hpp"
-#include "Repulsor/Tensors/Tensors.hpp"
+#include "submodules/Repulsor/Repulsor.hpp"
+#include "submodules/Repulsor/Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
