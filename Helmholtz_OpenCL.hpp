@@ -8,10 +8,10 @@
 #include <cblas.h>
 #include <lapack.h>
 
-#include "Repulsor/Repulsor.hpp"
+#include "submodules/Repulsor/Repulsor.hpp"
 
-#include "Repulsor/Tensors/GMRES.hpp"
-#include "Repulsor/Tensors/ConjugateGradient.hpp"
+#include "submodules/Repulsor/Tensors/GMRES.hpp"
+#include "submodules/Repulsor/Tensors/ConjugateGradient.hpp"
 
 namespace BAEMM
 {
