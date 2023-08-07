@@ -11,7 +11,7 @@
 //#include <lapack.h>
 
 #include "submodules/Repulsor/Repulsor.hpp"
-#include "submodules/Repulsor/Tensors/Tensors.hpp"
+#include "submodules/Repulsor/submodules/Tensors/Tensors.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper

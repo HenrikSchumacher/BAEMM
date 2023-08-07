@@ -126,9 +126,9 @@ public:
                         const Real h_1 = w_1.Norm();
                         const Real h_2 = w_2.Norm();
                         
-                        const Real h_0_inv = Scalar::Inv<Real>(h_0);
-                        const Real h_1_inv = Scalar::Inv<Real>(h_1);
-                        const Real h_2_inv = Scalar::Inv<Real>(h_2);
+                        const Real h_0_inv = Inv<Real>(h_0);
+                        const Real h_1_inv = Inv<Real>(h_1);
+                        const Real h_2_inv = Inv<Real>(h_2);
 
                         const Real a_0 = Dot(w_0,x_1) * h_0_inv;
                         const Real a_1 = Dot(w_1,x_2) * h_1_inv;
@@ -140,9 +140,9 @@ public:
                         
                         
                         // Inverse distances from the x_i to y.
-                        const Real R_0_inv = Scalar::Inv<Real>( std::sqrt(Dot(x_0,x_0)) );
-                        const Real R_1_inv = Scalar::Inv<Real>( std::sqrt(Dot(x_1,x_1)) );
-                        const Real R_2_inv = Scalar::Inv<Real>( std::sqrt(Dot(x_2,x_2)) );
+                        const Real R_0_inv = Inv<Real>( std::sqrt(Dot(x_0,x_0)) );
+                        const Real R_1_inv = Inv<Real>( std::sqrt(Dot(x_1,x_1)) );
+                        const Real R_2_inv = Inv<Real>( std::sqrt(Dot(x_2,x_2)) );
                         
                         const Real a_2_over_R_0 = a_2 * R_0_inv;
                         const Real b_2_over_R_1 = b_2 * R_1_inv;
