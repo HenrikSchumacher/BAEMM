@@ -127,26 +127,43 @@ int main()
     TangentPointMetric<Mesh_T>       tpm        (q,p);
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
-    // The operator for the metric.
-    auto A = [&]( ptr<Real> X, mut<Real> Y )
-    {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
-    };
-
-    Real one_over_regpar = 1/regpar;
-
     Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
     mut<Real> Z  = Z_buffer.data();
+
+    // The operator for the metric.
+    auto M = [&]( ptr<Real> X, mut<Real> Y )
+    {
+        tpm.MultiplyMetric( *M, Scalar::One<Real>, X, Scalar::Zero<Real>, Y, dim );
+    };
 
     // The operator for the preconditioner.
     auto P = [&]( ptr<Real> X, mut<Real> Y )
     {
         M->H1Solve( X, Y, dim );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
+        pseudo_lap.MultiplyMetric( *M, Scalar::One<Real>, Y, Scalar::Zero<Real>, Z, dim );
         M->H1Solve( Z, Y, dim );
     };
 
+    ConjugateGradient<3,Real,size_t> cg(vertex_count,500,thread_count);
+    
+    // The operator for the inverse metric.
+    auto M_inv = [&]( ptr<Real> X, mut<Real> Y )
+    {
+        zerofy_buffer(C_out, static_cast<size_t>(3 * vertex_count), thread_count);
+        bool succeeded = cg(M,P,X,3,Y,3,0.005);
+    };
+
+    auto A = [&]( ptr<Real> X, mut<Real> Y )
+    {
+        M_inv(Y,Z);
+        copy_buffer(Z, Y, 3 * vertex_count, thread_count);
+        combine_buffers(regpar, X, Scalar::One<Real>, Z, 3 * vertex_count, thread_count);
+    }
+
+    Tensor2<Real,Int> B (vertex_count,3);
+
+    M_inv(B_in.data(),B.data());
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Real gmres_tol_outer = 0.01;
@@ -159,25 +176,25 @@ int main()
             case 1:
             {
                 succeeded = H.GaussNewtonStep<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                            A, P, B.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                 break;
             }
             case 2:
             {
                 succeeded = H.GaussNewtonStep<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                            A, P, B.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                 break;
             }
             case 4:
             {
                 succeeded = H.GaussNewtonStep<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                            A, P, B.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                 break;
             }
             case 8:
             {
                 succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size, 
-                            A, P, B_in.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
+                            A, P, B.data(), B_out.data(), &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol, gmres_tol_outer);
                 break;
             }
             default:
