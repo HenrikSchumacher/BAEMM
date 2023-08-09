@@ -15,7 +15,7 @@ using namespace Tensors;
 using namespace Repulsor;
 
 using Int = int;
-using Real = float;
+using Real = double;
 using Complex = std::complex<Real>;
 
 void ReadRegpar(Real& regpar)

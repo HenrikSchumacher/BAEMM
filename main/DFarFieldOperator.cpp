@@ -13,7 +13,7 @@ using namespace Tools;
 using namespace Tensors;
 
 using Int = int;
-using Real = float;
+using Real = double;
 using Complex = std::complex<Real>;
 
 int main()
