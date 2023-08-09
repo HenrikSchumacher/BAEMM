@@ -14,7 +14,7 @@ using namespace Repulsor;
 using uint = unsigned int;
 using LInt = long long;
 using Int = int;
-using Real = float;
+using Real = double;
 using Complex = std::complex<Real>;
 
 void ReadRegpar(Real& regpar)
