@@ -116,8 +116,8 @@ int main()
 
     M->cluster_tree_settings.split_threshold                        =  2;
     M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
-    M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125f;
-    M->adaptivity_settings.theta                                    = 10.0f;
+    M->block_cluster_tree_settings.far_field_separation_parameter   =  static_cast<Real>(0.125);
+    M->adaptivity_settings.theta                                    = static_cast<Real>(10.0);
 
     const Real q  = 6;
     const Real p  = 12;

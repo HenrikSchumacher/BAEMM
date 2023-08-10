@@ -16,15 +16,16 @@ using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00040560T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
+    Int m = H.GetMeasCount();
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-
-    Complex* C = (Complex*)malloc(16 * H.GetMeasCount() * sizeof(Complex));
+    Complex* B = (Complex*)malloc(16 * m * sizeof(Complex));
+    Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
     Int thread_count = 16;
 
@@ -41,10 +42,27 @@ int main()
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
     Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     // Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+    Complex * wave_coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
+
+    // for(Int i = 0 ; i < wave_chunk_count ; i++)
+    // {
+    //     coeff[4 * i + 0] = 0.0f;
+    //     coeff[4 * i + 1] = 0.0f;
+    //     coeff[4 * i + 2] = 0.0f;
+    //     coeff[4 * i + 3] = 1.0f;
+    // }
+
+    for(Int i = 0 ; i < wave_chunk_count ; i++)
+    {
+        wave_coeff[4 * i + 0] = 0.0f;
+        wave_coeff[4 * i + 1] = 1.0f;
+        wave_coeff[4 * i + 2] = 0.0f;
+        wave_coeff[4 * i + 3] = 0.0f;
+    }
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = Scalar::Pi<Real>;
+        kappa[i] = 2*Scalar::Pi<Real>;
     }
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
@@ -70,33 +88,50 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-    // Tensor2<Complex,Int> neumann_data_scat;
-    // Complex* neumann_data_scat_ptr = NULL;
+    Complex* neumann_data_scat_ptr = NULL;
 
-    tic("FF");
-    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    toc("FF");
+    // const Real* B = H.VertexCoordinates();
+    // for (int i = 0; i < 16 * m; i++)
+    // {
+    //     B[i] = Complex(1.0f,2.0f);
+    // }
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), A, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
+    // H.ApplyMassInverse<wave_count>(A,B,wave_count,cg_tol);
+    H.type_cast(B,H.VertexCoordinates(),3*n,4);
+    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    H.AdjointDerivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                    B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+        // H.ApplyBoundaryOperators_PL(
+        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+        //                 );
+
+    // H.DestroyKernel(&list);
 
     std::ofstream fout_r("data_real.txt");
-    std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_i.is_open())
+    // std::ofstream fout_i("data_imag.txt");
+    if(fout_r.is_open() && fout_r.is_open())
 	{
-		for(int i = 0; i < H.GetMeasCount() ; i++)
+		for(int i = 0; i < n ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                fout_r << C[i * 3 + j] << " "; 
+                // fout_i << C[i * wave_count + j].imag() << " "; 
             }
             fout_r << "\n";
-            fout_i << "\n";
+            // fout_i << "\n";
 		}
 	}            
 
-    // free(B);
+    free(B);
     free(C);
     free(inc);
     free(kappa);
+    // free(coeff);
+    free(wave_coeff);
     return 0;
 }

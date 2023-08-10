@@ -100,7 +100,7 @@ public:
             for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
             {
                 inc_coeff_ptr[4 * i + 0] = Zero;
-                inc_coeff_ptr[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
+                inc_coeff_ptr[4 * i + 1] = C_ext(R_ext(0),-kappa[i]);
                 inc_coeff_ptr[4 * i + 2] = One;
                 inc_coeff_ptr[4 * i + 3] = Zero;
             }
@@ -190,7 +190,7 @@ public:
         for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
         {
             inc_coeff_ptr[4 * i + 0] = Zero;
-            inc_coeff_ptr[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
+            inc_coeff_ptr[4 * i + 1] = C_ext(R_ext(0),-kappa[i]);
             inc_coeff_ptr[4 * i + 2] = One;
             inc_coeff_ptr[4 * i + 3] = Zero;
         }
@@ -299,7 +299,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
+            coeff[4 * i + 1] = C_ext(R_ext(0),-kappa[i]);
             coeff[4 * i + 2] = One;
             coeff[4 * i + 3] = Zero;
         }
@@ -350,7 +350,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = static_cast<C_ext>(Complex(0.0f,-kappa[i]));
+            coeff[4 * i + 1] = C_ext(R_ext(0),-kappa[i]);
             coeff[4 * i + 2] = Zero;
             coeff[4 * i + 3] = One;
         }
