@@ -150,7 +150,7 @@ int main()
     // The operator for the inverse metric.
     auto M_inv = [&]( ptr<Real> X, mut<Real> Y )
     {
-        zerofy_buffer(C_out, static_cast<size_t>(3 * vertex_count), thread_count);
+        zerofy_buffer(Y, static_cast<size_t>(3 * vertex_count), thread_count);
         bool succeeded = cg(M,P,X,3,Y,3,0.005);
     };
 
@@ -158,10 +158,10 @@ int main()
     {
         M_inv(Y,Z);
         copy_buffer(Z, Y, 3 * vertex_count, thread_count);
-        combine_buffers(regpar, X, Scalar::One<Real>, Z, 3 * vertex_count, thread_count);
-    }
+        combine_buffers<Scalar::Flag::Generic>(regpar, X, Scalar::One<Real>, Z, 3 * vertex_count, thread_count);
+    };
 
-    Tensor2<Real,Int> B (vertex_count,3);
+    Tensor2<Real,Int> B (3, vertex_count);
 
     M_inv(B_in.data(),B.data());
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
