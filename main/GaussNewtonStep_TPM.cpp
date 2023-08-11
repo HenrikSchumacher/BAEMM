@@ -132,7 +132,7 @@ int main()
     mut<Real> Z  = Z_buffer.data();
 
     // The operator for the metric.
-    auto M = [&]( ptr<Real> X, mut<Real> Y )
+    auto TPM = [&]( ptr<Real> X, mut<Real> Y )
     {
         tpm.MultiplyMetric( *M, Scalar::One<Real>, X, Scalar::Zero<Real>, Y, dim );
     };
@@ -151,7 +151,7 @@ int main()
     auto M_inv = [&]( ptr<Real> X, mut<Real> Y )
     {
         zerofy_buffer(Y, static_cast<size_t>(3 * vertex_count), thread_count);
-        bool succeeded = cg(M,P,X,3,Y,3,0.005);
+        bool succeeded = cg(TPM,P,X,3,Y,3,0.005);
     };
 
     auto A = [&]( ptr<Real> X, mut<Real> Y )
