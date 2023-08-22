@@ -223,7 +223,7 @@ public:
 
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
-                        
+            
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             AvOpTransp.Dot(
