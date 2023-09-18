@@ -108,6 +108,12 @@ int main()
     {
         switch (wave_count)
         {
+            case 1:
+            {
+                H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                break;
+            }
             case 8:
             {
                 H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,

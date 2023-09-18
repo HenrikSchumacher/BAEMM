@@ -247,7 +247,7 @@ public:
                    const Real vnorminv = Scalar::One<Real> / std::sqrt( std::abs(a + b) );
                    const Real SinAlpha = L1_inv * vnorminv * a;
                    const Real SinBeta  = L2_inv * vnorminv * b;
-                   
+                
                    sum += L1 * std::sqrt( Scalar::One<Real> - SinAlpha * SinAlpha ) * ( std::atanh(SinAlpha) + std::atanh(SinBeta) );
                }
                
