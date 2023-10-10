@@ -3,8 +3,6 @@
 #include <cblas.h>
 #include "read.hpp"
 
-#include "../../../Helmholtz_OpenCL.hpp"
-
 using Complex = std::complex<Real>;
 using LInt = long long;
 using SReal = Real;
@@ -16,20 +14,18 @@ using namespace Repulsor;
 
 int main()
 {
-    // BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Bob_00042752T.txt");
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Spot_00093696T.txt");
-    // BAEMM::Helmholtz_OpenCL H  = read_OpenCL("/github/BAEMM/Meshes/TorusMesh_00038400T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00005120T.txt");
+    // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
     Int m = H.GetMeasCount();
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* A = (Complex*)malloc(16 * n * sizeof(Complex));
     Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(16 * H.SimplexCount() * sizeof(Complex));
+    Complex* C = (Complex*)malloc(16 * n * sizeof(Complex));
 
-    Int thread_count = 4;
+    Int thread_count = 16;
 
     // using namespace Tensors;
     // using namespace Tools;
@@ -48,15 +44,24 @@ int main()
 
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
+        coeff[4 * i + 0] = 0.0f;
+        coeff[4 * i + 1] = 0.0f;
+        coeff[4 * i + 2] = 1.0f;
+        coeff[4 * i + 3] = 0.0f;
+    }
+
+    for(Int i = 0 ; i < wave_chunk_count ; i++)
+    {
         wave_coeff[4 * i + 0] = 0.0f;
-        wave_coeff[4 * i + 1] = -1.0f;
+        wave_coeff[4 * i + 1] = 1.0f;
         wave_coeff[4 * i + 2] = 0.0f;
         wave_coeff[4 * i + 3] = 0.0f;
     }
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2*Scalar::Pi<Real>;
+        kappa[i] = Scalar::Pi<Real>;
+        // kappa[i] = 1.0f;
     }
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
@@ -82,60 +87,69 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), A, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
-
-    zerofy_buffer(B,wave_count*n,thread_count);
-    H.BoundaryPotential<16>( kappa, coeff, A, B, wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );   
-
-    // Complex* neumann_data_scat_ptr = NULL;
+    Complex* neumann_data_scat_ptr = NULL;
 
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
-    //     B[i] = Complex(1.0f,2.0f);
+    //     B[i] = Complex(1.0f,0.0f);
     // }
+    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+                            Complex(0.0f,0.0f), C, wave_count,
+                            kappa, wave_coeff, wave_count, wave_chunk_size,
+                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
+                            );
+    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
-    // H.type_cast(B,H.VertexCoordinates(),3*n,4);
-    
-    const Real epsilon = 0.01;
-    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
-    // H.Derivative_FF<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-    //                 B, C, &neumann_data_scat_ptr, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    H.ApplyNearFieldOperators_PL(
-                        Complex(1.0f,0.0f), B, wave_count, 
-                        Complex(0.0f,0.0f), C, wave_count, 
-                        kappa, coeff, wave_count, wave_chunk_size, 
-                        epsilon);
+    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    // tic("FF");
+    // for (Int i = 0 ; i < 10; i++)
+    // {
+        H.ApplyBoundaryOperators_PL(
+                        wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+                        );
+    //    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // }
+    // toc("FF");
+    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
 
-    // H.DestroyKernel(&list);
-    Real max = 0;
-    Real abs ;
+    H.DestroyKernel(&list);
+
+    // Real error = 0.0f;
+    // Complex a = Complex(0.0f,-1/(2*kappa[0]));
+    // a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
+
+    // for(int i = 0; i < n ; i++)
+    // {
+    //     for(int j = 0; j < 16 ; j++)
+    //     {
+    //         Real e = std::abs(B[i + 16*j] -a);
+    //         if (e > error)
+    //         {
+    //             error = e;
+    //         }
+    //     }
+    // }
+    // std::cout << error/std::abs(a) << std::endl;
+ 
+
     std::ofstream fout_r("data_real.txt");
     std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_r.is_open())
+    if(fout_r.is_open() && fout_i.is_open())
 	{
-		for(int i = 0; i < H.SimplexCount() ; i++)
+		for(int i = 0; i < n ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
                 fout_r << C[i * wave_count + j].real() << " "; 
                 fout_i << C[i * wave_count + j].imag() << " "; 
-                abs = std::abs(C[i * wave_count + j]);
-                if (abs > max)
-                {
-                    max = abs;
-                }
             }
             fout_r << "\n";
             fout_i << "\n";
 		}
-	}  
-    std::cout << max << std::endl;          
-    free(A);
+	}            
+
     free(B);
     free(C);
     free(inc);

@@ -1,11 +1,11 @@
 import bempp.api
 from bempp.api.operators.far_field import helmholtz as helmholtz_far
+from bempp.api.operators.potential import helmholtz as helmholtz_pot
 from bempp.api.operators.boundary import sparse,helmholtz
 from bempp.core import opencl_kernels
 import numpy as np
 import json
 import scipy as sp
-from pytictoc import TicToc
 
 
 def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
@@ -44,6 +44,7 @@ def calc_DFF_adj(connectivity,vertices,wavenumber,incident_directions,measuremen
 
     wave = incWave_dnormal(space,normals,wavenumber,incident_directions) - 1j*incWave(space,wavenumber,incident_directions)
     dudn = solve(space,B,wave,"array")
+    
     measurement_directions = np.transpose(measurement_directions)
     hwave = Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,np.conjugate(y)) - 1j*Herglotz_wave(space,wavenumber,measurement_directions,np.conjugate(y))
     dvdn = solve(space,B,hwave,"array")
@@ -148,12 +149,13 @@ def normal_function(i):
 #     normals = np.multiply(n,1/np.linalg.norm(n,axis=0))
 #     return normals
 
-f = open("/HOME1/users/guests/jannr/github/BAEMM/main/mesh.json")
-data = json.load(f)
-vertices = np.array(data["Vertices"])
-connectivity = np.array(data["Connectivity"])
-f.close()
-
+# f = open("C:\msys64\home\janni\github\BAEMM\src\Meshes\mesh.json")
+# data = json.load(f)
+# vertices = np.array(data["Vertices"])
+# connectivity = np.array(data["Connectivity"])
+# f.close()
+vertices = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_V.txt").transpose()
+connectivity = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_T.txt").transpose()
 f = open("/HOME1/users/guests/jannr/github/BAEMM/main/meas.json")
 data = json.load(f)
 measurement_directions = np.array(data["Vertices"])
@@ -163,25 +165,43 @@ f.close()
 points = bempp.api.Grid(vertices,connectivity)
 space = bempp.api.function_space(points, "P", 1)
 
-# B = vertices
+# ev_pts = points.centroids + 0.001*points.normals
+# single_far = helmholtz_far.single_layer(space, measurement_directions, 2,precision = 'single')
+# double_far = helmholtz_far.double_layer(space, measurement_directions, 2,precision = 'single')
 
-# g = np.ones(measurement_directions.shape[1]) - 1j * np.ones(measurement_directions.shape[1])
+# single_pot = helmholtz_pot.single_layer(space, ev_pts.transpose(), np.pi, precision = 'single')
+# double_pot = helmholtz_pot.double_layer(space, ev_pts.transpose(), np.pi, precision = 'single')
+
+# ret = ret[0]
+
+DL = helmholtz.single_layer(space,space,space, np.pi,precision = 'single').weak_form()
+
+# g = np.ones((vertices.shape[1],1)) + 2j * np.ones((vertices.shape[1],1))
+# ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
 
 # normals = vertex_normals(space)
 incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
-# print(incident_directions.shape)
 # incident_directions = np.array([[1,0,0]])
+# ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
 
-y = (1 + 2j) * np.ones((4,measurement_directions.shape[1]))
-ret = calc_DFF_adj(connectivity,vertices,np.pi,incident_directions,measurement_directions,y)
+# ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
+
+g = incWave(space,np.pi,incident_directions)
+
+# func = bempp.api.GridFunction(space,coefficients = g[0,:])
+# ret = (2j) * single_pot * func + (1) * double_pot * func
+ret = DL * g[0,:]
+# normals = vertex_normals(space)
+# ret = (1 - 4j) * Herglotz_wave(space,2,measurement_directions,g) + (-2 + 1j) * Herglotz_wave_dnormal(space,normals,2,measurement_directions,g)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
-# test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
-
-res = ret - test_real #- 1j *test_imag[0:4,:]
-
-
-error = np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1))
+test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
+# print(np.amax(np.abs(ret)))
+res = ret - test_real[0,:] - 1j *test_imag[0,:]
+# print(np.shape(res))
+error = np.amax(np.divide(np.amax(np.abs(res)),np.amax(np.abs(ret))))
+# error2 = np.amax(np.divide(np.amax(np.abs(res),axis = 0),np.amax(np.abs(ret),axis = 0)))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
 
 print(error)
+# print(error2)

@@ -13,7 +13,7 @@ using uint = unsigned int;
 using namespace Tools;
 using namespace Tensors;
 
-using Real = float;
+using Real = double;
 using Int = int;
 
 template<typename Real, typename Int>
