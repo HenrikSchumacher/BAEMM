@@ -14,7 +14,7 @@ using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00005120T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00040560T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
@@ -45,8 +45,8 @@ int main()
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 0.0f;
-        coeff[4 * i + 2] = 1.0f;
+        coeff[4 * i + 1] = 1.0f;
+        coeff[4 * i + 2] = 0.0f;
         coeff[4 * i + 3] = 0.0f;
     }
 
@@ -94,27 +94,27 @@ int main()
     // {
     //     B[i] = Complex(1.0f,0.0f);
     // }
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), C, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
-    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), C, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
+    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
-    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
     // for (Int i = 0 ; i < 10; i++)
     // {
-        H.ApplyBoundaryOperators_PL(
-                        wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-                        );
+    //     H.ApplyBoundaryOperators_PL(
+    //                     wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+    //                     );
     //    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
     // }
     // toc("FF");
-    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-    //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
 
-    H.DestroyKernel(&list);
+    // H.DestroyKernel(&list);
 
     // Real error = 0.0f;
     // Complex a = Complex(0.0f,-1/(2*kappa[0]));
@@ -142,8 +142,8 @@ int main()
 		{
             for(int j = 0; j < wave_count ; j++)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                fout_r << B[i * wave_count + j].real() << " "; 
+                fout_i << B[i * wave_count + j].imag() << " "; 
             }
             fout_r << "\n";
             fout_i << "\n";

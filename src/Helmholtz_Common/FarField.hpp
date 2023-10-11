@@ -6,6 +6,69 @@ public:
                     C_ext* C_out, WaveType type, 
                     R_ext cg_tol, R_ext gmres_tol)
     {
+        // ptic(ClassName()+"::FarField");
+        // // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
+        // // phi = A\wave is the bdry potential which will be mapped onto the far field
+        // const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
+        // const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
+
+        // const I_ext  n           = static_cast<I_ext>(VertexCount());
+        // const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;       
+
+        // Tensor2<C_ext,I_ext>  inc_coeff ( wave_chunk_count_, 4 );
+        // Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
+        // Tensor2<C_ext,I_ext>  wave  (  n, wave_count_  );     //weak representation of the incident wave
+        // Tensor2<C_ext,I_ext>  phi   (   n, wave_count_  );
+
+        // C_ext* inc_coeff_ptr = inc_coeff.data();
+
+        // phi.SetZero();
+
+        // // create weak representation of the negative incident wave
+        // for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
+        // {
+        //     inc_coeff_ptr[4 * i + 0] = Zero;
+        //     inc_coeff_ptr[4 * i + 1] = -One;
+        //     inc_coeff_ptr[4 * i + 2] = Zero;
+        //     inc_coeff_ptr[4 * i + 3] = Zero;
+        // }
+
+
+        // CreateIncidentWave_PL(One, inc_directions, wave_chunk_size_,
+        //                     Zero, wave.data(), wave_count_,
+        //                     kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,
+        //                     type
+        //                     );
+
+
+        // BoundaryPotential<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
+
+
+        // ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
+        //                     Zero, C_out, wave_count_,
+        //                     kappa,coeff.data(), wave_count_, wave_chunk_size_
+        //                     );
+
+        // ptoc(ClassName()+"::FarField");
+        Tensor1<R_ext,I_ext> eta (wave_chunk_count_);
+
+        R_ext* p_eta = eta.data();
+        for (Int i = 0; i < wave_chunk_count_; i++)
+        {
+            p_eta[i] = kappa[i];
+        }
+
+        FarField_parameters<solver_count>(kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
+                            C_out, type, eta.data(), cg_tol, gmres_tol);
+    }
+
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    void FarField_parameters(const R_ext* kappa, const I_ext& wave_chunk_count_, 
+                    R_ext* inc_directions,  const I_ext& wave_chunk_size_, 
+                    C_ext* C_out, WaveType type, 
+                    R_ext* eta,
+                    R_ext cg_tol, R_ext gmres_tol)
+    {
         ptic(ClassName()+"::FarField");
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field
@@ -41,7 +104,8 @@ public:
                             );
 
 
-        BoundaryPotential<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
+        BoundaryPotential<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), 
+                                            eta, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
 
         ApplyFarFieldOperators_PL( One, phi.data(), wave_count_,
@@ -51,7 +115,6 @@ public:
 
         ptoc(ClassName()+"::FarField");
     }
-
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void Derivative_FF(const R_ext* kappa, const I_ext& wave_chunk_count_, 
@@ -274,6 +337,7 @@ public:
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
+                            R_ext* eta,
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
@@ -299,7 +363,7 @@ public:
         for(Int i = 0 ; i < wave_chunk_count_ ; i++)
         {
             coeff[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
-            coeff[4 * i + 1] = C_ext(R_ext(0),-kappa[i]);
+            coeff[4 * i + 1] = C_ext(R_ext(0),-eta[i]);
             coeff[4 * i + 2] = One;
             coeff[4 * i + 3] = Zero;
         }
