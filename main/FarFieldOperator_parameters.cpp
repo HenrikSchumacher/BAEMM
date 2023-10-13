@@ -32,7 +32,6 @@ int main()
     Tensor2<Real,Int>       meas_directions;
     Tensor2<Real,Int>       incident_directions;
     Tensor1<Real,Int>       kappa;
-    Tensor1<Real,Int>       eta;
 
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, wave_type, simplices, meas_directions, incident_directions, kappa);
 
@@ -55,6 +54,7 @@ int main()
     Real cg_tol = static_cast<Real>(0.000001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
+    Tensor1<Real,Int> eta(wave_chunk_count);
     Real* p_eta = eta.data();
 
     for (Int i = 0; i < wave_chunk_count; i++)
