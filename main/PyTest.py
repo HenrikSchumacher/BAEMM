@@ -104,7 +104,7 @@ def incWave(space,space_0,wavenumber,incident_directions):
     #x = space.grid.vertices
     x = space.grid.centroids
         
-    wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions))
+    wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
     I = sparse.identity(space_0,space_0,space).strong_form
     wave = I * wave
     return wave.transpose()
