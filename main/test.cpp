@@ -38,7 +38,7 @@ int main()
     // // ReadFromFile<Real, Int>(file_name, coords, simplices);
 
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
-    Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
+    // Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
     Complex * wave_coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
@@ -66,21 +66,21 @@ int main()
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    for (int i = 0 ; i < 4; i++)
-    {
-        inc[12*i + 0] = 1.0f;
-        inc[12*i + 1] = 0.0f;
-        inc[12*i + 2] = 0.0f;
-        inc[12*i + 3] = 0.0f;
-        inc[12*i + 4] = 1.0f;
-        inc[12*i + 5] = 0.0f;
-        inc[12*i + 6] = 0.0f;
-        inc[12*i + 7] = 0.0f;
-        inc[12*i + 8] = 1.0f;
-        inc[12*i + 9] = 1/std::sqrt(3.0f);
-        inc[12*i + 10] = 1/std::sqrt(3.0f);
-        inc[12*i + 11] = 1/std::sqrt(3.0f);
-    }
+    // for (int i = 0 ; i < 4; i++)
+    // {
+    //     inc[12*i + 0] = 1.0f;
+    //     inc[12*i + 1] = 0.0f;
+    //     inc[12*i + 2] = 0.0f;
+    //     inc[12*i + 3] = 0.0f;
+    //     inc[12*i + 4] = 1.0f;
+    //     inc[12*i + 5] = 0.0f;
+    //     inc[12*i + 6] = 0.0f;
+    //     inc[12*i + 7] = 0.0f;
+    //     inc[12*i + 8] = 1.0f;
+    //     inc[12*i + 9] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 10] = 1/std::sqrt(3.0f);
+    //     inc[12*i + 11] = 1/std::sqrt(3.0f);
+    // }
 
     H.UseDiagonal(true);
 
@@ -158,7 +158,7 @@ int main()
 
     free(B);
     free(C);
-    free(inc);
+    // free(inc);
     free(kappa);
     free(coeff);
     free(wave_coeff);
