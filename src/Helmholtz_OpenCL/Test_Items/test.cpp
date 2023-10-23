@@ -14,13 +14,13 @@ using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00020480T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00005120T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
     Int m = H.GetMeasCount();
-    const Int wave_count = 1;
-    constexpr Int wave_chunk_size = 1;
+    const Int wave_count = 16;
+    constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
     Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
@@ -46,8 +46,8 @@ int main()
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 1.0f;
-        coeff[4 * i + 2] = 0.0f;
+        coeff[4 * i + 1] = 0.0f;
+        coeff[4 * i + 2] = 1.0f;
         coeff[4 * i + 3] = 0.0f;
     }
 
@@ -61,8 +61,9 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = Scalar::Pi<Real>;
+        kappa[i] = 2*Scalar::Pi<Real>;
         // kappa[i] = 1.0f;
+        //kappa[i] = 2*Scalar::Pi<Real>;
     }
 
     // for (int i = 0 ; i < wave_chunk_count; i++)
@@ -72,78 +73,48 @@ int main()
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    // for (int i = 0 ; i < 4; i++)
-    // {
-    //     inc[12*i + 0] = 1.0f;
-    //     inc[12*i + 1] = 0.0f;
-    //     inc[12*i + 2] = 0.0f;
-    //     inc[12*i + 3] = 0.0f;
-    //     inc[12*i + 4] = 1.0f;
-    //     inc[12*i + 5] = 0.0f;
-    //     inc[12*i + 6] = 0.0f;
-    //     inc[12*i + 7] = 0.0f;
-    //     inc[12*i + 8] = 1.0f;
-    //     inc[12*i + 9] = 1/std::sqrt(3.0f);
-    //     inc[12*i + 10] = 1/std::sqrt(3.0f);
-    //     inc[12*i + 11] = 1/std::sqrt(3.0f);
-    // }
+    for (int i = 0 ; i < 4; i++)
+    {
+        inc[12*i + 0] = 1.0f;
+        inc[12*i + 1] = 0.0f;
+        inc[12*i + 2] = 0.0f;
+        inc[12*i + 3] = 0.0f;
+        inc[12*i + 4] = 1.0f;
+        inc[12*i + 5] = 0.0f;
+        inc[12*i + 6] = 0.0f;
+        inc[12*i + 7] = 0.0f;
+        inc[12*i + 8] = 1.0f;
+        inc[12*i + 9] = 1/std::sqrt(3.0f);
+        inc[12*i + 10] = 1/std::sqrt(3.0f);
+        inc[12*i + 11] = 1/std::sqrt(3.0f);
+    }
 
     H.UseDiagonal(true);
 
-    Real cg_tol = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0001);
+    Real cg_tol = static_cast<Real>(0.000001);
+    Real gmres_tol = static_cast<Real>(0.00001);
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    // Tensor2<Real,Int> coords (n, 3     );
-        
-    // mut<Real> V = coords.data();
-
+    // const float* V = H.VertexCoordinates();
+    // for (int i = 0; i < n; i++)
     // {
-    //     std::ifstream s ("/github/BAEMM/Meshes/Sphere_00041508T.txt");
-        
-    //     std::string str;
-    //     Int amb_dim;
-    //     Int dom_dim;
-    //     Int vertex_count;
-    //     Int simplex_count;
-    //     s >> str;
-    //     s >> dom_dim;
-    //     valprint("dom_dim",dom_dim);
-    //     s >> str;
-    //     s >> amb_dim;
-    //     valprint("amb_dim",amb_dim);
-    //     s >> str;
-    //     s >> vertex_count;
-    //     valprint("vertex_count",vertex_count);
-    //     s >> str;
-    //     s >> simplex_count;
-    //     valprint("simplex_count",simplex_count);
-        
-    //     const Int simplex_size = dom_dim+1;
-        
-    //     valprint("simplex_size",simplex_size);
-        
-    //     for( Int i = 0; i < vertex_count; ++i )
+    //     for (int j = 0; j < wave_count; j++)
     //     {
-    //         for( Int k = 0; k < amb_dim; ++k )
-    //         {
-    //             s >> V[amb_dim * i + k];
-    //         }
+    //         B[wave_count*i + j] = std::exp(Complex(0.0f,kappa[j]* V[3*i] ));
     //     }
     // }
-
-    const float* V = H.VertexCoordinates();
-    for (int i = 0; i < n; i++)
-    {
-        B[i] = std::exp(Complex(0.0f,kappa[0]*V[3*i]));
-    }
-    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-    //                         Complex(0.0f,0.0f), C, wave_count,
-    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
-    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
-    //                         );
-    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // const Real* B = H.VertexCoordinates();
+    // for (int i = 0; i < 16 * n; i++)
+    // {
+    //     B[i] = Complex(1.0f,0.0f);
+    // }
+    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+                            Complex(0.0f,0.0f), C, wave_count,
+                            kappa, wave_coeff, wave_count, wave_chunk_size,
+                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
+                            );
+    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
     BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
@@ -160,27 +131,27 @@ int main()
     H.DestroyKernel(&list);
 
     // Real error = 0.0f;
-    // Real max = 0.0f;
-    // // Complex a = Complex(0.0f,-1/(2*kappa[0]));
-    // // a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
+    // // Real max = 0.0f;
+    // Complex a = Complex(0.0f,-1/(2*kappa[0]));
+    // a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
 
     // for(int i = 0; i < m ; i++)
     // {
     //     for(int j = 0; j < 16 ; j++)
     //     {
-    //         Real e = std::abs(B[i + 16*j] - C[i + 16*j]);
-    //         Real abs = std::abs(B[i + 16*j] );
+    //         Real e = std::abs(B[i + 16*j] - a);
+    //         // Real abs = std::abs(B[i + 16*j] );
     //         if (e > error)
     //         {
     //             error = e;
     //         }
-    //         if (abs > max)
-    //         {
-    //             max = abs;
-    //         }
+    //         // if (abs > max)
+    //         // {
+    //         //     max = abs;
+    //         // }
     //     }
     // }
-    // std::cout << error/max << std::endl;
+    // std::cout << error/std::abs(a) << std::endl;
  
 
     std::ofstream fout_r("data_real.txt");

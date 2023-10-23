@@ -33,13 +33,13 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        if (inc_count != wave_chunk_size)
+        if (inc_count != wave_chunk_size_)
         {
-            if (inc_count > wave_chunk_size)
+            if (inc_count > wave_chunk_size_)
             {
                 print("number of inident waves has to match the size of the wave chunks. excess incident directions will be ignored");
             }
-            if (inc_count < wave_chunk_size)
+            if (inc_count < wave_chunk_size_)
             {
                 eprint("error: number of inident waves has to match the size of the wave chunks");
             }
@@ -89,13 +89,13 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        if (inc_count != wave_chunk_size)
+        if (inc_count != wave_chunk_size_)
         {
-            if (inc_count > wave_chunk_size)
+            if (inc_count > wave_chunk_size_)
             {
                 print("number of inident waves has to match the size of the wave chunks. excess incident directions will be ignored");
             }
-            if (inc_count < wave_chunk_size)
+            if (inc_count < wave_chunk_size_)
             {
                 eprint("error: number of inident waves has to match the size of the wave chunks");
             }

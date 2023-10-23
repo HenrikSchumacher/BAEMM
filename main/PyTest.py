@@ -123,11 +123,12 @@ def Herglotz_wave(space,wavenumber,measurement_directions,g):
 
 # define the normal derivative of the incident herglotz wave function
 def Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,g):
-    x = space.grid.vertices
+    # x = space.grid.vertices
+    x = space.grid.centroids    
+    wave = 1j*wavenumber*np.matmul(incident_directions,normals)*np.exp(1j*wavenumber*np.matmul(incident_directions,x))
 
-    factor = -1j*wavenumber*(1/g.shape[1])
-    integrand = np.exp(-1j*wavenumber*np.matmul(measurement_directions,x))*np.matmul(measurement_directions,normals)
-    wave  = factor*np.matmul(g,integrand)
+    I = sparse.identity(space_0,space_0,space).strong_form
+    wave = I * wave
     return wave
 
 def vertex_normals(space):

@@ -19,8 +19,8 @@ int main()
     
     Int n = H.VertexCount();
     Int m = H.GetMeasCount();
-    const Int wave_count = 1;
-    constexpr Int wave_chunk_size = 1;
+    const Int wave_count = 16;
+    constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
     Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
@@ -38,7 +38,7 @@ int main()
     // // ReadFromFile<Real, Int>(file_name, coords, simplices);
 
     Real * kappa = (Real*)malloc(wave_chunk_count * sizeof(Real));
-    // Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
+    Real* inc = (Real*)malloc(wave_chunk_size * 3 * sizeof(Real));
     Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
     Complex * wave_coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
@@ -66,21 +66,21 @@ int main()
 
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    // for (int i = 0 ; i < 4; i++)
-    // {
-    //     inc[12*i + 0] = 1.0f;
-    //     inc[12*i + 1] = 0.0f;
-    //     inc[12*i + 2] = 0.0f;
-    //     inc[12*i + 3] = 0.0f;
-    //     inc[12*i + 4] = 1.0f;
-    //     inc[12*i + 5] = 0.0f;
-    //     inc[12*i + 6] = 0.0f;
-    //     inc[12*i + 7] = 0.0f;
-    //     inc[12*i + 8] = 1.0f;
-    //     inc[12*i + 9] = 1/std::sqrt(3.0f);
-    //     inc[12*i + 10] = 1/std::sqrt(3.0f);
-    //     inc[12*i + 11] = 1/std::sqrt(3.0f);
-    // }
+    for (int i = 0 ; i < 4; i++)
+    {
+        inc[12*i + 0] = 1.0f;
+        inc[12*i + 1] = 0.0f;
+        inc[12*i + 2] = 0.0f;
+        inc[12*i + 3] = 0.0f;
+        inc[12*i + 4] = 1.0f;
+        inc[12*i + 5] = 0.0f;
+        inc[12*i + 6] = 0.0f;
+        inc[12*i + 7] = 0.0f;
+        inc[12*i + 8] = 1.0f;
+        inc[12*i + 9] = 1/std::sqrt(3.0f);
+        inc[12*i + 10] = 1/std::sqrt(3.0f);
+        inc[12*i + 11] = 1/std::sqrt(3.0f);
+    }
 
     H.UseDiagonal(true);
 
@@ -89,23 +89,23 @@ int main()
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    const float* V = H.VertexCoordinates();
-    for (int i = 0; i < n; i++)
-    {
-        B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
-    }
+    // const float* V = H.VertexCoordinates();
+    // for (int i = 0; i < n; i++)
+    // {
+    //     B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+    // }
 
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
     //     B[i] = Complex(1.0f,0.0f);
     // }
-    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-    //                         Complex(0.0f,0.0f), C, wave_count,
-    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
-    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
-    //                         );
-    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+                            Complex(0.0f,0.0f), C, wave_count,
+                            kappa, wave_coeff, wave_count, wave_chunk_size,
+                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
+                            );
+    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
@@ -144,7 +144,7 @@ int main()
     std::ofstream fout_i("data_imag.txt");
     if(fout_r.is_open() && fout_i.is_open())
 	{
-		for(int i = 0; i < m ; i++)
+		for(int i = 0; i < n ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
@@ -158,7 +158,7 @@ int main()
 
     free(B);
     free(C);
-    // free(inc);
+    free(inc);
     free(kappa);
     free(coeff);
     free(wave_coeff);
