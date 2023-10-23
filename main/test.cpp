@@ -23,7 +23,7 @@ int main()
     constexpr Int wave_chunk_size = 1;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
     Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(wave_count * m * sizeof(Complex));
+    Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
 
     Int thread_count = 16;
 
