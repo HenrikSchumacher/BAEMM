@@ -19,11 +19,11 @@ int main()
     
     Int n = H.VertexCount();
     Int m = H.GetMeasCount();
-    const Int wave_count = 16;
-    constexpr Int wave_chunk_size = 16;
+    const Int wave_count = 1;
+    constexpr Int wave_chunk_size = 1;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(16 * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(16 * m * sizeof(Complex));
+    Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
+    Complex* C = (Complex*)malloc(wave_count * m * sizeof(Complex));
 
     Int thread_count = 16;
 
@@ -45,8 +45,8 @@ int main()
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
         coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 0.0f;
-        coeff[4 * i + 2] = 1.0f;
+        coeff[4 * i + 1] = 1.0f;
+        coeff[4 * i + 2] = 0.0f;
         coeff[4 * i + 3] = 0.0f;
     }
 
@@ -60,7 +60,7 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = 2*Scalar::Pi<Real>;
+        kappa[i] = Scalar::Pi<Real>;
         // kappa[i] = 1.0f;
     }
 
@@ -89,6 +89,12 @@ int main()
 
     Complex* neumann_data_scat_ptr = NULL;
 
+    const float* V = H.VertexCoordinates();
+    for (int i = 0; i < n; i++)
+    {
+        B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+    }
+
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
@@ -105,14 +111,14 @@ int main()
     // tic("FF");
     // for (Int i = 0 ; i < 10; i++)
     // {
-        // H.ApplyBoundaryOperators_PL(
-        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-        //                 );
+        H.ApplyBoundaryOperators_PL(
+                        wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+                        );
     //    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
     // }
     // toc("FF");
-    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+    //                     C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
 
     // H.DestroyKernel(&list);
 

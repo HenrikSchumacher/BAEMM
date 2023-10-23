@@ -174,7 +174,7 @@ space = bempp.api.function_space(points, "P", 1)
 
 # ret = ret[0]
 
-# DL = helmholtz.double_layer(space,space,space, 2*np.pi,precision = 'single').weak_form()
+DL = helmholtz.double_layer(space,space,space, np.pi,precision = 'single').weak_form()
 
 # g = np.ones((vertices.shape[1],1)) + 2j * np.ones((vertices.shape[1],1))
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
@@ -182,24 +182,25 @@ space = bempp.api.function_space(points, "P", 1)
 # normals = vertex_normals(space)
 incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
 # incident_directions = np.array([[1,0,0]])
-ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
+# ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
 
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
 
-# g = incWave(space,np.pi,incident_directions)
+g = incWave(space,np.pi,incident_directions)
 
 # func = bempp.api.GridFunction(space,coefficients = g[0,:])
 # ret = (2j) * single_pot * func + (1) * double_pot * func
-# ret = DL * g[0,:]
+ret = DL * g[0,:]
 # normals = vertex_normals(space)
 # ret = (1 - 4j) * Herglotz_wave(space,2,measurement_directions,g) + (-2 + 1j) * Herglotz_wave_dnormal(space,normals,2,measurement_directions,g)
 
 test_real = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_real.txt").transpose()
 test_imag = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/main/data_imag.txt").transpose()
 # print(np.amax(np.abs(ret)))
-res = ret - test_real[0:4,:] - 1j *test_imag[0:4,:]
+res = ret - test_real - 1j *test_imag
 # print(np.shape(res))
-error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))
+# error = np.amax(np.divide(np.amax(np.abs(res),axis = 1),np.amax(np.abs(ret),axis = 1)))
+error = np.amax(np.divide(np.amax(np.abs(res)),np.amax(np.abs(ret))))
 # error2 = np.amax(np.divide(np.amax(np.abs(res),axis = 0),np.amax(np.abs(ret),axis = 0)))
 # error = np.divide(np.linalg.norm(res),np.linalg.norm(ret))
 
