@@ -189,8 +189,8 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 # ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
 
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
-
-g = incWave(space,2*np.pi,incident_directions)
+space_0 = bempp.api.function_space(points, "DP", 0)
+g = incWave(space,space_0,2*np.pi,incident_directions)
 
 # func = bempp.api.GridFunction(space,coefficients = g[0,:])
 # ret = (2j) * single_pot * func + (1) * double_pot * func
