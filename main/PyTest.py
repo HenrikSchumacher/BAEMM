@@ -100,10 +100,13 @@ def solve(space,A,wave,output = "wave_function"):
         pass
     return phi
 
-def incWave(space,wavenumber,incident_directions):
-    x = space.grid.vertices
+def incWave(space,space_0,wavenumber,incident_directions):
+    #x = space.grid.vertices
+    x = space.grid.centroids  
         
     wave = np.exp(1j*wavenumber*np.matmul(incident_directions,x))  
+    I = sparse.identity(space_0,space_0,space).strong_form
+    wave = I * wave
     return wave
 
 # introduce the normal derivative of the incident wave
@@ -155,8 +158,8 @@ def normal_function(i):
 # vertices = np.array(data["Vertices"])
 # connectivity = np.array(data["Connectivity"])
 # f.close()
-vertices = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_V.txt").transpose()
-connectivity = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_T.txt").transpose()
+vertices = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T_V.txt").transpose()
+connectivity = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00081920T_T.txt").transpose()
 f = open("/HOME1/users/guests/jannr/github/BAEMM/main/meas.json")
 data = json.load(f)
 measurement_directions = np.array(data["Vertices"])
