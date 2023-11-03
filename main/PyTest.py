@@ -180,7 +180,7 @@ space = bempp.api.function_space(points, "P", 1)
 
 # ret = ret[0]
 
-DL = helmholtz.single_layer(space,space,space, np.pi,precision = 'single').weak_form()
+DL = helmholtz.single_layer(space,space,space, 2*np.pi,precision = 'single').weak_form()
 
 # g = np.ones((vertices.shape[1],1)) + 2j * np.ones((vertices.shape[1],1))
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
@@ -192,7 +192,7 @@ incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(
 
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
 space_0 = bempp.api.function_space(points, "DP", 0)
-g = incWave(space,space_0,np.pi,incident_directions)
+g = incWave(space,space_0,2*np.pi,incident_directions)
 
 # func = bempp.api.GridFunction(space,coefficients = g[0,:])
 # ret = (2j) * single_pot * func + (1) * double_pot * func

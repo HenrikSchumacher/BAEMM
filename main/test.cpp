@@ -60,7 +60,7 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = Scalar::Pi<Real>;
+        kappa[i] = 2*Scalar::Pi<Real>;
         // kappa[i] = 1.0f;
     }
 
