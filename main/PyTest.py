@@ -197,7 +197,7 @@ space = bempp.api.function_space(points, "P", 1)
 # normals = vertex_normals(space)
 incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
 # incident_directions = np.array([[1,0,0]])
-ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
+ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
 
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
 # space_0 = bempp.api.function_space(points, "DP", 0)
