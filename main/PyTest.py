@@ -161,7 +161,7 @@ def normal_function(i):
 # connectivity = np.array(data["Connectivity"])
 # f.close()
 vertices = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_V.txt").transpose()
-connectivity = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Spot_00162240T_T.txt").transpose()
+connectivity = np.loadtxt("/HOME1/users/guests/jannr/github/BAEMM/Meshes/Sphere_00162240T_T.txt").transpose()
 f = open("/HOME1/users/guests/jannr/github/BAEMM/main/meas.json")
 data = json.load(f)
 measurement_directions = np.array(data["Vertices"])
