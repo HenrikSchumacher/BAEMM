@@ -11,6 +11,7 @@ import scipy as sp
 def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_directions):
     points = bempp.api.Grid(vertices,connectivity)
     space = bempp.api.function_space(points, "P", 1)
+    space_0 = bempp.api.function_space(points, "DP", 0)
     
     SL = helmholtz.single_layer(space,space,space,wavenumber,precision = 'single').strong_form()
     DL = helmholtz.double_layer(space,space,space,wavenumber,precision = 'single').strong_form()
@@ -22,7 +23,7 @@ def calc_FF(connectivity,vertices,wavenumber,incident_directions,measurement_dir
     single_far = helmholtz_far.single_layer(space, measurement_directions, wavenumber,precision = 'single')
     double_far = helmholtz_far.double_layer(space, measurement_directions, wavenumber,precision = 'single')
     
-    wave = -incWave(space,wavenumber,incident_directions)
+    wave = -incWave(space,space_0,wavenumber,incident_directions)
     phi = solve(space,A,wave)
     d = len(wave)
     
@@ -101,15 +102,15 @@ def solve(space,A,wave,output = "wave_function"):
     return phi
 
 def incWave(space,space_0,wavenumber,incident_directions):
-    x = space.grid.vertices
-    # x = space.grid.centroids
+    x = space.grid.centroids
         
-    # wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
-    # I = sparse.identity(space_0,space_0,space).strong_form
-    # wave = I * wave
-    # return wave.transpose()
-    wave = np.exp(1j*wavenumber*np.matmul(incident_directions,x))
-    return wave
+    wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
+    I = sparse.identity(space_0,space_0,space).strong_form
+    wave = I * wave
+    return wave.transpose()
+    # x = space.grid.vertices
+    # wave = np.exp(1j*wavenumber*np.matmul(incident_directions,x))
+    # return wave
 
 # introduce the normal derivative of the incident wave
 def incWave_dnormal(space,normals,wavenumber,incident_directions):
@@ -180,7 +181,7 @@ space = bempp.api.function_space(points, "P", 1)
 
 # ret = ret[0]
 
-DL = helmholtz.double_layer(space,space,space, np.pi,precision = 'single').weak_form()
+# DL = helmholtz.double_layer(space,space,space, np.pi,precision = 'single').weak_form()
 
 # g = np.ones((vertices.shape[1],1)) + 2j * np.ones((vertices.shape[1],1))
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
@@ -188,15 +189,15 @@ DL = helmholtz.double_layer(space,space,space, np.pi,precision = 'single').weak_
 # normals = vertex_normals(space)
 incident_directions = np.array([[1,0,0],[0,1,0],[0,0,1],[1/np.sqrt(3),1/np.sqrt(3),1/np.sqrt(3)]])
 # incident_directions = np.array([[1,0,0]])
-# ret = calc_FF(connectivity,vertices,2*np.pi,incident_directions,measurement_directions)
+ret = calc_FF(connectivity,vertices,np.pi,incident_directions,measurement_directions)
 
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
-space_0 = bempp.api.function_space(points, "DP", 0)
-g = incWave(space,space_0,np.pi,incident_directions)
+# space_0 = bempp.api.function_space(points, "DP", 0)
+# g = incWave(space,space_0,np.pi,incident_directions)
 
 # func = bempp.api.GridFunction(space,coefficients = g[0,:])
 # ret = (2j) * single_pot * func + (1) * double_pot * func
-ret = DL * g[0,:]
+# ret = DL * g[0,:]
 # normals = vertex_normals(space)
 # ret = (1 - 4j) * Herglotz_wave(space,2,measurement_directions,g) + (-2 + 1j) * Herglotz_wave_dnormal(space,normals,2,measurement_directions,g)
 
