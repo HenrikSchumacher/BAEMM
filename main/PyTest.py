@@ -101,13 +101,15 @@ def solve(space,A,wave,output = "wave_function"):
     return phi
 
 def incWave(space,space_0,wavenumber,incident_directions):
-    #x = space.grid.vertices
-    x = space.grid.centroids
+    x = space.grid.vertices
+    # x = space.grid.centroids
         
-    wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
-    I = sparse.identity(space_0,space_0,space).strong_form
-    wave = I * wave
-    return wave.transpose()
+    # wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
+    # I = sparse.identity(space_0,space_0,space).strong_form
+    # wave = I * wave
+    # return wave.transpose()
+    wave = np.exp(1j*wavenumber*np.matmul(incident_directions,x))
+    return wave
 
 # introduce the normal derivative of the incident wave
 def incWave_dnormal(space,normals,wavenumber,incident_directions):

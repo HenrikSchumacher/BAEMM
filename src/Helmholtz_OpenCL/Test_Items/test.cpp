@@ -61,7 +61,7 @@ int main()
 
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = Scalar::Pi<Real>;
+        kappa[i] = 2*Scalar::Pi<Real>;
         // kappa[i] = 1.0f;
         //kappa[i] = 2*Scalar::Pi<Real>;
     }
@@ -91,30 +91,30 @@ int main()
 
     H.UseDiagonal(true);
 
-    Real cg_tol = static_cast<Real>(0.000001);
-    Real gmres_tol = static_cast<Real>(0.00001);
+    Real cg_tol = static_cast<Real>(0.00001);
+    Real gmres_tol = static_cast<Real>(0.0001);
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    // const float* V = H.VertexCoordinates();
-    // for (int i = 0; i < n; i++)
-    // {
-    //     for (int j = 0; j < wave_count; j++)
-    //     {
-    //         B[wave_count*i + j] = std::exp(Complex(0.0f,kappa[j]* V[3*i] ));
-    //     }
-    // }
+    const float* V = H.VertexCoordinates();
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < wave_count; j++)
+        {
+            B[wave_count*i + j] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+        }
+    }
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
     //     B[i] = Complex(1.0f,0.0f);
     // }
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), C, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
-    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), C, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
+    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
     BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
@@ -127,7 +127,7 @@ int main()
     // }
     // toc("FF");
     // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        // B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    //                     B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
     H.DestroyKernel(&list);
 
     // Real error = 0.0f;
@@ -158,7 +158,7 @@ int main()
     std::ofstream fout_i("data_imag.txt");
     if(fout_r.is_open() && fout_i.is_open())
 	{
-		for(int i = 0; i < n ; i++)
+		for(int i = 0; i < m ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
