@@ -89,23 +89,23 @@ int main()
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    // const float* V = H.VertexCoordinates();
-    // for (int i = 0; i < n; i++)
-    // {
-    //     B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
-    // }
+    const float* V = H.VertexCoordinates();
+    for (int i = 0; i < n; i++)
+    {
+        B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+    }
 
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
     //     B[i] = Complex(1.0f,0.0f);
     // }
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), C, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
-    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), C, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
+    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
     // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
