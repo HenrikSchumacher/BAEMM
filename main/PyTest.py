@@ -104,10 +104,18 @@ def solve(space,A,wave,output = "wave_function"):
 def incWave(space,space_0,wavenumber,incident_directions):
     x = space.grid.centroids
         
-    wave = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
-    I = sparse.identity(space_0,space_0,space).strong_form
-    wave = I * wave
-    return wave.transpose()
+    d = len(incident_directions[:,0])
+
+    wave_0 = np.exp(1j*wavenumber*np.matmul(x,incident_directions.transpose()))
+
+    I = sparse.identity(space_0,space_0,space).weak_form()
+    A = sparse.identity(space,space,space).weak_form()
+
+    wave=[]
+    for i in range(d):
+        wave_coeff, info = sp.sparse.linalg.cg(A,I * wave_0[:,i],tol = 1e-5)
+        wave.append(wave_coeff.tolist())
+    return np.array(wave)
     # x = space.grid.vertices
     # wave = np.exp(1j*wavenumber*np.matmul(incident_directions,x))
     # return wave
@@ -128,14 +136,14 @@ def Herglotz_wave(space,wavenumber,measurement_directions,g):
     return wave
 
 # define the normal derivative of the incident herglotz wave function
-def Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,g):
-    # x = space.grid.vertices
-    x = space.grid.centroids    
-    wave = 1j*wavenumber*np.matmul(incident_directions,normals)*np.exp(1j*wavenumber*np.matmul(incident_directions,x))
+# def Herglotz_wave_dnormal(space,normals,wavenumber,measurement_directions,g):
+#     # x = space.grid.vertices
+#     x = space.grid.centroids    
+#     wave = 1j*wavenumber*np.matmul(incident_directions,normals)*np.exp(1j*wavenumber*np.matmul(incident_directions,x))
 
-    I = sparse.identity(space_0,space_0,space).strong_form
-    wave = I * wave
-    return wave
+#     I = sparse.identity(space_0,space_0,space).strong_form
+#     wave = I * wave
+#     return wave
 
 def vertex_normals(space):
     normals = []
