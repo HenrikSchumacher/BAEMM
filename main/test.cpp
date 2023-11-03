@@ -92,7 +92,10 @@ int main()
     const float* V = H.VertexCoordinates();
     for (int i = 0; i < n; i++)
     {
-        B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+        for (int j = 0; j< wave_count; j++)
+        {
+            B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+        }
     }
 
     // const Real* B = H.VertexCoordinates();
