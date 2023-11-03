@@ -180,7 +180,7 @@ space = bempp.api.function_space(points, "P", 1)
 
 # ret = ret[0]
 
-DL = helmholtz.double_layer(space,space,space, np.pi,precision = 'single').weak_form()
+DL = helmholtz.single_layer(space,space,space, np.pi,precision = 'single').weak_form()
 
 # g = np.ones((vertices.shape[1],1)) + 2j * np.ones((vertices.shape[1],1))
 # ret = (1 - 4j) * incWave(space,2,incident_directions) + (-2 + 1j) * incWave_dnormal(space,normals,2,incident_directions)
