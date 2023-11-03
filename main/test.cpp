@@ -94,7 +94,7 @@ int main()
     {
         for (int j = 0; j< wave_count; j++)
         {
-            B[i] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+            B[i*wave_count + j] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
         }
     }
 
