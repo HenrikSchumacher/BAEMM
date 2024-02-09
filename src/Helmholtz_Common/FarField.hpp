@@ -330,6 +330,11 @@ public:
 
         bool succeeded = gmres(A,P,h,1,C_out,1,gmres_tol_outer,3);
 
+        int iter, res;
+        iter = gmres.IterationCount();
+        res = gmres.RestartCount();
+        std::cout << "Gauss-Newton outer GMRES iterations: (" << res << "," << iter << ")" << std::endl;
+
         return static_cast<I_ext>(succeeded);
     }
 
@@ -379,6 +384,11 @@ public:
 
         bool succeeded = gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
 
+        int iter, res;
+        iter = gmres.IterationCount();
+        res = gmres.RestartCount();
+
+        std::cout << "Boundary Potential GMRES iterations: (" << res << "," << iter << ")" << std::endl;
         DestroyKernel(&list);
 
         ptoc(ClassName()+"::BoundaryPotential");
@@ -430,6 +440,11 @@ public:
 
         // solve for the normal derivatives of the near field solutions
         bool succeeded = gmres(A,P,wave,wave_count_,neumann_trace,wave_count_,gmres_tol,10);
+
+        int iter, res;
+        iter = gmres.IterationCount();
+        res = gmres.RestartCount();
+        std::cout << "Dirichlet to Neumann GMRES iterations: (" << res << "," << iter << ")" << std::endl;
 
         DestroyKernel(&list);
 

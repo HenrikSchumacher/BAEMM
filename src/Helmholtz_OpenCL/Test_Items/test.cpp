@@ -22,8 +22,8 @@ int main()
     const Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
+    Complex* B = (Complex*)malloc(wave_count * m * sizeof(Complex));
+    // Complex* C = (Complex*)malloc(wave_count * n * sizeof(Complex));
 
     Int thread_count = 4;
 
@@ -96,14 +96,14 @@ int main()
 
     Complex* neumann_data_scat_ptr = NULL;
 
-    const float* V = H.VertexCoordinates();
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < wave_count; j++)
-        {
-            B[wave_count*i + j] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
-        }
-    }
+    // const float* V = H.VertexCoordinates();
+    // for (int i = 0; i < n; i++)
+    // {
+    //     for (int j = 0; j < wave_count; j++)
+    //     {
+    //         B[wave_count*i + j] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
+    //     }
+    // }
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
@@ -116,19 +116,19 @@ int main()
     //                         );
     // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
 
-    BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
+    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
     // tic("FF");
     // for (Int i = 0 ; i < 10; i++)
     // {
-        H.ApplyBoundaryOperators_PL(
-                        wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-                        );
+        // H.ApplyBoundaryOperators_PL(
+        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
+        //                 );
     //    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
     // }
     // toc("FF");
-    // H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-    //                     B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-    H.DestroyKernel(&list);
+    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
+                        B, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    // H.DestroyKernel(&list);
 
     // Real error = 0.0f;
     // // Real max = 0.0f;
@@ -162,8 +162,8 @@ int main()
 		{
             for(int j = 0; j < wave_count ; j++)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                fout_r << B[i * wave_count + j].real() << " "; 
+                fout_i << B[i * wave_count + j].imag() << " "; 
             }
             fout_r << "\n";
             fout_i << "\n";
@@ -171,7 +171,7 @@ int main()
 	}            
 
     free(B);
-    free(C);
+    // free(C);
     free(inc);
     free(kappa);
     free(coeff);
