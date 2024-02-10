@@ -104,7 +104,7 @@ public:
                             );
 
 
-        BoundaryPotential<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), 
+        BoundaryPotential_parameters<solver_count>( kappa, coeff.data(), wave.data(), phi.data(), 
                                             eta, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );      
 
 
@@ -352,11 +352,11 @@ public:
             p_eta[i] = kappa[i];
         }
 
-        BoundaryPotential(kappa, coeff, wave, phi, eta.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+        BoundaryPotential_parameters(kappa, coeff, wave, phi, eta.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
     }
         
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
-    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
+    void BoundaryPotential_parameters(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
                             R_ext* eta,
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
