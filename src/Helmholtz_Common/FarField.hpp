@@ -339,7 +339,22 @@ public:
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
+                            const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
+                            R_ext cg_tol, R_ext gmres_tol)
+    {
+        Tensor1<R_ext,I_ext> eta (wave_chunk_count_);
 
+        R_ext* p_eta = eta.data();
+        for (Int i = 0; i < wave_chunk_count_; i++)
+        {
+            p_eta[i] = kappa[i];
+        }
+
+        BoundaryPotential(kappa, coeff, wave, phi, eta.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+    }
+        
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
                             R_ext* eta,
