@@ -352,7 +352,8 @@ public:
             p_eta[i] = kappa[i];
         }
 
-        BoundaryPotential_parameters(kappa, coeff, wave, phi, eta.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+        BoundaryPotential_parameters<solver_count>(kappa, coeff, wave, phi, eta.data(), 
+                                                    wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
     }
         
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
