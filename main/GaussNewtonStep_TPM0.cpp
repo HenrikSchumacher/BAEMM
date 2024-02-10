@@ -233,15 +233,20 @@ int main()
 
     WriteSucceeded(succeeded);
 
+    std::cout << "test" << std::endl;
     if( !file.good() )
-    {        
+    {    
+        std::cout << "!good" << std::endl;    
         neumann_data_scat = Tensor2<Complex,Int>(   vertex_count, wave_count    );
+        std::cout << "!good 2" << std::endl;    
         neumann_data_scat.Read(neumann_data_scat_ptr);
-
+        
+        std::cout << "!good 3" << std::endl;    
         WriteInOut(vertex_count, wave_count, neumann_data_scat,"NeumannDataScat.bin");
     }
     else
-    {       
+    {     
+        std::cout << "good" << std::endl;    
         free(neumann_data_scat_ptr);
     }
 
