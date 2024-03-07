@@ -301,38 +301,37 @@ int main()
                         kappa, coeff, wave_count, wave_chunk_size,
                         evaluation_points_2, grid_fine_2);
 
-    std::ofstream fout_points_plane("bunny_eval_points_plane_2.txt");
-    if(fout_points_3D.is_open() && fout_points_plane.is_open())
+    std::ofstream fout_points_plane_2("bunny_eval_points_plane_2.txt");
+    if(fout_points_plane_2.is_open())
 	{
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_points_plane << evaluation_points_2[i * 3 + j] << " "; 
+                fout_points_plane_2 << evaluation_points_2[i * 3 + j] << " "; 
             }
-            fout_points_plane << "\n";
+            fout_points_plane_2 << "\n";
 		}
-        fout_points_plane.close();
+        fout_points_plane_2.close();
 	}
 
-    std::ofstream fout_eval_plane_real("bunny_eval_plane_2_4pi_real.txt");
-    std::ofstream fout_eval_plane_imag("bunny_eval_plane_2_4pi_imag.txt");
+    std::ofstream fout_eval_plane_2_real("bunny_eval_plane_2_4pi_real.txt");
+    std::ofstream fout_eval_plane_2_imag("bunny_eval_plane_2_4pi_imag.txt");
 
-    if(fout_eval_3D_real.is_open() && fout_eval_plane_real.is_open()
-    && fout_eval_3D_imag.is_open() && fout_eval_plane_imag.is_open() )
+    if(fout_eval_plane_2_real.is_open() && fout_eval_plane_2_imag.is_open() )
 	{
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
-                fout_eval_plane_real << C_2[wave_count*i + j].real() << " "; 
-                fout_eval_plane_imag << C_2[wave_count*i + j].imag() << " ";
+                fout_eval_plane_2_real << C_2[wave_count*i + j].real() << " "; 
+                fout_eval_plane_2_imag << C_2[wave_count*i + j].imag() << " ";
             }
-            fout_eval_plane_real << "\n";
-            fout_eval_plane_imag << "\n";
+            fout_eval_plane_2_real << "\n";
+            fout_eval_plane_2_imag << "\n";
 		}
-        fout_eval_plane_real.close();
-        fout_eval_plane_imag.close();
+        fout_eval_plane_2_real.close();
+        fout_eval_plane_2_imag.close();
 	}
 
     {
@@ -371,38 +370,37 @@ int main()
                         kappa, coeff, wave_count, wave_chunk_size,
                         evaluation_points_2, grid_fine_2);
 
-    std::ofstream fout_points_plane("bunny_eval_points_plane_3.txt");
-    if(fout_points_3D.is_open() && fout_points_plane.is_open())
+    std::ofstream fout_points_plane_3("bunny_eval_points_plane_3.txt");
+    if(fout_points_plane_2.is_open())
 	{
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_points_plane << evaluation_points_2[i * 3 + j] << " "; 
+                fout_points_plane_2 << evaluation_points_2[i * 3 + j] << " "; 
             }
-            fout_points_plane << "\n";
+            fout_points_plane_2 << "\n";
 		}
-        fout_points_plane.close();
+        fout_points_plane_2.close();
 	}
 
-    std::ofstream fout_eval_plane_real("bunny_eval_plane_3_4pi_real.txt");
-    std::ofstream fout_eval_plane_imag("bunny_eval_plane_3_4pi_imag.txt");
+    std::ofstream fout_eval_plane_3_real("bunny_eval_plane_3_4pi_real.txt");
+    std::ofstream fout_eval_plane_3_imag("bunny_eval_plane_3_4pi_imag.txt");
 
-    if(fout_eval_3D_real.is_open() && fout_eval_plane_real.is_open()
-    && fout_eval_3D_imag.is_open() && fout_eval_plane_imag.is_open() )
+    if(fout_eval_plane_3_real.is_open() && fout_eval_plane_3_imag.is_open() )
 	{
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
-                fout_eval_plane_real << C_2[wave_count*i + j].real() << " "; 
-                fout_eval_plane_imag << C_2[wave_count*i + j].imag() << " ";
+                fout_eval_plane_3_real << C_2[wave_count*i + j].real() << " "; 
+                fout_eval_plane_3_imag << C_2[wave_count*i + j].imag() << " ";
             }
-            fout_eval_plane_real << "\n";
-            fout_eval_plane_imag << "\n";
+            fout_eval_plane_3_real << "\n";
+            fout_eval_plane_3_imag << "\n";
 		}
-        fout_eval_plane_real.close();
-        fout_eval_plane_imag.close();
+        fout_eval_plane_3_real.close();
+        fout_eval_plane_3_imag.close();
 	}
 
 
