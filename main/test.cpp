@@ -145,17 +145,17 @@ int main()
     // }
 
     {
-        plane[0] = -0.1432f;
-        plane[1] = -0.1065f;
-        plane[2] = 0.1494f;
+        plane[0] = -0.1432;
+        plane[1] = -0.1065;
+        plane[2] = 0.1494;
 
-        plane[3] = 1.0f/sqrt(3);
-        plane[4] = 1.0f/sqrt(3);
-        plane[5] = -1.0f/sqrt(3);
+        plane[3] = 1.0/sqrt(3);
+        plane[4] = 1.0/sqrt(3);
+        plane[5] = -1.0/sqrt(3);
 
-        plane[3] = 1.0f/sqrt(6);
-        plane[4] = 1.0f/sqrt(6);
-        plane[5] = 2.0f/sqrt(6);
+        plane[6] = 1.0/sqrt(6);
+        plane[7] = 1.0/sqrt(6);
+        plane[8] = 2.0/sqrt(6);
     }
 
     Real size_dir_1 = 2;
@@ -270,13 +270,13 @@ int main()
         plane[1] = -0.02f;
         plane[2] = 0.8f;
 
-        plane[3] = 1.0f/sqrt(6);
-        plane[4] = 1.0f/sqrt(6);
-        plane[5] = 2.0f/sqrt(6);
+        plane[3] = 1.0/sqrt(6);
+        plane[4] = 1.0/sqrt(6);
+        plane[5] = 2.0/sqrt(6);
 
-        plane[3] = 1.0f/sqrt(2);
-        plane[4] = -1.0f/sqrt(2);
-        plane[5] = 0.0f;
+        plane[6] = 1.0/sqrt(2);
+        plane[7] = -1.0/sqrt(2);
+        plane[8] = 0.0;
     }
     // H.DestroyKernel(&list);
 
@@ -343,9 +343,9 @@ int main()
         plane[4] = 1.0f/sqrt(6);
         plane[5] = 2.0f/sqrt(6);
 
-        plane[3] = 1.0f/sqrt(2);
-        plane[4] = -1.0f/sqrt(2);
-        plane[5] = 0.0f;
+        plane[6] = 1.0f/sqrt(2);
+        plane[7] = -1.0f/sqrt(2);
+        plane[8] = 0.0f;
     }
     // H.DestroyKernel(&list);
 
