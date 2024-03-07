@@ -32,8 +32,8 @@ int main()
     Complex* phi = (Complex*)malloc( wave_count * n * sizeof(Complex));
     Real* evaluation_points_1 = (Real*)malloc(3 * grid_coarse_3 * sizeof(Real));
     Real* evaluation_points_2 = (Real*)malloc(3 * grid_fine_2 * sizeof(Real));
-    Complex* C_1 = (Complex*)malloc(grid_coarse_3  * sizeof(Complex));
-    Complex* C_2 = (Complex*)malloc(grid_fine_2  * sizeof(Complex));
+    Complex* C_1 = (Complex*)malloc(wave_count * grid_coarse_3  * sizeof(Complex));
+    Complex* C_2 = (Complex*)malloc(wave_count * grid_fine_2  * sizeof(Complex));
 
     Int thread_count = 4;
 
@@ -149,32 +149,35 @@ int main()
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
         }
     }
-
+    std::cout << "wave_start"<<std::endl;
     // H.type_cast(B,H.VertexCoordinates(),3*n,4);
     H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
                             Complex(0.0f,0.0f), B, wave_count,
                             kappa, wave_coeff, wave_count, wave_chunk_size,
                             BAEMM::Helmholtz_OpenCL::WaveType::Plane
                             );
-
+    std::cout << "wave_end"<<std::endl;
+    std::cout << "potential_start"<<std::endl;
     H.BoundaryPotential<wave_count>( kappa, coeff, B, phi, 
                                             wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );
 
-
+    std::cout << "potential_end"<<std::endl;
+    std::cout << "near_field_3d_start"<<std::endl;
     H.ApplyNearFieldOperators_PL(
                         Complex(1.0f,0.0f), phi, wave_count, 
                         Complex(0.0f,0.0f), C_1, wave_count, 
                         kappa, coeff, wave_count, wave_chunk_size,
                         evaluation_points_1, grid_coarse_3);
-
+    std::cout << "near_field_3d_end"<<std::endl;
+    std::cout << "near_field_plane_start"<<std::endl;
     H.ApplyNearFieldOperators_PL(
                         Complex(1.0f,0.0f), phi, wave_count, 
                         Complex(0.0f,0.0f), C_2, wave_count, 
                         kappa, coeff, wave_count, wave_chunk_size,
                         evaluation_points_2, grid_fine_2);
-
+    std::cout << "near_field_plane_end"<<std::endl;
     // H.DestroyKernel(&list);
-
+    std::cout << "write_points"<<std::endl;
     std::ofstream fout_points_3D("blub_eval_points_3D.txt");
     std::ofstream fout_points_plane("blub_eval_points_plane.txt");
     if(fout_points_3D.is_open() && fout_points_plane.is_open())
@@ -198,7 +201,7 @@ int main()
 		}
         fout_points_plane.close();
 	}
-
+    std::cout << "write_wave"<<std::endl;
     std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
     std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
     std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
