@@ -56,7 +56,6 @@ public:
                                             
         // copy measurement directions
         
-        //CheckThis
         ParallelDo(
             [=]( const Int i )
             {

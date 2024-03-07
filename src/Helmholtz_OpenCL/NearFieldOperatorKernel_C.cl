@@ -6,17 +6,18 @@ __kernel void NearFieldOperatorKernel_C(
         const __global float4 * mid_points    , 
         const __global float4 * normals       , 
         const __global float2 * B_global      , 
+        const __global float4 * evaluation_points   , 
               __global       float2 * C_global      , 
               __constant     float  * kappa_buf     , 
               __constant     float2 * coeff         , 
               __constant     int    * N             , 
               __constant     int    * wave_count    ,
-              __constant     float  * offset
+              __constant     int    * evaluation_count
 )  {
     const     int n             = *N;
+    const     int m             = *evaluation_count;
     const     int k_chunk_count = (*wave_count) / k_chunk_size;
     const     int k_ld          = (*wave_count);
-    const     float epsilon     = (*offset);
     
     const int block_count = (n + block_size - 1)/block_size;
 
@@ -31,12 +32,9 @@ __kernel void NearFieldOperatorKernel_C(
     __local float3 y  [block_size];
     __local float3 mu [block_size];
     
-    if( i < n )
+    if( i < m )
     {
-        x_i.x  = mid_points[i].x + epsilon*normals[i].x;
-        x_i.y  = mid_points[i].y + epsilon*normals[i].y;
-        x_i.z  = mid_points[i].z + epsilon*normals[i].z;
-        
+        x_i  = evaluation_points[i].xyz;
     }
     else
     {
@@ -88,7 +86,7 @@ __kernel void NearFieldOperatorKernel_C(
                 {
                     const int j = block_size * j_block + j_loc;
 
-                    const float delta = (float)( (i >= n) || (j >= n) );
+                    const float delta = (float)( (i >= m) || (j >= n) );
 
                     const float3 z = y[j_loc] - x_i;
 

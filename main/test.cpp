@@ -14,18 +14,28 @@ using namespace Repulsor;
 
 int main()
 {
-    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Sphere_00162240T.txt");
+    BAEMM::Helmholtz_OpenCL H = read_OpenCL("/github/BAEMM/Meshes/Blub_00227328T.txt");
     // BAEMM::Helmholtz_CPU H_CPU = read_CPU("/github/BAEMM/Meshes/TorusMesh_00153600T.txt");
     
     Int n = H.VertexCount();
-    Int m = H.GetMeasCount();
-    const Int wave_count = 16;
-    constexpr Int wave_chunk_size = 16;
-    constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
-    Complex* B = (Complex*)malloc(wave_count * n * sizeof(Complex));
-    Complex* C = (Complex*)malloc(wave_count * m * sizeof(Complex));
+    Int grid_coarse = 200;
+    Int grid_fine = 2000;
 
-    Int thread_count = 16;
+    Int grid_coarse_2 = grid_coarse * grid_coarse;
+    Int grid_coarse_3 = grid_coarse * grid_coarse * grid_coarse;
+
+    Int grid_fine_2 = grid_fine * grid_fine;
+    const Int wave_count = 4;
+    constexpr Int wave_chunk_size = 1;
+    constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
+    Complex* B = (Complex*)malloc( wave_count * n * sizeof(Complex));
+    Complex* phi = (Complex*)malloc( wave_count * n * sizeof(Complex));
+    Real* evaluation_points_1 = (Real*)malloc(3 * grid_coarse_3 * sizeof(Real));
+    Real* evaluation_points_2 = (Real*)malloc(3 * grid_fine_2 * sizeof(Real));
+    Complex* C_1 = (Complex*)malloc(grid_coarse_3  * sizeof(Complex));
+    Complex* C_2 = (Complex*)malloc(grid_fine_2  * sizeof(Complex));
+
+    Int thread_count = 4;
 
     // using namespace Tensors;
     // using namespace Tools;
@@ -42,12 +52,21 @@ int main()
     Complex * coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
     Complex * wave_coeff = (Complex*)malloc(4 * wave_chunk_count * sizeof(Complex));
 
+    // for (int i = 0 ; i < wave_chunk_count; i++)
+    // {
+    //     kappa[i] = 4 * Scalar::Pi<Real>;
+    // }
+    kappa[0] = 2 * Scalar::Pi<Real>;
+    kappa[1] = 4 * Scalar::Pi<Real>;
+    kappa[2] = 5 * Scalar::Pi<Real>;
+    kappa[3] = 7 * Scalar::Pi<Real>;
+
     for(Int i = 0 ; i < wave_chunk_count ; i++)
     {
-        coeff[4 * i + 0] = 0.0f;
-        coeff[4 * i + 1] = 0.0f;
-        coeff[4 * i + 2] = 1.0f;
-        coeff[4 * i + 3] = 0.0f;
+        coeff[4 * i + 0] = 0.0;
+        coeff[4 * i + 1] = Complex(0.0,-kappa[i]);
+        coeff[4 * i + 2] = 1.0;
+        coeff[4 * i + 3] = 0.0;
     }
 
     for(Int i = 0 ; i < wave_chunk_count ; i++)
@@ -58,28 +77,13 @@ int main()
         wave_coeff[4 * i + 3] = 0.0f;
     }
 
-    for (int i = 0 ; i < wave_chunk_count; i++)
-    {
-        kappa[i] = 2*Scalar::Pi<Real>;
-        // kappa[i] = 1.0f;
-    }
-
     // Real* C = (Real*)malloc(3 * n * sizeof(Real));
 
-    for (int i = 0 ; i < 4; i++)
+    for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        inc[12*i + 0] = 1.0f;
-        inc[12*i + 1] = 0.0f;
-        inc[12*i + 2] = 0.0f;
-        inc[12*i + 3] = 0.0f;
-        inc[12*i + 4] = 1.0f;
-        inc[12*i + 5] = 0.0f;
-        inc[12*i + 6] = 0.0f;
-        inc[12*i + 7] = 0.0f;
-        inc[12*i + 8] = 1.0f;
-        inc[12*i + 9] = 1/std::sqrt(3.0f);
-        inc[12*i + 10] = 1/std::sqrt(3.0f);
-        inc[12*i + 11] = 1/std::sqrt(3.0f);
+        inc[3*i + 0] = 1.0f;
+        inc[3*i + 1] = 0.0f;
+        inc[3*i + 2] = 0.0f;
     }
 
     H.UseDiagonal(true);
@@ -87,80 +91,155 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-    Complex* neumann_data_scat_ptr = NULL;
-
-    // const float* V = H.VertexCoordinates();
-    // for (int i = 0; i < n; i++)
-    // {
-    //     for (int j = 0; j< wave_count; j++)
-    //     {
-    //         B[i*wave_count + j] = std::exp(Complex(0.0f,kappa[0]* V[3*i] ));
-    //     }
-    // }
+    // Complex* neumann_data_scat_ptr = NULL;
 
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)
     // {
-    //     B[i] = Complex(1.0f,0.0f);
+    //     B[i] = Complex(1.0f,2.0f);
     // }
-    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-    //                         Complex(0.0f,0.0f), C, wave_count,
-    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
-    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
-    //                         );
-    // H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
+    Real size_x = 2;
+    Real size_y = 2;
+    Real size_z = 2;
 
-    // BAEMM::Helmholtz_OpenCL::kernel_list list = H.LoadKernel(kappa,coeff,wave_count,wave_chunk_size);                        
-    // tic("FF");
-    // for (Int i = 0 ; i < 10; i++)
-    // {
-        // H.ApplyBoundaryOperators_PL(
-        //                 wave_count, Complex(1.0f,0.0f),B,Complex(0.0f,0.0f),C
-        //                 );
-    //    H.ApplyMassInverse<wave_count>(C,B,wave_count,cg_tol);
-    // }
-    // toc("FF");
-    H.FarField<16>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                        C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+    for (int i = 0 ; i < grid_coarse; i++)
+    {
+        for (int j = 0 ; j < grid_coarse; j++)
+        {
+            for (int k = 0 ; k < grid_coarse; k++)
+            {
+                evaluation_points_1[3 * grid_coarse_2 * i + 3 * grid_coarse * j + 3 * k + 0]  = -size_x + k*( 2 * size_x )/( grid_coarse - 1 );
+                evaluation_points_1[3 * grid_coarse_2 * i + 3 * grid_coarse * j + 3 * k + 1]  = -size_y + j*( 2 * size_y )/( grid_coarse - 1 );
+                evaluation_points_1[3 * grid_coarse_2 * i + 3 * grid_coarse * j + 3 * k + 2]  = -size_z + i*( 2 * size_z )/( grid_coarse - 1 );
+            }
+        }
+    }
+
+    //plane for near field measurements specified by base point, span direction 1 and span direction 2
+    Real* plane = (Real*)malloc(3 * 3 * sizeof(Real));
+    
+    {
+        plane[0] = 0.0f;
+        plane[1] = -0.2f;
+        plane[2] = 0.0f;
+
+        plane[3] = 1.0f;
+        plane[4] = 0.0f;
+        plane[5] = 0.0f;
+
+        plane[6] = 0.0f;
+        plane[7] = 0.0f;
+        plane[8] = 1.0f;
+    }
+
+    Real size_dir_1 = 2;
+    Real size_dir_2 = 2;
+
+    for (int i = 0 ; i < grid_fine; i++)
+    {
+        for (int j = 0 ; j < grid_fine; j++)
+        {
+            Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
+            
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
+
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+        }
+    }
+
+    // H.type_cast(B,H.VertexCoordinates(),3*n,4);
+    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+                            Complex(0.0f,0.0f), B, wave_count,
+                            kappa, wave_coeff, wave_count, wave_chunk_size,
+                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
+                            );
+
+    H.BoundaryPotential<wave_count>( kappa, coeff, B, phi, 
+                                            wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );
+
+
+    H.ApplyNearFieldOperators_PL(
+                        Complex(1.0f,0.0f), phi, wave_count, 
+                        Complex(0.0f,0.0f), C_1, wave_count, 
+                        kappa, coeff, wave_count, wave_chunk_size,
+                        evaluation_points_1, grid_coarse_3);
+
+    H.ApplyNearFieldOperators_PL(
+                        Complex(1.0f,0.0f), phi, wave_count, 
+                        Complex(0.0f,0.0f), C_2, wave_count, 
+                        kappa, coeff, wave_count, wave_chunk_size,
+                        evaluation_points_2, grid_fine_2);
 
     // H.DestroyKernel(&list);
 
-    // Real error = 0.0f;
-    // Complex a = Complex(0.0f,-1/(2*kappa[0]));
-    // a *= std::exp(Complex(0.0f,2*kappa[0]))-Complex(1.0f,0.0f);
-
-    // for(int i = 0; i < n ; i++)
-    // {
-    //     for(int j = 0; j < 16 ; j++)
-    //     {
-    //         Real e = std::abs(B[i + 16*j] -a);
-    //         if (e > error)
-    //         {
-    //             error = e;
-    //         }
-    //     }
-    // }
-    // std::cout << error/std::abs(a) << std::endl;
- 
-
-    std::ofstream fout_r("data_real.txt");
-    std::ofstream fout_i("data_imag.txt");
-    if(fout_r.is_open() && fout_i.is_open())
+    std::ofstream fout_points_3D("blub_eval_points_3D.txt");
+    std::ofstream fout_points_plane("blub_eval_points_plane.txt");
+    if(fout_points_3D.is_open() && fout_points_plane.is_open())
 	{
-		for(int i = 0; i < m ; i++)
+		for(int i = 0; i < grid_coarse_3 ; i++)
+		{
+            for(int j = 0; j < 3 ; j++)
+            {
+                fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
+            }
+            fout_points_3D << "\n";
+		}
+        fout_points_3D.close();
+        for(int i = 0; i < grid_fine_2 ; i++)
+		{
+            for(int j = 0; j < 3 ; j++)
+            {
+                fout_points_plane << evaluation_points_2[i * 3 + j] << " "; 
+            }
+            fout_points_plane << "\n";
+		}
+        fout_points_plane.close();
+	}
+
+    std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
+    std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
+    std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
+    std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
+
+    if(fout_eval_3D_real.is_open() && fout_eval_plane_real.is_open()
+    && fout_eval_3D_imag.is_open() && fout_eval_plane_imag.is_open() )
+	{
+		for(int i = 0; i < grid_coarse_3 ; i++)
 		{
             for(int j = 0; j < wave_count ; j++)
             {
-                fout_r << C[i * wave_count + j].real() << " "; 
-                fout_i << C[i * wave_count + j].imag() << " "; 
+                fout_eval_3D_real << C_1[wave_count*i + j].real() << " "; 
+                fout_eval_3D_imag << C_1[wave_count*i + j].imag() << " "; 
             }
-            fout_r << "\n";
-            fout_i << "\n";
+            fout_eval_3D_real<< "\n";
+            fout_eval_3D_imag<< "\n";
 		}
-	}            
+        fout_eval_3D_real.close();
+        fout_eval_3D_imag.close();
+
+        for(int i = 0; i < grid_fine_2 ; i++)
+		{
+            for(int j = 0; j < wave_count ; j++)
+            {
+                fout_eval_plane_real << C_2[wave_count*i + j].real() << " "; 
+                fout_eval_plane_imag << C_2[wave_count*i + j].imag() << " ";
+            }
+            fout_eval_plane_real << "\n";
+            fout_eval_plane_imag << "\n";
+		}
+        fout_eval_plane_real.close();
+        fout_eval_plane_imag.close();
+	}
+
 
     free(B);
-    free(C);
+    free(C_1);
+    free(C_2);
+    free(evaluation_points_1);
+    free(evaluation_points_2);
     free(inc);
     free(kappa);
     free(coeff);

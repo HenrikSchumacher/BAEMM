@@ -333,7 +333,6 @@ public:
         int iter, res;
         iter = gmres.IterationCount();
         res = gmres.RestartCount();
-        std::cout << "Gauss-Newton outer GMRES iterations: (" << res << "," << iter << ")" << std::endl;
 
         return static_cast<I_ext>(succeeded);
     }
@@ -404,7 +403,6 @@ public:
         iter = gmres.IterationCount();
         res = gmres.RestartCount();
 
-        std::cout << "Boundary Potential GMRES iterations: (" << res << "," << iter << ")" << std::endl;
         DestroyKernel(&list);
 
         ptoc(ClassName()+"::BoundaryPotential");
@@ -460,7 +458,6 @@ public:
         int iter, res;
         iter = gmres.IterationCount();
         res = gmres.RestartCount();
-        std::cout << "Dirichlet to Neumann GMRES iterations: (" << res << "," << iter << ")" << std::endl;
 
         DestroyKernel(&list);
 

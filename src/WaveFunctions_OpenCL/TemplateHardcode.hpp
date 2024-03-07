@@ -10,6 +10,38 @@ public:
     {
         switch(wave_count)
         {
+            case 1:
+            {
+                incidentWaveKernel_Plane_C<1,1>(kappa_,c_,incident_directions,C);
+                break;
+            }
+            case 4:
+            {
+                switch( wave_chunk_count )
+                {
+                    case 1:
+                    {
+                        incidentWaveKernel_Plane_C<1,4>(kappa_,c_,incident_directions,C);
+                        break;
+                    }
+                    case 2:
+                    {
+                        incidentWaveKernel_Plane_C<2,2>(kappa_,c_,incident_directions,C);
+                        break;
+                    }
+                    case 4:
+                    {
+                        incidentWaveKernel_Plane_C<4,1>(kappa_,c_,incident_directions,C);
+                        break;
+                    }
+                    default:
+                    {
+                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        break;
+                    }
+                }
+                break;
+            }
             case 8:
             {
                 switch( wave_chunk_count )
