@@ -165,14 +165,14 @@ int main()
     {
         for (int j = 0 ; j < grid_fine; j++)
         {
-            Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
-            Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+            Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
 
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
             evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
 
-            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
         }
     }
 
@@ -187,11 +187,11 @@ int main()
                                             wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );
 
 
-    H.ApplyNearFieldOperators_PL(
-                        Complex(1.0f,0.0f), phi, wave_count, 
-                        Complex(0.0f,0.0f), C_1, wave_count, 
-                        kappa, coeff, wave_count, wave_chunk_size,
-                        evaluation_points_1, grid_coarse_3);
+    // H.ApplyNearFieldOperators_PL(
+    //                     Complex(1.0f,0.0f), phi, wave_count, 
+    //                     Complex(0.0f,0.0f), C_1, wave_count, 
+    //                     kappa, coeff, wave_count, wave_chunk_size,
+    //                     evaluation_points_1, grid_coarse_3);
 
     H.ApplyNearFieldOperators_PL(
                         Complex(1.0f,0.0f), phi, wave_count, 
@@ -201,29 +201,29 @@ int main()
 
     // std::ofstream fout_points_3D("blub_eval_points_3D.txt");
     // std::ofstream fout_points_plane("blub_eval_points_plane.txt");
-    std::ofstream fout_points_3D("bunny_eval_points_3D.txt");
-    std::ofstream fout_points_plane("bunny_eval_points_plane_1.txt");
-    if(fout_points_3D.is_open() && fout_points_plane.is_open())
-	{
-		for(int i = 0; i < grid_coarse_3 ; i++)
-		{
-            for(int j = 0; j < 3 ; j++)
-            {
-                fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
-            }
-            fout_points_3D << "\n";
-		}
-        fout_points_3D.close();
-        for(int i = 0; i < grid_fine_2 ; i++)
-		{
-            for(int j = 0; j < 3 ; j++)
-            {
-                fout_points_plane << evaluation_points_2[i * 3 + j] << " "; 
-            }
-            fout_points_plane << "\n";
-		}
-        fout_points_plane.close();
-	}
+    // std::ofstream fout_points_3D("bunny_eval_points_3D.txt");
+    // std::ofstream fout_points_plane("bunny_eval_points_plane_1.txt");
+    // if(fout_points_3D.is_open() && fout_points_plane.is_open())
+	// {
+	// 	for(int i = 0; i < grid_coarse_3 ; i++)
+	// 	{
+    //         for(int j = 0; j < 3 ; j++)
+    //         {
+    //             fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
+    //         }
+    //         fout_points_3D << "\n";
+	// 	}
+    //     fout_points_3D.close();
+    //     for(int i = 0; i < grid_fine_2 ; i++)
+	// 	{
+    //         for(int j = 0; j < 3 ; j++)
+    //         {
+    //             fout_points_plane << evaluation_points_2[i * 3 + j] << " "; 
+    //         }
+    //         fout_points_plane << "\n";
+	// 	}
+    //     fout_points_plane.close();
+	// }
 
     // std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
     // std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
@@ -284,14 +284,14 @@ int main()
     {
         for (int j = 0 ; j < grid_fine; j++)
         {
-            Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
-            Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+            Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
 
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
             evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
 
-            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
         }
     }
 
@@ -353,14 +353,14 @@ int main()
     {
         for (int j = 0 ; j < grid_fine; j++)
         {
-            Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
-            Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+            Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
 
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
             evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
 
-            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
         }
     }
 

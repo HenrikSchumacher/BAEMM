@@ -139,12 +139,14 @@ int main()
         {
             Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
             Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+            std::cout << s_1 << std::endl;
+            std::cout << s_2 << std::endl;
 
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
             evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
 
-            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
         }
     }
 
