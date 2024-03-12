@@ -137,8 +137,8 @@ int main()
     {
         for (int j = 0 ; j < grid_fine; j++)
         {
-            Int s_1 = -size_dir_1 + i*( 2 * size_dir_1 )/( grid_fine - 1 ) ;
-            Int s_2 = -size_dir_2 + j*( 2 * size_dir_2 )/( grid_fine - 1 ) ;
+            Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
             std::cout << s_1 << std::endl;
             std::cout << s_2 << std::endl;
 

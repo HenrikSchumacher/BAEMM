@@ -195,10 +195,10 @@ int main()
                         kappa, coeff, wave_count, wave_chunk_size,
                         evaluation_points_2, grid_fine_2);
 
-    // std::ofstream fout_points_3D("blub_eval_points_3D.txt");
-    // std::ofstream fout_points_plane("blub_eval_points_plane.txt");
-    std::ofstream fout_points_3D("bunny_eval_points_3D.txt");
-    std::ofstream fout_points_plane("bunny_eval_points_plane_1.txt");
+    std::ofstream fout_points_3D("blub_eval_points_3D.txt");
+    std::ofstream fout_points_plane("blub_eval_points_plane.txt");
+    // std::ofstream fout_points_3D("bunny_eval_points_3D.txt");
+    // std::ofstream fout_points_plane("bunny_eval_points_plane_1.txt");
     if(fout_points_3D.is_open() && fout_points_plane.is_open())
 	{
 		// for(int i = 0; i < grid_coarse_3 ; i++)
@@ -221,15 +221,15 @@ int main()
         fout_points_plane.close();
 	}
 
-    // std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
-    // std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
-    // std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
-    // std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
+    std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
+    std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
+    std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
+    std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
 
-    std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
-    std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
-    std::ofstream fout_eval_plane_real("bunny_eval_plane_1_4pi_real.txt");
-    std::ofstream fout_eval_plane_imag("bunny_eval_plane_1_4pi_imag.txt");
+    // std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
+    // std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
+    // std::ofstream fout_eval_plane_real("bunny_eval_plane_1_4pi_real.txt");
+    // std::ofstream fout_eval_plane_imag("bunny_eval_plane_1_4pi_imag.txt");
 
     if(fout_eval_3D_real.is_open() && fout_eval_plane_real.is_open()
     && fout_eval_3D_imag.is_open() && fout_eval_plane_imag.is_open() )
