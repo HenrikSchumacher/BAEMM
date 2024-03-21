@@ -399,10 +399,6 @@ public:
 
         bool succeeded = gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
 
-        int iter, res;
-        iter = gmres.IterationCount();
-        res = gmres.RestartCount();
-
         DestroyKernel(&list);
 
         ptoc(ClassName()+"::BoundaryPotential");

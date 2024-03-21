@@ -21,7 +21,7 @@ int main()
     
     Int n = H.VertexCount();
     Int grid_coarse = 10;
-    Int grid_fine = 100;
+    Int grid_fine = 2000;
 
     Int grid_coarse_2 = grid_coarse * grid_coarse;
     Int grid_coarse_3 = grid_coarse * grid_coarse * grid_coarse;
@@ -116,18 +116,32 @@ int main()
     //plane for near field measurements specified by base point, span direction 1 and span direction 2
     Real* plane = (Real*)malloc(3 * 3 * sizeof(Real));
     
+    // {
+    //     plane[0] = 0.0f;
+    //     plane[1] = -0.2f;
+    //     plane[2] = 0.0f;
+
+    //     plane[3] = 1.0f;
+    //     plane[4] = 0.0f;
+    //     plane[5] = 0.0f;
+
+    //     plane[6] = 0.0f;
+    //     plane[7] = 0.0f;
+    //     plane[8] = 1.0f;
+    // }
+
     {
-        plane[0] = 0.0f;
-        plane[1] = -0.2f;
-        plane[2] = 0.0f;
+        plane[0] = -0.1432f;
+        plane[1] = -0.1065f;
+        plane[2] = 0.1494f;
 
-        plane[3] = 1.0f;
-        plane[4] = 0.0f;
-        plane[5] = 0.0f;
+        plane[3] = 1.0f/sqrt(6);
+        plane[4] = 1.0f/sqrt(6);
+        plane[5] = 2.0f/sqrt(6);
 
-        plane[6] = 0.0f;
-        plane[7] = 0.0f;
-        plane[8] = 1.0f;
+        plane[6] = 1.0f/sqrt(2);
+        plane[7] = -1.0f/sqrt(2);
+        plane[8] = 0.0f;
     }
 
     Real size_dir_1 = 2;
@@ -139,8 +153,6 @@ int main()
         {
             Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
             Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
-            std::cout << s_1 << std::endl;
-            std::cout << s_2 << std::endl;
 
             evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
@@ -151,39 +163,38 @@ int main()
     }
 
     // H.type_cast(B,H.VertexCoordinates(),3*n,4);
-    H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
-                            Complex(0.0f,0.0f), B, wave_count,
-                            kappa, wave_coeff, wave_count, wave_chunk_size,
-                            BAEMM::Helmholtz_OpenCL::WaveType::Plane
-                            );
+    // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
+    //                         Complex(0.0f,0.0f), B, wave_count,
+    //                         kappa, wave_coeff, wave_count, wave_chunk_size,
+    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         );
 
-    H.BoundaryPotential<wave_count>( kappa, coeff, B, phi, 
-                                            wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );
+    // H.BoundaryPotential<wave_count>( kappa, coeff, B, phi, 
+    //                                         wave_chunk_count, wave_chunk_size, cg_tol, gmres_tol );
 
 
-    H.ApplyNearFieldOperators_PL(
-                        Complex(1.0f,0.0f), phi, wave_count, 
-                        Complex(0.0f,0.0f), C_1, wave_count, 
-                        kappa, coeff, wave_count, wave_chunk_size,
-                        evaluation_points_1, grid_coarse_3);
+    // H.ApplyNearFieldOperators_PL(
+    //                     Complex(1.0f,0.0f), phi, wave_count, 
+    //                     Complex(0.0f,0.0f), C_1, wave_count, 
+    //                     kappa, coeff, wave_count, wave_chunk_size,
+    //                     evaluation_points_1, grid_coarse_3);
 
-    H.ApplyNearFieldOperators_PL(
-                        Complex(1.0f,0.0f), phi, wave_count, 
-                        Complex(0.0f,0.0f), C_2, wave_count, 
-                        kappa, coeff, wave_count, wave_chunk_size,
-                        evaluation_points_2, grid_fine_2);
+    // H.ApplyNearFieldOperators_PL(
+    //                     Complex(1.0f,0.0f), phi, wave_count, 
+    //                     Complex(0.0f,0.0f), C_2, wave_count, 
+    //                     kappa, coeff, wave_count, wave_chunk_size,
+    //                     evaluation_points_2, grid_fine_2);
 
     // H.DestroyKernel(&list);
 
     std::ofstream fout_points_3D("blub_eval_points_3D.txt");
-    std::ofstream fout_points_plane("blub_eval_points_plane.txt");
+    std::ofstream fout_points_plane("bunny_eval_points_plane_3.txt");
     if(fout_points_3D.is_open() && fout_points_plane.is_open())
 	{
 		for(int i = 0; i < grid_coarse_3 ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
             }
             fout_points_3D << "\n";
 		}
