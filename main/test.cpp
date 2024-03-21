@@ -35,7 +35,7 @@ int main()
     Complex* C_1 = (Complex*)malloc(wave_count * grid_coarse_3  * sizeof(Complex));
     Complex* C_2 = (Complex*)malloc(wave_count * grid_fine_2  * sizeof(Complex));
 
-    Int thread_count = 4;
+    Int thread_count = 16;
 
     // using namespace Tensors;
     // using namespace Tools;
@@ -124,7 +124,7 @@ int main()
     }
 
     //plane for near field measurements specified by base point, span direction 1 and span direction 2
-    // Real* plane = (Real*)malloc(3 * 3 * sizeof(Real));
+    Real* plane = (Real*)malloc(3 * 3 * sizeof(Real));
     
     // {
     //     plane[0] = 0.0f;
