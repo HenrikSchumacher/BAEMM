@@ -227,8 +227,8 @@ int main()
     // std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
     // std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
 
-    // std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
-    // std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
+    std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
+    std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
     std::ofstream fout_eval_plane_real("bunny_eval_plane_4_4pi_real.txt");
     std::ofstream fout_eval_plane_imag("bunny_eval_plane_4_4pi_imag.txt");
 
