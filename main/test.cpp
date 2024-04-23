@@ -330,74 +330,74 @@ int main()
         fout_eval_plane_2_imag.close();
 	}
 
-    // {
-    //     plane[0] = -0.1432f;
-    //     plane[1] = -0.1065f;
-    //     plane[2] = 0.1494f;
+    {
+        plane[0] = -0.54f;
+        plane[1] = -0.06f;
+        plane[2] = 0.815f;
 
-    //     plane[3] = 1.0f/sqrt(6);
-    //     plane[4] = 1.0f/sqrt(6);
-    //     plane[5] = 2.0f/sqrt(6);
+        plane[3] = 1.0f/sqrt(6);
+        plane[4] = 1.0f/sqrt(6);
+        plane[5] = 2.0f/sqrt(6);
 
-    //     plane[6] = 1.0f/sqrt(2);
-    //     plane[7] = -1.0f/sqrt(2);
-    //     plane[8] = 0.0f;
-    // }
-    // // H.DestroyKernel(&list);
+        plane[6] = 1.0f/sqrt(2);
+        plane[7] = -1.0f/sqrt(2);
+        plane[8] = 0.0f;
+    }
+    // H.DestroyKernel(&list);
 
-    // for (int i = 0 ; i < grid_fine; i++)
-    // {
-    //     for (int j = 0 ; j < grid_fine; j++)
-    //     {
-    //         Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
-    //         Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
+    for (int i = 0 ; i < grid_fine; i++)
+    {
+        for (int j = 0 ; j < grid_fine; j++)
+        {
+            Real s_1 = -size_dir_1 + (i* 2 * size_dir_1 )/( grid_fine - 1 ) ;
+            Real s_2 = -size_dir_2 + (j* 2 * size_dir_2 )/( grid_fine - 1 ) ;
 
-    //         evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 0]  = plane[0] + plane[3] * s_1 + plane[6] * s_2;
             
-    //         evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 1]  = plane[1] + plane[4] * s_1 + plane[7] * s_2;
 
-    //         evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
-    //     }
-    // }
+            evaluation_points_2[3 * grid_fine * i + 3 * j + 2]  = plane[2] + plane[5] * s_1 + plane[8] * s_2;
+        }
+    }
 
-    // H.ApplyNearFieldOperators_PL(
-    //                     Complex(1.0f,0.0f), phi, wave_count, 
-    //                     Complex(0.0f,0.0f), C_2, wave_count, 
-    //                     kappa, coeff, wave_count, wave_chunk_size,
-    //                     evaluation_points_2, grid_fine_2);
+    H.ApplyNearFieldOperators_PL(
+                        Complex(1.0f,0.0f), phi, wave_count, 
+                        Complex(0.0f,0.0f), C_2, wave_count, 
+                        kappa, coeff, wave_count, wave_chunk_size,
+                        evaluation_points_2, grid_fine_2);
 
-    // std::ofstream fout_points_plane_3("bunny_eval_points_plane_3.txt");
-    // if(fout_points_plane_2.is_open())
-	// {
-    //     for(int i = 0; i < grid_fine_2 ; i++)
-	// 	{
-    //         for(int j = 0; j < 3 ; j++)
-    //         {
-    //             fout_points_plane_2 << evaluation_points_2[i * 3 + j] << " "; 
-    //         }
-    //         fout_points_plane_2 << "\n";
-	// 	}
-    //     fout_points_plane_2.close();
-	// }
+    std::ofstream fout_points_plane_3("bunny_eval_points_plane_3.txt");
+    if(fout_points_plane_2.is_open())
+	{
+        for(int i = 0; i < grid_fine_2 ; i++)
+		{
+            for(int j = 0; j < 3 ; j++)
+            {
+                fout_points_plane_2 << evaluation_points_2[i * 3 + j] << " "; 
+            }
+            fout_points_plane_2 << "\n";
+		}
+        fout_points_plane_2.close();
+	}
 
-    // std::ofstream fout_eval_plane_3_real("bunny_eval_plane_3_4pi_real.txt");
-    // std::ofstream fout_eval_plane_3_imag("bunny_eval_plane_3_4pi_imag.txt");
+    std::ofstream fout_eval_plane_3_real("bunny_eval_plane_3_4pi_real.txt");
+    std::ofstream fout_eval_plane_3_imag("bunny_eval_plane_3_4pi_imag.txt");
 
-    // if(fout_eval_plane_3_real.is_open() && fout_eval_plane_3_imag.is_open() )
-	// {
-    //     for(int i = 0; i < grid_fine_2 ; i++)
-	// 	{
-    //         for(int j = 0; j < wave_count ; j++)
-    //         {
-    //             fout_eval_plane_3_real << C_2[wave_count*i + j].real() << " "; 
-    //             fout_eval_plane_3_imag << C_2[wave_count*i + j].imag() << " ";
-    //         }
-    //         fout_eval_plane_3_real << "\n";
-    //         fout_eval_plane_3_imag << "\n";
-	// 	}
-    //     fout_eval_plane_3_real.close();
-    //     fout_eval_plane_3_imag.close();
-	// }
+    if(fout_eval_plane_3_real.is_open() && fout_eval_plane_3_imag.is_open() )
+	{
+        for(int i = 0; i < grid_fine_2 ; i++)
+		{
+            for(int j = 0; j < wave_count ; j++)
+            {
+                fout_eval_plane_3_real << C_2[wave_count*i + j].real() << " "; 
+                fout_eval_plane_3_imag << C_2[wave_count*i + j].imag() << " ";
+            }
+            fout_eval_plane_3_real << "\n";
+            fout_eval_plane_3_imag << "\n";
+		}
+        fout_eval_plane_3_real.close();
+        fout_eval_plane_3_imag.close();
+	}
 
 
     free(B);
