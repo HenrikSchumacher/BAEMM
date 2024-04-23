@@ -19,7 +19,7 @@ int main()
     
     Int n = H.VertexCount();
     Int grid_coarse = 200;
-    Int grid_fine = 2000;
+    Int grid_fine = 1000;
 
     Int grid_coarse_2 = grid_coarse * grid_coarse;
     Int grid_coarse_3 = grid_coarse * grid_coarse * grid_coarse;
@@ -79,9 +79,9 @@ int main()
 
     // for (int i = 0 ; i < wave_chunk_count; i++)
     // {
-    //     inc[3*i + 0] = 1.0f;
+    //     inc[3*i + 0] = 0.0f;
     //     inc[3*i + 1] = 0.0f;
-    //     inc[3*i + 2] = 0.0f;
+    //     inc[3*i + 2] = -1.0f;
     // }
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
@@ -141,9 +141,9 @@ int main()
     // }
 
     {
-        plane[0] = -0.05f;
-        plane[1] = -0.02f;
-        plane[2] = 0.8f;
+        plane[0] = -0.54f;
+        plane[1] = -0.06f;
+        plane[2] = 0.815f;
 
         plane[3] = 1.0/sqrt(3);
         plane[4] = 1.0/sqrt(3);
@@ -227,8 +227,8 @@ int main()
     // std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
     // std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
 
-    std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
-    std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
+    // std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
+    // std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
     std::ofstream fout_eval_plane_real("bunny_eval_plane_4_4pi_real.txt");
     std::ofstream fout_eval_plane_imag("bunny_eval_plane_4_4pi_imag.txt");
 
@@ -263,9 +263,9 @@ int main()
 	}
 
     {
-        plane[0] = -0.05f;
-        plane[1] = -0.02f;
-        plane[2] = 0.8f;
+        plane[0] = -0.54f;
+        plane[1] = -0.06f;
+        plane[2] = 0.815f;
 
         plane[3] = 1.0/sqrt(3);
         plane[4] = 1.0/sqrt(3);
