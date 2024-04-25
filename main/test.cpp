@@ -367,17 +367,17 @@ int main()
                         evaluation_points_2, grid_fine_2);
 
     std::ofstream fout_points_plane_3("bunny_eval_points_plane_3.txt");
-    if(fout_points_plane_2.is_open())
+    if(fout_points_plane_3.is_open())
 	{
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
             {
-                fout_points_plane_2 << evaluation_points_2[i * 3 + j] << " "; 
+                fout_points_plane_3 << evaluation_points_2[i * 3 + j] << " "; 
             }
-            fout_points_plane_2 << "\n";
+            fout_points_plane_3 << "\n";
 		}
-        fout_points_plane_2.close();
+        fout_points_plane_3.close();
 	}
 
     std::ofstream fout_eval_plane_3_real("bunny_eval_plane_3_4pi_real.txt");
