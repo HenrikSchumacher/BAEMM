@@ -81,7 +81,7 @@ int main()
     {
         inc[3*i + 0] = 0.0f;
         inc[3*i + 1] = 0.0f;
-        inc[3*i + 2] = -1.0f;
+        inc[3*i + 2] = 1.0f;
     }
     // for (int i = 0 ; i < wave_chunk_count; i++)
     // {
@@ -202,15 +202,15 @@ int main()
     // std::ofstream fout_points_plane("bunny_eval_points_plane_4.txt");
     if(fout_points_3D.is_open() && fout_points_plane.is_open())
 	{
-		for(int i = 0; i < grid_coarse_3 ; i++)
-		{
-            for(int j = 0; j < 3 ; j++)
-            {
-                fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
-            }
-            fout_points_3D << "\n";
-		}
-        fout_points_3D.close();
+		// for(int i = 0; i < grid_coarse_3 ; i++)
+		// {
+        //     for(int j = 0; j < 3 ; j++)
+        //     {
+        //         fout_points_3D << evaluation_points_1[i * 3 + j] << " "; 
+        //     }
+        //     fout_points_3D << "\n";
+		// }
+        // fout_points_3D.close();
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
             for(int j = 0; j < 3 ; j++)
@@ -224,8 +224,8 @@ int main()
 
     std::ofstream fout_eval_3D_real("blub_eval_3D_2pi_4pi_5pi_7pi_real.txt");
     std::ofstream fout_eval_3D_imag("blub_eval_3D_2pi_4pi_5pi_7pi_imag.txt");
-    std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_real.txt");
-    std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_imag.txt");
+    std::ofstream fout_eval_plane_real("blub_eval_plane_2pi_4pi_5pi_7pi_back_real.txt");
+    std::ofstream fout_eval_plane_imag("blub_eval_plane_2pi_4pi_5pi_7pi_back_imag.txt");
 
     // std::ofstream fout_eval_3D_real("bunny_eval_3D_4pi_real.txt");
     // std::ofstream fout_eval_3D_imag("bunny_eval_3D_4pi_imag.txt");
@@ -235,18 +235,18 @@ int main()
     if(fout_eval_3D_real.is_open() && fout_eval_plane_real.is_open()
     && fout_eval_3D_imag.is_open() && fout_eval_plane_imag.is_open() )
 	{
-		for(int i = 0; i < grid_coarse_3 ; i++)
-		{
-            for(int j = 0; j < wave_count ; j++)
-            {
-                fout_eval_3D_real << C_1[wave_count*i + j].real() << " "; 
-                fout_eval_3D_imag << C_1[wave_count*i + j].imag() << " "; 
-            }
-            fout_eval_3D_real<< "\n";
-            fout_eval_3D_imag<< "\n";
-		}
-        fout_eval_3D_real.close();
-        fout_eval_3D_imag.close();
+		// for(int i = 0; i < grid_coarse_3 ; i++)
+		// {
+        //     for(int j = 0; j < wave_count ; j++)
+        //     {
+        //         fout_eval_3D_real << C_1[wave_count*i + j].real() << " "; 
+        //         fout_eval_3D_imag << C_1[wave_count*i + j].imag() << " "; 
+        //     }
+        //     fout_eval_3D_real<< "\n";
+        //     fout_eval_3D_imag<< "\n";
+		// }
+        // fout_eval_3D_real.close();
+        // fout_eval_3D_imag.close();
 
         for(int i = 0; i < grid_fine_2 ; i++)
 		{
