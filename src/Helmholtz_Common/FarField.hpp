@@ -300,6 +300,7 @@ public:
                     R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
                     )
     {
+        ptic(ClassName() + "::GaussNewton_full");
         // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
         const I_ext  n           = static_cast<I_ext>(VertexCount());
         const I_ext  m           = static_cast<I_ext>(GetMeasCount());
@@ -334,6 +335,7 @@ public:
         iter = gmres.IterationCount();
         res = gmres.RestartCount();
 
+        ptoc(ClassName() + "::GaussNewton_full");
         return static_cast<I_ext>(succeeded);
     }
 

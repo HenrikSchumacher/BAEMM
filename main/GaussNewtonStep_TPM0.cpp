@@ -1,3 +1,5 @@
+#define TOOLS_ENABLE_PROFILER
+
 #include <sys/types.h>
 #include <complex>
 #include <iostream>
@@ -72,6 +74,10 @@ int main()
     ReadCoordinates(vertex_count, coords);
 
     ReadRegpar(regpar);
+
+    std::string varAsString = std::to_string(regpar);
+
+    Profiler::Clear( "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  );
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 

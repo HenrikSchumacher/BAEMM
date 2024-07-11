@@ -33,9 +33,11 @@ int main()
     Tensor2<Real,Int>       incident_directions;
     Tensor1<Real,Int>       kappa;
 
+
     ReadFixes(vertex_count, simplex_count, meas_count, wave_chunk_count, wave_chunk_size, GPU_device, wave_type, simplices, meas_directions, incident_directions, kappa);
 
     ReadCoordinates(vertex_count, coords);
+
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
