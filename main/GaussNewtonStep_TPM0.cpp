@@ -4,6 +4,7 @@
 #include <complex>
 #include <iostream>
 #include <fstream> 
+#include <filesystem>
 
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
@@ -77,6 +78,7 @@ int main()
 
     std::string varAsString = std::to_string(regpar);
 
+    std::filesystem::create_directories("/HOME1/users/guests/jannr/Timing_GN_" +  varAsString);
     Profiler::Clear( "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  );
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
