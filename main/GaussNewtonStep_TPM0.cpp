@@ -76,7 +76,7 @@ int main()
 
     ReadRegpar(regpar);
 
-    std::string varAsString = std::to_string(regpar);
+    std::string varAsString = std::to_string(1000000 * regpar);
 
     std::filesystem::create_directories("/HOME1/users/guests/jannr/Timing_GN_" +  varAsString);
     Profiler::Clear( "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  );
