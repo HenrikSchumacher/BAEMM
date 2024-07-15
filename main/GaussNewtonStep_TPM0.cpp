@@ -5,11 +5,11 @@
 #include <filesystem>
 
 #include "../Helmholtz_OpenCL.hpp"
-#include "../ReadWrite/ReadFiles.hpp"
-#include "../ReadWrite/WriteFiles.hpp"
 
 #define TOOLS_ENABLE_PROFILER
 
+#include "../ReadWrite/ReadFiles.hpp"
+#include "../ReadWrite/WriteFiles.hpp"
 
 using namespace Tools;
 using namespace Tensors;
