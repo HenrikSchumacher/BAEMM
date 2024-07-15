@@ -77,10 +77,7 @@ int main()
 
     ReadRegpar(regpar);
 
-    std::string varAsString = std::to_string(1000000 * regpar);
-
-    std::filesystem::create_directories("/HOME1/users/guests/jannr/Timing_GN_" +  varAsString);
-    Profiler::Clear( "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  );
+    Profiler::Clear("/HOME1/users/guests/jannr/BEM");
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
@@ -237,6 +234,13 @@ int main()
         }
     }
 
+    std::string varAsString = std::to_string(1000000 * regpar);
+    std::filesystem::create_directories("/HOME1/users/guests/jannr/Timing_GN_" +  varAsString);
+    std::string path_log = "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  + "/Tools_Log.txt";
+    std::string path_profile = "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  + "/Tools_Profile.tsv";
+
+    std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
+    std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
