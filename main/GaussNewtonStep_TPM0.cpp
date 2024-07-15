@@ -1,5 +1,3 @@
-#define TOOLS_ENABLE_PROFILER
-
 #include <sys/types.h>
 #include <complex>
 #include <iostream>
@@ -9,6 +7,9 @@
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
 #include "../ReadWrite/WriteFiles.hpp"
+
+#define TOOLS_ENABLE_PROFILER
+
 
 using namespace Tools;
 using namespace Tensors;

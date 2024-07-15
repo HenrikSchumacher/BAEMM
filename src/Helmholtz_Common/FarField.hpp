@@ -69,7 +69,7 @@ public:
                     R_ext* eta,
                     R_ext cg_tol, R_ext gmres_tol)
     {
-        ptic(ClassName()+"::FarField");
+        // ptic(ClassName()+"::FarField");
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
@@ -113,7 +113,7 @@ public:
                             kappa,coeff.data(), wave_count_, wave_chunk_size_
                             );
 
-        ptoc(ClassName()+"::FarField");
+        // ptoc(ClassName()+"::FarField");
     }
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
@@ -130,7 +130,7 @@ public:
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
         // phi is the bdry potential for the incident wave dudn *(<h , n>), the solution is the far field to this
         // Formulas follow from Thortens book
-        ptic(ClassName()+"::Derivative_FF");
+        // ptic(ClassName()+"::Derivative_FF");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -214,7 +214,7 @@ public:
                             kappa,coeff.data(), wave_count_, wave_chunk_size_
                             );
 
-        ptoc(ClassName()+"::Derivative_FF");
+        // ptoc(ClassName()+"::Derivative_FF");
     }
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
@@ -230,7 +230,8 @@ public:
         // A := (1/2) * I - i * kappa * SL + DL'
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
         // anh phi_h = A\herglotz_wave is the normal derivative of the solution with inc wave herglotz_wave
-        ptic(ClassName()+"::AdjointDerivative_FF");
+
+        // ptic(ClassName()+"::AdjointDerivative_FF");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
@@ -288,7 +289,7 @@ public:
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
         MultiplyWithNormals_PL(wave_product.data(),C_out,-( 1 /static_cast<R_ext>(wave_count_) ), cg_tol);
 
-        ptoc(ClassName()+"::AdjointDerivative_FF");
+        // ptoc(ClassName()+"::AdjointDerivative_FF");
     }
 
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
@@ -300,7 +301,8 @@ public:
                     R_ext cg_tol, R_ext gmres_tol_inner , R_ext gmres_tol_outer
                     )
     {
-        ptic(ClassName() + "::GaussNewton_full");
+        // ptic(ClassName() + "::GaussNewtonStep");
+
         // Calculates a gauss newton step. Note that the metric M has to add the input to the result.
         const I_ext  n           = static_cast<I_ext>(VertexCount());
         const I_ext  m           = static_cast<I_ext>(GetMeasCount());
@@ -331,11 +333,11 @@ public:
 
         bool succeeded = gmres(A,P,h,1,C_out,1,gmres_tol_outer,3);
 
-        int iter, res;
-        iter = gmres.IterationCount();
-        res = gmres.RestartCount();
+        // int iter, res;
+        // iter = gmres.IterationCount();
+        // res = gmres.RestartCount();
 
-        ptoc(ClassName() + "::GaussNewton_full");
+        // ptoc(ClassName() + "::GaussNewtonStep");
         return static_cast<I_ext>(succeeded);
     }
 
@@ -363,7 +365,7 @@ public:
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
-        ptic(ClassName()+"::BoundaryPotential");
+        // ptic(ClassName()+"::BoundaryPotential");
 
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
@@ -403,7 +405,7 @@ public:
 
         DestroyKernel(&list);
 
-        ptoc(ClassName()+"::BoundaryPotential");
+        // ptoc(ClassName()+"::BoundaryPotential");
     }
 
 
@@ -412,7 +414,7 @@ public:
                             const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
                             R_ext cg_tol, R_ext gmres_tol)
     {
-        ptic(ClassName()+"::DirichletToNeumann");
+        // ptic(ClassName()+"::DirichletToNeumann");
         const C_ext One  = static_cast<C_ext>(Complex(1.0f,0.0f));
         const C_ext I    = static_cast<C_ext>(Complex(0.0f,1.0f));
         const C_ext Zero = static_cast<C_ext>(Complex(0.0f,0.0f));
@@ -461,7 +463,7 @@ public:
 
         free(coeff);
 
-        ptoc(ClassName()+"::DirichletToNeumann");
+        // ptoc(ClassName()+"::DirichletToNeumann");
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
