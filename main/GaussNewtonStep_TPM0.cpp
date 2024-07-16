@@ -4,10 +4,9 @@
 #include <fstream> 
 #include <filesystem>
 
-#include "../Helmholtz_OpenCL.hpp"
-
 #define TOOLS_ENABLE_PROFILER
 
+#include "../Helmholtz_OpenCL.hpp"
 #include "../ReadWrite/ReadFiles.hpp"
 #include "../ReadWrite/WriteFiles.hpp"
 
@@ -235,9 +234,9 @@ int main()
     }
 
     std::string varAsString = std::to_string(1000000 * regpar);
-    std::filesystem::create_directories("/HOME1/users/guests/jannr/Timing_GN_" +  varAsString);
-    std::string path_log = "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  + "/Tools_Log.txt";
-    std::string path_profile = "/HOME1/users/guests/jannr/Timing_GN_" +  varAsString  + "/Tools_Profile.tsv";
+
+    std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_iteration_" +  varAsString + ".txt";
+    std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_iteration_" +  varAsString + ".tsv";
 
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
