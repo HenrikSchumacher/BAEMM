@@ -343,9 +343,16 @@ public:
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
-    void BoundaryPotential(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
-                            const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
-                            R_ext cg_tol, R_ext gmres_tol)
+    void BoundaryPotential(
+        const R_ext * kappa,
+              C_ext * coeff, 
+              C_ext * wave,
+              C_ext * phi,
+        const I_ext & wave_chunk_count_,
+        const I_ext & wave_chunk_size_,
+              R_ext   cg_tol,
+              R_ext   gmres_tol
+    )
     {
         Tensor1<R_ext,I_ext> eta (wave_chunk_count_);
 
@@ -355,15 +362,24 @@ public:
             p_eta[i] = kappa[i];
         }
 
-        BoundaryPotential_parameters<solver_count>(kappa, coeff, wave, phi, eta.data(), 
-                                                    wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
+        BoundaryPotential_parameters<solver_count>(
+            kappa, coeff, wave, phi, eta.data(),
+            wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol
+        );
     }
         
     template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
-    void BoundaryPotential_parameters(const R_ext* kappa, C_ext* coeff, C_ext * wave, C_ext* phi, 
-                            R_ext* eta,
-                            const I_ext& wave_chunk_count_, const I_ext& wave_chunk_size_, 
-                            R_ext cg_tol, R_ext gmres_tol)
+    void BoundaryPotential_parameters(
+        const R_ext * kappa,
+              C_ext * coeff,
+              C_ext * wave,
+              C_ext * phi,
+              R_ext * eta,
+        const I_ext & wave_chunk_count_,
+        const I_ext & wave_chunk_size_,
+              R_ext   cg_tol,
+              R_ext   gmres_tol
+    )
     {
         // ptic(ClassName()+"::BoundaryPotential");
 
@@ -447,9 +463,7 @@ public:
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
-            ApplyBoundaryOperators_PL(
-                             wave_count_,One,x,Zero,y
-                            );
+            ApplyBoundaryOperators_PL( wave_count_,One,x,Zero,y );
         };
 
         // solve for the normal derivatives of the near field solutions
@@ -484,8 +498,8 @@ public:
         
         // make the input from PL to a PC function
         AvOp.Dot(
-                Complex(1.0f,0.0f),  B_in,  1,
-                Complex(0.0f,0.0f), B, 1,
+                Complex(1.0f,0.0f), B_in,  1,
+                Complex(0.0f,0.0f), B,     1,
                 1
             );
 
