@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
-		AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF14298E573500085994 /* Foundation.framework */; };
-		AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
+		AF1A0AB22C4BD120008E55D5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF1A0AB12C4BD120008E55D5 /* main.cpp */; };
+		AF1A0AB72C4BD725008E55D5 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
+		AF1A0AB92C4BD72B008E55D5 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF1A0AB82C4BD72B008E55D5 /* OpenCL.framework */; };
 		AFA1CF1F298E588E00085994 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFA1CF1E298E588E00085994 /* main.cpp */; };
 		AFA1CF24298E59A100085994 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
 		AFA1CF25298E59A600085994 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		AF73BBF22997FE3400526B7D /* CopyFiles */ = {
+		AF1A0AAD2C4BD120008E55D5 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -47,7 +47,10 @@
 		AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ReadWrite; sourceTree = "<group>"; };
 		AF1A0AA82C4BA3AB008E55D5 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
 		AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
-		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF1A0AAF2C4BD120008E55D5 /* BAEMM_OpenCL_Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BAEMM_OpenCL_Test; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF1A0AB12C4BD120008E55D5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReadMeshFromFile.hpp; sourceTree = "<group>"; };
+		AF1A0AB82C4BD72B008E55D5 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		AFA1CF10298E56FF00085994 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AFA1CF12298E572A00085994 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -60,13 +63,12 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		AF73BBF12997FE3400526B7D /* Frameworks */ = {
+		AF1A0AAC2C4BD120008E55D5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */,
-				AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */,
-				AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */,
+				AF1A0AB72C4BD725008E55D5 /* Accelerate.framework in Frameworks */,
+				AF1A0AB92C4BD72B008E55D5 /* OpenCL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +85,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF1A0AB02C4BD120008E55D5 /* BAEMM_OpenCL_Test */ = {
+			isa = PBXGroup;
+			children = (
+				AF1A0AB12C4BD120008E55D5 /* main.cpp */,
+			);
+			path = BAEMM_OpenCL_Test;
+			sourceTree = "<group>";
+		};
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
@@ -96,9 +106,11 @@
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */,
 				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
+				AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
+				AF1A0AB02C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
 				AFA1CEFC298E56D400085994 /* Products */,
 				AFA1CF11298E572A00085994 /* Frameworks */,
 			);
@@ -108,7 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				AFA1CF1C298E588D00085994 /* BAEMM_Test */,
-				AF73BBF42997FE3400526B7D /* Metal_Experiments */,
+				AF1A0AAF2C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +128,7 @@
 		AFA1CF11298E572A00085994 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AF1A0AB82C4BD72B008E55D5 /* OpenCL.framework */,
 				AFA1CF16298E573E00085994 /* Metal.framework */,
 				AFA1CF14298E573500085994 /* Foundation.framework */,
 				AFA1CF12298E572A00085994 /* Accelerate.framework */,
@@ -135,21 +148,21 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AF73BBF32997FE3400526B7D /* Metal_Experiments */ = {
+		AF1A0AAE2C4BD120008E55D5 /* BAEMM_OpenCL_Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */;
+			buildConfigurationList = AF1A0AB32C4BD120008E55D5 /* Build configuration list for PBXNativeTarget "BAEMM_OpenCL_Test" */;
 			buildPhases = (
-				AF73BBF02997FE3400526B7D /* Sources */,
-				AF73BBF12997FE3400526B7D /* Frameworks */,
-				AF73BBF22997FE3400526B7D /* CopyFiles */,
+				AF1A0AAB2C4BD120008E55D5 /* Sources */,
+				AF1A0AAC2C4BD120008E55D5 /* Frameworks */,
+				AF1A0AAD2C4BD120008E55D5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = Metal_Experiments;
-			productName = Metal_Experiments;
-			productReference = AF73BBF42997FE3400526B7D /* Metal_Experiments */;
+			name = BAEMM_OpenCL_Test;
+			productName = BAEMM_OpenCL_Test;
+			productReference = AF1A0AAF2C4BD120008E55D5 /* BAEMM_OpenCL_Test */;
 			productType = "com.apple.product-type.tool";
 		};
 		AFA1CF1B298E588D00085994 /* BAEMM_Test */ = {
@@ -178,8 +191,8 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
-					AF73BBF32997FE3400526B7D = {
-						CreatedOnToolsVersion = 14.2;
+					AF1A0AAE2C4BD120008E55D5 = {
+						CreatedOnToolsVersion = 15.4;
 					};
 					AFA1CF1B298E588D00085994 = {
 						CreatedOnToolsVersion = 14.2;
@@ -200,16 +213,17 @@
 			projectRoot = "";
 			targets = (
 				AFA1CF1B298E588D00085994 /* BAEMM_Test */,
-				AF73BBF32997FE3400526B7D /* Metal_Experiments */,
+				AF1A0AAE2C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		AF73BBF02997FE3400526B7D /* Sources */ = {
+		AF1A0AAB2C4BD120008E55D5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF1A0AB22C4BD120008E55D5 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,29 +238,31 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		AF73BBF82997FE3400526B7D /* Debug */ = {
+		AF1A0AB42C4BD120008E55D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
-				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
 			};
 			name = Debug;
 		};
-		AF73BBF92997FE3400526B7D /* Release */ = {
+		AF1A0AB52C4BD120008E55D5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = Metal_Experiments/Metal_Experiments.entitlements;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
-				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
 			};
 			name = Release;
 		};
@@ -288,7 +304,6 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -317,6 +332,7 @@
 					"-fno-math-errno",
 					"-ffast-math",
 					"-pthread",
+					"-fenable-matrix",
 				);
 				OTHER_LDFLAGS = (
 					"-lm",
@@ -364,7 +380,6 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -388,6 +403,7 @@
 					"-fno-math-errno",
 					"-ffast-math",
 					"-pthread",
+					"-fenable-matrix",
 				);
 				OTHER_LDFLAGS = (
 					"-lm",
@@ -400,37 +416,37 @@
 		AFA1CF21298E588E00085994 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = BAEMM_Test/BAEMM_Test.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
 		AFA1CF22298E588E00085994 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = BAEMM_Test/BAEMM_Test.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */ = {
+		AF1A0AB32C4BD120008E55D5 /* Build configuration list for PBXNativeTarget "BAEMM_OpenCL_Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AF73BBF82997FE3400526B7D /* Debug */,
-				AF73BBF92997FE3400526B7D /* Release */,
+				AF1A0AB42C4BD120008E55D5 /* Debug */,
+				AF1A0AB52C4BD120008E55D5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

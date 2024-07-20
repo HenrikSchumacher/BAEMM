@@ -117,9 +117,9 @@ public:
                
                // Assemble curl operator
                {
-                   Curl_outer[3*i+0] = (3 * i + 0) * 3;
-                   Curl_outer[3*i+1] = (3 * i + 1) * 3;
-                   Curl_outer[3*i+2] = (3 * i + 2) * 3;
+                   Curl_outer[3*(i+1)+0] = (3 * (i+1) + 0) * 3;
+                   Curl_outer[3*(i+1)+1] = (3 * (i+1) + 1) * 3;
+                   Curl_outer[3*(i+1)+2] = (3 * (i+1) + 2) * 3;
 
                    Curl_inner[(i * 3 + 0) * 3 + 0 ] = i_0;
                    Curl_inner[(i * 3 + 0) * 3 + 1 ] = i_1;
@@ -166,7 +166,7 @@ public:
                    grad_f[2][1] =   df_dagger[0][2];
                    grad_f[2][2] =   df_dagger[1][2];
                    
-                   mut<Real> Curl_f = Curl_vals.data(9 * i);
+                   mptr<Real> Curl_f = Curl_vals.data(9 * i);
                    
                    // Curl_f = nu x grad_f times area of triangle
                    
@@ -283,9 +283,9 @@ public:
             simplex_count, vertex_count,
             CPU_thread_count
         );
-        
+
         AvOp.SortInner();
-        
+
         AvOpTransp = AvOp.Transpose();
         
         CurlOp = Sparse_T(

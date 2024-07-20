@@ -11,8 +11,8 @@ Boundary operators:
     You, for single uses of the operator, applicate the boundary operators normally on a PL-function by calling
 
     ApplyBoundaryOperators_PL(
-            const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-            const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+            const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
             const R_ext * kappa_list,
             const C_ext * coeff_list,
             const I_ext wave_count_,
@@ -39,8 +39,8 @@ Boundary operators:
 
     void ApplyBoundaryOperators_PL(
             const I_ext ld_in_,
-            const C_ext alpha, ptr<C_ext> B_in,
-            const C_ext beta,  mut<C_ext> C_out
+            const C_ext alpha, cptr<C_ext> B_in,
+            const C_ext beta,  mptr<C_ext> C_out
         )
     Is then the reduces application of the boundary operators to this fixed environment.
     IMPORTANT: after being finished with the kernel one also has to "destroy it to release the device buffers by calling:
@@ -55,8 +55,8 @@ Boundary to Farfield map:
     The application works quite exactly as for the boundary operators:
 
     ApplyFarFieldOperators_PL(
-                const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-                const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+                const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+                const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
                 const R_ext * kappa_list,
                 const C_ext * coeff_list,
                 const I_ext wave_count_,
@@ -71,8 +71,8 @@ Wave function assembly:
 
     template<typename R_ext, typename C_ext, typename I_ext>
         void CreateIncidentWave_PL(
-            const C_ext alpha, ptr<R_ext> incident_directions,  const I_ext inc_count,
-            const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+            const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
+            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
             const R_ext * kappa_list,
             const C_ext * coeff_list,
             const I_ext wave_count_,
@@ -85,8 +85,8 @@ Wave function assembly:
 
     template<typename R_ext, typename C_ext, typename I_ext>
         void CreateHerglotzWave_PL(
-            const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-            const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+            const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
             const R_ext * kappa_list,
             const C_ext * coeff_list,
             const I_ext wave_count_,

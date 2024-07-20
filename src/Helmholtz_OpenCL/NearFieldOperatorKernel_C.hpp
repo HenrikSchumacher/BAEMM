@@ -24,7 +24,7 @@ public:
 
                 if (block_size > max_work_group_size)
                 {
-                        SetBlockSize(max_work_group_size);
+                        SetBlockSize(static_cast<Int>(max_work_group_size));
                 }
 
                 // Load the kernel source code into the array source_str
@@ -34,6 +34,13 @@ public:
                 source_str = manipulate_string(
 #include "NearFieldOperatorKernel_C.cl"                
                         ,block_size,wave_chunk_size,source_size);
+
+                // TODO: Use std::string instead. It is way more robust because it handles allocations and buffer overflows.
+            
+//                std::string source = CreateSourceString(
+//#include "NearFieldOperatorKernel_C.cl"
+//                    ,block_size,wave_chunk_size,source_size
+//                );
 
                 // Create the rest of the memory buffers on the device for each vector 
                 cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,

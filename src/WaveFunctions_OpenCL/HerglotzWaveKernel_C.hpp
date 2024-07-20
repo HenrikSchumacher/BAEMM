@@ -22,16 +22,24 @@ public:
 
         if (block_size > max_work_group_size)
         {
-                SetBlockSize(max_work_group_size);
+                SetBlockSize(static_cast<Int>(max_work_group_size));
         }
-
-        // Load the kernel source code into the array source_str
-        char *source_str;
-        size_t source_size;
-
-        source_str = manipulate_string(
+            
+        std::string source = CreateSourceString(
 #include "HerglotzWaveKernel_C.cl"
-        ,block_size,wave_chunk_size,source_size);
+            ,block_size,wave_chunk_size
+        );
+            
+        const char * source_str = source.c_str();
+        size_t source_size      = source.size();
+
+//        // Load the kernel source code into the array source_str
+//        char *source_str;
+//        size_t source_size;
+//
+//        source_str = manipulate_string(
+//#include "HerglotzWaveKernel_C.cl"
+//        ,block_size,wave_chunk_size,source_size);
 
         // Create the rest of the memory buffers on the device for each vector 
         cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
@@ -48,10 +56,10 @@ public:
         // write to buffers
         clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0,
                                 m * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
-
+            
         // Create a program from the kernel source
-        cl_program program = clCreateProgramWithSource(context, 1, 
-                (const char **)&source_str, (const size_t *)&source_size, &ret);
+        cl_program program = clCreateProgramWithSource(context, 1,
+                    &source_str, (const size_t *)&source_size, &ret);
 
         // Build the program
         ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
@@ -101,7 +109,7 @@ public:
         ret = clReleaseMemObject(d_m);
         ret = clReleaseMemObject(d_wave_count);
 
-        free(source_str);
+//        free(source_str);
         free(Kappa);
         free(Coeff);
         return 0;

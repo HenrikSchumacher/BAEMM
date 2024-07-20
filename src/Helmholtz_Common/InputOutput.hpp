@@ -22,7 +22,7 @@ public:
         return C_ptr[ldC * i + k];
     }
     
-    void ReadB( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
+    void ReadB( cptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
         RequireBuffers( wave_count_ );
         
@@ -38,12 +38,12 @@ public:
         ModifiedB();
     }
     
-    void ReadB( ptr<Complex> input, const Int wave_count_ )
+    void ReadB( cptr<Complex> input, const Int wave_count_ )
     {
         ReadB( input, wave_count_, wave_count_ );
     }
     
-    void WriteB( mut<Complex> output, const Int ld_output ) const
+    void WriteB( mptr<Complex> output, const Int ld_output ) const
     {
         //CheckThis
         ParallelDo(
@@ -55,7 +55,7 @@ public:
         );
     }
     
-    void ReadC( ptr<Complex> input, const Int ld_input, const Int wave_count_ )
+    void ReadC( cptr<Complex> input, const Int ld_input, const Int wave_count_ )
     {
         RequireBuffers( wave_count_ );
         
@@ -71,12 +71,12 @@ public:
         ModifiedC();
     }
     
-    void ReadC( ptr<Complex> input, const Int wave_count_ )
+    void ReadC( cptr<Complex> input, const Int wave_count_ )
     {
         ReadC( input, wave_count_, wave_count_ );
     }
     
-    void WriteC( mut<Complex> output, const Int ld_output ) const
+    void WriteC( mptr<Complex> output, const Int ld_output ) const
     {
         //CheckThis
         ParallelDo(

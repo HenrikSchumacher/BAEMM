@@ -1,17 +1,26 @@
 #pragma once
 
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+
 #include <Foundation/Foundation.hpp>
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
 
-#include <complex>
-
-#include <Accelerate/Accelerate.h>
-//#include <cblas.h>
-//#include <lapack.h>
+#ifdef __APPLE__
+/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
+///
+    #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+#else
+/// This should work for OpenBLAS.
+    #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+#endif
 
 #include "submodules/Repulsor/Repulsor.hpp"
 #include "submodules/Repulsor/submodules/Tensors/Tensors.hpp"
+
+//#include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
+//#include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
 // TODO: Priority 1:
 // TODO: Debug wrapper
@@ -72,8 +81,8 @@ namespace BAEMM
         template<typename ExtReal,typename ExtInt>
         Helmholtz_Metal(
             NS::SharedPtr<MTL::Device> & device_,
-            ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
+            cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             int CPU_thread_count_
         )
         :   CPU_thread_count ( CPU_thread_count_                    )

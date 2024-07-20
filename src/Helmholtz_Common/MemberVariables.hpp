@@ -20,7 +20,7 @@ private:
     Real * restrict normals_ptr         = nullptr;
     Real * restrict single_diag_ptr     = nullptr;
     Real * restrict tri_coords_ptr      = nullptr;
-    Real * restrict meas_directions_ptr  = nullptr;
+    Real * restrict meas_directions_ptr = nullptr;
 
     Complex * restrict B_ptr = nullptr;
     Complex * restrict C_ptr = nullptr;

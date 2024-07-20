@@ -59,8 +59,8 @@ void ReadFromFile(
     coords    = Tensor2<Real,Int>(vertex_count, amb_dim     );
     simplices = Tensor2<Int, Int>(simplex_count,simplex_size);
     
-    mut<Real> V = coords.data();
-    mut<Int>     S = simplices.data();
+    mptr<Real> V = coords.data();
+    mptr<Int>     S = simplices.data();
     
     
     for( Int i = 0; i < vertex_count; ++i )

@@ -2,8 +2,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
-        const C_ext alpha, ptr<R_ext> incident_directions,  const I_ext inc_count,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext kappa_,
         const C_ext coeff_0,
         const C_ext coeff_1,
@@ -53,8 +53,8 @@ public:
 
 //    template<typename R_ext, typename C_ext, typename I_ext>
 //    void ApplyBoundaryOperators_PL(
-//        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
-//        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+//        const C_ext alpha, cptr<C_ext> B_in,  const Int ldB_in,
+//        const C_ext beta,  mptr<C_ext> C_out, const Int ldC_out,
 //        const Tensor1<R_ext,I_ext> & kappa_list,
 //        const Tensor2<C_ext,I_ext> & coeff_list,
 //        const Int wave_count_,
@@ -74,8 +74,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
-        const C_ext alpha, ptr<R_ext> incident_directions,  const I_ext inc_count,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
@@ -109,8 +109,8 @@ public:
 // creates wave_count incident waves for the scattering problem in the WEAK FORM
     template<typename R_ext,typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
-        const C_ext alpha, ptr<R_ext> incident_directions_,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_,
+        const C_ext alpha, cptr<R_ext> incident_directions_,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_,
         WaveType type
     )
     {
@@ -140,16 +140,16 @@ public:
 
             if (type == WaveType::Plane)
             {
-                IncidentWaveKernel_Plane_C( kappa, c , incident_directions, C);
+                IncidentWaveKernel_Plane_C( kappa, c, incident_directions, C );
             }
             else
             {
-                IncidentWaveKernel_Radial_C( kappa, c , incident_directions, C);
+                IncidentWaveKernel_Radial_C( kappa, c, incident_directions, C );
             }
 
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
-                alpha, C, ldC,
+                alpha, C,     ldC,
                 beta,  C_out, ldC_out,
                 wave_count
             );

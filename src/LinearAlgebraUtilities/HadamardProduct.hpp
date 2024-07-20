@@ -3,7 +3,7 @@ public:
     // calculates the Hadamard product of two matrices and saves it in the second entry
     // further one can choose to sum over the leading dimension (over the columns)
     template<typename T, typename I>
-    void HadamardProduct(ptr<T> A, ptr<T> B , mut<T> C, I rows, I columns, bool ld_sum)
+    void HadamardProduct(cptr<T> A, cptr<T> B , mptr<T> C, I rows, I columns, bool ld_sum)
     {   
         I i,j;
         if(!ld_sum)

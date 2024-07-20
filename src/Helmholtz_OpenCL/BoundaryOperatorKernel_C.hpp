@@ -21,7 +21,7 @@ public:
 
                 if (block_size > max_work_group_size)
                 {
-                        SetBlockSize(max_work_group_size);
+                        SetBlockSize(static_cast<Int>(max_work_group_size));
                 }
                 
                 // Load the kernel source code into the array source_str

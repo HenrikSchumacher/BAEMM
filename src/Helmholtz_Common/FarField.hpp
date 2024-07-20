@@ -185,9 +185,9 @@ public:
         ParallelDo(
             [boundary_conditions_ptr,&h_n,&pdu_dn]( const I_ext i )
             {   
-                ptr<C_ext> a = &(*pdu_dn)[i * solver_count];
-                ptr<R_ext> b = h_n.data();
-                mut<C_ext> c = &boundary_conditions_ptr[i * solver_count];
+                cptr<C_ext> a = &(*pdu_dn)[i * solver_count];
+                cptr<R_ext> b = h_n.data();
+                mptr<C_ext> c = &boundary_conditions_ptr[i * solver_count];
                 
                 
                 LOOP_UNROLL(8)
@@ -417,7 +417,7 @@ public:
                             );
         };
 
-        bool succeeded = gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
+        (void)gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
 
         DestroyKernel(&list);
 
@@ -467,7 +467,7 @@ public:
         };
 
         // solve for the normal derivatives of the near field solutions
-        bool succeeded = gmres(A,P,wave,wave_count_,neumann_trace,wave_count_,gmres_tol,10);
+        (void)gmres(A,P,wave,wave_count_,neumann_trace,wave_count_,gmres_tol,10);
 
         int iter, res;
         iter = gmres.IterationCount();
@@ -521,8 +521,8 @@ public:
 
         // retransf. from PC to PL
         AvOpTransp.Dot(
-                factor, C, 3,
-                Zero,  C_weak, 3,
+                factor, C,      3,
+                Zero,   C_weak, 3,
                 3
             );  
 

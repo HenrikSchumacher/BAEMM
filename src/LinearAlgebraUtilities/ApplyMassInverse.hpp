@@ -22,5 +22,6 @@ public:
         };
 
         zerofy_buffer(C_out, static_cast<size_t>(ld * n), CPU_thread_count);
-        bool succeeded = cg(mass,id,B_in,ld,C_out,ld,cg_tol);
+        
+        (void)cg(mass,id,B_in,ld,C_out,ld,cg_tol);
     }

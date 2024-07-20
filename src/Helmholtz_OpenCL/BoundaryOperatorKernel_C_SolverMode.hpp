@@ -48,8 +48,10 @@ public:
             RequireBuffers( wave_count );
 
 
+            // TODO: Why is kappa copied here?
             Real* Kappa = (Real*)malloc(wave_chunk_count *  sizeof(Real));
             kappa.Write(Kappa);
+            // TODO: Why is c copied here?
             Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
             c.Write(Coeff);
 
@@ -62,16 +64,24 @@ public:
 
             if (block_size > max_work_group_size)
             {
-                    SetBlockSize(max_work_group_size);
+                    SetBlockSize(static_cast<Int>(max_work_group_size));
             }
             
-            // Load the kernel source code into the array source_str
-            char *source_str;
-            size_t source_size;
-
-            source_str = manipulate_string(
-#include "BoundaryOperatorKernel_C.cl"                
-                    ,block_size,wave_chunk_size,source_size);
+//            // Load the kernel source code into the array source_str
+//            char *source_str;
+//            size_t source_size;
+//
+//            source_str = manipulate_string(
+//#include "BoundaryOperatorKernel_C.cl"                
+//                    ,block_size,wave_chunk_size,source_size);
+            
+            std::string source = CreateSourceString(
+#include "BoundaryOperatorKernel_C.cl"
+                ,block_size,wave_chunk_size
+            );
+                
+            const char * source_str = source.c_str();
+            size_t source_size      = source.size();
 
             // Create the rest of the memory buffers on the device for each vector 
             cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -83,8 +93,11 @@ public:
             cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY,
                     sizeof(Int), NULL, &ret);
         
+            // TODO: Replace Kappa by kappa.data()?
             clEnqueueWriteBuffer(command_queue, d_kappa, CL_FALSE, 0,
                                         wave_chunk_count * sizeof(Real), Kappa, 0, NULL, NULL);
+            
+            // TODO: Replace Coeff by c.data()?
             clEnqueueWriteBuffer(command_queue, d_coeff, CL_FALSE, 0,
                                         4 * wave_chunk_count * sizeof(Complex), Coeff, 0, NULL, NULL);
             clEnqueueWriteBuffer(command_queue, d_n, CL_FALSE, 0,
@@ -94,7 +107,7 @@ public:
 
             // Create a program from the kernel source
             cl_program program = clCreateProgramWithSource(context, 1, 
-                    (const char **)&source_str, (const size_t *)&source_size, &ret);
+                    &source_str, (const size_t *)&source_size, &ret);
 
             // Build the program
             ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
@@ -128,7 +141,7 @@ public:
             
             // clean up
             ret = clReleaseProgram(program);
-            free(source_str);
+//            free(source_str);
             free(Kappa);
             free(Coeff);
 

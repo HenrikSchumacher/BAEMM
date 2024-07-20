@@ -2,11 +2,20 @@
 
 #include <CL/cl.h>
 
-#define TOOLS_ENABLE_PROFILER
+//#define TOOLS_ENABLE_PROFILER
 
-#include <complex>
-#include <cblas.h>
-#include <lapack.h>
+//#include <complex>
+//#include <cblas.h>
+//#include <lapack.h>
+
+#ifdef __APPLE__
+/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
+///
+    #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+#else
+/// This should work for OpenBLAS.
+    #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+#endif
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
@@ -62,13 +71,14 @@ namespace BAEMM
         
         cl_mem B_buf_pin = NULL;
         cl_mem C_buf_pin = NULL;
+        
     public:
     
         template<typename ExtReal,typename ExtInt>
         Helmholtz_OpenCL(
-            ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
-            ptr<ExtReal> meas_directions_, ExtInt meas_count_,
+            cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
+            cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            cptr<ExtReal> meas_directions_, ExtInt meas_count_,
             ExtInt CPU_thread_count_
         )
         :   CPU_thread_count ( int_cast<Int>(CPU_thread_count_)     )
@@ -78,10 +88,15 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
-            std::filesystem::path path {    std::filesystem::current_path()  };
-            std::string path_string{    path.string()    };
-            Profiler::Clear( path_string );
-//            tic(ClassName());        
+            
+            // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
+            // Mind: One might want to profile more than one class.
+            
+//            std::filesystem::path path { std::filesystem::current_path() };
+//            std::string path_string{ path.string() };
+//            Profiler::Clear( path_string );
+            
+//            tic(ClassName());
 
              // Get platform and device information            
             cl_platform_id platform_id;  
@@ -99,8 +114,12 @@ namespace BAEMM
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            // Apple hardware does not support this OpenCL 2.0 feature.
+//            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
+            command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
+            
+            
             // initialize the Opencl buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
@@ -112,12 +131,12 @@ namespace BAEMM
             clEnqueueWriteBuffer(command_queue, meas_directions, CL_FALSE, 0,
                                 4 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
         }
-
+        
         template<typename ExtReal,typename ExtInt>
         Helmholtz_OpenCL(
-            ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
-            ptr<ExtReal> meas_directions_, ExtInt meas_count_,
+            cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
+            cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            cptr<ExtReal> meas_directions_, ExtInt meas_count_,
             ExtInt device_num,
             ExtInt CPU_thread_count_
         )
@@ -128,10 +147,15 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
-            std::filesystem::path path {    std::filesystem::current_path()  };
-            std::string path_string{    path.string()    };
-            Profiler::Clear( path_string );
-//            tic(ClassName());        
+            
+            // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
+            // Mind: One might want to profile more than one class.
+            
+//            std::filesystem::path path { std::filesystem::current_path() };
+//            std::string path_string{ path.string() };
+//            Profiler::Clear( path_string );
+            
+//            tic(ClassName());
 
              // Get platform and device information
             cl_platform_id platform_id;  
@@ -158,8 +182,11 @@ namespace BAEMM
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            // Apple hardware does not support this OpenCL 2.0 feature.
+//            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
+            command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
+            
             // initialize the Opencl buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
@@ -217,7 +244,7 @@ namespace BAEMM
         
 #include "src/Helmholtz_Common/InputOutput.hpp"
         
-#include "src/Helmholtz_OpenCL/StringManipulation.h"
+#include "src/Helmholtz_OpenCL/StringManipulation.hpp"
 
 #include "src/Helmholtz_OpenCL/RequireBuffers.hpp"
 

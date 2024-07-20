@@ -132,7 +132,7 @@ int main()
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
     // The operator for the metric.
-    auto A = [&]( ptr<Real> X, mut<Real> Y )
+    auto A = [&]( cptr<Real> X, mptr<Real> Y )
     {
         tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
     };
@@ -141,10 +141,10 @@ int main()
 
     Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
-    mut<Real> Z  = Z_buffer.data();
+    mptr<Real> Z  = Z_buffer.data();
 
     // The operator for the preconditioner.
-    auto P = [&]( ptr<Real> X, mut<Real> Y )
+    auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
         M->H1Solve( X, Y, dim );
         pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );

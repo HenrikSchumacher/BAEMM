@@ -2,16 +2,9 @@
 
 #include <sys/types.h>
 #include <pwd.h>
-#include <complex>
 
 //#define OBJC_DEBUG_MISSING_POOLS = YES
 
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-
-#define LAPACK_DISABLE_NAN_CHECK
-#define ACCELERATE_NEW_LAPACK
-#include <Accelerate/Accelerate.h>
 
 #define TOOLS_ENABLE_PROFILER // enable profiler
 
@@ -71,8 +64,8 @@ void ReadFromFile(
     coords    = Tensor2<Real,Int>(vertex_count, amb_dim     );
     simplices = Tensor2<Int, Int>(simplex_count,simplex_size);
     
-    mut<Real> V = coords.data();
-    mut<Int>  S = simplices.data();
+    mptr<Real> V = coords.data();
+    mptr<Int>  S = simplices.data();
     
     
     for( Int i = 0; i < vertex_count; ++i )
@@ -159,7 +152,6 @@ int main(int argc, const char * argv[])
         simplices.data(), simplices.Dimension(0),
         CPU_thread_count
     );
-    
     
     // Create an object that handles GPU access via Metal.
     

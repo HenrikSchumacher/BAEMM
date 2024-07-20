@@ -143,9 +143,9 @@ namespace HeavyMetal
             MTL::Buffer * C
         )
         {
-            ptr<float> a = reinterpret_cast<float*>(A->contents());
-            ptr<float> b = reinterpret_cast<float*>(B->contents());
-            mut<float> c = reinterpret_cast<float*>(C->contents());
+            cptr<float> a = reinterpret_cast<float*>(A->contents());
+            cptr<float> b = reinterpret_cast<float*>(B->contents());
+            mptr<float> c = reinterpret_cast<float*>(C->contents());
             
             zerofy_buffer(c,M*N,8);
             
@@ -174,9 +174,9 @@ namespace HeavyMetal
             MTL::Buffer * C
         )
         {
-            ptr<float> a = reinterpret_cast<float*>(A->contents());
-            ptr<float> b = reinterpret_cast<float*>(B->contents());
-            mut<float> c = reinterpret_cast<float*>(C->contents());
+            cptr<float> a = reinterpret_cast<float*>(A->contents());
+            cptr<float> b = reinterpret_cast<float*>(B->contents());
+            mptr<float> c = reinterpret_cast<float*>(C->contents());
             
             zerofy_buffer(c,M*N,8);
             

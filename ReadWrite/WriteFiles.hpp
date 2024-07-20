@@ -40,10 +40,10 @@ void WriteFixes(
 
     s << "wave_type" << "\n";
 
-    ptr<I_ext>       S = simplices.data();   
-    ptr<R_ext>       M = meas_directions.data();
-    ptr<R_ext>       I = incident_directions.data();
-    ptr<R_ext>       K = kappa.data();
+    cptr<I_ext>       S = simplices.data();   
+    cptr<R_ext>       M = meas_directions.data();
+    cptr<R_ext>       I = incident_directions.data();
+    cptr<R_ext>       K = kappa.data();
 
     for(int i = 0; i < wave_chunk_count ; i++)
     {
@@ -88,7 +88,7 @@ void WriteCoordinates(
     Tensor2<R_ext,I_ext>        & coords
 )
 { 
-    ptr<R_ext> V = coords.data();
+    cptr<R_ext> V = coords.data();
     
     fstream file;
     file.open("coords.bin",ios::out | ios::binary | ios::trunc);
@@ -111,7 +111,7 @@ void WriteInOut(
     const char                      * filename
 )
 {   
-    ptr<T> B = B_out.data();
+    cptr<T> B = B_out.data();
     
     fstream file;
 

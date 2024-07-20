@@ -54,12 +54,12 @@ namespace HeavyMetal
         }
         
         
-        force_inline mut<Scalar> data()
+        force_inline mptr<Scalar> data()
         {
             return buffer;
         }
         
-        force_inline ptr<Scalar> data() const
+        force_inline cptr<Scalar> data() const
         {
             return buffer;
         }
@@ -72,13 +72,13 @@ namespace HeavyMetal
             return panel_count[1] * p_i + p_j;
         }
         
-        force_inline mut<Scalar> Panel( Int p_i, Int p_j )
+        force_inline mptr<Scalar> Panel( Int p_i, Int p_j )
         {
             // Returns pointer to upper left entry in panel {p_i, p_j}
             return &buffer[ panel_size * PanelIndex( p_i, p_j ) ];
         }
         
-        force_inline ptr<Scalar> Panel( Int p_i, Int p_j ) const
+        force_inline cptr<Scalar> Panel( Int p_i, Int p_j ) const
         {
             // Returns pointer to upper left entry in panel {p_i, p_j}
             return &buffer[ panel_size * PanelIndex( p_i, p_j ) ];
@@ -131,7 +131,7 @@ namespace HeavyMetal
         }
         
         
-        void ToRowMajor( mut<Scalar> B, Int CPU_thread_count ) const
+        void ToRowMajor( mptr<Scalar> B, Int CPU_thread_count ) const
         {
             // Slower than necessary, but should do it for now.
             const Int d_0 = dim[0];
@@ -147,7 +147,7 @@ namespace HeavyMetal
             }
         }
         
-        void FromRowMajor( mut<Scalar> B, Int CPU_thread_count )
+        void FromRowMajor( mptr<Scalar> B, Int CPU_thread_count )
         {
             // Slower than necessary, but should do it for now.
             const Int d_0 = dim[0];
@@ -163,7 +163,7 @@ namespace HeavyMetal
             }
         }
         
-        void ToPanelRowMajor( mut<Scalar> B, Int CPU_thread_count ) const
+        void ToPanelRowMajor( mptr<Scalar> B, Int CPU_thread_count ) const
         {
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];
@@ -175,7 +175,7 @@ namespace HeavyMetal
             }
         }
         
-        void FromPanelRowMajor( mut<Scalar> B, Int CPU_thread_count )
+        void FromPanelRowMajor( mptr<Scalar> B, Int CPU_thread_count )
         {
             const Int d_0 = dim[0];
             const Int d_1 = dim[1];

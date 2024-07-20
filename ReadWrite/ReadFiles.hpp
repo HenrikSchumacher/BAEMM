@@ -58,10 +58,10 @@ void ReadFixes(
     incident_directions  = Tensor2<R_ext,I_ext>(  wave_chunk_size, 3     );
     kappa                = Tensor1<R_ext,I_ext>(  wave_chunk_count );
     
-    mut<I_ext>       S = simplices.data();   
-    mut<R_ext>       M = meas_directions.data();
-    mut<R_ext>       I = incident_directions.data();
-    mut<R_ext>       K = kappa.data();
+    mptr<I_ext>       S = simplices.data();   
+    mptr<R_ext>       M = meas_directions.data();
+    mptr<R_ext>       I = incident_directions.data();
+    mptr<R_ext>       K = kappa.data();
 
     for( int i = 0; i < wave_chunk_count; ++i )
     {
@@ -108,7 +108,7 @@ void ReadCoordinates(
 {
     coords    = Tensor2<R_ext,I_ext>(   vertex_count, 3     );
     
-    mut<R_ext> V = coords.data();
+    mptr<R_ext> V = coords.data();
     
     fstream file;
     file.open("coords.bin",ios::in | ios::binary );
@@ -133,7 +133,7 @@ void ReadInOut(
 {   
     B_in    = Tensor2<T,I_ext>(   rows ,  columns    );
     
-    mut<T> B = B_in.data();
+    mptr<T> B = B_in.data();
     
     fstream file;
     file.open(filename,ios::in | ios::binary );

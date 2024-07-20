@@ -15,7 +15,7 @@ public:
         return Mass;
     }
 
-    ptr<Real> Areas() const
+    cptr<Real> Areas() const
     {
         return areas_ptr;
     }
@@ -82,22 +82,22 @@ public:
         C_loaded = false;
     }
 
-    ptr<Real> SingleLayerDiagonal() const
+    cptr<Real> SingleLayerDiagonal() const
     {
         return single_diag_ptr;
     }
 
-    ptr<Real> TriangleAreas() const
+    cptr<Real> TriangleAreas() const
     {
         return areas_ptr;
     }
 
-    ptr<Real> TriangleNormals() const
+    cptr<Real> TriangleNormals() const
     {
         return normals_ptr;
     }
 
-    ptr<Real> TriangleMidpoints() const
+    cptr<Real> TriangleMidpoints() const
     {
         return mid_points_ptr;
     }

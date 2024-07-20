@@ -129,16 +129,16 @@ int main()
 
     Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
-    mut<Real> Z  = Z_buffer.data();
+    mptr<Real> Z  = Z_buffer.data();
 
     // The operator for the metric.
-    auto TPM = [&]( ptr<Real> X, mut<Real> Y )
+    auto TPM = [&]( cptr<Real> X, mptr<Real> Y )
     {
         tpm.MultiplyMetric( *M, Scalar::One<Real>, X, Scalar::Zero<Real>, Y, dim );
     };
 
     // The operator for the preconditioner.
-    auto P = [&]( ptr<Real> X, mut<Real> Y )
+    auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
         M->H1Solve( X, Y, dim );
         pseudo_lap.MultiplyMetric( *M, Scalar::One<Real>, Y, Scalar::Zero<Real>, Z, dim );
@@ -148,13 +148,13 @@ int main()
     ConjugateGradient<3,Real,size_t> cg(vertex_count,500,thread_count);
     
     // The operator for the inverse metric.
-    auto TPM_inv = [&]( ptr<Real> X, mut<Real> Y )
+    auto TPM_inv = [&]( cptr<Real> X, mptr<Real> Y )
     {
         zerofy_buffer(Y, static_cast<size_t>(3 * vertex_count), thread_count);
         bool succeeded = cg(TPM,P,X,3,Y,3,0.005);
     };
 
-    auto A = [&]( ptr<Real> X, mut<Real> Y )
+    auto A = [&]( cptr<Real> X, mptr<Real> Y )
     {
         TPM_inv(Y,Z);
         copy_buffer(Z, Y, 3 * vertex_count, thread_count);

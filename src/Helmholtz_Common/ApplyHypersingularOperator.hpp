@@ -2,8 +2,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyHypersingularOperator_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext kappa_,
         const C_ext coeff_0,
         const C_ext coeff_1,
@@ -33,8 +33,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyHypersingularOperator(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
@@ -54,8 +54,8 @@ public:
 
     template<typename C_ext, typename I_ext>
     void ApplyHypersingularOperator_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
     )
     {
         if( wave_chunk_count < 1 )

@@ -21,7 +21,7 @@ public:
                 const Int i_end   = JobPointer<Int>(simplex_count, CPU_thread_count, thread+1 );
                 
                 Tensor1<Complex,Int> C_i_buf (wave_count);
-                mut<Complex> C_i = C_i_buf.data();
+                mptr<Complex> C_i = C_i_buf.data();
                 
                 for( Int i = i_begin; i < i_end; ++i )
                 {
@@ -203,7 +203,7 @@ public:
                         const Complex A_ij
                         = c_[0][2] * ( double_singular_part/area + double_regular_part );
 
-                        ptr<Complex> B_j = &B_ptr[ldB*j];
+                        cptr<Complex> B_j = &B_ptr[ldB*j];
                         
                         for( Int k = 0; k < wave_count; ++k )
                         {

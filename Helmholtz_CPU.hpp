@@ -1,6 +1,13 @@
 #pragma once
 
-#include <complex>
+#ifdef __APPLE__
+/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
+///
+    #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+#else
+/// This should work for OpenBLAS.
+    #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+#endif
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
@@ -24,8 +31,8 @@ namespace BAEMM
         
         template<typename ExtReal,typename ExtInt>
         Helmholtz_CPU(
-            ptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
-            ptr<ExtInt>  triangles_    , ExtInt simplex_count_,
+            cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
+            cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
             Int CPU_thread_count_
         )
         :   CPU_thread_count ( CPU_thread_count_                )

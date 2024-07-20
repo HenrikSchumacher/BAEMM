@@ -2,8 +2,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext kappa_,
         const C_ext coeff_0,
         const C_ext coeff_1,
@@ -29,6 +29,10 @@ public:
         //
         
         ASSERT_INT(I_ext);
+        static_assert(FloatQ<R_ext>,"");
+        static_assert(FloatQ<C_ext>,"");
+        static_assert(Scalar::ComplexQ<C_ext>,"");
+        
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
@@ -40,8 +44,8 @@ public:
 
 //    template<typename R_ext, typename C_ext, typename I_ext>
 //    void ApplyBoundaryOperators_PL(
-//        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
-//        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+//        const C_ext alpha, cptr<C_ext> B_in,  const Int ldB_in,
+//        const C_ext beta,  mptr<C_ext> C_out, const Int ldC_out,
 //        const Tensor1<R_ext,I_ext> & kappa_list,
 //        const Tensor2<C_ext,I_ext> & coeff_list,
 //        const Int wave_count_,
@@ -61,8 +65,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
@@ -84,8 +88,8 @@ public:
     // Applies the boundary operators in the WEAK FORM to the input pointer
     template<typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
     )
     {
         // The same as above, but assumes that
@@ -180,8 +184,8 @@ public:
     template<typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const I_ext ld_in_,
-        const C_ext alpha, ptr<C_ext> B_in,
-        const C_ext beta,  mut<C_ext> C_out
+        const C_ext alpha, cptr<C_ext> B_in,
+        const C_ext beta,  mptr<C_ext> C_out
     )
     {
         // The same as above, but assumes that

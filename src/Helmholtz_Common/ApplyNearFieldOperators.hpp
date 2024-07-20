@@ -2,8 +2,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext kappa_,
         const C_ext coeff_0,
         const C_ext coeff_1,
@@ -43,8 +43,8 @@ public:
 
 //    template<typename R_ext, typename C_ext, typename I_ext>
 //    void ApplyBoundaryOperators_PL(
-//        const C_ext alpha, ptr<C_ext> B_in,  const Int ldB_in,
-//        const C_ext beta,  mut<C_ext> C_out, const Int ldC_out,
+//        const C_ext alpha, cptr<C_ext> B_in,  const Int ldB_in,
+//        const C_ext beta,  mptr<C_ext> C_out, const Int ldC_out,
 //        const Tensor1<R_ext,I_ext> & kappa_list,
 //        const Tensor2<C_ext,I_ext> & coeff_list,
 //        const Int wave_count_,
@@ -64,8 +64,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
@@ -90,8 +90,8 @@ public:
     // Applies the boundary operators in the WEAK FORM to the input pointer
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
-        const C_ext alpha, ptr<C_ext> B_in,  const I_ext ldB_in_,
-        const C_ext beta,  mut<C_ext> C_out, const I_ext ldC_out_,
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_,
         const R_ext* evaluation_points_, const I_ext evaluation_count_
     )
     {
@@ -109,7 +109,7 @@ public:
         
     
         const Int ldB_in  = int_cast<Int>(ldB_in_ );
-        const Int ldC_out = int_cast<Int>(ldC_out_);
+//        const Int ldC_out = int_cast<Int>(ldC_out_);
         const Int evaluation_count = int_cast<Int>(evaluation_count_);
 
         RequireBuffersNearField( wave_count, evaluation_count_ );
