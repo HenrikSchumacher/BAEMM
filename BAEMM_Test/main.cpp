@@ -53,26 +53,26 @@ void ReadFromFile(
     Int simplex_count;
     s >> str;
     s >> dom_dim;
-    valprint("dom_dim",dom_dim);
+    dump(dom_dim);
     s >> str;
     s >> amb_dim;
-    valprint("amb_dim",amb_dim);
+    dump(amb_dim);
     s >> str;
     s >> vertex_count;
-    valprint("vertex_count",vertex_count);
+    dump(vertex_count);
     s >> str;
     s >> simplex_count;
-    valprint("simplex_count",simplex_count);
+    dump(simplex_count);
     
     const Int simplex_size = dom_dim+1;
     
-    valprint("simplex_size",simplex_size);
+    dump(simplex_size);
     
     coords    = Tensor2<Real,Int>(vertex_count, amb_dim     );
     simplices = Tensor2<Int, Int>(simplex_count,simplex_size);
     
     mut<Real> V = coords.data();
-    mut<Int>     S = simplices.data();
+    mut<Int>  S = simplices.data();
     
     
     for( Int i = 0; i < vertex_count; ++i )
@@ -136,7 +136,7 @@ int main(int argc, const char * argv[])
     
     int CPU_thread_count = 8;
     
-    valprint("number of CPU threads",CPU_thread_count);
+    dump(CPU_thread_count);
     
     print("");
     print("");
@@ -146,6 +146,9 @@ int main(int argc, const char * argv[])
 //    static constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     static constexpr Int wave_chunk_count = (wave_count + wave_chunk_size - 1) / wave_chunk_size;
     
+    dump(wave_count);
+    dump(wave_chunk_size);
+    dump(wave_chunk_count);
     
     print("");
     print("Preparing Helmholtz classes");
@@ -275,7 +278,7 @@ int main(int argc, const char * argv[])
     // Check the correctness against CPU implementation (which might also be wrong!!!)
     {
         const Real error = RelativeMaxError(Y_CPU,Y);
-        valprint("Error", error );
+        dump(error);
     }
     
     
@@ -302,7 +305,7 @@ int main(int argc, const char * argv[])
     // Check the correctness against CPU implementation (which might also be wrong!!!)
     {
         const Real error = RelativeMaxError(Y_CPU,Y);
-        valprint("Error", error );
+        dump(error);
     }
     
     // Set the coefficients for the operators
@@ -378,7 +381,7 @@ int main(int argc, const char * argv[])
 
     print("");
     print("");
-    print("Six nonzero coefficients.");
+    print("Eight nonzero coefficients.");
     tic("H_Metal.ApplyBoundaryOperators_PL");
     H_Metal.ApplyBoundaryOperators_PL(
         alpha,      X.data(),  ldX,

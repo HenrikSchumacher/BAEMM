@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF73BBF72997FE3400526B7D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF73BBF62997FE3400526B7D /* main.cpp */; };
 		AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
 		AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF14298E573500085994 /* Foundation.framework */; };
 		AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
@@ -39,14 +38,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_OpenCL.hpp; sourceTree = "<group>"; };
+		AF1A0AA02C4BA3AB008E55D5 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
+		AF1A0AA22C4BA3AB008E55D5 /* main */ = {isa = PBXFileReference; lastKnownFileType = folder; path = main; sourceTree = "<group>"; };
+		AF1A0AA32C4BA3AB008E55D5 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
+		AF1A0AA42C4BA3AB008E55D5 /* BAEMM_Test */ = {isa = PBXFileReference; lastKnownFileType = folder; path = BAEMM_Test; sourceTree = "<group>"; };
+		AF1A0AA52C4BA3AB008E55D5 /* Mathematica */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Mathematica; sourceTree = "<group>"; };
+		AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ReadWrite; sourceTree = "<group>"; };
+		AF1A0AA82C4BA3AB008E55D5 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
+		AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
 		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF73BBF62997FE3400526B7D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Metal_Experiments.entitlements; sourceTree = "<group>"; };
-		AFA1CF06298E56FF00085994 /* Notes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Notes; sourceTree = "<group>"; };
-		AFA1CF07298E56FF00085994 /* Mathematica */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Mathematica; sourceTree = "<group>"; };
-		AFA1CF09298E56FF00085994 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
-		AFA1CF0C298E56FF00085994 /* Literature */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Literature; sourceTree = "<group>"; };
-		AFA1CF0D298E56FF00085994 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		AFA1CF10298E56FF00085994 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AFA1CF12298E572A00085994 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -55,9 +56,7 @@
 		AFA1CF1C298E588D00085994 /* BAEMM_Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BAEMM_Test; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFA1CF1E298E588E00085994 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFA1CF23298E58F500085994 /* BAEMM_Test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BAEMM_Test.entitlements; sourceTree = "<group>"; };
-		AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
 		AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_Metal.hpp; sourceTree = "<group>"; };
-		AFC2719B2A800EA70074DD96 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,30 +83,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AF73BBF52997FE3400526B7D /* Metal_Experiments */ = {
-			isa = PBXGroup;
-			children = (
-				AF73BBFE2997FE4F00526B7D /* Metal_Experiments.entitlements */,
-				AF73BBF62997FE3400526B7D /* main.cpp */,
-			);
-			path = Metal_Experiments;
-			sourceTree = "<group>";
-		};
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
-				AFA1CF0C298E56FF00085994 /* Literature */,
-				AFA1CF07298E56FF00085994 /* Mathematica */,
-				AFA1CF0D298E56FF00085994 /* Meshes */,
-				AFA1CF06298E56FF00085994 /* Notes */,
+				AF1A0AA22C4BA3AB008E55D5 /* main */,
+				AF1A0AA52C4BA3AB008E55D5 /* Mathematica */,
+				AF1A0AA42C4BA3AB008E55D5 /* BAEMM_Test */,
+				AF1A0AA02C4BA3AB008E55D5 /* Meshes */,
+				AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */,
+				AF1A0AA32C4BA3AB008E55D5 /* src */,
+				AF1A0AA82C4BA3AB008E55D5 /* submodules */,
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
-				AFBB95102998F3F3003C6D4B /* Helmholtz_CPU.hpp */,
+				AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */,
+				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
-				AFA1CF09298E56FF00085994 /* src */,
-				AFC2719B2A800EA70074DD96 /* submodules */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
-				AF73BBF52997FE3400526B7D /* Metal_Experiments */,
 				AFA1CEFC298E56D400085994 /* Products */,
 				AFA1CF11298E572A00085994 /* Frameworks */,
 			);
@@ -185,7 +176,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					AF73BBF32997FE3400526B7D = {
 						CreatedOnToolsVersion = 14.2;
@@ -219,7 +210,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF73BBF72997FE3400526B7D /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +287,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -372,6 +363,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;
