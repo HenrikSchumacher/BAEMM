@@ -13,12 +13,17 @@ using namespace Tensors;
 using namespace Repulsor;
 using namespace BAEMM;
 
-using Int     = int;
-using Real    = double;
-using Complex = std::complex<Real>;
-using LInt    = long long;
-using SReal   = Real;
-using ExtReal = Real;
+using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,false>;
+
+using Int       = BAEMM_T::Int;
+using LInt      = BAEMM_T::LInt;
+using Real      = double;
+using Complex   = std::complex<Real>;
+using SReal     = Real;
+using ExtReal   = Real;
+
+using Mesh_T    = SimplicialMeshBase<Real,Int,LInt,SReal,ExtReal>;
+using Factory_T = SimplicialMesh_Factory<Mesh_T,2,2,3,3>;
 
 
 int main()
@@ -33,79 +38,40 @@ int main()
     
     Profiler::Clear(path);
     
+    
+    Int device = 0;
     Int thread_count = 8;
     
+    Factory_T factory;
     
-//    std::vector<Device> devices;
-//    
-//    size_t find_devices()
-//    {
-//        std::vector<Platform> platforms; // get all platforms
-//        
-//        std::vector<Device> devices_available;
-//        
-//        size_t n = 0; // number of available devices
-//        
-//        Platform::get(&platforms);
-//        
-//        for( size_t i = 0; i < platforms.size(); i++ )
-//        {
-//            devices_available.clear();
-//            platforms[i].getDevices(CL_DEVICE_TYPE_ALL, &devices_available);
-//            
-//            if(devices_available.size()==0)
-//            {
-//                continue; // no device found in plattform i
-//            }
-//            
-//            for( size_t j = 0; j < devices_available.size(); j++ )
-//            {
-//                n++;
-//                devices.push_back(devices_available[j]);
-//            }
-//        }
-//        
-//        if( (platforms.size()==0) || (devices.size()==0) )
-//        {
-//            std::cout << "Error: There are no OpenCL devices available!" << std::endl;
-//            return -1;
-//        }
-//        
-//        for( size_t i = 0; i < n; i++)
-//        {
-//            std::cout << "ID: " << i << ", Device: " << devices[i].getInfo<CL_DEVICE_NAME>() << std::endl;
-//        }
-//        
-//        return n; // return number of available devices
-//    }
-    
-    std::string file_name = "/Users/Henrik/github/BAEMM/Meshes/Spot_00023424T.txt";
+    std::string file_name = "/Users/Henrik/Triceratops_00081920T.txt";
 
-    Tensor2<Real,Int> coords;
-    Tensor2<Int, Int> simplices;
-
-    ReadMeshFromFile<Real,Int>(file_name, coords, simplices);
-
-    Tensor2<Real,Int> meas_directions;
-    Tensor2<Int, Int> simplices_meas;
+    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( file_name, thread_count );
 
     std::string meas_file_name = "/Users/Henrik/github/BAEMM/Meshes/Sphere_00005120T.txt";
     
-    ReadMeshFromFile<Real,Int>(meas_file_name, meas_directions, simplices_meas);
-
-    print("A");
+    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file_name, thread_count );
     
-    Int device = 1;
+//    Tensor2<Real,Int> coords;
+//    Tensor2<Int, Int> simplices;
+//    ReadMeshFromFile<Real,Int>(file_name, coords, simplices);
+//    
+//    Tensor2<Real,Int> meas_directions;
+//    Tensor2<Int, Int> simplices_meas;
+//    ReadMeshFromFile<Real,Int>(meas_file_name, meas_directions, simplices_meas);
     
-    BAEMM::Helmholtz_OpenCL H (
-        coords.data(),          coords.Dimension(0),
-        simplices.data(),       simplices.Dimension(0),
-        meas_directions.data(), meas_directions.Dimension(0), device, thread_count
+    
+    BAEMM_T H (
+        M->VertexCoordinates().data(), M->VertexCount(),
+        M->Simplices().data(),         M->SimplexCount(),
+        S->VertexCoordinates().data(), S->VertexCount(),
+        device,
+        thread_count
     );
     
-    Int n = H.VertexCount();
+    dump( H.ClassName() );
     
-    const     Int meas_count = meas_directions.Dimension(0);
+    const     Int meas_count = S->VertexCount();
     
     constexpr Int wave_count = 32;
     constexpr Int wave_chunk_size = 16;
@@ -180,17 +146,15 @@ int main()
     Real cg_tol    = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-
     tic("FarField");
     H.FarField<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
         C.data(), 
-        BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol
+        BAEMM_T::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("FarField");
 
-    // H.DestroyKernel(&list);
     Real abs = 0;
     Real factor = ( 2 * Scalar::Pi<Real> ) / (meas_count * wave_count );
 

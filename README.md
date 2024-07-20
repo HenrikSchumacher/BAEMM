@@ -8,7 +8,7 @@ In the following we use the following typename aliases:
     I_ext: user defined int type
 
 Boundary operators:
-    You, for single uses of the operator, applicate the boundary operators normally on a PL-function by calling
+    For single uses of the operator, you apply the boundary operators normally on a PL-function by calling
 
     ApplyBoundaryOperators_PL(
             const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,

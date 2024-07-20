@@ -15,6 +15,11 @@ public:
         return Mass;
     }
 
+    mref<Cholesky_T> InverseMassMatrix()
+    {
+        return *MassInv;
+    }
+
     cptr<Real> Areas() const
     {
         return areas_ptr;
@@ -106,4 +111,3 @@ public:
     {
         use_diagonal = use_it;
     }
-

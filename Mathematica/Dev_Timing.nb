@@ -1,0 +1,245 @@
+Notebook[{
+Cell[BoxData["Exit"], "Input",
+ CellLabel->"In[26]:=",ExpressionUUID->"393f702c-d189-41db-ad39-397907748435"],
+
+Cell[BoxData[{
+ RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"LoadPackages", "[", "\"\<Geometries\>\"", "]"}]}], "Input",
+ CellLabel->"In[1]:=",ExpressionUUID->"19f63c55-e1af-4e31-8663-058fa64a6723"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"p", "=", 
+   RowBox[{
+   "ImportProfile", "[", "\"\</Users/Henrik/Tools_Profile.tsv\>\"", "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->
+  "In[132]:=",ExpressionUUID->"79aa2f58-eff2-42c2-997b-0c5254444eab"],
+
+Cell[BoxData[{
+ RowBox[{"sunburst", "=", 
+  RowBox[{"Sunburst", "[", "p", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"table", "=", 
+  RowBox[{"EigentimeTable", "[", 
+   RowBox[{"p", ",", "2."}], "]"}]}]}], "Input",
+ CellLabel->
+  "In[133]:=",ExpressionUUID->"7633bbfe-4285-46e8-920b-cc68b2bd7bc6"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"7ef73b13-014e-4679-a020-e21d372671ef"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"0efe1ede-c969-48fd-82e5-d08bac3bf22c"],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{"ExportObject", "[", 
+    RowBox[{
+    "\"\</Users/Henrik/Triceratops_00081920T_Old_Profile.mx\>\"", ",", "p"}], 
+    "]"}], ";"}], 
+  "*)"}]], "Input",ExpressionUUID->"9c6d20a0-51f3-4f44-a3b4-6d3bde86c229"],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{"ExportObject", "[", 
+    RowBox[{
+    "\"\</Users/Henrik/Triceratops_00081920T_New_Profile.mx\>\"", ",", "p"}], 
+    "]"}], ";"}], 
+  "*)"}]], "Input",ExpressionUUID->"6ba9c51d-e5d6-439f-8f00-9eea5409942d"],
+
+Cell[BoxData[{
+ RowBox[{"p", "=", 
+  RowBox[{
+  "ImportObject", "[", 
+   "\"\</Users/Henrik/Triceratops_00081920T_New_Profile.mx\>\"", 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"q", "=", 
+  RowBox[{
+  "ImportObject", "[", 
+   "\"\</Users/Henrik/Triceratops_00081920T_Old_Profile.mx\>\"", 
+   "]"}]}]}], "Input",
+ CellLabel->"In[89]:=",ExpressionUUID->"6279ffc1-3897-40c7-a33a-612c3b2e5227"],
+
+Cell[BoxData[{
+ RowBox[{"sunburst", "=", 
+  RowBox[{"Sunburst", "[", "q", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"table", "=", 
+  RowBox[{"EigentimeTable", "[", 
+   RowBox[{"q", ",", "2."}], "]"}]}]}], "Input",
+ CellLabel->"In[95]:=",ExpressionUUID->"f57f2224-c87e-4f5e-80fe-57221223b9d9"],
+
+Cell[BoxData[{
+ RowBox[{"Export", "[", 
+  RowBox[{"\"\</Users/Henrik/Triceratops_00081920T_Old_Table.png\>\"", ",", 
+   RowBox[{"EigentimeTable", "[", 
+    RowBox[{"q", ",", "2."}], "]"}]}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", 
+  RowBox[{"\"\</Users/Henrik/Triceratops_00081920T_New_Table.png\>\"", ",", 
+   RowBox[{"EigentimeTable", "[", 
+    RowBox[{"p", ",", "2."}], "]"}]}], "]"}]}], "Input",
+ CellLabel->"In[98]:=",ExpressionUUID->"8329a539-fd37-431f-98fe-b6284d142c4c"],
+
+Cell[BoxData[{
+ RowBox[{"sunburst", "=", 
+  RowBox[{"Sunburst", "[", "p", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"table", "=", 
+  RowBox[{"EigentimeTable", "[", 
+   RowBox[{"p", ",", "2."}], "]"}]}]}], "Input",
+ CellLabel->"In[93]:=",ExpressionUUID->"200d4373-0882-421e-adc8-7e38bef323bd"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"file", "=", "\"\</Users/Henrik/Tools_Log.txt\>\""}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"s", "=", 
+   RowBox[{"DeleteCases", "[", 
+    RowBox[{
+     RowBox[{"StringSplit", "[", 
+      RowBox[{
+       RowBox[{"Import", "[", 
+        RowBox[{"file", ",", "\"\<Text\>\""}], "]"}], ",", "\"\<\\n\>\""}], 
+      "]"}], ",", "\"\<\>\""}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"startstr", "=", "\"\<started at\>\""}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"endstr", "=", "\"\<ended   at\>\""}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"starts", "=", 
+   RowBox[{"StringTrim", "/@", 
+    RowBox[{"StringSplit", "[", 
+     RowBox[{
+      RowBox[{"Select", "[", 
+       RowBox[{"s", ",", 
+        RowBox[{
+         RowBox[{"StringContainsQ", "[", 
+          RowBox[{"#", ",", "startstr"}], "]"}], "&"}]}], "]"}], ",", 
+      "startstr"}], "]"}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ends", "=", 
+    RowBox[{"StringTrim", "/@", 
+     RowBox[{"StringSplit", "[", 
+      RowBox[{
+       RowBox[{"Select", "[", 
+        RowBox[{"s", ",", 
+         RowBox[{
+          RowBox[{"StringContainsQ", "[", 
+           RowBox[{"#", ",", "endstr"}], "]"}], "&"}]}], "]"}], ",", 
+       "endstr"}], "]"}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a", "=", 
+   RowBox[{"Counts", "[", 
+    RowBox[{"starts", "[", 
+     RowBox[{"[", 
+      RowBox[{"All", ",", "1"}], "]"}], "]"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"b", "=", 
+    RowBox[{"Counts", "[", 
+     RowBox[{"ends", "[", 
+      RowBox[{"[", 
+       RowBox[{"All", ",", "1"}], "]"}], "]"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Values", "@", 
+  RowBox[{"Merge", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"a", ",", "b"}], "}"}], ",", "Differences"}], "]"}]}]}], "Input",
+ 
+ CellLabel->
+  "In[117]:=",ExpressionUUID->"8e5c3974-7c40-47f5-8a75-4f65cd5a313a"],
+
+Cell[BoxData[""], \
+"Input",ExpressionUUID->"b4eaa4e1-570c-4a7b-aa43-02299e9e35f7"],
+
+Cell[BoxData[{
+ RowBox[{"Length", "[", "starts", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Length", "[", "ends", "]"}]}], "Input",
+ CellLabel->
+  "In[106]:=",ExpressionUUID->"3cf4b30e-e246-42e5-a56f-b932da634ae1"],
+
+Cell[BoxData[""], \
+"Input",ExpressionUUID->"7549a6c0-e6ae-44db-b34d-5410bc4365f5"],
+
+Cell[BoxData[
+ RowBox[{"Merge", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"a", ",", "b"}], "}"}], ",", "Differences"}], "]"}]], "Input",
+ CellLabel->"In[35]:=",ExpressionUUID->"733ef612-c343-41e2-99a4-64dfbcea76d4"],
+
+Cell[BoxData[
+ RowBox[{"Values", "@", 
+  RowBox[{"Merge", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"a", ",", "b"}], "}"}], ",", "Differences"}], "]"}]}]], "Input",
+ CellLabel->
+  "In[116]:=",ExpressionUUID->"175ccf59-9a90-4153-bf0f-def3cc419532"],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{"M", "=", 
+    RowBox[{"ToMesh", "@", 
+     RowBox[{
+     "Import", "[", 
+      "\"\</Users/Henrik/ownCloud/triceratops_BAEMM_16inc_TPM0_8pi_remeshed_\
+new_tau_3_rho_0.8/iteration_1.stl\>\"", "]"}]}]}], ";", "\[IndentingNewLine]",
+    "\[IndentingNewLine]", 
+   RowBox[{"Export", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"FileNameJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{"\"\<Triceratops_\>\"", "<>", 
+        RowBox[{"IntegerString", "[", 
+         RowBox[{
+          RowBox[{"SimplexCount", "[", "M", "]"}], ",", "10", ",", "8"}], 
+         "]"}], "<>", "\"\<T.txt\>\""}], "}"}], "]"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
+      RowBox[{"\"\<dom_dim \>\"", ",", 
+       RowBox[{"IntegerString", "[", 
+        RowBox[{"DomainDimension", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"",
+        ",", "\[IndentingNewLine]", "\"\<amb_dim \>\"", ",", 
+       RowBox[{"IntegerString", "[", 
+        RowBox[{"EmbeddingDimension", "[", "M", "]"}], "]"}], ",", 
+       "\"\<\\n\>\"", ",", "\[IndentingNewLine]", "\"\<vertex_count \>\"", 
+       ",", 
+       RowBox[{"IntegerString", "[", 
+        RowBox[{"VertexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+       ",", "\[IndentingNewLine]", "\"\<simplex_count \>\"", ",", 
+       RowBox[{"IntegerString", "[", 
+        RowBox[{"SimplexCount", "[", "M", "]"}], "]"}], ",", "\"\<\\n\>\"", 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{"ExportString", "[", 
+        RowBox[{
+         RowBox[{"Threshold", "[", 
+          RowBox[{
+           RowBox[{"VertexCoordinates", "[", "M", "]"}], ",", 
+           RowBox[{"10", "^", 
+            RowBox[{"-", "16"}]}]}], "]"}], ",", "\"\<Table\>\"", ",", 
+         RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}], ",",
+        "\[IndentingNewLine]", "\"\<\\n\>\"", ",", "\[IndentingNewLine]", 
+       RowBox[{"ExportString", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Triangles", "[", "M", "]"}], "-", "1"}], ",", 
+         "\"\<Table\>\"", ",", 
+         RowBox[{"\"\<FieldSeparators\>\"", "->", "\"\< \>\""}]}], "]"}]}], 
+      "\[IndentingNewLine]", "]"}]}], "\[IndentingNewLine]", "]"}]}], 
+  "*)"}]], "Input",ExpressionUUID->"27ba3d26-e7d5-4a8b-81f1-eb226fd80dc0"]
+},
+WindowSize->{1496, 905},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"13.3 for Mac OS X ARM (64-bit) (July 24, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"01fa7f42-6e65-45e0-b48f-6b5addd12149"
+]
+

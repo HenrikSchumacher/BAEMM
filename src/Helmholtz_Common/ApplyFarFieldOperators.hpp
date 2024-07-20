@@ -115,7 +115,7 @@ public:
         {
             // use averaging operator to get from PL to PC boundary functions
             AvOp.Dot(
-                Scalar::One<Complex>,  B_in,  ldB_in,
+                Scalar::One <Complex>, B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 wave_count
             );

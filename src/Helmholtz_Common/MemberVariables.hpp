@@ -8,6 +8,7 @@ private:
     
     Tensor2<Real,Int> vertex_coords;
     Tensor2<Int ,Int> triangles;
+    Tensor1<Real,Int> areas_lumped_inv;
 
     WaveNumberContainer_T kappa;
     WaveNumberContainer_T kappa3;
@@ -31,7 +32,8 @@ private:
     Sparse_T CurlOp;
     Sparse_T CurlOpTransp;
 
-    Sparse_T Mass;
+    Sparse_T   Mass;
+    std::shared_ptr<Cholesky_T> MassInv;
 
     bool B_loaded        = false;
     bool C_loaded        = false;

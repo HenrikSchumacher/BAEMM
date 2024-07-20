@@ -1,15 +1,16 @@
 public:
     
-//        using Int        = uint32_t;
-    using LInt       = std::size_t;
-//    using LInt       = long long;
     using Int        = int;
+    using LInt       = std::size_t;
     using Real       = float;
-    using Complex    = std::complex<Real>;
-    
+    using Complex    = std::complex<Real>;    
     using UInt       = uint32_t;
+
+    static constexpr bool use_lumped_mass_as_precQ = use_lumped_mass_as_precQ_;
+    static constexpr bool use_mass_choleskyQ       = use_mass_choleskyQ_;
     
-    using Sparse_T = Sparse::MatrixCSR<Real,Int,LInt>;    
+    using Sparse_T   = Sparse::MatrixCSR<Real,Int,LInt>;
+    using Cholesky_T = Sparse::CholeskyDecomposition<Real,Int,LInt>;
 
     using WaveNumberContainer_T  = Tensor1<Real   ,Int>;
     using CoefficientContainer_T = Tensor2<Complex,Int>;
@@ -36,3 +37,5 @@ public:
         Plane  = 201,
         Radial = 202
     };
+
+

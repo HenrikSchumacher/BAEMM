@@ -244,11 +244,20 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				OTHER_LDFLAGS = (
+					"-lamd",
+					"-lm",
+					"-ldl",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Debug;
 		};
@@ -258,11 +267,20 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				OTHER_LDFLAGS = (
+					"-lamd",
+					"-lm",
+					"-ldl",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Release;
 		};
@@ -321,7 +339,6 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/libomp/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -392,7 +409,6 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/libomp/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

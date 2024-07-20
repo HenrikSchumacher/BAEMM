@@ -19,6 +19,8 @@
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
+#include "submodules/Repulsor/submodules/Tensors/Sparse.hpp"
+#include "submodules/Repulsor/submodules/Tensors/src/Sparse/ApproximateMinimumDegree.hpp"
 #include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
 #include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
@@ -31,7 +33,10 @@ namespace BAEMM
     using float4 = cl_float4;
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
-
+    template<
+        bool use_lumped_mass_as_precQ_ = false,
+        bool use_mass_choleskyQ_ = false
+    >
     class Helmholtz_OpenCL
     {
 #include "src/Helmholtz_Common/Definitions.hpp"
@@ -87,6 +92,7 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
+        ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
             
             // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
@@ -146,6 +152,7 @@ namespace BAEMM
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
+        ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
             
             // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
@@ -159,14 +166,20 @@ namespace BAEMM
 
              // Get platform and device information
             cl_platform_id platform_id;  
-            cl_uint ret_num_devices;
             cl_uint ret_num_platforms;
-            cl_device_id device_id_list[8];
-
+            
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8, 
+            
+            dump(ret_num_platforms);
+            
+            cl_device_id device_id_list[8];
+            cl_uint ret_num_devices;
+            
+            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8,
                                   device_id_list, &ret_num_devices);
 
+            dump(ret_num_devices);
+            
             if (ret_num_devices == 0)
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
@@ -179,12 +192,15 @@ namespace BAEMM
             {
                 device_id = device_id_list[0];
             }
+            
+            dump(device_id);
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
-            // Apple hardware does not support this OpenCL 2.0 feature.
+            // Apple hardware does not support the following OpenCL 2.0 feature.
 //            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
+            // Instead we can use this (deprecated) feature:
             command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
             
             // initialize the Opencl buffers and host pointers
@@ -301,9 +317,11 @@ namespace BAEMM
         
         std::string ClassName() const
         {
-            return "Helmholtz_OpenCL";
+            return std::string("Helmholtz_OpenCL")
+            + "<" + ToString(use_lumped_mass_as_precQ)
+            + "," + ToString(use_mass_choleskyQ) 
+            + ">";
         }
-        
     };
         
 } // namespace BAEMM

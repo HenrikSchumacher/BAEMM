@@ -40,6 +40,7 @@ namespace BAEMM
         ,   simplex_count    ( int_cast<Int>(simplex_count_)    )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3 )
         ,   triangles        ( triangles_,     simplex_count, 3 )
+        ,   areas_lumped_inv ( vertex_count )
         {
 //            tic(ClassName());
             

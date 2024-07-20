@@ -13,7 +13,6 @@ public:
         const uint g_cols
     )
     {
-        print("A");
         MTL::ComputePipelineState * pipeline = GetPipelineState(
             "GEMM_CM_C",
             std::string(
