@@ -1,30 +1,43 @@
 public:
 
-        // kernel host code for the boundary-to-far-field map and its normal derivative evaluated on the triangle midpoints
         int FarFieldOperatorKernel_C(
             const WaveNumberContainer_T  & kappa_,
             const CoefficientContainer_T & c_
         )
         {
-            ptic(ClassName()+"::FarFieldOperatorKernel_C");
+            std::string tag = ClassName()+"::FarFieldOperatorKernel_C";
             
-            // allocate local host pointers for the device buffers to use
-            Real* Kappa = (Real*)malloc(wave_chunk_count * 4 * sizeof(Real));
-            kappa_.Write(Kappa);
-            Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
-            c_.Write(Coeff);
+            ptic(tag);
+            
+            if( kappa_.Dimension(0) != wave_chunk_count )
+            {
+                eprint(tag + ": kappa_.Dimension(0) != wave_chunk_count.");
+            }
+            
+            if( c_.Dimension(0) != wave_chunk_count )
+            {
+                eprint(tag + ": c_.Dimension(0) != wave_chunk_count.");
+            }
+            
+            // Allocate local host pointers for the device buffers to use.
+            // Henrik: I am not sure whether this is necessary.
+            Tensor1<Real,Int> Kappa ( wave_chunk_count );
+            kappa_.Write(Kappa.data());
+            
+            Tensor2<Complex,Int> Coeff ( wave_chunk_count, 4 );
+            c_.Write(Coeff.data());
 
             int n = simplex_count;
             int m = meas_count;
 
-            size_t max_work_group_size; //check for maximal size of work group
-            ret = clGetDeviceInfo(
-                            device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t),
-                            &max_work_group_size, NULL);
+            // Check for maximal size of work group.
+            
+            std::size_t max_work_group_size;
+            ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, NULL);
 
             if (block_size > max_work_group_size)
             {
-                    SetBlockSize(static_cast<Int>(max_work_group_size));
+                SetBlockSize(static_cast<Int>(max_work_group_size));
             }
             
             std::string source = CreateSourceString(
@@ -36,20 +49,14 @@ public:
             std::size_t source_size = source.size();
 
             // Create the rest of the memory buffers on the device for each vector
-            cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                    wave_chunk_count * sizeof(Real), Kappa, &ret);
-            cl_mem d_coeff = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                    4 * wave_chunk_count * sizeof(Complex), Coeff, &ret);
-            cl_mem d_n = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                    sizeof(int), &n, &ret);
-            cl_mem d_m = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                    sizeof(int), &m, &ret);
-            cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
-                    sizeof(int), &wave_count, &ret);
+            cl_mem d_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,     wave_chunk_count * sizeof(Real),    Kappa.data(), &ret);
+            cl_mem d_coeff      = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 4 * wave_chunk_count * sizeof(Complex), Coeff.data(), &ret);
+            cl_mem d_n          = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &n,           &ret);
+            cl_mem d_m          = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &m,           &ret);
+            cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,  &ret);
 
             // write to buffers
-            clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0,
-                                    rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
+            clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
 
 
             // Create a program from the kernel source
@@ -79,18 +86,17 @@ public:
             ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&d_n);
             ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&d_m);
             ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&d_wave_count);
+            
             clFinish(command_queue);
+            
             // Execute the OpenCL kernel on the list
-            size_t local_item_size = block_size;
-            size_t global_item_size = local_item_size * ((m - 1) / block_size + 1);
-
-            ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL,
-                    &global_item_size, &local_item_size,
-                    0, NULL, NULL);
+            
+            std::size_t local_item_size  = block_size;
+            std::size_t global_item_size = local_item_size * ((m - 1) / block_size + 1);
+            ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
                     
             // Read the memory buffer C on the device to the local variable C
-            ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0,
-                    wave_count * m * sizeof(Complex), C_ptr, 0, NULL, NULL);
+            ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * m * sizeof(Complex), C_ptr, 0, NULL, NULL);
 
             // Clean up
             ret = clFinish(command_queue);
@@ -102,11 +108,8 @@ public:
             ret = clReleaseMemObject(d_n);
             ret = clReleaseMemObject(d_m);
             ret = clReleaseMemObject(d_wave_count);
-
-            free(Kappa);
-            free(Coeff);
             
-            ptoc(ClassName()+"::FarFieldOperatorKernel_C");
+            ptoc(tag);
             
             return 0;
         }

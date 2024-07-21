@@ -1,5 +1,10 @@
 public:
-    
+
+    Int ThreadCountCPU() const
+    {
+        return CPU_thread_count;
+    }
+
     Int VertexCount() const
     {
         return vertex_count;

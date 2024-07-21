@@ -24,10 +24,6 @@ using Complex   = std::complex<Real>;
 using SReal     = Real;
 using ExtReal   = Real;
 
-//using Mesh_T    = SimplicialMeshBase<Real,Int,LInt,SReal,ExtReal>;
-//using Factory_T = SimplicialMesh_Factory<Mesh_T,2,2,3,3>;
-
-
 int main()
 {
     const char * homedir = getenv("HOME");
@@ -41,13 +37,11 @@ int main()
     std::filesystem::path repo_dir  = this_file.parent_path().parent_path();
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
     
-    dump( this_file.string() );
-    dump( repo_dir.string() );
-    dump( mesh_dir.string() );
-    
     std::filesystem::path home_dir { homedir };
-    
+        
     std::string mesh_name { "Triceratops_00081920T" };
+
+//    std::string mesh_name { "Spot_00023424T" };
     
     std::filesystem::path dir { homedir };
     
@@ -63,17 +57,8 @@ int main()
     Int thread_count = 8;
     
     std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
-    
-//    Factory_T factory;
-//    
-//    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( mesh_file.string(), thread_count );
-//    
-//    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file.string(), thread_count );
-//    
-//    auto & coords          = M->VertexCoordinates();
-//    auto & simplices       = M->Simplices();
-//    auto & meas_directions = S->VertexCoordinates();
     
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
@@ -93,6 +78,7 @@ int main()
     );
     
     dump( H.ClassName() );
+    dump( H.ThreadCountCPU() );
     
     const     Int meas_count = meas_directions.Dimension(0);
     
@@ -179,6 +165,8 @@ int main()
     Real cg_tol    = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
+    print("");
+    
     tic("FarField");
     H.FarField<wave_count>(
         kappa.data(), wave_chunk_count,
@@ -188,12 +176,13 @@ int main()
     );
     toc("FarField");
     
-    Real abs = 0;
+    print("");
+    
     Real factor = Frac<Real>(2 * Scalar::Pi<Real>, meas_count * wave_count );
 
-    abs = std::sqrt(factor) * C.FrobeniusNorm();
+    Real norm = std::sqrt(factor) * C.FrobeniusNorm();
 
-    std::cout << abs << std::endl;
+    std::cout << "L^2-norm of C = " << norm << std::endl;
     
     return 0;
 }

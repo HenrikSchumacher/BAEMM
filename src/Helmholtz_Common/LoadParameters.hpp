@@ -1,8 +1,8 @@
 public:
     template<typename R_ext, typename C_ext, typename I_ext>
     void LoadParameters(
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
+        cptr<R_ext> kappa_list,
+        cptr<C_ext> coeff_list,
         const I_ext wave_count_,
         const I_ext wave_chunk_size_
     )
@@ -19,8 +19,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void LoadParameters(
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
+        cptr<R_ext> kappa_list,
+        cptr<C_ext> coeff_list,
         const I_ext wave_count_,
         const I_ext wave_chunk_size_,
         const R_ext factor
@@ -81,87 +81,87 @@ public:
         }
     }
 
-    template<typename R_ext, typename C_ext, typename I_ext>
-    void LoadCoefficients(
-        const R_ext kappa_,
-        const C_ext coeff_0,
-        const C_ext coeff_1,
-        const C_ext coeff_2,
-        const C_ext coeff_3,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_
-    )
-    {
-        LoadCoefficients(
-            kappa_,
-            coeff_0,
-            coeff_1,
-            coeff_2,
-            coeff_3,
-            wave_count_,
-            wave_chunk_size_,
-            static_cast<R_ext>(1)
-        );
-    }
-
-
-    template<typename R_ext, typename C_ext, typename I_ext>
-    void LoadCoefficients(
-        const R_ext kappa_,
-        const C_ext coeff_0,
-        const C_ext coeff_1,
-        const C_ext coeff_2,
-        const C_ext coeff_3,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_,
-        const R_ext factor
-    )
-    {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        SetWaveCount    ( int_cast<Int>(wave_count_)      );
-        SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );
-        
-        wave_chunk_count = GetWaveChunkCount(wave_count);
-
-        if( c.Dimension(0) != wave_chunk_count )
-        {
-            c = CoefficientContainer_T( wave_chunk_count, 4 );
-        }
-        
-        if( kappa.Dimension(0) != wave_chunk_count )
-        {
-            kappa = WaveNumberContainer_T( wave_chunk_count, static_cast<Real>(kappa_) );
-        }
-        
-        // We have to process the coefficients anyways.
-        // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
-        Complex z [4] {
-            static_cast<Complex>(coeff_0),
-            static_cast<Complex>(coeff_1) * one_over_four_pi * static_cast<Real>(factor),
-            static_cast<Complex>(coeff_2) * one_over_four_pi * static_cast<Real>(factor),
-            static_cast<Complex>(coeff_3) * one_over_four_pi * static_cast<Real>(factor)
-        };
-        
-        Re_mass_matrix  = (real(z[0]) != Scalar::Zero<Real>);
-        Im_mass_matrix  = (imag(z[0]) != Scalar::Zero<Real>);
-        Re_single_layer = (real(z[1]) != Scalar::Zero<Real>);
-        Im_single_layer = (imag(z[1]) != Scalar::Zero<Real>);
-        Re_double_layer = (real(z[2]) != Scalar::Zero<Real>);
-        Im_double_layer = (imag(z[2]) != Scalar::Zero<Real>);
-        Re_adjdbl_layer = (real(z[3]) != Scalar::Zero<Real>);
-        Im_adjdbl_layer = (imag(z[3]) != Scalar::Zero<Real>);
-        
-        for( Int k = 0; k < wave_chunk_count; ++k )
-        {
-            c[k][0] = z[0];
-            c[k][1] = z[1];
-            c[k][2] = z[2];
-            c[k][3] = z[3];
-        }
-    }
+//    template<typename R_ext, typename C_ext, typename I_ext>
+//    void LoadCoefficients(
+//        const R_ext kappa_,
+//        const C_ext coeff_0,
+//        const C_ext coeff_1,
+//        const C_ext coeff_2,
+//        const C_ext coeff_3,
+//        const I_ext wave_count_,
+//        const I_ext wave_chunk_size_
+//    )
+//    {
+//        LoadCoefficients(
+//            kappa_,
+//            coeff_0,
+//            coeff_1,
+//            coeff_2,
+//            coeff_3,
+//            wave_count_,
+//            wave_chunk_size_,
+//            static_cast<R_ext>(1)
+//        );
+//    }
+//
+//
+//    template<typename R_ext, typename C_ext, typename I_ext>
+//    void LoadCoefficients(
+//        const R_ext kappa_,
+//        const C_ext coeff_0,
+//        const C_ext coeff_1,
+//        const C_ext coeff_2,
+//        const C_ext coeff_3,
+//        const I_ext wave_count_,
+//        const I_ext wave_chunk_size_,
+//        const R_ext factor
+//    )
+//    {
+//        ASSERT_INT(I_ext);
+//        ASSERT_REAL(R_ext);
+//        ASSERT_COMPLEX(C_ext);
+//        
+//        SetWaveCount    ( int_cast<Int>(wave_count_)      );
+//        SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );
+//        
+//        wave_chunk_count = GetWaveChunkCount(wave_count);
+//
+//        if( c.Dimension(0) != wave_chunk_count )
+//        {
+//            c = CoefficientContainer_T( wave_chunk_count, 4 );
+//        }
+//        
+//        if( kappa.Dimension(0) != wave_chunk_count )
+//        {
+//            kappa = WaveNumberContainer_T( wave_chunk_count, static_cast<Real>(kappa_) );
+//        }
+//        
+//        // We have to process the coefficients anyways.
+//        // Hence we can already multiply by one_over_four_pi so that the kernels don't have to do that each time. (The performance gain is not measureable, though.)
+//        Complex z [4] {
+//            static_cast<Complex>(coeff_0),
+//            static_cast<Complex>(coeff_1) * one_over_four_pi * static_cast<Real>(factor),
+//            static_cast<Complex>(coeff_2) * one_over_four_pi * static_cast<Real>(factor),
+//            static_cast<Complex>(coeff_3) * one_over_four_pi * static_cast<Real>(factor)
+//        };
+//        
+//        Re_mass_matrix  = (real(z[0]) != Scalar::Zero<Real>);
+//        Im_mass_matrix  = (imag(z[0]) != Scalar::Zero<Real>);
+//        Re_single_layer = (real(z[1]) != Scalar::Zero<Real>);
+//        Im_single_layer = (imag(z[1]) != Scalar::Zero<Real>);
+//        Re_double_layer = (real(z[2]) != Scalar::Zero<Real>);
+//        Im_double_layer = (imag(z[2]) != Scalar::Zero<Real>);
+//        Re_adjdbl_layer = (real(z[3]) != Scalar::Zero<Real>);
+//        Im_adjdbl_layer = (imag(z[3]) != Scalar::Zero<Real>);
+//        
+//        for( Int k = 0; k < wave_chunk_count; ++k )
+//        {
+//            c[k][0] = z[0];
+//            c[k][1] = z[1];
+//            c[k][2] = z[2];
+//            c[k][3] = z[3];
+//        }
+//    }
 
 
 public:

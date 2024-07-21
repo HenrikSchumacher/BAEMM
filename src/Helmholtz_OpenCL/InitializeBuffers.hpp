@@ -1,9 +1,8 @@
 public:
 
-    template<typename I_ext, typename R_ext>
-    void InitializeBuffers(I_ext simplex_count_, const R_ext* meas_directions_)
+    template<typename R_ext>
+    void InitializeBuffers(Int simplex_count, cptr<R_ext> meas_directions_)
     {
-        Int simplex_count   = (Int)simplex_count_;
         const Int size      =     simplex_count * sizeof(Real);
         const Int size4     = 4 * simplex_count * sizeof(Real);
         const Int msize4    = 4 * meas_count * sizeof(Real);

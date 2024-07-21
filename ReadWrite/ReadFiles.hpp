@@ -53,10 +53,10 @@ void ReadFixes(
     // valprint("wave_chunk_size",wave_chunk_size);
     // valprint("wave_chunk_count",wave_chunk_count);   
     
-    simplices            = Tensor2<I_ext, I_ext>(  simplex_count,3   );
-    meas_directions      = Tensor2<R_ext,I_ext>(  meas_count, 3     );
-    incident_directions  = Tensor2<R_ext,I_ext>(  wave_chunk_size, 3     );
-    kappa                = Tensor1<R_ext,I_ext>(  wave_chunk_count );
+    simplices            = Tensor2<I_ext,I_ext>(  simplex_count,   3 );
+    meas_directions      = Tensor2<R_ext,I_ext>(  meas_count,      3 );
+    incident_directions  = Tensor2<R_ext,I_ext>(  wave_chunk_size, 3 );
+    kappa                = Tensor1<R_ext,I_ext>(  wave_chunk_count   );
     
     mptr<I_ext>       S = simplices.data();   
     mptr<R_ext>       M = meas_directions.data();

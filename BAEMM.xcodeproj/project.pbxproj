@@ -42,7 +42,6 @@
 		AF1A0AA02C4BA3AB008E55D5 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		AF1A0AA22C4BA3AB008E55D5 /* main */ = {isa = PBXFileReference; lastKnownFileType = folder; path = main; sourceTree = "<group>"; };
 		AF1A0AA32C4BA3AB008E55D5 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
-		AF1A0AA42C4BA3AB008E55D5 /* BAEMM_Test */ = {isa = PBXFileReference; lastKnownFileType = folder; path = BAEMM_Test; sourceTree = "<group>"; };
 		AF1A0AA52C4BA3AB008E55D5 /* Mathematica */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Mathematica; sourceTree = "<group>"; };
 		AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ReadWrite; sourceTree = "<group>"; };
 		AF1A0AA82C4BA3AB008E55D5 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
@@ -98,7 +97,6 @@
 			children = (
 				AF1A0AA22C4BA3AB008E55D5 /* main */,
 				AF1A0AA52C4BA3AB008E55D5 /* Mathematica */,
-				AF1A0AA42C4BA3AB008E55D5 /* BAEMM_Test */,
 				AF1A0AA02C4BA3AB008E55D5 /* Meshes */,
 				AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */,
 				AF1A0AA32C4BA3AB008E55D5 /* src */,

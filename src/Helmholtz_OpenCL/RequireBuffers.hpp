@@ -33,28 +33,14 @@ void RequireBuffers( const Int wave_count_  )
         B_loaded = false;
         C_loaded = false;
 
-        B_buf_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        new_size, NULL, &ret);
+        B_buf_pin = clCreateBuffer(context, CL_MEM_READ_ONLY  | CL_MEM_ALLOC_HOST_PTR, new_size, NULL, &ret);
+        C_buf_pin = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, new_size, NULL, &ret);
 
-        C_buf_pin = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        new_size, NULL, &ret);
-
-        B_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
-                                            B_buf_pin, CL_TRUE,
-                                            CL_MAP_WRITE, 0, new_size, 0,
-                                            NULL, NULL, NULL);
+        B_ptr = (Complex*)clEnqueueMapBuffer(command_queue, B_buf_pin, CL_TRUE, CL_MAP_WRITE, 0, new_size, 0, NULL, NULL, NULL);
+        C_ptr = (Complex*)clEnqueueMapBuffer(command_queue, C_buf_pin, CL_TRUE, CL_MAP_READ,  0, new_size, 0, NULL, NULL, NULL);
         
-        C_ptr               = (Complex*)clEnqueueMapBuffer(command_queue,
-                                            C_buf_pin, CL_TRUE,
-                                            CL_MAP_READ, 0, new_size, 0,
-                                            NULL, NULL, NULL);
-     
-        
-        B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY,
-        new_size, NULL, &ret);
-
-        C_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-        new_size, NULL, &ret);
+        B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY,  new_size, NULL, &ret);
+        C_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY, new_size, NULL, &ret);
     }
 }
 

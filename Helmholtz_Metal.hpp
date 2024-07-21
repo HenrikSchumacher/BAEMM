@@ -140,15 +140,13 @@ namespace BAEMM
         
 #include "src/Helmholtz_Common/LoadParameters.hpp"
         
-#include "src/Helmholtz_Common/LoadParameters3.hpp"
+//#include "src/Helmholtz_Common/LoadParameters3.hpp"
         
 #include "src/Helmholtz_Common/InputOutput.hpp"
         
 #include "src/Helmholtz_Metal/GetPipelineState.hpp"
 
 #include "src/Helmholtz_Metal/RequireBuffers.hpp"
-        
-#include "src/Helmholtz_Common/ApplyOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
         

@@ -11,15 +11,15 @@ Boundary operators:
     For single uses of the operator, you apply the boundary operators normally on a PL-function by calling
 
     ApplyBoundaryOperators_PL(
-            const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-            const R_ext * kappa_list,
-            const C_ext * coeff_list,
-            const I_ext wave_count_,
-            const I_ext wave_chunk_size_
-        )
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
+    )
 
-    Where kappa_list has length 
+    Here, kappa_list has length 
     wave_chunk_count = wave_count_/wave_chunk_size
     and coeff list is a 2D-array of size wave_chunk_count x 4 (where the coulumns represent the factors of M,SL,DL,adjDL). M denotes the PL mass matrix.
     This function loads the latter parameters into global scope, compiles the kernel, applies the resulting operator to B_in and copies the result into C_out.
@@ -29,25 +29,27 @@ Boundary operators:
     For multiple uses of the SAME operator (as for instance in a linear solver) there is another way to apply the kernel:
 
     kernel_list LoadKernel(
-                    const R_ext * kappa_,
-                    const C_ext * c_,
-                    const I_ext wave_count_,
-                    const I_ext wave_chunk_size_  
-                    ) 
+        const R_ext * kappa_,
+        const C_ext * c_,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_  
+    ) 
 
     Loads the kernel, compiles, uploads the constant buffers and returns a struct with the buffer information.
 
+    Then,
+
     void ApplyBoundaryOperators_PL(
-            const I_ext ld_in_,
-            const C_ext alpha, cptr<C_ext> B_in,
-            const C_ext beta,  mptr<C_ext> C_out
-        )
-    Is then the reduces application of the boundary operators to this fixed environment.
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out
+    )
+    
+    is the reduced application of the boundary operators to this fixed environment.
     IMPORTANT: after being finished with the kernel one also has to "destroy it to release the device buffers by calling:
 
     void DestroyKernel(
-                    kernel_list* list
-            )
+        kernel_list* list
+    )
 
 
 Boundary to Farfield map:

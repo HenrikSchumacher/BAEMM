@@ -2,10 +2,10 @@ namespace BAEMM
 {
     template<typename Real, typename Int>
     void ReadMeshFromFile(
-                          const std::string & file_name,
-                          Tensor2<Real,Int> & coords,
-                          Tensor2<Int,Int>  & simplices
-                          )
+        cref<std::string>       file_name,
+        mref<Tensor2<Real,Int>> coords,
+        mref<Tensor2<Int, Int>> simplices
+    )
     {
         ptic("ReadMeshFromFile");
         
@@ -46,8 +46,7 @@ namespace BAEMM
         simplices = Tensor2<Int, Int>(simplex_count,simplex_size);
         
         mptr<Real> V = coords.data();
-        mptr<Int>     S = simplices.data();
-        
+        mptr<Int>  S = simplices.data();
         
         for( Int i = 0; i < vertex_count; ++i )
         {

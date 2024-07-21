@@ -111,29 +111,29 @@ public:
             Re_double_layer || Im_double_layer
         )
         {   
-            Complex* C = (Complex*)malloc(ldC * simplex_count * sizeof(Complex));
-
-            Real* incident_directions = (Real*)malloc(3 * wave_chunk_size *sizeof(Real));
-            type_cast(incident_directions, incident_directions_, 3 * wave_chunk_size, 1);
+            Tensor2<Real,Int> incident_directions ( wave_chunk_size, 3 );
+            
+            Tensor2<Complex,Int> C ( simplex_count, ldC );
+            
+            incident_directions.Read(incident_directions_);
+            
+//            type_cast(incident_directions, incident_directions_, 3 * wave_chunk_size, 1);
 
             if (type == WaveType::Plane)
             {
-                IncidentWaveKernel_Plane_C( kappa, c, incident_directions, C );
+                IncidentWaveKernel_Plane_C( kappa, c, incident_directions.data(), C.data() );
             }
             else
             {
-                IncidentWaveKernel_Radial_C( kappa, c, incident_directions, C );
+                IncidentWaveKernel_Radial_C( kappa, c, incident_directions.data(), C.data() );
             }
 
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
-                alpha, C,     ldC,
-                beta,  C_out, ldC_out,
+                alpha, C.data(), ldC,
+                beta,  C_out,    ldC_out,
                 wave_count
             );
-
-            free(C);
-            free(incident_directions);
         }
         ptoc(ClassName()+"::CreateIncidentWave_PL");
     }

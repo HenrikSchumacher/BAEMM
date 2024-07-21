@@ -84,11 +84,9 @@ public:
         
 #include "src/Helmholtz_Common/LoadParameters.hpp"
         
-#include "src/Helmholtz_Common/LoadParameters3.hpp"
+//#include "src/Helmholtz_Common/LoadParameters3.hpp"
         
 #include "src/Helmholtz_CPU/RequireBuffers.hpp"
-
-#include "src/Helmholtz_Common/ApplyOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
         

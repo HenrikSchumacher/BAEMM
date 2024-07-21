@@ -12,9 +12,7 @@ public:
         Complex* C
     )
     {
-        IncidentWaveKernel_Plane_C_temp(
-        kappa_,c_,incident_directions,C
-        );
+        IncidentWaveKernel_Plane_C_temp( kappa_, c_, incident_directions, C );
     }
 
 
@@ -38,15 +36,22 @@ public:
                     LOOP_UNROLL(8)
                     for (Int j = 0; j < wave_chunk_size; ++j )
                     {
-                        Real w_vec[3] = { incident_directions[3*j + 0], incident_directions[3*j + 1]
-                                        , incident_directions[3*j + 2] };
+                        Real w_vec[3] = { 
+                            incident_directions[3*j + 0],
+                            incident_directions[3*j + 1],
+                            incident_directions[3*j + 2]
+                        };
                     
-                        Real dot_mid = mid_points_ptr[4*i + 0] * w_vec[0] + mid_points_ptr[4*i + 1] * w_vec[1]
-                        + mid_points_ptr[4*i + 2] * w_vec[2];
+                        Real dot_mid = mid_points_ptr[4*i + 0] * w_vec[0] 
+                                     + mid_points_ptr[4*i + 1] * w_vec[1]
+                                     + mid_points_ptr[4*i + 2] * w_vec[2];
+                        
                         Complex exponent(0.0f, Kappa * dot_mid);
 
-                        Real dot_norm = normals_ptr[4*i + 0] * w_vec[0] + normals_ptr[4*i + 1] * w_vec[1]
-                        + normals_ptr[4*i + 2] * w_vec[2];
+                        Real dot_norm = normals_ptr[4*i + 0] * w_vec[0] 
+                                      + normals_ptr[4*i + 1] * w_vec[1]
+                                      + normals_ptr[4*i + 2] * w_vec[2];
+                        
                         Complex dexponent(0.0f, Kappa * dot_norm);
 
                         Complex factor = Coeff[0] + Coeff[1] * dexponent;

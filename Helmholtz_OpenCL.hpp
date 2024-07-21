@@ -2,12 +2,6 @@
 
 #include <CL/cl.h>
 
-//#define TOOLS_ENABLE_PROFILER
-
-//#include <complex>
-//#include <cblas.h>
-//#include <lapack.h>
-
 #ifdef __APPLE__
 /// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
 ///
@@ -47,17 +41,19 @@ namespace BAEMM
         
         cl_device_id device_id = NULL;
         cl_context context;
-        cl_kernel global_kernel;    // globally saved OpenCL Kernel. Only used in the kernel for the solver mode
+        
+        cl_kernel bdr_kernel;    // Globally saved OpenCL Kernel for the boundary operator.
 
+        
         cl_command_queue command_queue;
         
         // OpenCL Device buffers
-        cl_mem areas;           // buffer for the areas of the simplices
-        cl_mem mid_points;      // buffer for the midpoints of the simplices
-        cl_mem normals;         // buffer for the simplex-normals
-        cl_mem single_diag;     // diagonal of the SL Operator
-        cl_mem tri_coords;
-        cl_mem meas_directions; // measurement directkons (m x 3 tensor)
+        cl_mem areas = NULL;           // buffer for the areas of the simplices
+        cl_mem mid_points = NULL;      // buffer for the midpoints of the simplices
+        cl_mem normals = NULL;         // buffer for the simplex-normals
+        cl_mem single_diag = NULL;     // diagonal of the SL Operator
+        cl_mem tri_coords = NULL;
+        cl_mem meas_directions = NULL; // measurement directkons (m x 3 tensor)
         
         // buffers for in- and output
         cl_mem B_buf = NULL;    
@@ -67,15 +63,20 @@ namespace BAEMM
         LInt C_size = 0;
 
         // pin host memory (bigger bandwith with pinned memory)
-        cl_mem areas_pin;
-        cl_mem mid_points_pin;
-        cl_mem normals_pin;
-        cl_mem single_diag_pin;
-        cl_mem tri_coords_pin;
-        cl_mem meas_directions_pin;
+        cl_mem areas_pin = NULL;
+        cl_mem mid_points_pin = NULL;
+        cl_mem normals_pin = NULL;
+        cl_mem single_diag_pin = NULL;
+        cl_mem tri_coords_pin = NULL;
+        cl_mem meas_directions_pin = NULL;
         
         cl_mem B_buf_pin = NULL;
         cl_mem C_buf_pin = NULL;
+        
+        cl_mem d_kappa      = NULL;
+        cl_mem d_coeff      = NULL;
+        cl_mem d_n          = NULL;
+        cl_mem d_wave_count = NULL;
         
     public:
     
@@ -109,33 +110,29 @@ namespace BAEMM
             cl_uint ret_num_devices;
             cl_uint ret_num_platforms;
 
-            ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 1, 
-                                    &device_id, &ret_num_devices);
+            ret = clGetPlatformIDs(1,&platform_id,&ret_num_platforms);
+            ret = clGetDeviceIDs(platform_id,CL_DEVICE_TYPE_GPU,1,&device_id,&ret_num_devices);
             
             if (ret_num_devices == 0)
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
             }
 
-            context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
+            context = clCreateContext(NULL,1,&device_id,NULL,NULL,&ret);
 
             // Apple hardware does not support this OpenCL 2.0 feature.
 //            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
-            command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
+            command_queue = clCreateCommandQueue(context,device_id,0,&ret);
             
             
             // initialize the Opencl buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
-            clEnqueueWriteBuffer(command_queue, mid_points, CL_FALSE, 0,
-                                4 * simplex_count * sizeof(Real), mid_points_ptr, 0, NULL, NULL);
-            clEnqueueWriteBuffer(command_queue, normals, CL_FALSE, 0,
-                                4 * simplex_count * sizeof(Real), normals_ptr, 0, NULL, NULL);   
-            clEnqueueWriteBuffer(command_queue, meas_directions, CL_FALSE, 0,
-                                4 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
+            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,NULL,NULL);
         }
         
         template<typename ExtReal,typename ExtInt>
@@ -170,15 +167,10 @@ namespace BAEMM
             
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
             
-            dump(ret_num_platforms);
-            
             cl_device_id device_id_list[8];
             cl_uint ret_num_devices;
             
-            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8,
-                                  device_id_list, &ret_num_devices);
-
-            dump(ret_num_devices);
+            ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8, device_id_list, &ret_num_devices);
             
             if (ret_num_devices == 0)
             {
@@ -192,8 +184,6 @@ namespace BAEMM
             {
                 device_id = device_id_list[0];
             }
-            
-            dump(device_id);
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
@@ -203,29 +193,26 @@ namespace BAEMM
             // Instead we can use this (deprecated) feature:
             command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
             
-            // initialize the Opencl buffers and host pointers
+            // initialize the OpenCL buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
-            clEnqueueWriteBuffer(command_queue, mid_points, CL_FALSE, 0,
-                                4 * simplex_count * sizeof(Real), mid_points_ptr, 0, NULL, NULL);
-            clEnqueueWriteBuffer(command_queue, normals, CL_FALSE, 0,
-                                4 * simplex_count * sizeof(Real), normals_ptr, 0, NULL, NULL);   
-            clEnqueueWriteBuffer(command_queue, meas_directions, CL_FALSE, 0,
-                                4 * meas_count * sizeof(Real), meas_directions_ptr, 0, NULL, NULL);    
+            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,NULL,NULL);
         }
         
         ~Helmholtz_OpenCL()
         {
             //clean up
-            ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,(void*)mid_points_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,normals_pin,(void*)normals_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,areas_pin,(void*)areas_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,single_diag_pin,(void*)normals_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,tri_coords_pin,(void*)normals_ptr,0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,areas_pin,          (void*)areas_ptr,          0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,single_diag_pin,    (void*)normals_ptr,        0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,tri_coords_pin,     (void*)normals_ptr,        0,NULL,NULL);
             ret = clEnqueueUnmapMemObject(command_queue,meas_directions_pin,(void*)meas_directions_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,(void*)B_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,(void*)C_ptr,0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,          (void*)B_ptr,              0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,          (void*)C_ptr,              0,NULL,NULL);
             ret = clFlush(command_queue);
             ret = clFinish(command_queue);
 
@@ -256,15 +243,13 @@ namespace BAEMM
         
 #include "src/Helmholtz_Common/LoadParameters.hpp"
         
-#include "src/Helmholtz_Common/LoadParameters3.hpp"
+//#include "src/Helmholtz_Common/LoadParameters3.hpp"
         
 #include "src/Helmholtz_Common/InputOutput.hpp"
         
 #include "src/Helmholtz_OpenCL/StringManipulation.hpp"
 
 #include "src/Helmholtz_OpenCL/RequireBuffers.hpp"
-
-//#include "src/Helmholtz_Common/ApplyOperators.hpp"
         
 #include "src/Helmholtz_Common/ApplyMassInverse.hpp"
         
@@ -282,7 +267,7 @@ namespace BAEMM
         
 #include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
 
-#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C_SolverMode.hpp"
+//#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C_SolverMode.hpp"
 
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
 
