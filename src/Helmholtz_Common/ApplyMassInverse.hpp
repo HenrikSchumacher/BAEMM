@@ -50,19 +50,22 @@ public:
         }
         else
         {
-            ConjugateGradient<NRHS,Scal,Size_T> cg( vertex_count, 20, nrhs, CPU_thread_count );
-
             auto P = [&,nrhs]( cptr<Scal> x, mptr<Scal> y )
             {
-                ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
-                
-//                ParallelDo(
-//                    [&,x,y]( const Int i )
-//                    {
-//                        copy_buffer<NRHS>( &x[nrhs * i], &y[nrhs * i], nrhs );
-//                    },
-//                    vertex_count, CPU_thread_count
-//                );
+                if constexpr ( use_lumped_mass_as_precQ )
+                {
+                    ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
+                }
+                else
+                {
+                    ParallelDo(
+                        [&,x,y]( const Int i )
+                        {
+                           copy_buffer<NRHS>( &x[nrhs * i], &y[nrhs * i], nrhs );
+                        },
+                        vertex_count, CPU_thread_count
+                    );
+                }
                 
             };
 
@@ -74,6 +77,10 @@ public:
                     nrhs
                 );
             };
+            
+            constexpr Int max_iter = use_lumped_mass_as_precQ ? 20 : 100;
+            
+            ConjugateGradient<NRHS,Scal,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
 
             zerofy_buffer(C_out, static_cast<std::size_t>(vertex_count * ldC_out), CPU_thread_count);
 

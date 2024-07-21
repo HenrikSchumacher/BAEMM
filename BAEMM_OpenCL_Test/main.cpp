@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sys/types.h>
 #include <pwd.h>
+#include <filesystem>
+
 
 #define TOOLS_ENABLE_PROFILER
 
@@ -13,7 +15,7 @@ using namespace Tensors;
 using namespace Repulsor;
 using namespace BAEMM;
 
-using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,false>;
+using BAEMM_T   = BAEMM::Helmholtz_OpenCL<false,false>;
 
 using Int       = BAEMM_T::Int;
 using LInt      = BAEMM_T::LInt;
@@ -34,9 +36,28 @@ int main()
     {
         homedir = getpwuid(getuid())->pw_dir;
     }
-    std::string path ( homedir );
     
-    Profiler::Clear(path);
+    std::filesystem::path this_file { __FILE__ };
+    std::filesystem::path repo_dir  = this_file.parent_path().parent_path();
+    std::filesystem::path mesh_dir = repo_dir / "Meshes";
+    
+    dump( this_file.string() );
+    dump( repo_dir.string() );
+    dump( mesh_dir.string() );
+    
+    std::filesystem::path home_dir { homedir };
+    
+    std::string mesh_name { "Triceratops_00081920T" };
+    
+    std::filesystem::path dir { homedir };
+    
+    dir /= std::string( mesh_name +"_") + ToString(BAEMM_T::use_lumped_mass_as_precQ) + "_" + ToString(BAEMM_T::use_mass_choleskyQ);
+    
+    dump(dir.string());
+    
+    std::filesystem::create_directory( dir );
+    
+    Profiler::Clear(dir.string());
     
     
     Int device = 0;
@@ -44,13 +65,14 @@ int main()
     
     Factory_T factory;
     
-    std::string file_name = "/Users/Henrik/Triceratops_00081920T.txt";
+    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
 
-    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( file_name, thread_count );
+    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( mesh_file.string(), thread_count );
 
-    std::string meas_file_name = "/Users/Henrik/github/BAEMM/Meshes/Sphere_00005120T.txt";
     
-    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file_name, thread_count );
+    std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
+    
+    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file.string(), thread_count );
     
 //    Tensor2<Real,Int> coords;
 //    Tensor2<Int, Int> simplices;

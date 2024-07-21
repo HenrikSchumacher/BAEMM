@@ -291,6 +291,7 @@ public:
         
         AvOpTransp = AvOp.Transpose();
         
+        
         CurlOp = Sparse_T(
             std::move(Curl_outer), std::move(Curl_inner), std::move(Curl_vals),
             3 * simplex_count, vertex_count,
@@ -300,6 +301,7 @@ public:
         CurlOp.SortInner();
         
         CurlOpTransp = CurlOp.Transpose();
+        
         
         Mass = Sparse_T(
             a_list.Size(),
@@ -335,5 +337,6 @@ public:
             
             MassInv->NumericFactorization( Mass.Values().data() );
         }
+        
         ptoc(ClassName()+"::Initialize");
     }
