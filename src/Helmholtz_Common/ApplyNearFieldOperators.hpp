@@ -11,7 +11,7 @@ public:
         const C_ext coeff_3,
         const I_ext wave_count_,
         const I_ext wave_chunk_size_,
-        const R_ext* evaluation_points_, 
+        cptr<R_ext> evaluation_points_, 
         const I_ext evaluation_count_
     )
     {
@@ -39,28 +39,6 @@ public:
         ApplyNearFieldOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out,
                                     evaluation_points_, evaluation_count_ );
     }
-
-
-//    template<typename R_ext, typename C_ext, typename I_ext>
-//    void ApplyBoundaryOperators_PL(
-//        const C_ext alpha, cptr<C_ext> B_in,  const Int ldB_in,
-//        const C_ext beta,  mptr<C_ext> C_out, const Int ldC_out,
-//        const Tensor1<R_ext,I_ext> & kappa_list,
-//        const Tensor2<C_ext,I_ext> & coeff_list,
-//        const Int wave_count_,
-//        const Int wave_chunk_size_
-//    )
-//    {
-//        //  The same as above, but with several wave numbers kappa_list and several coefficients.
-//
-//        ASSERT_INT(I_ext);
-//        ASSERT_REAL(R_ext);
-//        ASSERT_COMPLEX(C_ext);
-//
-//        LoadParameters(kappa_list.data(),coeff_list.data(),wave_count_,wave_chunk_size_);
-//
-//        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
-//    }
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(

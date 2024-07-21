@@ -16,8 +16,8 @@ public:
         // simplex_count x cols, respectively.
      
         AvOp.Dot(
-            Scalar::One<Complex>,  B_in,  ldB_in,
-            Scalar::Zero<Complex>, C_out, ldC_out,
+            alpha, B_in,  ldB_in,
+            beta, C_out, ldC_out,
             cols
         );
     }

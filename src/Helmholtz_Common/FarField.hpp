@@ -1,6 +1,6 @@
 public:
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void FarField(
         cptr<R_ext> kappa,
         const I_ext wave_chunk_count_,
@@ -15,7 +15,7 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        std::string tag = ClassName()+"::FarField<" + ToString(solver_count)
+        std::string tag = ClassName()+"::FarField<" + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -29,23 +29,17 @@ public:
         // phi = A\wave is the bdry potential which will be mapped onto the far field.
         
         
-        Tensor1<R_ext,I_ext> eta (wave_chunk_count_);
-
-        R_ext* p_eta = eta.data();
-        for (Int i = 0; i < wave_chunk_count_; i++)
-        {
-            p_eta[i] = kappa[i];
-        }
+        // No need to copy kappa to eta.
         
-        FarField_parameters<solver_count>(
+        FarField_parameters<EQ_COUNT>(
             kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
-            C_out, type, eta.data(), cg_tol, gmres_tol
+            C_out, type, kappa, cg_tol, gmres_tol
         );
         
         ptoc(tag);
     }
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void FarField_parameters(
         cptr<R_ext> kappa,
         const I_ext wave_chunk_count_,
@@ -53,7 +47,7 @@ public:
         const I_ext wave_chunk_size_,
         mptr<C_ext> C_out,
         const WaveType type,
-        mptr<R_ext> eta,
+        cptr<R_ext> eta,
         const R_ext cg_tol,
         const R_ext gmres_tol
     )
@@ -62,7 +56,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::FarField_parameters<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -77,12 +71,12 @@ public:
         const C_ext Zero = Scalar::Zero<C_ext>;
 
         const I_ext  n           = static_cast<I_ext>(VertexCount());
-        const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;       
-
+        const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;   
+        
         Tensor2<C_ext,I_ext>  inc_coeff ( wave_chunk_count_, 4 );
         Tensor2<C_ext,I_ext>  coeff (  wave_chunk_count_, 4  );
         Tensor2<C_ext,I_ext>  wave  (  n, wave_count_  );     //weak representation of the incident wave
-        Tensor2<C_ext,I_ext>  phi   (   n, wave_count_  );
+        Tensor2<C_ext,I_ext>  phi   (  n, wave_count_  );
 
         C_ext* inc_coeff_ptr = inc_coeff.data();
 
@@ -97,31 +91,31 @@ public:
             inc_coeff_ptr[4 * i + 3] = Zero;
         }
 
-
         CreateIncidentWave_PL(
             One,   inc_directions,   wave_chunk_size_,
             Zero,  wave.data(),      wave_count_,
             kappa, inc_coeff.data(), wave_count_, wave_chunk_size_,
             type
         );
-
-
-        BoundaryPotential_parameters<solver_count>( 
+        
+        BoundaryPotential_parameters<EQ_COUNT>(
             kappa, coeff.data(), wave.data(), phi.data(),
             eta, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol
         );
 
-
         ApplyFarFieldOperators_PL( 
             One,   phi.data(),   wave_count_,
             Zero,  C_out,        wave_count_,
-            kappa, coeff.data(), wave_count_, wave_chunk_size_
+            kappa, 
+            coeff.data(),
+            wave_count_,
+            wave_chunk_size_
         );
         
         ptoc(tag);
     }
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void Derivative_FF(
         cptr<R_ext> kappa,
         const I_ext wave_chunk_count_,
@@ -139,7 +133,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::Derivative_FF<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -198,7 +192,7 @@ public:
             );
             
 
-            DirichletToNeumann<solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<EQ_COUNT>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
         }
 
 
@@ -209,11 +203,11 @@ public:
         ParallelDo(
             [boundary_conditions_ptr,&h_n,&pdu_dn]( const I_ext i )
             {   
-                cptr<C_ext> a = &(*pdu_dn)[i * solver_count];
+                cptr<C_ext> a = &(*pdu_dn)[i * EQ_COUNT];
                 cptr<R_ext> b = h_n.data();
-                mptr<C_ext> c = &boundary_conditions_ptr[i * solver_count];
+                mptr<C_ext> c = &boundary_conditions_ptr[i * EQ_COUNT];
                 
-                for(I_ext j = 0; j < solver_count; ++j )
+                for(I_ext j = 0; j < EQ_COUNT; ++j )
                 {
                     c[j] = - a[j] * b[i];
                 }
@@ -228,19 +222,22 @@ public:
             wave_count_
         );
 
-        BoundaryPotential<solver_count>( kappa, coeff.data(), boundary_conditions_weak.data(), phi.data(), 
+        BoundaryPotential<EQ_COUNT>( kappa, coeff.data(), boundary_conditions_weak.data(), phi.data(), 
                                                             wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol);
 
         ApplyFarFieldOperators_PL( 
             One,  phi.data(),    wave_count_,
             Zero,  C_out,        wave_count_,
-            kappa, coeff.data(), wave_count_, wave_chunk_size_
+            kappa, 
+            coeff.data(),
+            wave_count_,
+            wave_chunk_size_
         );
 
         ptoc(tag);
     }
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void AdjointDerivative_FF(
         cptr<R_ext> kappa,
         const I_ext wave_chunk_count_,
@@ -264,7 +261,7 @@ public:
         // anh phi_h = A\herglotz_wave is the normal derivative of the solution with inc wave herglotz_wave
 
         std::string tag = ClassName()+"::AdjointDerivative_FF<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -311,7 +308,7 @@ public:
                                 );
             
 
-            DirichletToNeumann<solver_count>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
+            DirichletToNeumann<EQ_COUNT>( kappa, incident_wave.data(), *pdu_dn, wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol ); 
         }
 
         CreateHerglotzWave_PL(One, g, wave_count_,
@@ -320,7 +317,7 @@ public:
                             );
         
         // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<solver_count>( kappa, herglotz_wave.data(), dv_dn.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
+        DirichletToNeumann<EQ_COUNT>( kappa, herglotz_wave.data(), dv_dn.data(), wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol );
         
         // calculate du_dn .* dv_dn and sum over the leading dimension
         HadamardProduct( *pdu_dn, dv_dn.data(), wave_product.data(), n, wave_count_, true);
@@ -331,7 +328,7 @@ public:
         ptoc(tag);
     }
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
     I_ext GaussNewtonStep(
         cptr<R_ext> kappa,
         const I_ext wave_chunk_count_,
@@ -352,7 +349,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::GaussNewtonStep<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -365,19 +362,19 @@ public:
         const I_ext  m           = static_cast<I_ext>(GetMeasCount());
         const I_ext  wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-        GMRES<1,R_ext,size_t,Side::Left> gmres(3 * n,30,CPU_thread_count);
+        GMRES<1,R_ext,Size_T,Side::Left> gmres(3 * n,30,1,CPU_thread_count);
         
         Tensor2<C_ext,I_ext>  DF (  m, wave_count_  );
         Tensor2<R_ext,I_ext>  y_strong (  n, 3  );
 
         auto A = [&]( const R_ext * x, R_ext *y )
         {   
-            Derivative_FF<solver_count>( 
+            Derivative_FF<EQ_COUNT>( 
                 kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                 x, DF.data(), pdu_dn, type, cg_tol, gmres_tol_inner
             );
             
-            AdjointDerivative_FF<solver_count>( 
+            AdjointDerivative_FF<EQ_COUNT>( 
                 kappa, wave_chunk_count_, inc_directions, wave_chunk_size_,
                 DF.data(), y_strong.data(), pdu_dn, type, cg_tol, gmres_tol_inner
             );
@@ -391,7 +388,7 @@ public:
             M(x,y); // The metric m has to return y + M*x
         };
 
-        zerofy_buffer(C_out, (size_t)(n * 3), CPU_thread_count);
+        zerofy_buffer(C_out, static_cast<Size_T>(n * 3), CPU_thread_count);
 
         bool succeeded = gmres(A,P,h,1,C_out,1,gmres_tol_outer,3);
 
@@ -406,7 +403,7 @@ public:
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential(
         cptr<R_ext> kappa,
         mptr<C_ext> coeff,
@@ -422,7 +419,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::BoundaryPotential<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -430,30 +427,23 @@ public:
         
         ptic(tag);
         
-        Tensor1<R_ext,I_ext> eta (wave_chunk_count_);
+        // No need to copy kappa to eta.
 
-        R_ext* p_eta = eta.data();
-        
-        for (Int i = 0; i < wave_chunk_count_; i++)
-        {
-            p_eta[i] = kappa[i];
-        }
-
-        BoundaryPotential_parameters<solver_count>(
-            kappa, coeff, wave, phi, eta.data(),
+        BoundaryPotential_parameters<EQ_COUNT>(
+            kappa, coeff, wave, phi, kappa,
             wave_chunk_count_, wave_chunk_size_, cg_tol, gmres_tol
         );
         
         ptoc(tag);
     }
         
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential_parameters(
         cptr<R_ext> kappa,
         mptr<C_ext> coeff,
         mptr<C_ext> wave,
         mptr<C_ext> phi,
-        mptr<R_ext> eta,
+        cptr<R_ext> eta,
         const I_ext wave_chunk_count_,
         const I_ext wave_chunk_size_,
         const R_ext cg_tol,
@@ -464,7 +454,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::BoundaryPotential_parameters<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -479,20 +469,19 @@ public:
 
         const I_ext wave_count_ = wave_chunk_count_ * wave_chunk_size_;
 
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
-
-        // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
-
+        GMRES<EQ_COUNT,C_ext,Size_T,Side::Left> gmres(n,30,wave_count_,CPU_thread_count);
         
-        auto P = [&]( const C_ext * x, C_ext *y )
+        // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
+        
+        auto P = [&]( cptr<C_ext> x, mptr<C_ext> y )
         {
             if constexpr ( use_lumped_mass_as_precQ )
             {
-                ApplyLumpedMassInverse<solver_count>(x,solver_count,y,solver_count);
+                ApplyLumpedMassInverse<EQ_COUNT>(x,wave_count_,y,wave_count_,wave_count_);
             }
             else
             {
-                ApplyMassInverse<solver_count>(x,solver_count,y,solver_count,cg_tol);
+                ApplyMassInverse<EQ_COUNT>(x,wave_count_,y,wave_count_,wave_count_);
             }
         };
 
@@ -505,11 +494,11 @@ public:
             coeff[4 * i + 3] = Zero;
         }
 
-        kernel_list list = LoadKernel(kappa,coeff,wave_count_,wave_chunk_size_);
+        kernel_list list = LoadKernel( kappa, coeff, wave_count_, wave_chunk_size_ );
 
-        auto A = [&]( const C_ext * x, C_ext *y )
-        {   
-            ApplyBoundaryOperators_PL( wave_count_, One, x, Zero, y );
+        auto A = [&]( cptr<C_ext> x, mptr<C_ext> y )
+        {
+            ApplyBoundaryOperators_PL<true>( One, x, wave_count_, Zero, y, wave_count_ );
         };
 
         (void)gmres(A,P,wave,wave_count_,phi,wave_count_,gmres_tol,10);
@@ -520,7 +509,7 @@ public:
     }
 
 
-    template<size_t solver_count, typename I_ext, typename R_ext, typename C_ext>
+    template<Int EQ_COUNT, typename I_ext, typename R_ext, typename C_ext>
     void DirichletToNeumann(
         cptr<R_ext> kappa,
         mptr<C_ext> wave,
@@ -535,7 +524,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         std::string tag = ClassName()+"::DirichletToNeumann<"
-            + "," + ToString(solver_count)
+            + "," + ToString(EQ_COUNT)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -553,7 +542,7 @@ public:
 
         C_ext*  coeff    = (C_ext*)malloc(wave_chunk_count_ * 4 * sizeof(C_ext));
 
-        GMRES<solver_count,C_ext,size_t,Side::Left> gmres(n,30,CPU_thread_count);
+        GMRES<EQ_COUNT,C_ext,Size_T,Side::Left> gmres(n,30,wave_count_,CPU_thread_count);
 
         // setup the mass matrix Preconditionier P:=M^-1. P is also used for transf. into strong form
 
@@ -561,11 +550,11 @@ public:
         {
             if constexpr ( use_lumped_mass_as_precQ )
             {
-                ApplyLumpedMassInverse<solver_count>(x,y);
+                ApplyLumpedMassInverse<EQ_COUNT>(x,wave_count_,y,wave_count_,wave_count_);
             }
             else
             {
-                ApplyMassInverse<solver_count>(x,y,wave_count_,cg_tol);
+                ApplyMassInverse<EQ_COUNT>(x,wave_count_,y,wave_count_,wave_count_);
             }
         };
 
@@ -582,7 +571,7 @@ public:
 
         auto A = [&]( const C_ext * x, C_ext *y )
         {   
-            ApplyBoundaryOperators_PL( wave_count_,One,x,Zero,y );
+            ApplyBoundaryOperators_PL<true>( One, x, wave_count_, Zero, y, wave_count_ );
         };
 
         // solve for the normal derivatives of the near field solutions
@@ -607,7 +596,7 @@ public:
         cptr<C_ext> B_in, 
         mptr<R_ext> C_out,
         const R_ext factor,
-        const R_ext cg_tol
+        const R_ext cg_tol_
     )
     {
         ASSERT_REAL(R_ext);
@@ -655,7 +644,8 @@ public:
             Scalar::Zero<R_ext>, C_weak.data()
         );
 
-        ApplyMassInverse<3>( C_weak.data(), C_out, 3, cg_tol );
+        cg_tol = static_cast<Real>(cg_tol_);
+        ApplyMassInverse<3>( C_weak.data(), 3, C_out, 3, 3 );
         
         ptoc(tag);
     }
@@ -666,7 +656,7 @@ public:
     void DotWithNormals_PL( 
         cptr<R_ext> B_in,
         mptr<R_ext> C_out,
-        const R_ext cg_tol
+        const R_ext cg_tol_
     )
     {
         ASSERT_REAL(R_ext);
@@ -713,7 +703,8 @@ public:
             1
         );
         
-        ApplyMassInverse<1>(C_weak,C_out,1,cg_tol);
+        cg_tol = static_cast<Real>(cg_tol_);
+        ApplyMassInverse<1>(C_weak,1,C_out,1,1);
 
         free(B);
         free(C);

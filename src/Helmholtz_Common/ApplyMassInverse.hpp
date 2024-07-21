@@ -1,27 +1,29 @@
 public:
 
-    template<Int nrhs, typename Scal, typename R_ext>
+    template<Int NRHS = VarSize, typename Scal>
     void ApplyMassInverse(
         cptr<Scal> B_in,  const Int ldB_in,
         mptr<Scal> C_out, const Int ldC_out,
-        const R_ext cg_tol
+        const Int nrhs = NRHS
     )
     {
-        std::string tag = ClassName()+"::ApplyMassInverse<"+ToString(nrhs)
-            + "," + TypeName<Scal>
-            + ">";
+        std::string tag = ClassName()+"::ApplyMassInverse<"+ToString(NRHS)
+            + ">("+ToString(nrhs)+")";
+        
+        if( nrhs > ldB_in )
+        {
+            eprint("nrhs > ldB_in");
+            return;
+        }
+        
+        if( nrhs > ldC_out )
+        {
+            eprint("nrhs > ldC_out");
+            return;
+        }
+        
         
         ptic(tag);
-        
-        if( nrhs != ldB_in )
-        {
-            eprint("nrhs != ldB_in");
-        }
-        
-        if( nrhs != ldC_out )
-        {
-            eprint("nrhs != ldC_out");
-        }
         
         if constexpr( use_mass_choleskyQ )
         {
@@ -38,7 +40,7 @@ public:
                 InverseMassMatrix().Solve(
                     reinterpret_cast<const Scalar::Real<Scal> *>( B_in  ), Int(2) * ldB_in,
                     reinterpret_cast<      Scalar::Real<Scal> *>( C_out ), Int(2) * ldC_out,
-                    Int(2) * Int(nrhs)
+                    Int(2) * nrhs
                 );
             }
             else
@@ -48,55 +50,52 @@ public:
         }
         else
         {
-            ConjugateGradient<nrhs,Scal,size_t> cg(vertex_count,200,CPU_thread_count);
+            ConjugateGradient<NRHS,Scal,Size_T> cg( vertex_count, 20, nrhs, CPU_thread_count );
 
-            auto P = [&]( cptr<Scal> x, mptr<Scal> y )
+            auto P = [&,nrhs]( cptr<Scal> x, mptr<Scal> y )
             {
-                if constexpr ( use_lumped_mass_as_precQ )
-                {
-                    ApplyLumpedMassInverse<nrhs>( x, nrhs, y, nrhs );
-                }
-                else
-                {
-                    ParallelDo(
-                        [&,x,y]( const Int i )
-                        {
-                            copy_buffer<nrhs>( &x[nrhs * i], &y[nrhs * i] );
-                        },
-                        vertex_count, CPU_thread_count
-                    );
-                }
+                ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
+                
+//                ParallelDo(
+//                    [&,x,y]( const Int i )
+//                    {
+//                        copy_buffer<NRHS>( &x[nrhs * i], &y[nrhs * i], nrhs );
+//                    },
+//                    vertex_count, CPU_thread_count
+//                );
                 
             };
 
-            auto A = [&]( cptr<Scal> x, mptr<Scal> y )
+            auto A = [&,nrhs]( cptr<Scal> x, mptr<Scal> y )
             {
-                Mass.Dot<nrhs>(
+                Mass.Dot<NRHS>(
                     Scalar::One <Scal>, x, nrhs,
-                    Scalar::Zero<Scal>, y, nrhs
+                    Scalar::Zero<Scal>, y, nrhs,
+                    nrhs
                 );
             };
 
-            zerofy_buffer(C_out, static_cast<size_t>(vertex_count * ldC_out), CPU_thread_count);
+            zerofy_buffer(C_out, static_cast<std::size_t>(vertex_count * ldC_out), CPU_thread_count);
 
             bool succeeded = cg(A,P,B_in,ldB_in,C_out,ldC_out,cg_tol);
 
             if( !succeeded )
             {
-                eprint(ClassName()+"::ApplyMassInverse_CG did not converge.");
+                wprint(ClassName()+"::ApplyMassInverse: CG algorithm did not converge.");
             }
         }
         
         ptoc(tag);
     }
 
-    template<Int nrhs, typename Scal>
+    template<Int NRHS = VarSize, typename Scal>
     void ApplyLumpedMassInverse(
         cptr<Scal> B_in,  const Int ldB_in,
-        mptr<Scal> C_out, const Int ldC_out
+        mptr<Scal> C_out, const Int ldC_out,
+        const Int nrhs = NRHS
     )
     {
-        std::string tag = ClassName()+"::ApplyLumpedMassInverse<"+ToString(nrhs)
+        std::string tag = ClassName()+"::ApplyLumpedMassInverse<"+ToString(NRHS)
             + "," + TypeName<Scal>
             + ">";
         ptic(tag);
@@ -106,7 +105,7 @@ public:
             {
                 const Scalar::Real<Scal> factor = areas_lumped_inv[i];
                 
-                for( Int j = 0; j < nrhs; ++j )
+                for( Int j = 0; j < ((NRHS > VarSize) ? NRHS : nrhs); ++j )
                 {
                     C_out[ldC_out * i + j] = factor * B_in[ldB_in * i + j];
                 }

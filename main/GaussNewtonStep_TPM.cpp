@@ -145,7 +145,7 @@ int main()
         M->H1Solve( Z, Y, dim );
     };
 
-    ConjugateGradient<3,Real,size_t> cg(vertex_count,500,thread_count);
+    ConjugateGradient<3,Real,Size_T> cg(vertex_count,500,3,thread_count);
     
     // The operator for the inverse metric.
     auto TPM_inv = [&]( cptr<Real> X, mptr<Real> Y )

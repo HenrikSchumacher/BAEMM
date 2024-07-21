@@ -34,7 +34,7 @@ namespace BAEMM
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
     template<
-        bool use_lumped_mass_as_precQ_ = false,
+        bool use_lumped_mass_as_precQ_ = true,
         bool use_mass_choleskyQ_ = false
     >
     class Helmholtz_OpenCL
@@ -264,9 +264,9 @@ namespace BAEMM
 
 #include "src/Helmholtz_OpenCL/RequireBuffers.hpp"
 
-#include "src/Helmholtz_Common/ApplyOperators.hpp"
-
-#include "src/LinearAlgebraUtilities/ApplyMassInverse.hpp"
+//#include "src/Helmholtz_Common/ApplyOperators.hpp"
+        
+#include "src/Helmholtz_Common/ApplyMassInverse.hpp"
         
 #include "src/Helmholtz_Common/ApplyBoundaryOperators.hpp"
 

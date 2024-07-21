@@ -26,14 +26,14 @@ public:
             {
                     SetBlockSize(static_cast<Int>(max_work_group_size));
             }
-
-            // Load the kernel source code into the array source_str
-            char *source_str;
-            size_t source_size;
-
-            source_str = manipulate_string(
+            
+            std::string source = CreateSourceString(
 #include "FarFieldOperatorKernel_C.cl"
-            ,block_size,wave_chunk_size,source_size);
+                ,block_size,wave_chunk_size
+            );
+                
+            const char * source_str = source.c_str();
+            std::size_t source_size = source.size();
 
             // Create the rest of the memory buffers on the device for each vector
             cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
@@ -103,7 +103,6 @@ public:
             ret = clReleaseMemObject(d_m);
             ret = clReleaseMemObject(d_wave_count);
 
-            free(source_str);
             free(Kappa);
             free(Coeff);
             

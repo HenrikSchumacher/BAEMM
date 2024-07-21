@@ -20,8 +20,8 @@ public:
         clFinish(command_queue);
 
         // Execute the OpenCL kernel on the list
-        size_t local_item_size = block_size;
-        size_t global_item_size = rows_rounded;
+        std::size_t local_item_size = block_size;
+        std::size_t global_item_size = rows_rounded;
         ret = clEnqueueNDRangeKernel(command_queue, global_kernel, 1, NULL,
                 &global_item_size, &local_item_size,
                 0, NULL, NULL);
@@ -63,9 +63,9 @@ public:
 
         int n = simplex_count;
 
-        size_t max_work_group_size; //check for maximal size of work group
+        std::size_t max_work_group_size; //check for maximal size of work group
         ret = clGetDeviceInfo(
-                        device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t),
+                        device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t),
                         &max_work_group_size, NULL);
 
         if (block_size > max_work_group_size)
@@ -73,21 +73,13 @@ public:
                 SetBlockSize(static_cast<Int>(max_work_group_size));
         }
         
-//            // Load the kernel source code into the array source_str
-//            char *source_str;
-//            size_t source_size;
-//
-//            source_str = manipulate_string(
-//#include "BoundaryOperatorKernel_C.cl"
-//                    ,block_size,wave_chunk_size,source_size);
-        
         std::string source = CreateSourceString(
 #include "BoundaryOperatorKernel_C.cl"
             ,block_size,wave_chunk_size
         );
             
         const char * source_str = source.c_str();
-        size_t source_size      = source.size();
+        std::size_t source_size = source.size();
 
         // Create the rest of the memory buffers on the device for each vector
         cl_mem d_kappa = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -113,14 +105,14 @@ public:
 
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1,
-                &source_str, (const size_t *)&source_size, &ret);
+                &source_str, (const std::size_t *)&source_size, &ret);
 
         // Build the program
         ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
         if (ret != 0)
         {
                 char result[16384];
-                size_t size;
+                std::size_t size;
                 ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
                 printf("%s", result);
         }
@@ -147,7 +139,7 @@ public:
         
         // clean up
         ret = clReleaseProgram(program);
-//            free(source_str);
+
         free(Kappa);
         free(Coeff);
         
