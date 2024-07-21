@@ -1,20 +1,261 @@
 Notebook[{
 Cell[BoxData["Exit"], "Input",
- CellLabel->"In[26]:=",ExpressionUUID->"393f702c-d189-41db-ad39-397907748435"],
+ CellLabel->
+  "In[803]:=",ExpressionUUID->"393f702c-d189-41db-ad39-397907748435"],
 
 Cell[BoxData[{
  RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
  RowBox[{"LoadPackages", "[", "\"\<Geometries\>\"", "]"}]}], "Input",
  CellLabel->"In[1]:=",ExpressionUUID->"19f63c55-e1af-4e31-8663-058fa64a6723"],
 
-Cell[BoxData[
+Cell[BoxData[{
  RowBox[{
-  RowBox[{"p", "=", 
+  RowBox[{"lumpedQ", "=", "False"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"CholeskyQ", "=", "False"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"percentage", "=", "1."}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"basename", "=", "\"\<Triceratops_00081920T\>\""}], ";"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
    RowBox[{
-   "ImportProfile", "[", "\"\</Users/Henrik/Tools_Profile.tsv\>\"", "]"}]}], 
-  ";"}]], "Input",
+    RowBox[{"basename", "=", "\"\<Spot_00023424T\>\""}], ";"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"namebool", "[", 
+     RowBox[{"lumpedQ_", ",", "CholeskyQ_"}], "]"}], ":=", 
+    RowBox[{"StringJoin", "[", 
+     RowBox[{"{", 
+      RowBox[{"basename", ",", "\[IndentingNewLine]", "\"\<_\>\"", ",", 
+       RowBox[{"If", "[", 
+        RowBox[{"lumpedQ", ",", "\"\<1\>\"", ",", "\"\<0\>\""}], "]"}], ",", 
+       "\[IndentingNewLine]", "\"\<_\>\"", ",", 
+       RowBox[{"If", "[", 
+        RowBox[{"CholeskyQ", ",", "\"\<1\>\"", ",", "\"\<0\>\""}], "]"}]}], 
+      "\[IndentingNewLine]", "}"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"name", "[", 
+     RowBox[{"lumpedQ_", ",", "CholeskyQ_"}], "]"}], ":=", 
+    RowBox[{"StringJoin", "[", 
+     RowBox[{"{", 
+      RowBox[{"basename", ",", "\[IndentingNewLine]", "\"\<_\>\"", ",", 
+       RowBox[{"If", "[", 
+        RowBox[{"lumpedQ", ",", "\"\<Lumped\>\"", ",", "\"\<NoLump\>\""}], 
+        "]"}], ",", "\[IndentingNewLine]", "\"\<_\>\"", ",", 
+       RowBox[{"If", "[", 
+        RowBox[{"CholeskyQ", ",", "\"\<Chol\>\"", ",", "\"\<CG\>\""}], 
+        "]"}]}], "\[IndentingNewLine]", "}"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Do", "[", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"pfile", "=", 
+     RowBox[{"FileNameJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{"$HomeDirectory", ",", 
+        RowBox[{"namebool", "[", 
+         RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], ",", 
+        "\"\<Tools_Profile.tsv\>\""}], "}"}], "]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{"p", "=", 
+     RowBox[{"ImportProfile", "[", "pfile", "]"}]}], ";", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{"Echo", "@", 
+     RowBox[{"Export", "[", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$HomeDirectory", ",", 
+          RowBox[{
+           RowBox[{"name", "[", 
+            RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], "<>", 
+           "\"\<_Sunburst.pdf\>\""}]}], "}"}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Show", "[", 
+        RowBox[{
+         RowBox[{"Sunburst", "[", "p", "]"}], ",", 
+         RowBox[{"PlotLabel", "->", 
+          RowBox[{"Row", "[", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<Lumped = \>\"", ",", "lumpedQ", ",", "\"\<,  solver = \>\"", 
+             ",", 
+             RowBox[{"If", "[", 
+              RowBox[{
+              "CholeskyQ", ",", "\"\<Cholesky\>\"", ",", "\"\<CG\>\""}], 
+              "]"}]}], "}"}], "]"}]}], ",", "\[IndentingNewLine]", 
+         RowBox[{"ImageSize", "->", "Full"}]}], "]"}]}], 
+      "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{"Echo", "@", 
+     RowBox[{"Export", "[", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$HomeDirectory", ",", 
+          RowBox[{
+           RowBox[{"name", "[", 
+            RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], "<>", 
+           "\"\<_Table.pdf\>\""}]}], "}"}], "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"EigentimeTable", "[", 
+        RowBox[{"p", ",", "percentage"}], "]"}]}], "\[IndentingNewLine]", 
+      "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Echo", "@", 
+      RowBox[{"Export", "[", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"FileNameJoin", "[", 
+         RowBox[{"{", 
+          RowBox[{"$HomeDirectory", ",", 
+           RowBox[{
+            RowBox[{"name", "[", 
+             RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], "<>", 
+            "\"\<_Table.pdf\>\""}]}], "}"}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Show", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Import", "[", 
+            RowBox[{"FileNameJoin", "[", 
+             RowBox[{"{", 
+              RowBox[{"$HomeDirectory", ",", 
+               RowBox[{
+                RowBox[{"name", "[", 
+                 RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], "<>", 
+                "\"\<_Table_.pdf\>\""}]}], "}"}], "]"}], "]"}], "[", 
+           RowBox[{"[", "1", "]"}], "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"PlotLabel", "->", 
+           RowBox[{"Row", "[", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<Lumped = \>\"", ",", "lumpedQ", ",", "\"\<,  solver = \>\"",
+               ",", 
+              RowBox[{"If", "[", 
+               RowBox[{
+               "CholeskyQ", ",", "\"\<Cholesky\>\"", ",", "\"\<CG\>\""}], 
+               "]"}]}], "}"}], "]"}]}], ",", "\[IndentingNewLine]", 
+          RowBox[{"ImageSize", "->", "Large"}]}], "\[IndentingNewLine]", 
+         "]"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], "*)"}], 
+   "\[IndentingNewLine]", ",", 
+   RowBox[{"{", 
+    RowBox[{"lumpedQ", ",", 
+     RowBox[{"{", 
+      RowBox[{"True", ",", "False"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"CholeskyQ", ",", 
+     RowBox[{"{", 
+      RowBox[{"True", ",", "False"}], "}"}]}], "}"}]}], "]"}]}], "Input",
  CellLabel->
-  "In[132]:=",ExpressionUUID->"79aa2f58-eff2-42c2-997b-0c5254444eab"],
+  "In[131]:=",ExpressionUUID->"b3787e88-7982-4dc7-990a-c4bf8e98de46"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lumpedQ", "=", "True"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"CholeskyQ", "=", "False"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pfile", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{"$HomeDirectory", ",", 
+      RowBox[{"namebool", "[", 
+       RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], ",", 
+      "\"\<Tools_Profile.tsv\>\""}], "}"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"p", "=", 
+    RowBox[{"ImportProfile", "[", "pfile", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"EigentimeTable", "[", 
+  RowBox[{"p", ",", "0."}], "]"}]}], "Input",
+ CellLabel->
+  "In[138]:=",ExpressionUUID->"a50394b0-a576-44c2-a3ec-585919acba82"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lumpedQ", "=", "False"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"CholeskyQ", "=", "True"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pfile", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{"$HomeDirectory", ",", 
+      RowBox[{"namebool", "[", 
+       RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], ",", 
+      "\"\<Tools_Profile.tsv\>\""}], "}"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"p", "=", 
+    RowBox[{"ImportProfile", "[", "pfile", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"EigentimeTable", "[", 
+  RowBox[{"p", ",", "percentage"}], "]"}]}], "Input",
+ CellLabel->
+  "In[797]:=",ExpressionUUID->"a157fbe3-9acd-4493-9cc5-437306898170"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lumpedQ", "=", "True"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"CholeskyQ", "=", "False"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pfile", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{"$HomeDirectory", ",", 
+      RowBox[{"namebool", "[", 
+       RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], ",", 
+      "\"\<Tools_Profile.tsv\>\""}], "}"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"p", "=", 
+    RowBox[{"ImportProfile", "[", "pfile", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"EigentimeTable", "[", 
+  RowBox[{"p", ",", "percentage"}], "]"}]}], "Input",
+ CellLabel->"In[60]:=",ExpressionUUID->"b79f0a55-5d75-4722-b1be-ec246f06afd0"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"lumpedQ", "=", "True"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"CholeskyQ", "=", "True"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pfile", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{"{", 
+     RowBox[{"$HomeDirectory", ",", 
+      RowBox[{"namebool", "[", 
+       RowBox[{"lumpedQ", ",", "CholeskyQ"}], "]"}], ",", 
+      "\"\<Tools_Profile.tsv\>\""}], "}"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"p", "=", 
+    RowBox[{"ImportProfile", "[", "pfile", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"EigentimeTable", "[", 
+  RowBox[{"p", ",", "percentage"}], "]"}]}], "Input",
+ CellLabel->
+  "In[791]:=",ExpressionUUID->"7ae3cbeb-290b-4b2c-8b49-c193ed95e767"],
 
 Cell[BoxData[{
  RowBox[{"sunburst", "=", 
@@ -23,7 +264,22 @@ Cell[BoxData[{
   RowBox[{"EigentimeTable", "[", 
    RowBox[{"p", ",", "2."}], "]"}]}]}], "Input",
  CellLabel->
-  "In[133]:=",ExpressionUUID->"7633bbfe-4285-46e8-920b-cc68b2bd7bc6"],
+  "In[727]:=",ExpressionUUID->"7633bbfe-4285-46e8-920b-cc68b2bd7bc6"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"afb5fac1-a1cc-43e2-b82d-acd20b4d5440"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"c625f1cf-7657-4386-b987-b222c2432d7b"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"973c4ac3-7e5a-403b-b404-fba86b8b0ee8"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"d9ac07d9-ee79-4263-9124-55489565aa56"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"0fc41df4-e5f3-4758-a0f3-6d31b910f920"],
 
 Cell[BoxData["\[IndentingNewLine]"], \
 "Input",ExpressionUUID->"7ef73b13-014e-4679-a020-e21d372671ef"],
