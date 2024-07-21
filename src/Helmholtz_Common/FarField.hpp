@@ -174,7 +174,7 @@ public:
             
             C_ext* inc_coeff_ptr = inc_coeff.data();
 
-            *pdu_dn           = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
+            *pdu_dn = (C_ext*)calloc(wave_count_ * n, sizeof(C_ext)); 
 
             // create weak representation of the negative incident wave
             for(I_ext i = 0 ; i < wave_chunk_count_ ; i++)
@@ -675,11 +675,11 @@ public:
         R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
         
         // make the input from PL to a PC function
-        AvOp.Dot( 
-                Scalar::One <R_ext>, B_in,  3,
-                Scalar::Zero<R_ext>, B,     3,
-                3
-            );
+        AvOp.Dot<3>( 
+            Scalar::One <R_ext>, B_in,  3,
+            Scalar::Zero<R_ext>, B,     3,
+            3
+        );
 
         // pointwise multiplication of the STRONG FORM with the normals
         // CheckThis

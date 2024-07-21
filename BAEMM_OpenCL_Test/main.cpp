@@ -12,10 +12,10 @@
 
 using namespace Tools;
 using namespace Tensors;
-using namespace Repulsor;
+//using namespace Repulsor;
 using namespace BAEMM;
 
-using BAEMM_T   = BAEMM::Helmholtz_OpenCL<false,false>;
+using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,false>;
 
 using Int       = BAEMM_T::Int;
 using LInt      = BAEMM_T::LInt;
@@ -24,8 +24,8 @@ using Complex   = std::complex<Real>;
 using SReal     = Real;
 using ExtReal   = Real;
 
-using Mesh_T    = SimplicialMeshBase<Real,Int,LInt,SReal,ExtReal>;
-using Factory_T = SimplicialMesh_Factory<Mesh_T,2,2,3,3>;
+//using Mesh_T    = SimplicialMeshBase<Real,Int,LInt,SReal,ExtReal>;
+//using Factory_T = SimplicialMesh_Factory<Mesh_T,2,2,3,3>;
 
 
 int main()
@@ -59,41 +59,42 @@ int main()
     
     Profiler::Clear(dir.string());
     
-    
     Int device = 0;
     Int thread_count = 8;
     
-    Factory_T factory;
-    
     std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
-
-    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( mesh_file.string(), thread_count );
-
-    
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     
-    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file.string(), thread_count );
-    
-//    Tensor2<Real,Int> coords;
-//    Tensor2<Int, Int> simplices;
-//    ReadMeshFromFile<Real,Int>(file_name, coords, simplices);
+//    Factory_T factory;
 //    
-//    Tensor2<Real,Int> meas_directions;
-//    Tensor2<Int, Int> simplices_meas;
-//    ReadMeshFromFile<Real,Int>(meas_file_name, meas_directions, simplices_meas);
+//    std::shared_ptr<Mesh_T> M = factory.Make_FromFile( mesh_file.string(), thread_count );
+//    
+//    std::shared_ptr<Mesh_T> S = factory.Make_FromFile( meas_file.string(), thread_count );
+//    
+//    auto & coords          = M->VertexCoordinates();
+//    auto & simplices       = M->Simplices();
+//    auto & meas_directions = S->VertexCoordinates();
+    
+    Tensor2<Real,Int> coords;
+    Tensor2<Int, Int> simplices;
+    ReadMeshFromFile<Real,Int>( mesh_file.string(), coords, simplices );
+    
+    Tensor2<Real,Int> meas_directions;
+    Tensor2<Int, Int> simplices_meas;
+    ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
     
     
     BAEMM_T H (
-        M->VertexCoordinates().data(), M->VertexCount(),
-        M->Simplices().data(),         M->SimplexCount(),
-        S->VertexCoordinates().data(), S->VertexCount(),
+        coords.data(),          coords.Dimension(0),
+        simplices.data(),       simplices.Dimension(0),
+        meas_directions.data(), meas_directions.Dimension(0),
         device,
         thread_count
     );
     
     dump( H.ClassName() );
     
-    const     Int meas_count = S->VertexCount();
+    const     Int meas_count = meas_directions.Dimension(0);
     
     constexpr Int wave_count = 32;
     constexpr Int wave_chunk_size = 16;
