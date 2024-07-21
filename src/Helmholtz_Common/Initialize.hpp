@@ -7,22 +7,22 @@ public:
         SetBlockSize(64);
         
         // For assembling AvOp.
-        Tensor1<LInt,    Int> Av_outer ( simplex_count + 1, 0 );
-        Tensor1<Int,    LInt> Av_inner ( 3 * simplex_count );
-        Tensor1<Real,   LInt> Av_vals  ( 3 * simplex_count );
+        Tensor1<LInt,Int > Av_outer ( simplex_count + 1, 0 );
+        Tensor1<Int, LInt> Av_inner ( 3 * simplex_count );
+        Tensor1<Real,LInt> Av_vals  ( 3 * simplex_count );
         Av_outer[0] = 0;
         
         // For assembling CurlOp.
-        Tensor1<LInt,    Int> Curl_outer ( 3 * simplex_count + 1, 0 );
-        Tensor1<Int,    LInt> Curl_inner ( 9 * simplex_count );
-        Tensor1<Real,   LInt> Curl_vals  ( 9 * simplex_count );
+        Tensor1<LInt,Int > Curl_outer ( 3 * simplex_count + 1, 0 );
+        Tensor1<Int, LInt> Curl_inner ( 9 * simplex_count );
+        Tensor1<Real,LInt> Curl_vals  ( 9 * simplex_count );
         Curl_outer[0] = 0;
         
         // For assembling MassMatrix.
-        Tensor3<Int,    LInt> i_list ( simplex_count, 3, 3 );
-        Tensor3<Int,    LInt> j_list ( simplex_count, 3, 3 );
-        Tensor3<Real,   LInt> a_list ( simplex_count, 3, 3 );
-        
+        Tensor3<Int, LInt> i_list ( simplex_count, 3, 3 );
+        Tensor3<Int, LInt> j_list ( simplex_count, 3, 3 );
+        Tensor3<Real,LInt> a_list ( simplex_count, 3, 3 );
+
         // We pad 3-vector with an additional float so that we can use float3 in the metal kernels. (float3 has size 4 * 4 Byte to preserve alignement.)
         
         //CheckThis
@@ -117,13 +117,13 @@ public:
                     Av_vals [3*i+1] = a_over_3;
                     Av_vals [3*i+2] = a_over_3;
                 }
-               
+                
                 // Assemble curl operator
                 {
-                    Curl_outer[3*(i+1)+0] = (3 * (i+1) + 0) * 3;
-                    Curl_outer[3*(i+1)+1] = (3 * (i+1) + 1) * 3;
-                    Curl_outer[3*(i+1)+2] = (3 * (i+1) + 2) * 3;
-
+                    Curl_outer[3*i+0+1] = (3 * i + 0 + 1) * 3;
+                    Curl_outer[3*i+1+1] = (3 * i + 1 + 1) * 3;
+                    Curl_outer[3*i+2+1] = (3 * i + 2 + 1) * 3;
+                    
                     Curl_inner[(i * 3 + 0) * 3 + 0 ] = i_0;
                     Curl_inner[(i * 3 + 0) * 3 + 1 ] = i_1;
                     Curl_inner[(i * 3 + 0) * 3 + 2 ] = i_2;
@@ -222,7 +222,6 @@ public:
                     a_list(i,2,2) = a_over_6;
                 }
 
-
                 // Compute diagonal of single layer boundary operator.
 
                 const Real u0u0 = Dot(u_0,u_0);
@@ -278,7 +277,7 @@ public:
 
                 single_diag_ptr[i] = sum / areas_ptr[i];
             },
-        simplex_count, CPU_thread_count
+            simplex_count, CPU_thread_count
         );
         
         AvOp = Sparse_T(
