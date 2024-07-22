@@ -20,10 +20,10 @@ public:
         return Mass;
     }
 
-    mref<Cholesky_T> InverseMassMatrix()
-    {
-        return *MassInv;
-    }
+//    mref<Cholesky_T> InverseMassMatrix()
+//    {
+//        return *MassInv;
+//    }
 
     cptr<Real> Areas() const
     {
@@ -71,12 +71,12 @@ public:
         return meas_count;
     }
 
-    const WaveNumberContainer_T& GetWaveNumbers() const
+    const WaveNumberContainer_T & GetWaveNumbers() const
     {
         return kappa;
     }
 
-    const CoefficientContainer_T& GetCoefficients() const
+    const CoefficientContainer_T & GetCoefficients() const
     {
         return c;
     }
