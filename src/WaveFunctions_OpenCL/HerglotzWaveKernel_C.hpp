@@ -1,6 +1,6 @@
 public:
 
-    // kernel host code for the herglotz wave function with kernel conj(g) (which is saved in B_ptr) evaluated on the triangle midpoints
+    // kernel host code for the Herglotz wave function with kernel conj(g) (which is saved in B_ptr) evaluated on the triangle midpoints
     int HerglotzWaveKernel_C(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
@@ -61,18 +61,23 @@ public:
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
 
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
+        
         if (ret != 0)
         {
-                char result[16384];
-                std::size_t size;
-                ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-                printf("%s\n", result);
+            cl_check_ret( tag, "clCreateProgramWithSource" );
+            
+            char result[16384];
+            std::size_t size;
+            ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
+        
+            print(result);
         }
 
         // Create the OpenCL kernel
         cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel_C", &ret);
-
+        cl_check_ret( tag, "clCreateKernel" );
+        
         // Set the arguments of the kernel
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
         ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&normals);
@@ -85,7 +90,7 @@ public:
         ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&d_m);
         ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&d_wave_count);
         
-        clFinish(command_queue);
+        ret = clFinish(command_queue);
         
         // Execute the OpenCL kernel on the list
         std::size_t local_item_size = block_size;

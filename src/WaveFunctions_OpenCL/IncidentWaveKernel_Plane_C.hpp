@@ -8,8 +8,8 @@ public:
     void IncidentWaveKernel_Plane_C(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_,
-        const Real * incident_directions,
-        Complex* C
+        const Real    * incident_directions,
+              Complex * C
     )
     {
         IncidentWaveKernel_Plane_C_temp( kappa_, c_, incident_directions, C );
@@ -20,8 +20,8 @@ public:
     void incidentWaveKernel_Plane_C(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_ ,
-        const Real * incident_directions, 
-        Complex* C
+        const Real    * incident_directions,
+              Complex * C
     )
     {
         //CheckThis
@@ -33,7 +33,6 @@ public:
                     Real Kappa = kappa_[chunk];
                     Complex Coeff[2] = {c_[chunk][1],c_[chunk][2]};
 
-                    LOOP_UNROLL(8)
                     for (Int j = 0; j < wave_chunk_size; ++j )
                     {
                         Real w_vec[3] = { 

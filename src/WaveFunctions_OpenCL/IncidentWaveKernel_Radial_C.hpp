@@ -5,8 +5,8 @@ public:
     void IncidentWaveKernel_Radial_C(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_ ,
-        const Real * point_sources, 
-        Complex* C
+        const Real    * point_sources, 
+              Complex * C
     )
     {
         //CheckThis
@@ -17,8 +17,7 @@ public:
                 {
                     Real Kappa = kappa_[chunk];
                     Complex Coeff[2] = {c_[chunk][1],c_[chunk][2]};
-
-                    LOOP_UNROLL(8)
+                    
                     for (Int j = 0; j < wave_chunk_size; ++j )
                     {
                         const Real w_vec[3] = {
