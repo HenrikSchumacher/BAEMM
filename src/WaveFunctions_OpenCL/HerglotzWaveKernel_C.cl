@@ -1,23 +1,24 @@
 R"(
-__constant float2 zero    = (float2)(0.0f,0.0f);
-__constant float one     = 1.0f;
+__constant float2 zero = (float2)(0.0f,0.0f);
+__constant float  one  = 1.0f;
 
 __kernel void HerglotzWaveKernel_C(
-        const __global float4 * mid_points          , 
-        const __global float4 * normals             , 
-        const __global float4 * meas_directions     , 
-        const __global float2 * B_global            , 
-              __global       float2 * C_global      , 
-              __constant     float  * kappa_buf     , 
-              __constant     float2 * coeff         , 
-              __constant     int    * N             , 
-              __constant     int    * M             ,
-              __constant     int    * wave_count  
-)  {
-    const     int n             = *N;
-    const     int m             = *M;
-    const     int k_chunk_count = (*wave_count) / k_chunk_size;
-    const     int k_ld          = (*wave_count);
+        const __global   float4 * mid_points     ,
+        const __global   float4 * normals        ,
+        const __global   float4 * meas_directions,
+        const __global   float2 * B_global       ,
+              __global   float2 * C_global       ,
+              __constant float  * kappa_buf      ,
+              __constant float2 * coeff          ,
+              __constant int    * N              ,
+              __constant int    * M              ,
+              __constant int    * wave_count
+)
+{
+    const int n             = *N;
+    const int m             = *M;
+    const int k_chunk_count = (*wave_count) / k_chunk_size;
+    const int k_ld          = (*wave_count);
     
     const int block_count = (m + block_size - 1)/block_size;
 
@@ -30,7 +31,7 @@ __kernel void HerglotzWaveKernel_C(
 
     __local float2 B [block_size][k_chunk_size];
 
-    __local float3 y  [block_size];
+    __local float3 y [block_size];
     
     if( i < n )
     {

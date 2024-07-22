@@ -1,23 +1,24 @@
 R"(
-__constant float2 zero    = (float2)(0.0f,0.0f);
-__constant float one     = 1.0f;
+__constant float2 zero = (float2)(0.0f,0.0f);
+__constant float  one  = 1.0f;
 
 __kernel void NearFieldOperatorKernel_C(
-        const __global float4 * mid_points    , 
-        const __global float4 * normals       , 
-        const __global float2 * B_global      , 
-        const __global float4 * evaluation_points   , 
-              __global       float2 * C_global      , 
-              __constant     float  * kappa_buf     , 
-              __constant     float2 * coeff         , 
-              __constant     int    * N             , 
-              __constant     int    * wave_count    ,
-              __constant     int    * evaluation_count
-)  {
-    const     int n             = *N;
-    const     int m             = *evaluation_count;
-    const     int k_chunk_count = (*wave_count) / k_chunk_size;
-    const     int k_ld          = (*wave_count);
+        const __global   float4 * mid_points       ,
+        const __global   float4 * normals          ,
+        const __global   float2 * B_global         ,
+        const __global   float4 * evaluation_points,
+              __global   float2 * C_global         ,
+              __constant float  * kappa_buf        ,
+              __constant float2 * coeff            ,
+              __constant int    * N                ,
+              __constant int    * wave_count       ,
+              __constant int    * evaluation_count
+)  
+{
+    const int n             = *N;
+    const int m             = *evaluation_count;
+    const int k_chunk_count = (*wave_count) / k_chunk_size;
+    const int k_ld          = (*wave_count);
     
     const int block_count = (n + block_size - 1)/block_size;
 
