@@ -25,6 +25,9 @@ public:
     static constexpr Real two_pi  = two * pi;
     static constexpr Real four_pi = two * two_pi;
     
-//        static constexpr Real one_over_two_pi  = one / two_pi;
     static constexpr Real one_over_four_pi = one / four_pi;
+
+//    static constexpr bool lumped_mass_as_prec_for_intopsQ = false;
+    static constexpr bool lumped_mass_as_prec_for_intopsQ = true;
+    
 
