@@ -15,7 +15,7 @@ using namespace Tensors;
 //using namespace Repulsor;
 using namespace BAEMM;
 
-using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,false>;
+using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,true>;
 
 using Int       = BAEMM_T::Int;
 using LInt      = BAEMM_T::LInt;

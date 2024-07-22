@@ -673,10 +673,6 @@ public:
         Tensor1<Real, Int> C      ( m );
         Tensor1<R_ext,Int> C_weak ( n );
         
-//        Real*       B = (Real*)malloc( 3 * m * sizeof(Real));
-//        Real*       C = (Real*)calloc( m, sizeof(Real));        
-//        R_ext* C_weak = (R_ext*)malloc( n * sizeof(R_ext));
-        
         // make the input from PL to a PC function
         AvOp.Dot<3>( 
             Scalar::One <R_ext>, B_in,     3,
