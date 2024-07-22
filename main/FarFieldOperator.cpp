@@ -16,6 +16,8 @@ using Int = int;
 using Real = double;
 using Complex = std::complex<Real>;
 
+using Wave_T = BAEMM::WaveType;
+
 int main()
 {
     // This routine reads out the data from the files data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin,
@@ -55,81 +57,57 @@ int main()
     
     Real cg_tol = static_cast<Real>(0.000001);
     Real gmres_tol = static_cast<Real>(0.0001);
+    
+    const Wave_T wt = (wave_type == "Radial") ? Wave_T::Radial : Wave_T::Plane;
 
-    if (wave_type == "Radial")
+    switch (wave_count)
     {
-        switch (wave_count)
+        case 1:
         {
-            case 1:
-            {
-                H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
-                break;
-            }
-            case 2:
-            {
-                H.FarField<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
-                break;
-            }
-            case 4:
-            {
-                H.FarField<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
-                break;
-            }
-            case 8:
-            {
-                H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Radial, cg_tol, gmres_tol);
-                break;
-            }
-            default:
-            {
-                eprint("Non valid wave count.");
-                break;
-            }
+            H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
         }
-    }
-    else
-    {
-        switch (wave_count)
+        case 2:
         {
-            case 1:
-            {
-                H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-                break;
-            }
-            case 8:
-            {
-                H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-                break;
-            }
-            case 16:
-            {
-                H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-                break;
-            }
-            case 32:
-            {
-                H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-                break;
-            }
-            case 64:
-            {
-                H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                            B_out.data(), BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
-                break;
-            }
-            default:
-            {
-                eprint("Non valid wave count.");
-                break;
-            }
+            H.FarField<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        case 4:
+        {
+            H.FarField<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        case 8:
+        {
+            H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        case 16:
+        {
+            H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        case 32:
+        {
+            H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        case 64:
+        {
+            H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
+        default:
+        {
+            eprint("Non valid wave count.");
+            break;
         }
     }
 
