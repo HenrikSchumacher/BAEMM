@@ -1,9 +1,9 @@
 public:
 
-    template<Int NRHS = VarSize, typename B_T, typename C_T>
+    template<Int NRHS = VarSize, typename X_T, typename Y_T>
     void ApplyMassInverse(
-        cptr<B_T> B_in,  const Int ldB_in,
-        mptr<C_T> C_out, const Int ldC_out,
+        cptr<X_T> X, const Int ldX,
+        mptr<Y_T> Y, const Int ldY,
         const Int nrhs = NRHS
     )
     {
@@ -11,50 +11,79 @@ public:
         // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
         // If NRHS == 0, then nrhs is used.
         
-        // Internally, the type `Real` is used, so `B_T` and `C_T` must encode real types, too.
+        // Internally, the type `Real` is used, so `X_T` and `Y_T` must encode real types, too.
         
-        ASSERT_REAL(B_T)
-        ASSERT_REAL(C_T)
+        static_assert( Scalar::RealQ   <X_T> == Scalar::RealQ   <Y_T>, "" );
+        static_assert( Scalar::ComplexQ<X_T> == Scalar::ComplexQ<Y_T>, "" );
 
         std::string tag = ClassName()+"::ApplyMassInverse<"+ToString(NRHS)
             + ">("+ToString(nrhs)+")";
         
-        if( nrhs > ldB_in )
+        if( nrhs > ldX )
         {
-            eprint("nrhs > ldB_in");
+            eprint("nrhs > ldX");
             return;
         }
         
-        if( nrhs > ldC_out )
+        if( nrhs > ldY )
         {
-            eprint("nrhs > ldC_out");
+            eprint("nrhs > ldY");
             return;
         }
         
         
         ptic(tag);
         
-        auto P = [&,nrhs]( cptr<Real> x, mptr<Real> y )
-        {
-            ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
-        };
-
-        auto A = [&,nrhs]( cptr<Real> x, mptr<Real> y )
-        {
-            Mass.Dot<NRHS>(
-                Scalar::One <Real>, x, nrhs,
-                Scalar::Zero<Real>, y, nrhs,
-                nrhs
-            );
-        };
-        
         constexpr Int max_iter = 20;
         
-        ConjugateGradient<NRHS,Real,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
+        zerofy_matrix<NRHS>( Y, ldY, vertex_count, nrhs, CPU_thread_count );
 
-        zerofy_buffer(C_out, static_cast<std::size_t>(vertex_count * ldC_out), CPU_thread_count);
+        bool succeeded;
+        
+        if constexpr ( Scalar::ComplexQ<X_T> )
+        {
+            ConjugateGradient<NRHS,Complex,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
 
-        bool succeeded = cg(A,P,B_in,ldB_in,C_out,ldC_out,cg_tol);
+            auto A = [this,nrhs]( cptr<Complex> x, mptr<Complex> y )
+            {
+                Mass.Dot<2 * NRHS>(
+                    Scalar::One <Real>, reinterpret_cast<const Real *>(x), 2 * nrhs,
+                    Scalar::Zero<Real>, reinterpret_cast<      Real *>(y), 2 * nrhs,
+                    2 * nrhs
+                );
+            };
+            
+            auto P = [this,nrhs]( cptr<Complex> x, mptr<Complex> y )
+            {
+                ApplyLumpedMassInverse<2 * NRHS>(
+                    reinterpret_cast<const Real *>(x), 2 * nrhs,
+                    reinterpret_cast<      Real *>(y), 2 * nrhs,
+                    2 * nrhs
+                );
+            };
+            
+            succeeded = cg(A,P,X,ldX,Y,ldY,cg_tol);
+        }
+        else
+        {
+            ConjugateGradient<NRHS,Real,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
+
+            auto A = [this,nrhs]( cptr<Real> x, mptr<Real> y )
+            {
+                Mass.Dot<NRHS>(
+                    Scalar::One <Real>, x, nrhs,
+                    Scalar::Zero<Real>, y, nrhs,
+                    nrhs
+                );
+            };
+            
+            auto P = [this,nrhs]( cptr<Real> x, mptr<Real> y )
+            {
+                ApplyLumpedMassInverse<NRHS>(x,nrhs,y,nrhs,nrhs);
+            };
+            
+            succeeded = cg(A,P,X,ldX,Y,ldY,cg_tol);
+        }
 
         if( !succeeded )
         {
@@ -64,10 +93,10 @@ public:
         ptoc(tag);
     }
 
-    template<Int NRHS = VarSize, typename B_T, typename C_T>
+    template<Int NRHS = VarSize, typename X_T, typename Y_T>
     void ApplyLumpedMassInverse(
-        cptr<B_T> B_in,  const Int ldB_in,
-        mptr<C_T> C_out, const Int ldC_out,
+        cptr<X_T> X, const Int ldX,
+        mptr<Y_T> Y, const Int ldY,
         const Int nrhs = NRHS
     )
     {
@@ -75,23 +104,23 @@ public:
         // If NRHS == 0, then nrhs is used.
         
         std::string tag = ClassName()+"::ApplyLumpedMassInverse<"+ToString(NRHS)
-            + "," + TypeName<B_T>
-            + "," + TypeName<C_T>
+            + "," + TypeName<X_T>
+            + "," + TypeName<Y_T>
             + ">";
         ptic(tag);
         
         ParallelDo(
-            [&,B_in,ldB_in,C_out,ldC_out]( const Int i )
+            [&,X,ldX,Y,ldY]( const Int i )
             {
-                const Scalar::Real<C_T> factor = static_cast<Scalar::Real<C_T>>(areas_lumped_inv[i]);
+                const Scalar::Real<Y_T> factor = static_cast<Scalar::Real<Y_T>>(areas_lumped_inv[i]);
 
                 // Compute
-                // `C_out[ldC_out * i + j] = factor * B_in [ldB_in * i + j]`
+                // `Y[ldY * i + j] = factor * X [ldX * i + j]`
                 // for j in [0, `(NRHS>0) ? NRHS : nrhs`[.
                 
                 combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,NRHS>(
-                    factor,            &B_in [ldB_in  * i],
-                    Scalar::Zero<C_T>, &C_out[ldC_out * i],
+                    factor,            &X[ldX * i],
+                    Scalar::Zero<Y_T>, &Y[ldY * i],
                     nrhs
                 );
             },
