@@ -4,8 +4,7 @@ public:
     // further one can choose to sum over the leading dimension (over the columns)
     template<typename T, typename I>
     void HadamardProduct(cptr<T> A, cptr<T> B , mptr<T> C, I rows, I columns, bool ld_sum)
-    {   
-        I i,j;
+    {
         if(!ld_sum)
         {   
             // //CheckThis
