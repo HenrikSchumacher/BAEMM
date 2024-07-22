@@ -1,12 +1,21 @@
 public:
 
-    template<Int NRHS = VarSize, typename Scal>
+    template<Int NRHS = VarSize, typename B_T, typename C_T>
     void ApplyMassInverse(
-        cptr<Scal> B_in,  const Int ldB_in,
-        mptr<Scal> C_out, const Int ldC_out,
+        cptr<B_T> B_in,  const Int ldB_in,
+        mptr<C_T> C_out, const Int ldC_out,
         const Int nrhs = NRHS
     )
     {
+        // Uses CG algorithm to multiply with inverse mass matrix.
+        // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
+        // If NRHS == 0, then nrhs is used.
+        
+        // Internally, the type `Real` is used, so `B_T` and `C_T` must encode real types, too.
+        
+        ASSERT_REAL(B_T)
+        ASSERT_REAL(C_T)
+
         std::string tag = ClassName()+"::ApplyMassInverse<"+ToString(NRHS)
             + ">("+ToString(nrhs)+")";
         
@@ -25,97 +34,66 @@ public:
         
         ptic(tag);
         
-        if constexpr( use_mass_choleskyQ )
+        auto P = [&,nrhs]( cptr<Real> x, mptr<Real> y )
         {
-            if constexpr ( Scalar::ComplexQ<Scal> )
-            {
-                // In this case, Scal is of the form std::complex<T>
-                // with T either float or double.
-                //
-                // Now we can employ a nasty trick because Mass is a matrix of float and
-                // std::complex stores real and imaginary part consecutively:
-                // A m x n matrix of std::complex<T> can be reinterpreted as
-                // as a m x (2 * n) matrix of T.
-                
-                InverseMassMatrix().Solve(
-                    reinterpret_cast<const Scalar::Real<Scal> *>( B_in  ), Int(2) * ldB_in,
-                    reinterpret_cast<      Scalar::Real<Scal> *>( C_out ), Int(2) * ldC_out,
-                    Int(2) * nrhs
-                );
-            }
-            else
-            {
-                InverseMassMatrix().Solve(B_in,ldB_in,C_out,ldC_out,nrhs);
-            }
-        }
-        else
+            ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
+        };
+
+        auto A = [&,nrhs]( cptr<Real> x, mptr<Real> y )
         {
-            auto P = [&,nrhs]( cptr<Scal> x, mptr<Scal> y )
-            {
-                if constexpr ( use_lumped_mass_as_precQ )
-                {
-                    ApplyLumpedMassInverse<NRHS>( x, nrhs, y, nrhs, nrhs );
-                }
-                else
-                {
-                    ParallelDo(
-                        [&,x,y]( const Int i )
-                        {
-                           copy_buffer<NRHS>( &x[nrhs * i], &y[nrhs * i], nrhs );
-                        },
-                        vertex_count, CPU_thread_count
-                    );
-                }
-                
-            };
+            Mass.Dot<NRHS>(
+                Scalar::One <Real>, x, nrhs,
+                Scalar::Zero<Real>, y, nrhs,
+                nrhs
+            );
+        };
+        
+        constexpr Int max_iter = 20;
+        
+        ConjugateGradient<NRHS,Real,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
 
-            auto A = [&,nrhs]( cptr<Scal> x, mptr<Scal> y )
-            {
-                Mass.Dot<NRHS>(
-                    Scalar::One <Scal>, x, nrhs,
-                    Scalar::Zero<Scal>, y, nrhs,
-                    nrhs
-                );
-            };
-            
-            constexpr Int max_iter = use_lumped_mass_as_precQ ? 20 : 100;
-            
-            ConjugateGradient<NRHS,Scal,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
+        zerofy_buffer(C_out, static_cast<std::size_t>(vertex_count * ldC_out), CPU_thread_count);
 
-            zerofy_buffer(C_out, static_cast<std::size_t>(vertex_count * ldC_out), CPU_thread_count);
+        bool succeeded = cg(A,P,B_in,ldB_in,C_out,ldC_out,cg_tol);
 
-            bool succeeded = cg(A,P,B_in,ldB_in,C_out,ldC_out,cg_tol);
-
-            if( !succeeded )
-            {
-                wprint(ClassName()+"::ApplyMassInverse: CG algorithm did not converge.");
-            }
+        if( !succeeded )
+        {
+            wprint(ClassName()+"::ApplyMassInverse: CG algorithm did not converge.");
         }
         
         ptoc(tag);
     }
 
-    template<Int NRHS = VarSize, typename Scal>
+    template<Int NRHS = VarSize, typename B_T, typename C_T>
     void ApplyLumpedMassInverse(
-        cptr<Scal> B_in,  const Int ldB_in,
-        mptr<Scal> C_out, const Int ldC_out,
+        cptr<B_T> B_in,  const Int ldB_in,
+        mptr<C_T> C_out, const Int ldC_out,
         const Int nrhs = NRHS
     )
     {
+        // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
+        // If NRHS == 0, then nrhs is used.
+        
         std::string tag = ClassName()+"::ApplyLumpedMassInverse<"+ToString(NRHS)
-            + "," + TypeName<Scal>
+            + "," + TypeName<B_T>
+            + "," + TypeName<C_T>
             + ">";
         ptic(tag);
         
         ParallelDo(
             [&,B_in,ldB_in,C_out,ldC_out]( const Int i )
             {
-                const Scalar::Real<Scal> factor = areas_lumped_inv[i];
+                const Scalar::Real<C_T> factor = static_cast<Scalar::Real<C_T>>(areas_lumped_inv[i]);
+
+                // Compute
+                // `C_out[ldC_out * i + j] = factor * B_in [ldB_in * i + j]`
+                // for j in [0, `(NRHS>0) ? NRHS : nrhs`[.
                 
-                for( Int j = 0; j < ((NRHS > VarSize) ? NRHS : nrhs); ++j )
-                {
-                    C_out[ldC_out * i + j] = factor * B_in[ldB_in * i + j];
-                }
+                combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,NRHS>(
+                    factor,            &B_in [ldB_in  * i],
+                    Scalar::Zero<C_T>, &C_out[ldC_out * i],
+                    nrhs
+                );
             },
             vertex_count, CPU_thread_count
         );
