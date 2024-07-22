@@ -3,7 +3,7 @@ public:
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
         const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const C_ext beta,  mptr<C_ext> C_out,                const I_ext ldC_out,
         const R_ext kappa_,
         const C_ext coeff_0,
         const C_ext coeff_1,
