@@ -22,6 +22,8 @@
 //#include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
 //#include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
+#include "BAEMM_Common.hpp"
+
 // TODO: Priority 1:
 // TODO: Debug wrapper
 // TODO: diagonal part of single layer boundary operator
@@ -46,13 +48,8 @@
 
 namespace BAEMM
 {
-    using namespace Tools;
-    using namespace Tensors;
-    using namespace Repulsor;
-    
     //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
-
     class Helmholtz_Metal
     {
 #include "src/Helmholtz_Common/Definitions.hpp"

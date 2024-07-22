@@ -18,19 +18,13 @@
 #include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
 #include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
+#include "BAEMM_Common.hpp"
+
 namespace BAEMM
 {
-    using namespace Tools;
-    using namespace Tensors;
-    using namespace Repulsor;
     using cmplx  = cl_float2;
     using float4 = cl_float4;
-    //https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
     
-    template<
-        bool use_lumped_mass_as_precQ_ = true,
-        bool use_mass_choleskyQ_ = false
-    >
     class Helmholtz_OpenCL
     {
 #include "src/Helmholtz_Common/Definitions.hpp"
@@ -78,6 +72,23 @@ namespace BAEMM
         cl_mem d_n          = NULL;
         cl_mem d_wave_count = NULL;
         
+
+//        const char * clBuildOpts = NULL;
+        const char * clBuildOpts = "-cl-fast-relaxed-math";
+//        const char * clBuildOpts = "-cl-finite-math-only -cl-mad-enable";
+        
+    protected:
+        
+        void cl_check_ret(
+            const std::string & tag, const std::string & cl_name
+        ) const
+        {
+            if( ret != 0 )
+            {
+                eprint( tag + ": Call to " + cl_name + " failed. Error code = " + ToString(ret) + ".");
+            }
+        }
+        
     public:
     
         template<typename ExtReal,typename ExtInt>
@@ -102,8 +113,6 @@ namespace BAEMM
 //            std::filesystem::path path { std::filesystem::current_path() };
 //            std::string path_string{ path.string() };
 //            Profiler::Clear( path_string );
-            
-//            tic(ClassName());
 
              // Get platform and device information            
             cl_platform_id platform_id;  
@@ -117,12 +126,15 @@ namespace BAEMM
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
             }
+            
+            logprint(DeviceInfo());
 
             context = clCreateContext(NULL,1,&device_id,NULL,NULL,&ret);
 
-            // Apple hardware does not support this OpenCL 2.0 feature.
-//            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            // Apple hardware does not support the following OpenCL 2.0 feature.
+            // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
+            // Instead we can use this (deprecated) feature:
             command_queue = clCreateCommandQueue(context,device_id,0,&ret);
             
             
@@ -136,6 +148,7 @@ namespace BAEMM
         }
         
         template<typename ExtReal,typename ExtInt>
+
         Helmholtz_OpenCL(
             cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
@@ -151,6 +164,7 @@ namespace BAEMM
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
+            std::string tag = ClassName()+"(...)";
             
             // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
             // Mind: One might want to profile more than one class.
@@ -168,10 +182,10 @@ namespace BAEMM
             ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
             
             cl_device_id device_id_list[8];
-            cl_uint ret_num_devices;
+            cl_uint      ret_num_devices;
             
             ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 8, device_id_list, &ret_num_devices);
-            
+//            
             if (ret_num_devices == 0)
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
@@ -184,16 +198,18 @@ namespace BAEMM
             {
                 device_id = device_id_list[0];
             }
-
+            
+            logprint(DeviceInfo());
+            
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
             // Apple hardware does not support the following OpenCL 2.0 feature.
-//            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // Instead we can use this (deprecated) feature:
             command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
             
-            // initialize the OpenCL buffers and host pointers
+            // Initialize the OpenCL buffers and host pointers.
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
@@ -267,8 +283,6 @@ namespace BAEMM
         
 #include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
 
-//#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C_SolverMode.hpp"
-
 #include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
 
 #include "src/Helmholtz_OpenCL/NearFieldOperatorKernel_C.hpp"
@@ -282,9 +296,6 @@ namespace BAEMM
 #include "src/LinearAlgebraUtilities/HadamardProduct.hpp"
 
 #include "src/Helmholtz_Common/FarField.hpp"
-
-
-//#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
     
     public:
         
@@ -298,14 +309,40 @@ namespace BAEMM
             return tri_coords_ptr;
         }
         
+        std::string DeviceInfo()
+        {
+            std::string tag = ClassName()+"::DeviceInfo";
+            
+            std::stringstream s;
+            
+            constexpr Size_T str_len = 128;
+            char str [str_len];
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_VENDOR,  str_len, &str[0], NULL);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "Device vendor  " << " = " << &str[0] << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_NAME,    str_len, &str[0], NULL);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "Device name    " << " = " << &str[0] << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, str_len, &str[0], NULL);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "Device version " << " = " << &str[0] << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, str_len, &str[0], NULL);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "Driver versions" << " = " << &str[0] << std::endl;
+            print("");
+            
+            return s.str();
+        }
+        
     public:
         
         std::string ClassName() const
         {
-            return std::string("Helmholtz_OpenCL")
-            + "<" + ToString(use_lumped_mass_as_precQ)
-            + "," + ToString(use_mass_choleskyQ) 
-            + ">";
+            return std::string("Helmholtz_OpenCL");
         }
     };
         

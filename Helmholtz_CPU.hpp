@@ -14,12 +14,10 @@
 #include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
 #include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
+#include "BAEMM_Common.hpp"
+
 namespace BAEMM
 {
-    using namespace Tools;
-    using namespace Tensors;
-    using namespace Repulsor;
-    
     class Helmholtz_CPU
     {
 #include "src/Helmholtz_Common/Definitions.hpp"
@@ -27,7 +25,6 @@ namespace BAEMM
     public:
         
         Helmholtz_CPU() = delete;
-        
         
         template<typename ExtReal,typename ExtInt>
         Helmholtz_CPU(
