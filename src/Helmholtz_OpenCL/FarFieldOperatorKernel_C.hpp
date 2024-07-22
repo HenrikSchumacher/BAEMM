@@ -33,7 +33,7 @@ public:
             // Check for maximal size of work group.
             
             std::size_t max_work_group_size;
-            ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, NULL);
+            ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, nullptr);
 
             if (block_size > max_work_group_size)
             {
@@ -56,7 +56,7 @@ public:
             cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,  &ret);
 
             // write to buffers
-            clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
+            clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);
 
 
             // Create a program from the kernel source
@@ -64,7 +64,7 @@ public:
                     (const char **)&source_str, (const size_t *)&source_size, &ret);
             
             // Build the program
-            ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
+            ret = clBuildProgram(program, 1, &device_id, clBuildOpts, nullptr, nullptr);
             if (ret != 0)
             {
                 cl_check_ret( tag, "clCreateProgramWithSource" );
@@ -98,10 +98,10 @@ public:
             
             std::size_t local_item_size  = block_size;
             std::size_t global_item_size = local_item_size * ((m - 1) / block_size + 1);
-            ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+            ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &global_item_size, &local_item_size, 0, nullptr, nullptr);
                     
             // Read the memory buffer C on the device to the local variable C
-            ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * m * sizeof(Complex), C_ptr, 0, NULL, NULL);
+            ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * m * sizeof(Complex), C_ptr, 0, nullptr, nullptr);
 
             // Clean up
             ret = clFinish(command_queue);
