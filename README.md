@@ -28,7 +28,7 @@ Boundary operators:
     (Only OpenCL)
     For multiple uses of the SAME operator (as for instance in a linear solver) there is another way to apply the kernel:
 
-    kernel_list LoadKernel(
+    kernel_list LoadBoundaryOperators_PL(
         const R_ext * kappa_,
         const C_ext * c_,
         const I_ext wave_count_,
@@ -47,7 +47,7 @@ Boundary operators:
     is the reduced application of the boundary operators to this fixed environment.
     IMPORTANT: after being finished with the kernel one also has to "destroy it to release the device buffers by calling:
 
-    void DestroyKernel(
+    void UnoadBoundaryOperators_PL(
         kernel_list* list
     )
 
@@ -57,13 +57,13 @@ Boundary to Farfield map:
     The application works quite exactly as for the boundary operators:
 
     ApplyFarFieldOperators_PL(
-                const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-                const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-                const R_ext * kappa_list,
-                const C_ext * coeff_list,
-                const I_ext wave_count_,
-                const I_ext wave_chunk_size_
-            )
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
+    )
 
     Note that as there are only single- and double layer far field operators, the coefficients in the "mass" and the "adjoint DL" rows of coeff_list will be ignored.
 
@@ -72,28 +72,28 @@ Wave function assembly:
     For the (CPU) assembly of the standard incident waves with entries (c[1] + i*k*c[2]*<d,n>)*e^(i*k*<d,x>) one uses
 
     template<typename R_ext, typename C_ext, typename I_ext>
-        void CreateIncidentWave_PL(
-            const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
-            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-            const R_ext * kappa_list,
-            const C_ext * coeff_list,
-            const I_ext wave_count_,
-            const I_ext wave_chunk_size_
-        )
+    void CreateIncidentWave_PL(
+        const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
+    )
 
     where inc_count = wave chunk_count is necessary and excess wave vectors will be ignored.
 
     To assemble a Herglotz wave function with kernel B_in via the GPU one needs to call
 
     template<typename R_ext, typename C_ext, typename I_ext>
-        void CreateHerglotzWave_PL(
-            const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-            const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-            const R_ext * kappa_list,
-            const C_ext * coeff_list,
-            const I_ext wave_count_,
-            const I_ext wave_chunk_size_
-        )
+    void CreateHerglotzWave_PL(
+        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
+        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const R_ext * kappa_list,
+        const C_ext * coeff_list,
+        const I_ext wave_count_,
+        const I_ext wave_chunk_size_
+    )
 
     coeff[:][0] and coeff[:][3] will again be ignored for all wave assemblies.
 
