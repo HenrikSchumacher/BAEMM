@@ -375,7 +375,7 @@ int main()
     Real cg_tol = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
 
-    // Complex* neumann_data_scat_ptr = NULL;
+    // Complex* neumann_data_scat_ptr = nullptr;
 
     // const Real* B = H.VertexCoordinates();
     // for (int i = 0; i < 16 * n; i++)

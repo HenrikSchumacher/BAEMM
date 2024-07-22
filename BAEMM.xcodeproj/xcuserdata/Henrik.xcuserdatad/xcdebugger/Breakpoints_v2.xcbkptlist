@@ -3,22 +3,4 @@
    uuid = "A0269129-FBFB-4C1E-A3A9-D5067D95BD86"
    type = "1"
    version = "2.0">
-   <Breakpoints>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "693411FD-0128-46ED-9AC3-5675DD36676F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "src/Helmholtz_Common/FarField.hpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "225"
-            endingLineNumber = "225"
-            landmarkName = "Derivative_FF(kappa_, wave_chunk_count_, inc_directions, wave_chunk_size_, h, C_out, pdu_dn, type, cg_tol, gmres_tol)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-   </Breakpoints>
 </Bucket>

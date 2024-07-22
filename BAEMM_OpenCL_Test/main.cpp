@@ -36,15 +36,23 @@ int main()
     
     std::filesystem::path home_dir { homedir };
         
-    std::string mesh_name { "Triceratops_00081920T" };
+//    std::string mesh_name { "Triceratops_00081920T" };
+
+//    std::string mesh_name { "Bunny_00086632T" };
+//    std::string mesh_name { "Spot_00005856T" };
+//    std::string mesh_name { "Spot_00023424T" };
+//    std::string mesh_name { "Spot_00093696T_T" };    
+//    std::string mesh_name { "Bob_00042752T" };
+    std::string mesh_name { "Blub_00056832T" };
+//    std::string mesh_name { "TorusMesh_00038400T" };
     
     Profiler::Clear( home_dir );
     
     Int device = 0;
     Int thread_count = 8;
     
-    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
-//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+//    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     
     Tensor2<Real,Int> coords;
@@ -55,11 +63,14 @@ int main()
     Tensor2<Int, Int> simplices_meas;
     ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
     
+    const Int vertex_count  = coords.Dimension(0);
+    const Int simplex_count = simplices.Dimension(0);
+    const Int meas_count    = meas_directions.Dimension(0);
     
     Helmholtz_T H (
-        coords.data(),          coords.Dimension(0),
-        simplices.data(),       simplices.Dimension(0),
-        meas_directions.data(), meas_directions.Dimension(0),
+        coords.data(),          vertex_count,
+        simplices.data(),       simplex_count,
+        meas_directions.data(), meas_count,
         device,
         thread_count
     );
@@ -67,14 +78,14 @@ int main()
     dump( H.ClassName() );
     dump( H.ThreadCountCPU() );
     
+    print("");
+    
     print(H.DeviceInfo());
-
     
-    const     Int meas_count = meas_directions.Dimension(0);
-    
-    constexpr Int wave_count = 32;
+//    constexpr Int wave_count = 32;
+    constexpr Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
-    constexpr Int wave_chunk_count = wave_count/wave_chunk_size;
+    constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
     Tensor2<Complex,Int> C ( meas_count, wave_count );
     
@@ -154,17 +165,19 @@ int main()
 
     Real cg_tol    = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.0001);
-
-    print("");
     
-    tic("FarField");
-    H.FarField<wave_count>(
-        kappa.data(), wave_chunk_count,
-        inc.data(),   wave_chunk_size,
-        C.data(), 
-        BAEMM::WaveType::Plane, cg_tol, gmres_tol
-    );
-    toc("FarField");
+    tic("Starting measurement");
+
+//    print("");
+//    
+//    tic("FarField");
+//    H.FarField<wave_count>(
+//        kappa.data(), wave_chunk_count,
+//        inc.data(),   wave_chunk_size,
+//        C.data(), 
+//        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+//    );
+//    toc("FarField");
     
     print("");
     
@@ -173,6 +186,77 @@ int main()
     Real norm = std::sqrt(factor) * C.FrobeniusNorm();
 
     std::cout << "L^2-norm of C = " << norm << std::endl;
+    
+    
+    Tensor2<Real,Int> h ( vertex_count, 3 );
+    Tensor2<Real,Int> w ( vertex_count, 3 );
+    
+    h.Read( coords.data() );
+    
+    Tensor2<Complex,Int> DFh ( meas_count, wave_count );
+    
+    Complex * pdu_dn = nullptr;
+    
+    print("");
+    
+    DFh.SetZero();
+    
+    tic("DFarField");
+    H.Derivative_FF<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        h.data(), DFh.data(), &pdu_dn,
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    toc("DFarField");
+    
+    print("");
+    
+    w.SetZero();
+    
+    tic("DFarFieldAdj");
+    H.AdjointDerivative_FF<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        DFh.data(), w.data(), &pdu_dn,
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    toc("DFarFieldAdj");
+    
+    print("");
+    
+    DFh.SetZero();
+    
+    tic("DFarField");
+    H.Derivative_FF<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        h.data(), DFh.data(), &pdu_dn,
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    toc("DFarField");
+    
+    print("");
+    
+    w.SetZero();
+    
+    tic("DFarFieldAdj");
+    H.AdjointDerivative_FF<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        DFh.data(), w.data(), &pdu_dn,
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    toc("DFarFieldAdj");
+    
+    
+    toc("Starting measurement");
+
+    
+    if( pdu_dn != nullptr )
+    {
+        free( pdu_dn );
+    }
     
     return 0;
 }
