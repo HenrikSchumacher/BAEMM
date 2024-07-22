@@ -109,12 +109,12 @@ public:
             //initialize evaluation point buffers
 
             cl_mem evaluation_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-                    4 * evaluation_count * sizeof(Real), NULL, &ret);
+                    4 * evaluation_count * sizeof(Real), nullptr, &ret);
 
             Real* evaluation_points_ptr = (Real*)clEnqueueMapBuffer(command_queue,
                                         evaluation_points_pin, CL_TRUE,
                                         CL_MAP_WRITE, 0, 4 * evaluation_count * sizeof(Real), 0,
-                                        NULL, NULL, NULL);
+                                        nullptr, nullptr, nullptr);
 
             ParallelDo(
                     [=]( const Int i )
