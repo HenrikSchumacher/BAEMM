@@ -64,17 +64,22 @@ public:
                     (const char **)&source_str, (const size_t *)&source_size, &ret);
             
             // Build the program
-            ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+            ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
             if (ret != 0)
             {
-                    char result[16384];
-                    size_t size;
-                    ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-                    printf("%s\n", result);
+                cl_check_ret( tag, "clCreateProgramWithSource" );
+                
+                char result[16384];
+                size_t size;
+                ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
+                
+                print(result);
             }
+            
             // Create the OpenCL kernel
             cl_kernel kernel = clCreateKernel(program, "FarFieldOperatorKernel_C", &ret);
-
+            cl_check_ret( tag, "clCreateKernel" );
+            
             // Set the arguments of the kernel
             ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
             ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&normals);

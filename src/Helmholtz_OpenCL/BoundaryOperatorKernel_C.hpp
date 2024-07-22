@@ -71,38 +71,25 @@ private:
         
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, (const std::size_t *)&source_size, &ret);
-        
-        if (ret != 0)
-        {
-            eprint( tag + ": Call to clCreateProgramWithSource failed.");
-        }
-        
-        const char * opts = "-cl-fast-relaxed-math";
-//        const char * opts = NULL;
+        cl_check_ret( tag, "clCreateProgramWithSource" );
         
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, opts, NULL, NULL);
-        
+        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
         
         if (ret != 0)
         {
-            eprint( tag + ": Call to clBuildProgram failed.");
+            cl_check_ret( tag, "clBuildProgram" );
             
             char result[16384];
             std::size_t size;
             ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-        
             
             print(result);
         }
                 
         // Create the OpenCL kernel
         bdr_kernel = clCreateKernel(program, "BoundaryOperatorKernel_C", &ret);
-        
-        if (ret != 0)
-        {
-            eprint( tag + ": Call to BoundaryOperatorKernel_C failed.");
-        }
+        cl_check_ret( tag, "clCreateKernel" );
         
         // Set the arguments of the kernel
         ret = clSetKernelArg(bdr_kernel, 0, sizeof(cl_mem), (void *)&mid_points);
@@ -118,11 +105,7 @@ private:
         
         // clean up
         ret = clReleaseProgram(program);
-        
-        if (ret != 0)
-        {
-            eprint( tag + ": Call to clReleaseProgram failed.");
-        }
+        cl_check_ret( tag, "clReleaseProgram" );
 
         ptoc(tag);
         
@@ -136,8 +119,13 @@ private:
         
         // Clean up
         ret = clFinish(command_queue);
+        cl_check_ret( tag, "clFinish" );
+        
         ret = clFlush(command_queue);
+        cl_check_ret( tag, "clFlush" );
+        
         ret = clReleaseKernel(bdr_kernel);
+        cl_check_ret( tag, "clReleaseKernel" );
         
         ReleaseParameters();
         

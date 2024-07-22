@@ -7,6 +7,10 @@ public:
         const CoefficientContainer_T & c_
     )
     {
+        std::string tag = ClassName() + "::NearFieldOperatorKernel_C";
+        
+        ptic(tag);
+        
         // Allocate local host pointers for the device buffers to use.
         // Henrik: I am not sure whether this is necessary.
         Tensor1<Real,Int> Kappa ( wave_chunk_count );
@@ -52,17 +56,21 @@ public:
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
 
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
         if (ret != 0)
         {
-                char result[16384];
-                size_t size;
-                ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-                printf("%s", result);
+            cl_check_ret( tag, "clCreateProgramWithSource" );
+            
+            char result[16384];
+            size_t size;
+            ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
+            
+            print(result);
         }
                 
         // Create the OpenCL kernel
         cl_kernel kernel = clCreateKernel(program, "NearFieldOperatorKernel_C", &ret);
+        cl_check_ret( tag, "clCreateKernel" );
         
         // Set the arguments of the kernel
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
@@ -76,7 +84,7 @@ public:
         ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&d_wave_count);
         ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&d_evaluation_count);
 
-        clFinish(command_queue);
+        ret = clFinish(command_queue);
         
         // Execute the OpenCL kernel on the list
         size_t local_item_size = block_size;
@@ -99,5 +107,7 @@ public:
         ret = clReleaseMemObject(d_wave_count);
         ret = clReleaseMemObject(d_evaluation_count);
 
+        ptoc(tag);
+        
         return 0;
     }
