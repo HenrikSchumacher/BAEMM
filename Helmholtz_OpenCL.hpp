@@ -33,7 +33,7 @@ namespace BAEMM
         // OpenCL utilities
         cl_int ret; // return value of the OpenCL commands for bug identification
         
-        cl_device_id device_id = NULL;
+        cl_device_id device_id = nullptr;
         cl_context context;
         
         cl_kernel bdr_kernel;    // Globally saved OpenCL Kernel for the boundary operator.
@@ -42,38 +42,38 @@ namespace BAEMM
         cl_command_queue command_queue;
         
         // OpenCL Device buffers
-        cl_mem areas = NULL;           // buffer for the areas of the simplices
-        cl_mem mid_points = NULL;      // buffer for the midpoints of the simplices
-        cl_mem normals = NULL;         // buffer for the simplex-normals
-        cl_mem single_diag = NULL;     // diagonal of the SL Operator
-        cl_mem tri_coords = NULL;
-        cl_mem meas_directions = NULL; // measurement directkons (m x 3 tensor)
+        cl_mem areas = nullptr;           // buffer for the areas of the simplices
+        cl_mem mid_points = nullptr;      // buffer for the midpoints of the simplices
+        cl_mem normals = nullptr;         // buffer for the simplex-normals
+        cl_mem single_diag = nullptr;     // diagonal of the SL Operator
+        cl_mem tri_coords = nullptr;
+        cl_mem meas_directions = nullptr; // measurement directkons (m x 3 tensor)
         
         // buffers for in- and output
-        cl_mem B_buf = NULL;    
-        cl_mem C_buf = NULL;
+        cl_mem B_buf = nullptr;    
+        cl_mem C_buf = nullptr;
 
         LInt B_size = 0;
         LInt C_size = 0;
 
         // pin host memory (bigger bandwith with pinned memory)
-        cl_mem areas_pin = NULL;
-        cl_mem mid_points_pin = NULL;
-        cl_mem normals_pin = NULL;
-        cl_mem single_diag_pin = NULL;
-        cl_mem tri_coords_pin = NULL;
-        cl_mem meas_directions_pin = NULL;
+        cl_mem areas_pin = nullptr;
+        cl_mem mid_points_pin = nullptr;
+        cl_mem normals_pin = nullptr;
+        cl_mem single_diag_pin = nullptr;
+        cl_mem tri_coords_pin = nullptr;
+        cl_mem meas_directions_pin = nullptr;
         
-        cl_mem B_buf_pin = NULL;
-        cl_mem C_buf_pin = NULL;
+        cl_mem B_buf_pin = nullptr;
+        cl_mem C_buf_pin = nullptr;
         
-        cl_mem d_kappa      = NULL;
-        cl_mem d_coeff      = NULL;
-        cl_mem d_n          = NULL;
-        cl_mem d_wave_count = NULL;
+        cl_mem d_kappa      = nullptr;
+        cl_mem d_coeff      = nullptr;
+        cl_mem d_n          = nullptr;
+        cl_mem d_wave_count = nullptr;
         
 
-//        const char * clBuildOpts = NULL;
+//        const char * clBuildOpts = nullptr;
         const char * clBuildOpts = "-cl-fast-relaxed-math";
 //        const char * clBuildOpts = "-cl-finite-math-only -cl-mad-enable";
         
@@ -129,7 +129,7 @@ namespace BAEMM
             
             logprint(DeviceInfo());
 
-            context = clCreateContext(NULL,1,&device_id,NULL,NULL,&ret);
+            context = clCreateContext(nullptr,1,&device_id,nullptr,nullptr,&ret);
 
             // Apple hardware does not support the following OpenCL 2.0 feature.
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
@@ -142,9 +142,9 @@ namespace BAEMM
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
-            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,NULL,NULL);
-            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,NULL,NULL);
-            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,nullptr,nullptr);
+            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,nullptr,nullptr);
+            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,nullptr,nullptr);
         }
         
         template<typename ExtReal,typename ExtInt>
@@ -201,7 +201,7 @@ namespace BAEMM
             
             logprint(DeviceInfo());
             
-            context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
+            context = clCreateContext( nullptr, 1, &device_id, nullptr, nullptr, &ret);
 
             // Apple hardware does not support the following OpenCL 2.0 feature.
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
@@ -213,22 +213,22 @@ namespace BAEMM
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
-            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,NULL,NULL);
-            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,NULL,NULL);
-            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,NULL,NULL);
+            clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,nullptr,nullptr);
+            clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,nullptr,nullptr);
+            clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,nullptr,nullptr);
         }
         
         ~Helmholtz_OpenCL()
         {
             //clean up
-            ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,areas_pin,          (void*)areas_ptr,          0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,single_diag_pin,    (void*)normals_ptr,        0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,tri_coords_pin,     (void*)normals_ptr,        0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,meas_directions_pin,(void*)meas_directions_ptr,0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,          (void*)B_ptr,              0,NULL,NULL);
-            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,          (void*)C_ptr,              0,NULL,NULL);
+            ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,areas_pin,          (void*)areas_ptr,          0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,single_diag_pin,    (void*)normals_ptr,        0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,tri_coords_pin,     (void*)normals_ptr,        0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,meas_directions_pin,(void*)meas_directions_ptr,0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,          (void*)B_ptr,              0,nullptr,nullptr);
+            ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,          (void*)C_ptr,              0,nullptr,nullptr);
             ret = clFlush(command_queue);
             ret = clFinish(command_queue);
 
@@ -315,25 +315,46 @@ namespace BAEMM
             
             std::stringstream s;
             
-            constexpr Size_T str_len = 128;
+            constexpr Size_T str_len = 256;
             char str [str_len];
             
-            ret = clGetDeviceInfo(device_id, CL_DEVICE_VENDOR,  str_len, &str[0], NULL);
-            cl_check_ret( tag, "clGetDeviceInfo" );
-            s << "Device vendor  " << " = " << &str[0] << std::endl;
+            s << tag << std::endl;
             
-            ret = clGetDeviceInfo(device_id, CL_DEVICE_NAME,    str_len, &str[0], NULL);
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_VENDOR , str_len, &str[0], nullptr);
             cl_check_ret( tag, "clGetDeviceInfo" );
-            s << "Device name    " << " = " << &str[0] << std::endl;
+            s << "CL_DEVICE_VENDOR                  " << " = " << &str[0] << std::endl;
             
-            ret = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, str_len, &str[0], NULL);
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_NAME   , str_len, &str[0], nullptr);
             cl_check_ret( tag, "clGetDeviceInfo" );
-            s << "Device version " << " = " << &str[0] << std::endl;
+            s << "CL_DEVICE_NAME                    " << " = " << &str[0] << std::endl;
             
-            ret = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, str_len, &str[0], NULL);
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, str_len, &str[0], nullptr);
             cl_check_ret( tag, "clGetDeviceInfo" );
-            s << "Driver versions" << " = " << &str[0] << std::endl;
-            print("");
+            s << "CL_DEVICE_VERSION                 " << " = " << &str[0] << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, str_len, &str[0], nullptr);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "CL_DRIVER_VERSION                 " << " = " << &str[0] << std::endl;
+            
+            
+            cl_ulong x;
+            constexpr Size_T x_len = sizeof(x);
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_MEM_ALLOC_SIZE      , x_len, &x, nullptr);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "CL_DEVICE_MAX_MEM_ALLOC_SIZE      " << " = " << x << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE         , x_len, &x, nullptr);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "CL_DEVICE_GLOBAL_MEM_SIZE         " << " = " << x << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_LOCAL_MEM_SIZE          , x_len, &x, nullptr);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "CL_DEVICE_LOCAL_MEM_SIZE          " << " = " << x << std::endl;
+            
+            ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, x_len, &x, nullptr);
+            cl_check_ret( tag, "clGetDeviceInfo" );
+            s << "CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE" << " = " << x << std::endl;
             
             return s.str();
         }
