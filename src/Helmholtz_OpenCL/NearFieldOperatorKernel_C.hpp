@@ -24,7 +24,7 @@ public:
 
         //Check for maximal size of work group.
         std::size_t max_work_group_size;
-        ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, NULL);
+        ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, nullptr);
 
         if (block_size > max_work_group_size)
         {
@@ -45,18 +45,18 @@ public:
         cl_mem d_n                = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &n,                &ret);
         cl_mem d_wave_count       = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,       &ret);
         cl_mem d_evaluation_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &evaluation_count, &ret);
-        cl_mem evaluation_points  = clCreateBuffer(context, CL_MEM_READ_ONLY,                       4 * evaluation_count * sizeof(Real),    NULL,              &ret);
+        cl_mem evaluation_points  = clCreateBuffer(context, CL_MEM_READ_ONLY,                       4 * evaluation_count * sizeof(Real),    nullptr,              &ret);
 
         // Write potential to buffers.
-        clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
+        clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);
 
-        clEnqueueWriteBuffer(command_queue, evaluation_points, CL_FALSE, 0, 4 * evaluation_count * sizeof(Real), evaluation_points_ptr, 0, NULL, NULL);
+        clEnqueueWriteBuffer(command_queue, evaluation_points, CL_FALSE, 0, 4 * evaluation_count * sizeof(Real), evaluation_points_ptr, 0, nullptr, nullptr);
 
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
 
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
+        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, nullptr, nullptr);
         if (ret != 0)
         {
             cl_check_ret( tag, "clCreateProgramWithSource" );
@@ -90,10 +90,10 @@ public:
         size_t local_item_size = block_size;
         size_t global_item_size = local_item_size * ((evaluation_count_ - 1)/block_size + 1);
         
-        ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+        ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &global_item_size, &local_item_size, 0, nullptr, nullptr);
 
         // Read the memory buffer C on the device to the local variable C
-        ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * evaluation_count * sizeof(Complex), C_ptr, 0, NULL, NULL);
+        ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * evaluation_count * sizeof(Complex), C_ptr, 0, nullptr, nullptr);
 
         // Clean up
         ret = clFinish(command_queue);
