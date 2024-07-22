@@ -5,12 +5,8 @@ public:
     using Real       = float;
     using Complex    = std::complex<Real>;    
     using UInt       = uint32_t;
-
-    static constexpr bool use_lumped_mass_as_precQ = use_lumped_mass_as_precQ_;
-    static constexpr bool use_mass_choleskyQ       = use_mass_choleskyQ_;
     
     using Sparse_T   = Sparse::MatrixCSR<Real,Int,LInt>;
-    using Cholesky_T = Sparse::CholeskyDecomposition<Real,Int,LInt>;
 
     using WaveNumberContainer_T  = Tensor1<Real   ,Int>;
     using CoefficientContainer_T = Tensor2<Complex,Int>;
@@ -31,11 +27,4 @@ public:
     
 //        static constexpr Real one_over_two_pi  = one / two_pi;
     static constexpr Real one_over_four_pi = one / four_pi;
-
-    enum class WaveType : unsigned char
-    {
-        Plane  = 201,
-        Radial = 202
-    };
-
 
