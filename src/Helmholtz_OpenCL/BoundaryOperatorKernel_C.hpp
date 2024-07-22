@@ -77,8 +77,11 @@ private:
             eprint( tag + ": Call to clCreateProgramWithSource failed.");
         }
         
+        const char * opts = "-cl-fast-relaxed-math";
+//        const char * opts = NULL;
+        
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+        ret = clBuildProgram(program, 1, &device_id, opts, NULL, NULL);
         
         
         if (ret != 0)
