@@ -77,14 +77,10 @@ public:
             ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
             return;
         }
-        
-    
+            
         const Int ldB_in  = int_cast<Int>(ldB_in_ );
-//        const Int ldC_out = int_cast<Int>(ldC_out_);
+        const Int ldC_out = int_cast<Int>(ldC_out_);
         
-        // TODO: Cleanup
-//        Scalar::Complex<C_ext> addTo = Scalar::Zero<C_ext>;
-
         RequireBuffersFarField( wave_count );
         
         if( Re_single_layer || Im_single_layer ||
@@ -105,9 +101,8 @@ public:
             FarFieldOperatorKernel_C( kappa, c );
     
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
-            
-            // hier eintragsweise casten
-            type_cast(C_out, C_ptr,wave_count * meas_count, CPU_thread_count);
-        }       
+
+            copy_matrix( C_ptr, ldC, C_out, ldC_out, wave_count, CPU_thread_count );
+        }
         ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
     }
