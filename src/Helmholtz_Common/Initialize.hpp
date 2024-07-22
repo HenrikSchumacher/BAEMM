@@ -319,23 +319,5 @@ public:
             vertex_count, CPU_thread_count
         );
         
-        // Create Cholesky factorization.
-        if constexpr ( use_mass_choleskyQ_ )
-        {
-            Sparse::ApproximateMinimumDegree<Int> reorderer;
-            
-            Permutation<Int> perm = reorderer(
-                Mass.Outer().data(), Mass.Inner().data(), Mass.RowCount(), Int(1)
-            );
-            
-            MassInv = std::make_shared<Cholesky_T>(
-                Mass.Outer().data(), Mass.Inner().data(), std::move(perm)
-            );
-            
-            MassInv->SymbolicFactorization();
-            
-            MassInv->NumericFactorization( Mass.Values().data() );
-        }
-        
         ptoc(ClassName()+"::Initialize");
     }
