@@ -32,8 +32,7 @@ private:
     Sparse_T CurlOp;
     Sparse_T CurlOpTransp;
 
-    Sparse_T   Mass;
-    std::shared_ptr<Cholesky_T> MassInv;
+    Sparse_T Mass;
 
     bool B_loaded        = false;
     bool C_loaded        = false;
