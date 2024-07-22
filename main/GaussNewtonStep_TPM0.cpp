@@ -131,6 +131,8 @@ int main()
     const Real s = (p - 2) / q;
 
     TangentPointMetric0<Mesh_T>       tpm        (q,p);
+    
+    // TODO: Should be obsolete now because we may use tpm.MultiplyPreconditioner.
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
     // The operator for the metric.
@@ -148,9 +150,11 @@ int main()
     // The operator for the preconditioner.
     auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
-        M->H1Solve( X, Y, dim );
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
-        M->H1Solve( Z, Y, dim );
+        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
+        
+//        M->H1Solve( X, Y, dim );
+//        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
+//        M->H1Solve( Z, Y, dim );
     };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------

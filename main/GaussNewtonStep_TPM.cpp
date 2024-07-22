@@ -127,6 +127,9 @@ int main()
     const Real s = (p - 2) / q;
 
     TangentPointMetric<Mesh_T>       tpm        (q,p);
+    
+    
+    // TODO: Should be obsolete now because we may use tpm.MultiplyPreconditioner.
     PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
     Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
@@ -142,9 +145,11 @@ int main()
     // The operator for the preconditioner.
     auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
-        M->H1Solve( X, Y, dim );
-        pseudo_lap.MultiplyMetric( *M, Scalar::One<Real>, Y, Scalar::Zero<Real>, Z, dim );
-        M->H1Solve( Z, Y, dim );
+        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
+        
+//        M->H1Solve( X, Y, dim );
+//        pseudo_lap.MultiplyMetric( *M, Scalar::One<Real>, Y, Scalar::Zero<Real>, Z, dim );
+//        M->H1Solve( Z, Y, dim );
     };
 
     ConjugateGradient<3,Real,Size_T> cg(vertex_count,500,3,thread_count);
@@ -159,6 +164,9 @@ int main()
     auto A = [&]( cptr<Real> X, mptr<Real> Y )
     {
         TPM_inv(Y,Z);
+        
+        // TODO: There is also now a 3-argument version of combine_buffers, which would merge the extra copy operation.
+        
         copy_buffer(Z, Y, 3 * vertex_count, thread_count);
         combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Plus>(regpar, X, Scalar::One<Real>, Z, 3 * vertex_count, thread_count);
     };
