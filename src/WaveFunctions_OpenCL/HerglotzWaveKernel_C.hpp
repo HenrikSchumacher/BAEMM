@@ -32,7 +32,7 @@ public:
         int m = meas_count;
 
         std::size_t max_work_group_size; //check for maximal size of work group
-        ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &max_work_group_size, NULL);
+        ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &max_work_group_size, nullptr);
 
         if (block_size > max_work_group_size)
         {
@@ -55,13 +55,13 @@ public:
         cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,  &ret );
 
         // write to buffers
-        clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, m * wave_count * sizeof(Complex), B_ptr, 0, NULL, NULL);
+        clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, m * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);
             
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
 
         // Build the program
-        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, NULL, NULL);
+        ret = clBuildProgram(program, 1, &device_id, clBuildOpts, nullptr, nullptr);
         
         if (ret != 0)
         {
@@ -96,10 +96,10 @@ public:
         std::size_t local_item_size = block_size;
         std::size_t global_item_size = rows_rounded;
 
-        ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+        ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, nullptr, &global_item_size, &local_item_size, 0, nullptr, nullptr);
 
         // Read the memory buffer C on the device to the local variable C
-        ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * n * sizeof(Complex), C_ptr, 0, NULL, NULL);
+        ret = clEnqueueReadBuffer(command_queue, C_buf, CL_TRUE, 0, wave_count * n * sizeof(Complex), C_ptr, 0, nullptr, nullptr);
 
         // Clean up
         ret = clFinish(command_queue);
