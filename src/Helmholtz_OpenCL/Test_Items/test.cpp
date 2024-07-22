@@ -452,7 +452,7 @@ int main()
     // H.CreateIncidentWave_PL(Complex(1.0f,0.0f), inc, wave_chunk_size,
     //                         Complex(0.0f,0.0f), B, wave_count,
     //                         kappa, wave_coeff, wave_count, wave_chunk_size,
-    //                         BAEMM::Helmholtz_OpenCL::WaveType::Plane
+    //                         BAEMM::WaveType::Plane
     //                         );
 
     // H.BoundaryPotential<wave_count>( kappa, coeff, B, phi, 
@@ -461,7 +461,7 @@ int main()
 
 
     H.FarField<32>( kappa, wave_chunk_count, inc, wave_chunk_size,
-                            C, BAEMM::Helmholtz_OpenCL::WaveType::Plane, cg_tol, gmres_tol);
+                            C, BAEMM::WaveType::Plane, cg_tol, gmres_tol);
 
     // H.ApplyNearFieldOperators_PL(
     //                     Complex(1.0f,0.0f), phi, wave_count, 

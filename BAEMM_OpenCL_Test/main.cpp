@@ -12,17 +12,14 @@
 
 using namespace Tools;
 using namespace Tensors;
-//using namespace Repulsor;
 using namespace BAEMM;
 
-using BAEMM_T   = BAEMM::Helmholtz_OpenCL<true,true>;
+using Helmholtz_T   = BAEMM::Helmholtz_OpenCL;
 
-using Int       = BAEMM_T::Int;
-using LInt      = BAEMM_T::LInt;
-using Real      = double;
+using Int       = Int64;
+using LInt      = Int64;
+using Real      = Real64;
 using Complex   = std::complex<Real>;
-using SReal     = Real;
-using ExtReal   = Real;
 
 int main()
 {
@@ -40,18 +37,8 @@ int main()
     std::filesystem::path home_dir { homedir };
         
     std::string mesh_name { "Triceratops_00081920T" };
-
-//    std::string mesh_name { "Spot_00023424T" };
     
-    std::filesystem::path dir { homedir };
-    
-    dir /= std::string( mesh_name +"_") + ToString(BAEMM_T::use_lumped_mass_as_precQ) + "_" + ToString(BAEMM_T::use_mass_choleskyQ);
-    
-    dump(dir.string());
-    
-    std::filesystem::create_directory( dir );
-    
-    Profiler::Clear(dir.string());
+    Profiler::Clear( home_dir );
     
     Int device = 0;
     Int thread_count = 8;
@@ -69,7 +56,7 @@ int main()
     ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
     
     
-    BAEMM_T H (
+    Helmholtz_T H (
         coords.data(),          coords.Dimension(0),
         simplices.data(),       simplices.Dimension(0),
         meas_directions.data(), meas_directions.Dimension(0),
@@ -79,6 +66,9 @@ int main()
     
     dump( H.ClassName() );
     dump( H.ThreadCountCPU() );
+    
+    print(H.DeviceInfo());
+
     
     const     Int meas_count = meas_directions.Dimension(0);
     
@@ -172,7 +162,7 @@ int main()
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
         C.data(), 
-        BAEMM_T::WaveType::Plane, cg_tol, gmres_tol
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("FarField");
     

@@ -59,6 +59,7 @@
 		AFA1CF1E298E588E00085994 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AFA1CF23298E58F500085994 /* BAEMM_Test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BAEMM_Test.entitlements; sourceTree = "<group>"; };
 		AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_Metal.hpp; sourceTree = "<group>"; };
+		AFC65BBD2C4E8EBF00F497D0 /* BAEMM_Common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BAEMM_Common.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +105,7 @@
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */,
 				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
+				AFC65BBD2C4E8EBF00F497D0 /* BAEMM_Common.hpp */,
 				AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
