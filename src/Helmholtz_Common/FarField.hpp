@@ -14,7 +14,7 @@ public:
         const I_ext wave_chunk_count_,
         mptr<R_ext> inc_directions,
         const I_ext wave_chunk_size_,
-        mptr<C_ext> C_out,
+        mptr<C_ext> Y_out,
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol
@@ -42,7 +42,7 @@ public:
             int_cast<Int>(wave_chunk_count_),
             inc_directions,
             int_cast<Int>(wave_chunk_size_),
-            C_out,
+            Y_out,
             type,
             kappa_,  // No need for copying kappa_ to eta.
             cg_tol,
@@ -60,7 +60,7 @@ public:
         const I_ext wave_chunk_count_,
         mptr<R_ext> inc_directions,
         const I_ext wave_chunk_size_,
-        mptr<C_ext> C_out,
+        mptr<C_ext> Y_out,
         const WaveType type,
         cptr<R_ext> eta,
         const R_ext cg_tol,
@@ -71,14 +71,14 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        std::string tag = ClassName()+"::FarField_parameters<"
-            + "," + ToString(WC)
-            + "," + TypeName<I_ext>
-            + "," + TypeName<R_ext>
-            + "," + TypeName<C_ext>
-            + ">";
-        
-        ptic(tag);
+//        std::string tag = ClassName()+"::FarField_parameters<"
+//            + "," + ToString(WC)
+//            + "," + TypeName<I_ext>
+//            + "," + TypeName<R_ext>
+//            + "," + TypeName<C_ext>
+//            + ">";
+//        
+//        ptic(tag);
         
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field
@@ -98,7 +98,7 @@ public:
         
         phi.SetZero( CPU_thread_count );
 
-        // create weak representation of the negative incident wave
+        // Create weak representation of the negative incident wave.
         for( Int i = 0 ; i < wcc ; i++ )
         {
             inc_coeff(i,0) = Zero;
@@ -108,8 +108,8 @@ public:
         }
 
         CreateIncidentWave_PL(
-            One,    inc_directions, wcs,
-            Zero,   wave.data(),    wc,
+            One,  inc_directions, wcs,
+            Zero, wave.data(),    wc,
             kappa_, inc_coeff.data(), wc, wcs, type
         );
         
@@ -119,12 +119,12 @@ public:
         );
 
         ApplyFarFieldOperators_PL( 
-            One,   phi.data(), wc,
-            Zero,  C_out,      wc,
+            One,  phi.data(), wc,
+            Zero, Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
         
-        ptoc(tag);
+//        ptoc(tag);
     }
 
 public:
@@ -135,8 +135,8 @@ public:
         const I_ext wave_chunk_count_,
         cptr<R_ext> inc_directions,
         const I_ext wave_chunk_size_,
-        cptr<R_ext> h,
-        mptr<C_ext> C_out,
+        cptr<R_ext> X_in,
+        mptr<C_ext> Y_out,
         C_ext * *   pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
@@ -161,11 +161,10 @@ public:
         // A := (1/2) * I - i * kappa * SL + DL' for the calculation of du/dn
         // B := (1/2) * I - i * kappa * SL + DL  for the calculation of the Farfield
         // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
-        // phi is the bdry potential for the incident wave dudn *(<h , n>), the solution is the far field to this
+        // phi is the bdry potential for the incident wave dudn *(<X_in , n>), the solution is the far field to this
         // Formulas follow from Thorsten's book.
 
         constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext I    = Scalar::I   <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
         const Int n   = VertexCount();
@@ -178,27 +177,27 @@ public:
         Tensor2<C_ext,Int>  boundary_conditions_weak ( n,   wc );
         Tensor2<C_ext,Int>  phi                      ( n,   wc );
         
-        Tensor1<R_ext,Int>  h_n                      ( n );
+        Tensor1<R_ext,Int>  X_n                      ( n );
         
         phi.SetZero( CPU_thread_count );
 
-        if (*pdu_dn == NULL)
-        {            
+        if( *pdu_dn == nullptr )
+        {
             Tensor2<C_ext,I_ext>  inc_coeff     ( 4, wcc );
             Tensor2<C_ext,I_ext>  incident_wave ( n, wc  );  //weak representation of the incident wave
-
+            
             *pdu_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
 
             // create weak representation of the negative incident wave
             for(I_ext i = 0 ; i < wcc ; i++)
             {
                 inc_coeff(i,0) = Zero;
-                inc_coeff(i,1) = C_ext(R_ext(0),-kappa_[i]);
+                inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
                 inc_coeff(i,2) = One;
                 inc_coeff(i,3) = Zero;
             }
 
-            CreateIncidentWave_PL( 
+            CreateIncidentWave_PL(
                 One,    inc_directions,       wcs,
                 Zero,   incident_wave.data(), wc,
                 kappa_, inc_coeff.data(),     wc, wcs, type
@@ -207,31 +206,29 @@ public:
             DirichletToNeumann<WC>( kappa_, incident_wave.data(), *pdu_dn, wcc, wcs, cg_tol, gmres_tol );
         }
 
-        DotWithNormals_PL( h, h_n.data(), cg_tol );
+        DotWithNormals_PL( X_in, X_n.data(), cg_tol );
             
         mptr<C_ext> boundary_conditions_ptr = boundary_conditions.data();
         
         // CheckThis
         ParallelDo(
-            [boundary_conditions_ptr,&h_n,&pdu_dn]( const Int i )
+            [=,this,&X_n,&pdu_dn]( const Int i )
             {
-                cptr<C_ext> a = &(*pdu_dn)[WC * i];
-                mptr<C_ext> c = &boundary_conditions_ptr[WC * i];
+//                cptr<C_ext> a = &(*pdu_dn)[wc * i];
+//                mptr<C_ext> c = &boundary_conditions_ptr[wc * i];
+//
+//                const R_ext b = -X_n[i];
+//
+//                for( Int j = 0; j < ((WC > VarSize) ? WC : wc ); ++j )
+//                {
+//                    c[j] = a[j] * b;
+//                }
                 
-                const R_ext b = -h_n[i];
-                
-                // TODO: This does not work for WC == VarSize.
-                for( Int j = 0; j < WC; ++j )
-                {
-                    c[j] = a[j] * b;
-                }
-                
-                
-//                combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,NRHS>(
-//                    -h_n[i],             &(*pdu_dn)[WC * i],
-//                    Scalar::Zero<C_ext>, &boundary_conditions_ptr[WC * i],
-//                    nrhs
-//                );
+                combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,WC>(
+                    -X_n[i],             &(*pdu_dn)[wc * i],
+                    Scalar::Zero<C_ext>, &boundary_conditions_ptr[wc * i],
+                    wc
+                );
             },
             n, CPU_thread_count
         );
@@ -249,8 +246,8 @@ public:
         );
 
         ApplyFarFieldOperators_PL( 
-            One,   phi.data(),    wc,
-            Zero,  C_out,         wc,
+            One,  phi.data(), wc,
+            Zero, Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
 
@@ -266,8 +263,8 @@ public:
         cptr<R_ext> inc_directions,
         const I_ext wave_chunk_size_,
         cptr<C_ext> g, 
-        mptr<R_ext> C_out,
-        C_ext * * pdu_dn,                 //pdu_dn is the pointer to the Neumann data of the scattered wave
+        mptr<R_ext> Y_out,
+        C_ext * * pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol
@@ -294,7 +291,6 @@ public:
         ptic(tag);
 
         constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext I    = Scalar::I   <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
         const Int n   = VertexCount();
@@ -302,15 +298,18 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
-        Tensor2<C_ext,Int>  inc_coeff     ( wcc, 4  );
-        Tensor2<C_ext,Int>  herglotz_wave ( n,   wc );     //weak representation of the herglotz wave
-        Tensor2<C_ext,Int>  dv_dn         ( n,   wc );
+        Tensor2<C_ext,Int>  herglotz_wave ( n, wc );     //weak representation of the herglotz wave
+        Tensor2<C_ext,Int>  dv_dn         ( n, wc );
+        
+        dv_dn.SetZero( CPU_thread_count );
 
         Tensor1<C_ext,Int>  wave_product  ( n );
 
         wave_product.SetZero();
         
         // Create weak representation of the negative incident wave.
+        
+        Tensor2<C_ext,Int>  inc_coeff     ( wcc, 4  );
         for( Int i = 0 ; i < wcc ; i++)
         {
             inc_coeff(i,0) = Zero;
@@ -319,16 +318,16 @@ public:
             inc_coeff(i,3) = Zero;
         }
 
-        if (*pdu_dn == NULL)
+        if( *pdu_dn == nullptr )
         {
             Tensor2<C_ext,Int> incident_wave ( n, wc );  //weak representation of the incident wave
             
             *pdu_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
-
-            CreateIncidentWave_PL( 
+            
+            CreateIncidentWave_PL(
                 One,  inc_directions,       wcs,
                 Zero, incident_wave.data(), wc,
-                kappa_, inc_coeff.data(), wc, wcs,type
+                kappa_, inc_coeff.data(), wc, wcs, type
             );
             
             DirichletToNeumann<WC>( kappa_, incident_wave.data(), *pdu_dn, wcc, wcs, cg_tol, gmres_tol );
@@ -347,7 +346,7 @@ public:
         HadamardProduct( *pdu_dn, dv_dn.data(), wave_product.data(), n, wc, true );
 
         // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
-        MultiplyWithNormals_PL(wave_product.data(),C_out,-Inv<R_ext>(wc), cg_tol);
+        MultiplyWithNormals_PL( wave_product.data(), Y_out, -Inv<R_ext>(wc), cg_tol );
 
         ptoc(tag);
     }
@@ -362,8 +361,8 @@ public:
         const I_ext wave_chunk_size_,
         M_T & M,
         P_T & P,
-        cptr<R_ext> h,
-        mptr<R_ext> C_out,
+        cptr<R_ext> X_in,
+        mptr<R_ext> Y_out,
         C_ext * * pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
@@ -418,9 +417,9 @@ public:
             M(x,y); // The metric m has to return y + M*x
         };
 
-        zerofy_buffer(C_out, static_cast<Size_T>(n * 3), CPU_thread_count);
+        zerofy_buffer(Y_out, static_cast<Size_T>(n * 3), CPU_thread_count);
 
-        const Int succeeded = gmres(A,P,h,1,C_out,1,gmres_tol_outer,3);
+        const Int succeeded = gmres(A,P,X_in,1,Y_out,1,gmres_tol_outer,3);
 
         ptoc(tag);
         
@@ -489,14 +488,14 @@ private:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-        std::string tag = ClassName()+"::BoundaryPotential_parameters<"
-            + "," + ToString(WC)
-            + "," + TypeName<I_ext>
-            + "," + TypeName<R_ext>
-            + "," + TypeName<C_ext>
-            + ">";
-        
-        ptic(tag);
+//        std::string tag = ClassName()+"::BoundaryPotential_parameters<"
+//            + "," + ToString(WC)
+//            + "," + TypeName<I_ext>
+//            + "," + TypeName<R_ext>
+//            + "," + TypeName<C_ext>
+//            + ">";
+//        
+//        ptic(tag);
         
         constexpr C_ext One  = Scalar::One <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
@@ -515,13 +514,20 @@ private:
         
         auto P = [&]( cptr<C_ext> x, mptr<C_ext> y )
         {
-            ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
+            if constexpr ( lumped_mass_as_prec_for_intopsQ )
+            {
+                ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
+            }
+            else
+            {
+                ApplyMassInverse<WC>(x,wc,y,wc,wc);
+            }
         };
 
         // set up the bdry operator and solve
         for( Int i = 0 ; i < wcc; i++ )
         {
-            coeff_[4 * i + 0] = static_cast<C_ext>(Complex(0.5f,0.0f));
+            coeff_[4 * i + 0] = C_ext(0.5f,0.0f);
             coeff_[4 * i + 1] = C_ext(R_ext(0),-eta[i]);
             coeff_[4 * i + 2] = One;
             coeff_[4 * i + 3] = Zero;
@@ -538,12 +544,10 @@ private:
 
         UnloadBoundaryOperators_PL();
 
-        ptoc(tag);
+//        ptoc(tag);
     }
 
 public:
-
-// Henrik: Is this function ever called at all?
 
     template<Int WC, typename I_ext, typename R_ext, typename C_ext>
     void DirichletToNeumann(
@@ -569,7 +573,6 @@ public:
         ptic(tag);
         
         constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext I    = Scalar::I   <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
         const Int n   = VertexCount();
@@ -587,7 +590,14 @@ public:
 
         auto P = [&]( cptr<C_ext> x, mptr<C_ext> y )
         {
-            ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
+            if constexpr ( lumped_mass_as_prec_for_intopsQ )
+            {
+                ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
+            }
+            else
+            {
+                ApplyMassInverse<WC>(x,wc,y,wc,wc);
+            }
         };
 
         // set up the bdry operator and solve
@@ -621,11 +631,11 @@ private:
 // Henrik: I think this function is only meant to be called internally.
 // Therefore I made I it `private`.
 
-    // calculate factor * Re(B_in) .* normals
+    // calculate factor * Re(X_in) .* normals
     template<typename R_ext, typename C_ext>
     void MultiplyWithNormals_PL(
-        cptr<C_ext> B_in, 
-        mptr<R_ext> C_out,
+        cptr<C_ext> X_in, 
+        mptr<R_ext> Y_out,
         const R_ext factor,
         const R_ext cg_tol_
     )
@@ -643,15 +653,15 @@ private:
         const Int n = VertexCount();
         const Int m = SimplexCount();
         
-        Tensor1<Complex,Int> B      (m);
-        Tensor2<Real   ,Int> C      (m, 3);
-        Tensor2<Real   ,Int> C_weak (n, 3);
+        Tensor1<Complex,Int> X      (m);
+        Tensor2<Real   ,Int> Y      (m, 3);
+        Tensor2<Real   ,Int> Y_weak (n, 3);
         
         // Convert the input from PL to a PC function.
         // Also change precision to internal one.
         AvOp.Dot<1>(
-            Scalar::One <Complex>, B_in,     1,
-            Scalar::Zero<Complex>, B.data(), 1,
+            Scalar::One <Complex>, X_in,     1,
+            Scalar::Zero<Complex>, X.data(), 1,
             1
         );
         
@@ -662,11 +672,11 @@ private:
         ParallelDo(
             [&]( const Int i )
             {
-                const Real mul = Re(B[i]) / areas_ptr[i];
+                const Real mul = Re(X[i]) / areas_ptr[i];
 
                 for(Int j = 0; j < 3; ++j )
                 {
-                    C(i,j) = mul * normals_ptr[i * 4 + j];
+                    Y(i,j) = mul * normals_ptr[i * 4 + j];
                 }
             },
             m, CPU_thread_count
@@ -674,27 +684,25 @@ private:
         
         // Convert from PC function to PL function.
         AvOpTransp.Dot<3>(
-            static_cast<Real>(factor), C.data()     , 3,
-            Scalar::Zero<Real>,        C_weak.data(), 3,
+            static_cast<Real>(factor), Y.data()     , 3,
+            Scalar::Zero<Real>,        Y_weak.data(), 3,
             3
         );
 
         // Set the tolerance parameter for ApplyMassInverse.
         cg_tol = static_cast<Real>(cg_tol_);
         
-        // The solve here still uses internal precision (float).
-        // On return the result is converted to external precision.
-        ApplyMassInverse<3>( C_weak.data(), 3, C_out, 3, 3 );
+        ApplyMassInverse<3>( Y_weak.data(), 3, Y_out, 3, 3 );
         
         ptoc(tag);
     }
 
 
-    // calculate <B_in , normals>
+    // calculate <X_in , normals>
     template<typename R_ext>
     void DotWithNormals_PL( 
-        cptr<R_ext> B_in,
-        mptr<R_ext> C_out,
+        cptr<R_ext> X_in,
+        mptr<R_ext> Y_out,
         const R_ext cg_tol_
     )
     {
@@ -709,26 +717,24 @@ private:
         const Int m = SimplexCount();
         const Int n = VertexCount();
 
-        Tensor2<Real,Int> B      ( m, 3 );
-        Tensor1<Real,Int> C      ( m );
-        Tensor1<Real,Int> C_weak ( n );
+        Tensor2<Real,Int> X      ( m, 3 );
+        Tensor1<Real,Int> Y      ( m );
+        Tensor1<Real,Int> Y_weak ( n );
         
         // Convert the input from PL to a PC function.
         // Also change precision to internal one.
         AvOp.Dot<3>(
-            Scalar::One <R_ext>, B_in,     3,
-            Scalar::Zero<R_ext>, B.data(), 3,
+            Scalar::One <R_ext>, X_in,     3,
+            Scalar::Zero<R_ext>, X.data(), 3,
             3
         );
         
         // From here on we use internal precision (float).
-
-        // TODO: Allocating C_weak might be obsolete, because we can use C_out.
         
         // Pointwise multiplication of the STRONG FORM with the normals.
         // CheckThis
         ParallelDo(
-            [&C,&B,this]( const Int i )
+            [&X,&Y,this]( const Int i )
             {
                 Real factor = Inv<Real>(areas_ptr[i]);
 
@@ -736,27 +742,25 @@ private:
                 
                 for(Int j = 0; j < 3; ++j )
                 {
-                    sum += normals_ptr[i * 4 + j] * B(i,j) * factor;
+                    sum += normals_ptr[i * 4 + j] * X(i,j) * factor;
                 }
                 
-                C[i] = sum;
+                Y[i] = sum;
             },
             m, CPU_thread_count
         );
-
-        
-        cg_tol = static_cast<Real>(cg_tol_);
         
         // Convert from PC function to PL function.
         AvOpTransp.Dot<1>(
-            Scalar::One <R_ext>, C.data(),      1,
-            Scalar::Zero<R_ext>, C_weak.data(), 1,
+            Scalar::One <Real>, Y.data(),      1,
+            Scalar::Zero<Real>, Y_weak.data(), 1,
             1
         );
         
-        // The solve here still uses internal precision (float).
-        // On return the result is converted to external precision.
-        ApplyMassInverse<1>( C_weak.data(), 1, C_out, 1, 1 );
+        // Set the tolerance parameter for ApplyMassInverse.
+        cg_tol = static_cast<Real>(cg_tol_);
         
+        ApplyMassInverse<1>( Y_weak.data(), 1, Y_out, 1, 1 );
+
         ptoc(tag);
     }
