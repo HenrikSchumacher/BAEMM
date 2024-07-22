@@ -60,7 +60,7 @@ int main()
     Real gmres_tol = static_cast<Real>(0.0005);
 
     Tensor2<Complex,Int> neumann_data_scat;
-    Complex* neumann_data_scat_ptr = NULL;
+    Complex* neumann_data_scat_ptr = nullptr;
 
     std::fstream file ("NeumannDataScat.bin");
     
