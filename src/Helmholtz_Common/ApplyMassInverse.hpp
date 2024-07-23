@@ -44,8 +44,8 @@ public:
         
         constexpr Int max_iter = 20;
         
-        zerofy_matrix<NRHS>( Y, ldY, vertex_count, nrhs, CPU_thread_count );
-//        zerofy_matrix<NRHS>( Y, ldY, vertex_count, nrhs, Int(1) );
+        // Per default `ConjugateGradient` assumes that the initial guess is 0.
+        // zerofy_matrix<NRHS,Parallel>( Y, ldY, vertex_count, nrhs, CPU_thread_count );
 
         bool succeeded;
         

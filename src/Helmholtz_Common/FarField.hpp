@@ -87,7 +87,8 @@ public:
         Tensor2<C_ext,Int>  wave      ( n,   wc );     //weak representation of the incident wave
         Tensor2<C_ext,Int>  phi       ( n,   wc );
         
-        phi.SetZero( CPU_thread_count );
+        // Not needed with recent versions of GMRES.
+        // phi.SetZero( CPU_thread_count );
 
         // Create weak representation of the negative incident wave.
         for( Int i = 0 ; i < wcc ; i++ )
@@ -168,7 +169,8 @@ public:
         
         Tensor1<R_ext,Int>  X_n                      ( n );
         
-        phi.SetZero( CPU_thread_count );
+        // Not needed with recent versions of GMRES.
+        // phi.SetZero( CPU_thread_count );
 
         if( *pdu_dn == nullptr )
         {
@@ -290,11 +292,13 @@ public:
         Tensor2<C_ext,Int>  herglotz_wave ( n, wc );     //weak representation of the herglotz wave
         Tensor2<C_ext,Int>  dv_dn         ( n, wc );
         
-        dv_dn.SetZero( CPU_thread_count );
+        // Not needed with recent version of GMRES.
+        // dv_dn.SetZero( CPU_thread_count );
 
         Tensor1<C_ext,Int> wave_product  ( n );
 
-        wave_product.SetZero();
+        // Not needed with recent version of GMRES.
+        // wave_product.SetZero();
         
         // Create weak representation of the negative incident wave.
         

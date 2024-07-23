@@ -27,7 +27,7 @@ public:
     
     static constexpr Real one_over_four_pi = Inv<Real>(four_pi);
 
-    static constexpr bool lumped_mass_as_prec_for_intopsQ = false;
-//    static constexpr bool lumped_mass_as_prec_for_intopsQ = true;
+//    static constexpr bool lumped_mass_as_prec_for_intopsQ = false;
+    static constexpr bool lumped_mass_as_prec_for_intopsQ = true;
     
 

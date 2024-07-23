@@ -102,7 +102,9 @@ public:
     
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
 
-            copy_matrix( C_ptr, ldC, C_out, ldC_out, wave_count, CPU_thread_count );
+            copy_matrix<VarSize,Parallel>(
+                C_ptr, ldC, C_out, ldC_out, wave_count, CPU_thread_count
+            );
         }
         ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
     }

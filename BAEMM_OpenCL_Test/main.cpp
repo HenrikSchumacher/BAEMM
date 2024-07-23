@@ -37,24 +37,22 @@ int main()
     
     std::filesystem::path home_dir { homedir };
         
-//    std::string mesh_name { "Triceratops_00081920T" };
+    Profiler::Clear( home_dir );
+    
 
+    std::string mesh_name { "Triceratops_00081920T" };
+
+    //    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
 //    std::string mesh_name { "Spot_00023424T" };
 //    std::string mesh_name { "Spot_00093696T_T" };    
 //    std::string mesh_name { "Bob_00042752T" };
-    std::string mesh_name { "Blub_00056832T" };
+//    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
-    
-    Profiler::Clear( home_dir );
-    
-    Int device = 0;
-    Int thread_count = 8;
-//    Int thread_count = 1;
-    
-//    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
-    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+
+        
+    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     
     Tensor2<Real,Int> coords;
@@ -68,6 +66,11 @@ int main()
     const Int vertex_count  = coords.Dimension(0);
     const Int simplex_count = simplices.Dimension(0);
     const Int meas_count    = meas_directions.Dimension(0);
+    
+    Int device = 0;
+    Int thread_count = 8;
+//    Int thread_count = 1;
+
     
     Helmholtz_T H (
         coords.data(),          vertex_count,
@@ -170,24 +173,24 @@ int main()
     
     tic("Starting measurement");
 
-//    print("");
-//    
-//    tic("FarField");
-//    H.FarField<wave_count>(
-//        kappa.data(), wave_chunk_count,
-//        inc.data(),   wave_chunk_size,
-//        C.data(), 
-//        BAEMM::WaveType::Plane, cg_tol, gmres_tol
-//    );
-//    toc("FarField");
-//    
-//    print("");
-//    
-//    Real factor = Frac<Real>(2 * Scalar::Pi<Real>, meas_count * wave_count );
-//
-//    Real norm = std::sqrt(factor) * C.FrobeniusNorm();
-//
-//    std::cout << "L^2-norm of C = " << norm << std::endl;
+    print("");
+    
+    tic("FarField");
+    H.FarField<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        C.data(), 
+        BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    toc("FarField");
+    
+    print("");
+    
+    Real factor = Frac<Real>(2 * Scalar::Pi<Real>, meas_count * wave_count );
+
+    Real norm = std::sqrt(factor) * C.FrobeniusNorm();
+
+    std::cout << "L^2-norm of C = " << norm << std::endl;
     
     
     Tensor2<Real,Int> h ( vertex_count, 3 );
@@ -201,7 +204,7 @@ int main()
     
     print("");
     
-    DFh.SetZero();
+//    DFh.SetZero();
     
     tic("Derivative_FF");
     H.Derivative_FF<wave_count>(
@@ -213,7 +216,7 @@ int main()
     
     print("");
     
-    w.SetZero();
+//    w.SetZero();
     
     tic("AdjointDerivative_FF");
     H.AdjointDerivative_FF<wave_count>(
@@ -225,7 +228,7 @@ int main()
     
     print("");
     
-    DFh.SetZero();
+//    DFh.SetZero();
     
     tic("Derivative_FF");
     H.Derivative_FF<wave_count>(
@@ -237,7 +240,7 @@ int main()
     
     print("");
     
-    w.SetZero();
+//    w.SetZero();
     
     tic("AdjointDerivative_FF");
     H.AdjointDerivative_FF<wave_count>(
