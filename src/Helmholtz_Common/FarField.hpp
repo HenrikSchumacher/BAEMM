@@ -71,15 +71,6 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-//        std::string tag = ClassName()+"::FarField_parameters<"
-//            + "," + ToString(WC)
-//            + "," + TypeName<I_ext>
-//            + "," + TypeName<R_ext>
-//            + "," + TypeName<C_ext>
-//            + ">";
-//        
-//        ptic(tag);
-        
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field
         
@@ -123,8 +114,6 @@ public:
             Zero, Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
-        
-//        ptoc(tag);
     }
 
 public:
@@ -488,15 +477,6 @@ private:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
-//        std::string tag = ClassName()+"::BoundaryPotential_parameters<"
-//            + "," + ToString(WC)
-//            + "," + TypeName<I_ext>
-//            + "," + TypeName<R_ext>
-//            + "," + TypeName<C_ext>
-//            + ">";
-//        
-//        ptic(tag);
-        
         constexpr C_ext One  = Scalar::One <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
@@ -520,7 +500,7 @@ private:
             }
             else
             {
-                ApplyMassInverse<WC>(x,wc,y,wc,wc);
+                ApplyMassInverse<WC>(x,wc,y,wc,cg_tol,wc);
             }
         };
 
@@ -543,8 +523,6 @@ private:
         (void)gmres(A,P,wave,wc,phi,wc,gmres_tol,10);
 
         UnloadBoundaryOperators_PL();
-
-//        ptoc(tag);
     }
 
 public:
@@ -596,7 +574,7 @@ public:
             }
             else
             {
-                ApplyMassInverse<WC>(x,wc,y,wc,wc);
+                ApplyMassInverse<WC>(x,wc,y,wc,cg_tol,wc);
             }
         };
 
@@ -604,7 +582,7 @@ public:
         for( Int i = 0 ; i < wcc ; i++ )
         {
             c_(i,0) = static_cast<C_ext>(Complex(0.5f,0.0f));
-            c_(i,1) = C_ext(R_ext(0),-kappa_[i]);
+            c_(i,1) = C_ext( R_ext(0), -kappa_[i] );
             c_(i,2) = Zero;
             c_(i,3) = One;
         }
@@ -637,7 +615,7 @@ private:
         cptr<C_ext> X_in, 
         mptr<R_ext> Y_out,
         const R_ext factor,
-        const R_ext cg_tol_
+        const R_ext cg_tol
     )
     {
         ASSERT_REAL(R_ext);
@@ -689,10 +667,7 @@ private:
             3
         );
 
-        // Set the tolerance parameter for ApplyMassInverse.
-        cg_tol = static_cast<Real>(cg_tol_);
-        
-        ApplyMassInverse<3>( Y_weak.data(), 3, Y_out, 3, 3 );
+        ApplyMassInverse<3>( Y_weak.data(), 3, Y_out, 3, cg_tol, 3 );
         
         ptoc(tag);
     }
@@ -703,7 +678,7 @@ private:
     void DotWithNormals_PL( 
         cptr<R_ext> X_in,
         mptr<R_ext> Y_out,
-        const R_ext cg_tol_
+        const R_ext cg_tol
     )
     {
         ASSERT_REAL(R_ext);
@@ -758,9 +733,7 @@ private:
         );
         
         // Set the tolerance parameter for ApplyMassInverse.
-        cg_tol = static_cast<Real>(cg_tol_);
-        
-        ApplyMassInverse<1>( Y_weak.data(), 1, Y_out, 1, 1 );
+        ApplyMassInverse<1>( Y_weak.data(), 1, Y_out, 1, cg_tol, 1 );
 
         ptoc(tag);
     }

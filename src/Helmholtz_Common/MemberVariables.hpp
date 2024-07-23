@@ -58,6 +58,3 @@ private:
     Int block_count        =  0;
     Int rows_rounded       =  0;
 
-    Real cg_tol    = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0001);
-

@@ -1,9 +1,10 @@
 public:
 
-    template<Int NRHS = VarSize, typename X_T, typename Y_T>
+    template<Int NRHS = VarSize, typename X_T, typename Y_T, typename R_ext>
     void ApplyMassInverse(
         cptr<X_T> X, const Int ldX,
         mptr<Y_T> Y, const Int ldY,
+        const R_ext cg_tol,
         const Int nrhs = NRHS
     )
     {
@@ -11,12 +12,18 @@ public:
         // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
         // If NRHS == 0, then nrhs is used.
         
+        ASSERT_REAL(R_ext);
+        
         // Internally, the type `Real` is used, so `X_T` and `Y_T` must encode real types, too.
         
         static_assert( Scalar::RealQ   <X_T> == Scalar::RealQ   <Y_T>, "" );
         static_assert( Scalar::ComplexQ<X_T> == Scalar::ComplexQ<Y_T>, "" );
 
-        std::string tag = ClassName()+"::ApplyMassInverse<"+ToString(NRHS)
+        std::string tag = ClassName()+"::ApplyMassInverse"
+            + "<" + ToString(NRHS)
+            + "," + TypeName<X_T>
+            + "," + TypeName<Y_T>
+            + "," + TypeName<R_ext>
             + ">("+ToString(nrhs)+")";
         
         if( nrhs > ldX )
@@ -30,7 +37,6 @@ public:
             eprint("nrhs > ldY");
             return;
         }
-        
         
         ptic(tag);
         
@@ -62,7 +68,7 @@ public:
                 );
             };
             
-            succeeded = cg(A,P,X,ldX,Y,ldY,cg_tol);
+            succeeded = cg(A,P,X,ldX,Y,ldY,static_cast<Real>(cg_tol));
         }
         else
         {
@@ -82,7 +88,7 @@ public:
                 ApplyLumpedMassInverse<NRHS>(x,nrhs,y,nrhs,nrhs);
             };
             
-            succeeded = cg(A,P,X,ldX,Y,ldY,cg_tol);
+            succeeded = cg(A,P,X,ldX,Y,ldY,static_cast<Real>(cg_tol));
         }
 
         if( !succeeded )

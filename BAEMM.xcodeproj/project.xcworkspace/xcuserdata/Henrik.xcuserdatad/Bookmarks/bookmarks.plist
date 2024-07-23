@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>321</string>
+					<string>310</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>320</string>
+					<string>309</string>
 					<key>Timestamp</key>
-					<string>743377377.216801</string>
+					<string>743408914.233228</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -57,15 +57,15 @@
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>21</string>
+					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>183</string>
+					<string>173</string>
 					<key>StartingColumnNumber</key>
-					<string>20</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>183</string>
+					<string>172</string>
 					<key>Timestamp</key>
-					<string>743362419.403119</string>
+					<string>743408914.233375</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -81,15 +81,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>=</string>
+				<string>        if( *pdu_dn == nullptr )
+</string>
 				<key>leading</key>
 				<string>        phi.SetZero( CPU_thread_count );
 
-        if( *pdu_dn </string>
+</string>
 				<key>trailing</key>
-				<string>= nullptr )
-        {
+				<string>        {
             Tensor2&lt;C_ext,I_ext&gt;  inc_coeff     ( 4, wcc );
+            Tensor2&lt;C_ext,I_ext&gt;  incident_wave ( n, wc  );  //weak representation of the incident wave
 </string>
 			</dict>
 			<key>title</key>
