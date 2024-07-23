@@ -94,10 +94,6 @@ public:
 
                 areas_ptr[i] = a;
 
-                areas_lumped_inv[i_0] += a;
-                areas_lumped_inv[i_1] += a;
-                areas_lumped_inv[i_2] += a;
-
                 const Real a_inv = Scalar::One<Real> / a;
 
                 normals_ptr[4*i+0] = a_inv * a_nu[0];
@@ -310,11 +306,20 @@ public:
         );
         
         
-        // Finalizing inverse lumped vertex areas:
+        // Computing areas_lumped_inv:
+        
+        Tensor1<Real,Int> thirds ( simplex_count, Inv<Real>(3) );
+        
+        AvOpTransp.Dot<1>(
+            Scalar::One<Real>,  thirds.data(),           1,
+            Scalar::Zero<Real>, areas_lumped_inv.data(), 1,
+            1
+        );
+        
         ParallelDo(
-            [&,this]( const Int i )
+            [this]( const Int i )
             {
-                areas_lumped_inv[i] = Frac<Real>(3,areas_lumped_inv[i]);
+                areas_lumped_inv[i] = Inv<Real>(areas_lumped_inv[i]);
             },
             vertex_count, CPU_thread_count
         );

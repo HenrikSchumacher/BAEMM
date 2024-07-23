@@ -8,6 +8,8 @@ public:
         const Int nrhs = NRHS
     )
     {
+        // Solves M.Y = X or Y = M^{-1}.X
+        
         // Uses CG algorithm to multiply with inverse mass matrix.
         // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
         // If NRHS == 0, then nrhs is used.
@@ -43,12 +45,16 @@ public:
         constexpr Int max_iter = 20;
         
         zerofy_matrix<NRHS>( Y, ldY, vertex_count, nrhs, CPU_thread_count );
+//        zerofy_matrix<NRHS>( Y, ldY, vertex_count, nrhs, Int(1) );
 
         bool succeeded;
         
         if constexpr ( Scalar::ComplexQ<X_T> )
         {
-            ConjugateGradient<NRHS,Complex,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
+            // The two boolean at the end of the template silence some messages.
+            ConjugateGradient<NRHS,Complex,Size_T,false,false> cg(
+                vertex_count, max_iter, nrhs, CPU_thread_count
+            );
 
             auto A = [this,nrhs]( cptr<Complex> x, mptr<Complex> y )
             {
@@ -72,7 +78,10 @@ public:
         }
         else
         {
-            ConjugateGradient<NRHS,Real,Size_T> cg( vertex_count, max_iter, nrhs, CPU_thread_count );
+            // The two boolean at the end of the template silence some messages.
+            ConjugateGradient<NRHS,Real,Size_T,false,false> cg( 
+                vertex_count, max_iter, nrhs, CPU_thread_count
+            );
 
             auto A = [this,nrhs]( cptr<Real> x, mptr<Real> y )
             {

@@ -16,8 +16,8 @@ public:
     static constexpr Real two   = 2;
     static constexpr Real three = 3;
     
-    static constexpr Real half     = one / two;
-    static constexpr Real third    = one / three;
+    static constexpr Real half     = Inv<Real>(two);
+    static constexpr Real third    = Inv<Real>(three);
     static constexpr Real sixth    = half * third;
     static constexpr Real twelveth = half * sixth;
     
@@ -25,7 +25,7 @@ public:
     static constexpr Real two_pi  = two * pi;
     static constexpr Real four_pi = two * two_pi;
     
-    static constexpr Real one_over_four_pi = one / four_pi;
+    static constexpr Real one_over_four_pi = Inv<Real>(four_pi);
 
     static constexpr bool lumped_mass_as_prec_for_intopsQ = false;
 //    static constexpr bool lumped_mass_as_prec_for_intopsQ = true;

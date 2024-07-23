@@ -172,8 +172,8 @@ public:
 
         if( *pdu_dn == nullptr )
         {
-            Tensor2<C_ext,I_ext>  inc_coeff     ( 4, wcc );
-            Tensor2<C_ext,I_ext>  incident_wave ( n, wc  );  //weak representation of the incident wave
+            Tensor2<C_ext,I_ext>  inc_coeff     ( wcc, 4  );
+            Tensor2<C_ext,I_ext>  incident_wave ( n,   wc );  //weak representation of the incident wave
             
             *pdu_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
 
@@ -223,7 +223,7 @@ public:
         );
         
         // apply mass to the boundary conditions to get weak representation
-        Mass.Dot(
+        Mass.Dot<WC>(
             One,  boundary_conditions.data(),      wc,
             Zero, boundary_conditions_weak.data(), wc,
             wc
@@ -292,13 +292,14 @@ public:
         
         dv_dn.SetZero( CPU_thread_count );
 
-        Tensor1<C_ext,Int>  wave_product  ( n );
+        Tensor1<C_ext,Int> wave_product  ( n );
 
         wave_product.SetZero();
         
         // Create weak representation of the negative incident wave.
         
-        Tensor2<C_ext,Int>  inc_coeff     ( wcc, 4  );
+        Tensor2<C_ext,Int> inc_coeff ( wcc, 4 );
+        
         for( Int i = 0 ; i < wcc ; i++)
         {
             inc_coeff(i,0) = Zero;
@@ -380,7 +381,8 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
-        GMRES<1,R_ext,Size_T,Side::Left> gmres(n * Int(3),30,1,CPU_thread_count);
+        // The two boolean at the end of the template silence some messages.
+        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(n * Int(3),30,1,CPU_thread_count);
         
         Tensor2<C_ext,Int>  DF       ( m, wc     );
         Tensor2<R_ext,Int>  y_strong ( n, Int(3) );
@@ -485,7 +487,8 @@ private:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
-        GMRES<WC,C_ext,Size_T,Side::Left> gmres(n,30,wc,CPU_thread_count);
+        // The two boolean at the end of the template silence some messages.
+        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(n,30,wc,CPU_thread_count);
         
         // Setup the mass matrix Preconditionier P:=M^-1.
         
@@ -560,7 +563,8 @@ public:
 
         Tensor2<C_ext,Int> c_ ( wcc, 4);
 
-        GMRES<WC,C_ext,Size_T,Side::Left> gmres(n,30,wc,CPU_thread_count);
+        // The two boolean at the end of the template silence some messages.
+        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(n,30,wc,CPU_thread_count);
 
         // Setup the mass matrix Preconditionier P:=M^-1.
         // P is also used for transf. into strong form
