@@ -72,7 +72,7 @@ public:
         ASSERT_COMPLEX(C_ext);
         
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
-        // phi = A\wave is the bdry potential which will be mapped onto the far field
+        // phi = A \ wave is the bdry potential which will be mapped onto the far field
         
         constexpr C_ext One  = Scalar::One <C_ext>;
         constexpr C_ext Zero = Scalar::Zero<C_ext>;
