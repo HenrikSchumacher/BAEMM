@@ -385,8 +385,14 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
-        // The two boolean at the end of the template silence some messages.
-        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(n * Int(3),30,1,CPU_thread_count);
+        // The two optional booleans at the end of the template silence some messages.
+        //                                |     |
+        //                                v     v
+        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
+            n * Int(3), 30, 1, CPU_thread_count /*, true*/ );
+        //                  ^                        ^
+        //                  |                        |
+        //                 This argument is new.    This would activate use of initial guess.
         
         Tensor2<C_ext,Int>  DF       ( m, wc     );
         Tensor2<R_ext,Int>  y_strong ( n, Int(3) );
