@@ -126,6 +126,8 @@ namespace BAEMM
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
             }
+            
+            logprint(DeviceInfo());
 
             context = clCreateContext(nullptr,1,&device_id,nullptr,nullptr,&ret);
 
@@ -133,7 +135,7 @@ namespace BAEMM
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // Instead we can use this (deprecated) feature:
-            command_queue = clCreateCommandQueueWithProperties(context,device_id,0,&ret);
+            command_queue = clCreateCommandQueue(context,device_id,0,&ret);
             
             
             // initialize the Opencl buffers and host pointers
@@ -205,7 +207,7 @@ namespace BAEMM
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // Instead we can use this (deprecated) feature:
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
             
             // Initialize the OpenCL buffers and host pointers.
             InitializeBuffers(simplex_count,meas_directions_);
@@ -279,17 +281,17 @@ namespace BAEMM
 
 #include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
-#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel.hpp"
+#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
 
-#include "src/Helmholtz_OpenCL/FarFieldOperatorKernel.hpp"
+#include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
 
-#include "src/Helmholtz_OpenCL/NearFieldOperatorKernel.hpp"
+#include "src/Helmholtz_OpenCL/NearFieldOperatorKernel_C.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane.hpp"
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane_C.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial.hpp"
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial_C.hpp"
 
-#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel.hpp"
+#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
 
 #include "src/LinearAlgebraUtilities/HadamardProduct.hpp"
 
