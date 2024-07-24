@@ -50,7 +50,6 @@
 		AF1A0AB12C4BD120008E55D5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReadMeshFromFile.hpp; sourceTree = "<group>"; };
 		AF1A0AB82C4BD72B008E55D5 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
-		AF517E632C51898300BFC1DD /* Helmholtz_OpenCL_Mac.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_OpenCL_Mac.hpp; sourceTree = "<group>"; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		AFA1CF10298E56FF00085994 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		AFA1CF12298E572A00085994 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -106,7 +105,6 @@
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */,
 				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
-				AF517E632C51898300BFC1DD /* Helmholtz_OpenCL_Mac.hpp */,
 				AFC65BBD2C4E8EBF00F497D0 /* BAEMM_Common.hpp */,
 				AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
