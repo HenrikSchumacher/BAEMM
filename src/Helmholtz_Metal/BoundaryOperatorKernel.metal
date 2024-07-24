@@ -39,7 +39,7 @@ constant constexpr float one     = static_cast<float>(1);
 //constant constexpr float one_over_four_pi = one / four_pi;
 
 [[max_total_threads_per_threadgroup(block_size)]]
-[[kernel]] void BoundaryOperatorKernel_C(
+[[kernel]] void BoundaryOperatorKernel(
     const constant float3 * const mid_points    [[buffer(0)]], // triangle midpoints
     const constant float3 * const normals       [[buffer(1)]], // triangle normals
     const constant cmplx  * const B_global      [[buffer(2)]], // buffer for right hand sides
@@ -332,7 +332,7 @@ constant constexpr float one     = static_cast<float>(1);
         }
     }
     
-} // BoundaryOperatorKernel_C
+} // BoundaryOperatorKernel
 
 // FIXME: Comment-out the following line for run-time compilation:
 )"

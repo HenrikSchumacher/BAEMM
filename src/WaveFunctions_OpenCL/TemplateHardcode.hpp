@@ -36,7 +36,7 @@ public:
                     }
                     default:
                     {
-                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        eprint(ClassName()+"::IncidentWaveKernel: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
                         break;
                     }
                 }
@@ -68,7 +68,7 @@ public:
                     }
                     default:
                     {
-                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        eprint(ClassName()+"::IncidentWaveKernel: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
                         break;
                     }
                 }
@@ -100,7 +100,7 @@ public:
                     }
                     default:
                     {
-                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        eprint(ClassName()+"::IncidentWaveKernel: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
                         break;
                     }
                 }
@@ -132,7 +132,7 @@ public:
                     }
                     default:
                     {
-                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        eprint(ClassName()+"::IncidentWaveKernel: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
                         break;
                     }
                 }
@@ -164,7 +164,7 @@ public:
                     }
                     default:
                     {
-                        eprint(ClassName()+"::IncidentWaveKernel_C: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
+                        eprint(ClassName()+"::IncidentWaveKernel: wave_chunk_count must be a power of 2 that is smaller or equal to 8.");
                         break;
                     }
                 }
@@ -172,7 +172,7 @@ public:
             }
             default:
             {
-                eprint(ClassName()+"::IncidentWaveKernel_C: wave_count must be a power of 2 that is bigger than 8 and smaller or equal to 64.");
+                eprint(ClassName()+"::IncidentWaveKernel: wave_count must be a power of 2 that is bigger than 8 and smaller or equal to 64.");
                 break;
             }
         }

@@ -128,7 +128,7 @@ public:
                     );
                     
             // Apply off-diagonal part of integral operators.
-            NearFieldOperatorKernel_C( evaluation_points_ptr, evaluation_count , kappa, c );
+            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count , kappa, c );
 
             type_cast(C_out, C_ptr,wave_count * evaluation_count , CPU_thread_count);
         }

@@ -126,8 +126,6 @@ namespace BAEMM
             {
                 eprint(ClassName()+": No OpenCL GPU device available.");
             }
-            
-            logprint(DeviceInfo());
 
             context = clCreateContext(nullptr,1,&device_id,nullptr,nullptr,&ret);
 
@@ -281,17 +279,17 @@ namespace BAEMM
 
 #include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
-#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel_C.hpp"
+#include "src/Helmholtz_OpenCL/BoundaryOperatorKernel.hpp"
 
-#include "src/Helmholtz_OpenCL/FarFieldOperatorKernel_C.hpp"
+#include "src/Helmholtz_OpenCL/FarFieldOperatorKernel.hpp"
 
-#include "src/Helmholtz_OpenCL/NearFieldOperatorKernel_C.hpp"
+#include "src/Helmholtz_OpenCL/NearFieldOperatorKernel.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane_C.hpp"
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial_C.hpp"
+#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial.hpp"
 
-#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel_C.hpp"
+#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel.hpp"
 
 #include "src/LinearAlgebraUtilities/HadamardProduct.hpp"
 

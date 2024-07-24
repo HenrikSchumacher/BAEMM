@@ -128,7 +128,7 @@ public:
             C_loaded = true;
 
             // Apply off-diagonal part of integral operators.
-            BoundaryOperatorKernel_C();
+            BoundaryOperatorKernel();
 
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );

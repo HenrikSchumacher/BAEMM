@@ -92,7 +92,7 @@ public:
         
         // TODO: Check whether kappa3 and c3 are set up correctly.
         
-        BoundaryOperatorKernel_C( kappa3, c3 );
+        BoundaryOperatorKernel( kappa3, c3 );
         
         addTo = Scalar::One<C_ext>;
         

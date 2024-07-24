@@ -2,7 +2,7 @@ R"(
 __constant float2 zero = (float2)(0.0f,0.0f);
 __constant float  one  = 1.0f;
 
-__kernel void HerglotzWaveKernel_C(
+__kernel void FarFieldOperatorKernel(
         const __global   float4 * mid_points     ,
         const __global   float4 * normals        ,
         const __global   float4 * meas_directions,
@@ -12,48 +12,36 @@ __kernel void HerglotzWaveKernel_C(
               __constant float2 * coeff          ,
               __constant int    * N              ,
               __constant int    * M              ,
-              __constant int    * wave_count
-)
+              __constant int    * wave_count  
+)  
 {
     const int n             = *N;
     const int m             = *M;
     const int k_chunk_count = (*wave_count) / k_chunk_size;
     const int k_ld          = (*wave_count);
     
-    const int block_count = (m + block_size - 1)/block_size;
+    const int block_count = (n + block_size - 1)/block_size;
 
     const int i = get_global_id(0);
 
     __private float3 x_i;
-    __private float3 nu_i;
     
     __private float2 A_i [block_size];
 
     __local float2 B [block_size][k_chunk_size];
 
-    __local float3 y [block_size];
+    __local float3 y  [block_size];
+    __local float3 mu [block_size];
     
-    if( i < n )
+    if( i < m )
     {
-        x_i  = mid_points[i].xyz;
-
-        if( Re_double_layer || Im_double_layer )
-        {
-            nu_i = normals[i].xyz;
-        }
+        x_i  = meas_directions[i].xyz;
     }
     else
     {
-        x_i.x = 1.f;
-        x_i.y = 1.f;
+        x_i.x = 0.f;
+        x_i.y = 0.f;
         x_i.z = 1.f;
-
-        if( Re_double_layer || Im_double_layer )
-        {
-            nu_i.x = 0.f;
-            nu_i.y = 0.f;
-            nu_i.z = 1.f;
-        }
     }
     
     for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
@@ -69,15 +57,27 @@ __kernel void HerglotzWaveKernel_C(
                 const int j_loc  = get_local_id(0);
                 const int j      = block_size * j_block + j_loc;
                 
-                if( j < m )
+                if( j < n )
                 {
-                    y[j_loc] = meas_directions[j].xyz;
+                    y[j_loc] = mid_points[j].xyz;
+                    
+                    if( Re_double_layer || Im_double_layer )
+                    {
+                        mu[j_loc] = normals[j].xyz;
+                    }
                 }
                 else
                 {                    
-                    y[j_loc].x = 0.f;
-                    y[j_loc].y = 0.f;
-                    y[j_loc].z = 0.f;
+                    y [j_loc].x = 0.f;
+                    y [j_loc].y = 0.f;
+                    y [j_loc].z = 0.f;
+                    
+                    if( Re_double_layer || Im_double_layer )
+                    {
+                        mu[j_loc].x = 0.f;
+                        mu[j_loc].y = 0.f;
+                        mu[j_loc].z = 1.f;
+                    }
                 }
                 
                 barrier(CLK_LOCAL_MEM_FENCE);
@@ -86,7 +86,7 @@ __kernel void HerglotzWaveKernel_C(
                 {
                     const int j = block_size * j_block + j_loc;
 
-                    const float delta = (float)((i < n) || (j < m) );
+                    const float delta = (float)((i < m) || (j < n) );
 
                     const float KappaR = kappa * (y[j_loc].x * x_i.x + y[j_loc].y * x_i.y + y[j_loc].z * x_i.z);
                     
@@ -111,9 +111,12 @@ __kernel void HerglotzWaveKernel_C(
                         A_i[j_loc].y += delta*( c[0].y * CosKappaR);
                     }
 
-                    if( Re_double_layer || Im_double_layer)
+
+
+                    if( Re_double_layer || Im_double_layer
+                    )
                     {
-                        const float dKappaR = delta * kappa * (nu_i.x * y[j_loc].x + nu_i.y * y[j_loc].y + nu_i.z * y[j_loc].z);
+                        const float dKappaR = kappa * delta * (mu[j_loc].x * x_i.x + mu[j_loc].y * x_i.y + mu[j_loc].z * x_i.z);
                         const float dKappaRCosKappaR = dKappaR * CosKappaR;
                         const float dKappaRSinKappaR = dKappaR * SinKappaR;
 
@@ -140,8 +143,7 @@ __kernel void HerglotzWaveKernel_C(
                 #pragma unroll
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    B[j_loc][k].x = B_j_blk[k].x;
-                    B[j_loc][k].y = -B_j_blk[k].y;
+                    B[j_loc][k] = B_j_blk[k];
                 }
             }
                         
@@ -152,10 +154,10 @@ __kernel void HerglotzWaveKernel_C(
                 #pragma unroll
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    C_i[k].x +=   A_i[j_loc].x * B[j_loc][k].x
+                    C_i[k].x +=    A_i[j_loc].x * B[j_loc][k].x
                                  - A_i[j_loc].y * B[j_loc][k].y;
 
-                    C_i[k].y +=   A_i[j_loc].x * B[j_loc][k].y
+                    C_i[k].y +=    A_i[j_loc].x * B[j_loc][k].y
                                  + A_i[j_loc].y * B[j_loc][k].x;
                 }
             }

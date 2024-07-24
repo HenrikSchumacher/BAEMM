@@ -1,12 +1,12 @@
 public:
 
     // kernel host code for the Herglotz wave function with kernel conj(g) (which is saved in B_ptr) evaluated on the triangle midpoints
-    int HerglotzWaveKernel_C(
+    int HerglotzWaveKernel(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
     )
     {
-        std::string tag = ClassName() +"::HerglotzWaveKernel_C";
+        std::string tag = ClassName() +"::HerglotzWaveKernel";
         
         ptic(tag);
         
@@ -40,7 +40,7 @@ public:
         }
             
         std::string source = CreateSourceString(
-    #include "HerglotzWaveKernel_C.cl"
+    #include "HerglotzWaveKernel.cl"
             ,block_size,wave_chunk_size
         );
             
@@ -75,7 +75,7 @@ public:
         }
 
         // Create the OpenCL kernel
-        cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel_C", &ret);
+        cl_kernel kernel = clCreateKernel(program, "HerglotzWaveKernel", &ret);
         cl_check_ret( tag, "clCreateKernel" );
         
         // Set the arguments of the kernel

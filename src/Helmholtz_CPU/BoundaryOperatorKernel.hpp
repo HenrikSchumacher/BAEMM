@@ -1,55 +1,55 @@
 public:
 
-    void BoundaryOperatorKernel_C(
+    void BoundaryOperatorKernel(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
     )
     {
         if( !B_loaded )
         {
-            wprint(ClassName()+"::BoundaryOperatorKernel_C: No values loaded into B. doing nothing.");
+            wprint(ClassName()+"::BoundaryOperatorKernel: No values loaded into B. doing nothing.");
         }
         
         switch( wave_chunk_size )
         {
             case 1:
             {
-                boundaryOperatorKernel_C<4,2,1>(kappa_,c_);
+                boundaryOperatorKernel<4,2,1>(kappa_,c_);
                 break;
             }
             case 2:
             {
-                boundaryOperatorKernel_C<4,2,2>(kappa_,c_);
+                boundaryOperatorKernel<4,2,2>(kappa_,c_);
                 break;
             }
             case 4:
             {
-                boundaryOperatorKernel_C<4,2,4>(kappa_,c_);
+                boundaryOperatorKernel<4,2,4>(kappa_,c_);
                 break;
             }
             case 8:
             {
-                boundaryOperatorKernel_C<4,2,8>(kappa_,c_);
+                boundaryOperatorKernel<4,2,8>(kappa_,c_);
                 break;
             }
             case 16:
             {
-                boundaryOperatorKernel_C<4,2,16>(kappa_,c_);
+                boundaryOperatorKernel<4,2,16>(kappa_,c_);
                 break;
             }
             case 32:
             {
-                boundaryOperatorKernel_C<4,2,32>(kappa_,c_);
+                boundaryOperatorKernel<4,2,32>(kappa_,c_);
                 break;
             }
             case 64:
             {
-                boundaryOperatorKernel_C<4,2,64>(kappa_,c_);
+                boundaryOperatorKernel<4,2,64>(kappa_,c_);
                 break;
             }
             default:
             {
-                eprint(ClassName()+"::BoundaryOperatorKernel_C: wave_chunk_size must be a power of 2 that is smaller or equal to 64.");
+                eprint(ClassName()+"::BoundaryOperatorKernel: wave_chunk_size must be a power of 2 that is smaller or equal to 64.");
                 break;
             }
         }
@@ -58,18 +58,18 @@ public:
     template<
         Int i_blk_size, Int j_blk_size, Int wave_chunk_size
     >
-    void boundaryOperatorKernel_C(
+    void boundaryOperatorKernel(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
     )
     {
-        ptic(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
+        ptic(ClassName()+"::BoundaryOperatorKernel<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
         
 //        constexpr Int i_chunk_size = i_blk_size * wave_count;
 
         if( (simplex_count/i_blk_size) * i_blk_size != simplex_count )
         {
-            wprint(ClassName()+"::BoundaryOperatorKernel_C: Loop peeling not applied.");
+            wprint(ClassName()+"::BoundaryOperatorKernel: Loop peeling not applied.");
         }
         
         const int k_chunk_size  = wave_chunk_size;
@@ -213,10 +213,10 @@ public:
             );
         }
         
-        ptoc(ClassName()+"::BoundaryOperatorKernel_C<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
+        ptoc(ClassName()+"::BoundaryOperatorKernel<"+ToString(i_blk_size)+","+ToString(j_blk_size)+">");
     }
 
-    void BoundaryOperatorKernel_C(
+    void BoundaryOperatorKernel(
     )
     {
     }

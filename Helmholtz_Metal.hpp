@@ -149,11 +149,24 @@ namespace BAEMM
         
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
         
-#include "src/Helmholtz_Metal/BoundaryOperatorKernel_C.hpp"
+#include "src/Helmholtz_Metal/BoundaryOperatorKernel.hpp"
         
 //#include "src/Helmholtz_Metal/BoundaryOperatorKernel_ReIm.hpp
     
     public:
+        
+        std::string DeviceInfo()
+        {
+            std::string tag = ClassName()+"::DeviceInfo";
+            
+            std::stringstream s;
+            
+            s << tag << std::endl;
+            
+            // TODO: Write device info.
+            
+            return s.str();
+        }
         
         const float * VertexCoordinates() const
         {

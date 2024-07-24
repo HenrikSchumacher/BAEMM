@@ -89,7 +89,7 @@ public:
         
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
         
-#include "src/Helmholtz_CPU/BoundaryOperatorKernel_C.hpp"
+#include "src/Helmholtz_CPU/BoundaryOperatorKernel.hpp"
         
 
 
@@ -106,6 +106,17 @@ public:
         {
             return tri_coords.data();
         }
+        
+    std::string DeviceInfo()
+    {
+        std::string tag = ClassName()+"::DeviceInfo";
+        
+        std::stringstream s;
+        
+        s << tag << std::endl;
+        
+        return s.str();
+    }
         
     public:
         

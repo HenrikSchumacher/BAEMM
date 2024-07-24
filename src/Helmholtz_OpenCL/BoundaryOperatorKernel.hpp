@@ -2,9 +2,9 @@ private:
 
     // The idea of this host code is to keep the compiled program and uploaded buffers as long as possible to accelerate
     // the use in a linear solver where a flexibility in sizes and coefficients is not needed during the iterations.
-    int BoundaryOperatorKernel_C()
+    int BoundaryOperatorKernel()
     {
-        std::string tag = ClassName()+"::BoundaryOperatorKernel_C";
+        std::string tag = ClassName()+"::BoundaryOperatorKernel";
         
         ptic(tag);
         
@@ -62,7 +62,7 @@ private:
 
         // Create kernel source
         std::string source = CreateSourceString(
-#include "BoundaryOperatorKernel_C.cl"
+#include "BoundaryOperatorKernel.cl"
             ,block_size,wave_chunk_size
         );
             
@@ -88,7 +88,7 @@ private:
         }
                 
         // Create the OpenCL kernel
-        bdr_kernel = clCreateKernel(program, "BoundaryOperatorKernel_C", &ret);
+        bdr_kernel = clCreateKernel(program, "BoundaryOperatorKernel", &ret);
         cl_check_ret( tag, "clCreateKernel" );
         
         // Set the arguments of the kernel

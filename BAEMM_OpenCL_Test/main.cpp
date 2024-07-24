@@ -7,6 +7,7 @@
 
 #define TOOLS_ENABLE_PROFILER
 
+//#include "../submodules/Repulsor/submodules/Tensors/submodules/Tools/Tools.hpp"
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadMeshFromFile.hpp"
 
@@ -32,17 +33,17 @@ int main()
     }
     
     std::filesystem::path this_file { __FILE__ };
-    std::filesystem::path repo_dir  = this_file.parent_path().parent_path();
+    std::filesystem::path repo_dir = this_file.parent_path().parent_path();
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
     
-    std::filesystem::path home_dir { homedir };
+    std::filesystem::path home_dir  { homedir };
         
     Profiler::Clear( home_dir );
     
 
     std::string mesh_name { "Triceratops_00081920T" };
-
-    //    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+    
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
 //    std::string mesh_name { "Spot_00023424T" };
@@ -51,9 +52,27 @@ int main()
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
 
-        
-    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+    
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
+    
+    {
+        std::ifstream f( mesh_file.string() );
+        if ( !f.good() )
+        {
+            eprint("File " + mesh_file.string() + " not found. Exiting.");
+            exit(1);
+        }
+    }
+    
+    {
+        std::ifstream f( meas_file.string() );
+        if ( !f.good() )
+        {
+            eprint("File " + mesh_file.string() + " not found. Exiting.");
+            exit(1);
+        }
+    }
     
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
@@ -79,13 +98,6 @@ int main()
         device,
         thread_count
     );
-    
-    dump( H.ClassName() );
-    dump( H.ThreadCountCPU() );
-    
-    print("");
-    
-    print(H.DeviceInfo());
     
 //    constexpr Int wave_count = 32;
     constexpr Int wave_count = 16;
@@ -261,3 +273,5 @@ int main()
     
     return 0;
 }
+
+

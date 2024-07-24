@@ -98,7 +98,7 @@ public:
             C_loaded = true;
             
             // Apply off-diagonal part of integral operators.
-            FarFieldOperatorKernel_C( kappa, c );
+            FarFieldOperatorKernel( kappa, c );
     
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
 

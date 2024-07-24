@@ -1,15 +1,15 @@
 public:
 
-    void BoundaryOperatorKernel_C(
+    void BoundaryOperatorKernel(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
     )
     {
-        std::string name ("BoundaryOperatorKernel_C");
+        std::string name ("BoundaryOperatorKernel");
         
         if( !B_loaded )
         {
-            wprint(ClassName()+"::BoundaryOperatorKernel_C: No values loaded into B. doing nothing.");
+            wprint(ClassName()+"::BoundaryOperatorKernel: No values loaded into B. doing nothing.");
         }
         
         std::string tag = ClassName()+"::"+name+"(...,"+ToString(block_size)+","+ToString(wave_chunk_size)
@@ -26,7 +26,7 @@ public:
         NS::SharedPtr<MTL::ComputePipelineState> pipeline = GetPipelineState(
             name,
             std::string(
-#include "BoundaryOperatorKernel_C.metal"
+#include "BoundaryOperatorKernel.metal"
             ),
             {"int","int","bool","bool","bool","bool","bool","bool"},
             {"block_size","wave_chunk_size",
@@ -129,7 +129,7 @@ public:
         ptoc(tag);
     }
 
-    void BoundaryOperatorKernel_C(
+    void BoundaryOperatorKernel(
     )
     {
     }

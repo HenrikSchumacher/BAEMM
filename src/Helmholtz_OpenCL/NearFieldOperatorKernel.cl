@@ -2,18 +2,21 @@ R"(
 __constant float2 zero = (float2)(0.0f,0.0f);
 __constant float  one  = 1.0f;
 
-__kernel void BoundaryOperatorKernel_C(
-        const __global   float4 * mid_points     ,
-        const __global   float4 * normals        ,
-        const __global   float2 * B_global       ,
-              __global   float2 * C_global       ,
-              __constant float  * kappa_buf      ,
-              __constant float2 * coeff          ,
-              __constant int    * N              ,
-              __constant int    * wave_count
+__kernel void NearFieldOperatorKernel(
+        const __global   float4 * mid_points       ,
+        const __global   float4 * normals          ,
+        const __global   float2 * B_global         ,
+        const __global   float4 * evaluation_points,
+              __global   float2 * C_global         ,
+              __constant float  * kappa_buf        ,
+              __constant float2 * coeff            ,
+              __constant int    * N                ,
+              __constant int    * wave_count       ,
+              __constant int    * evaluation_count
 )  
 {
     const int n             = *N;
+    const int m             = *evaluation_count;
     const int k_chunk_count = (*wave_count) / k_chunk_size;
     const int k_ld          = (*wave_count);
     
@@ -22,7 +25,6 @@ __kernel void BoundaryOperatorKernel_C(
     const int i = get_global_id(0);
 
     __private float3 x_i;
-    __private float3 nu_i;
     
     __private float2 A_i [block_size];
 
@@ -31,38 +33,22 @@ __kernel void BoundaryOperatorKernel_C(
     __local float3 y  [block_size];
     __local float3 mu [block_size];
     
-    if( i < n )
+    if( i < m )
     {
-        x_i  = mid_points[i].xyz;
-        
-        if( Re_adjdbl_layer || Im_adjdbl_layer )
-        {
-            nu_i = normals[i].xyz;
-        }
+        x_i  = evaluation_points[i].xyz;
     }
     else
     {
         x_i.x = 1.f;
         x_i.y = 1.f;
         x_i.z = 1.f;
-        
-        if( Re_adjdbl_layer || Im_adjdbl_layer )
-        {
-            nu_i.x = 0.f;
-            nu_i.y = 0.f;
-            nu_i.z = 1.f;
-        }
     }
     
     for( int k_chunk = 0; k_chunk < k_chunk_count; ++k_chunk )
     {   
         const __private float  kappa = kappa_buf[k_chunk];
-        const __private float2 c [4] = {
-            coeff[4*k_chunk + 0],
-            coeff[4*k_chunk + 1],
-            coeff[4*k_chunk + 2],
-            coeff[4*k_chunk + 3]
-        };
+        const __private float2 c [4] = {coeff[4*k_chunk + 0],coeff[4*k_chunk + 1],
+                                    coeff[4*k_chunk + 2],coeff[4*k_chunk + 3]};
 
         __private float2 C_i [k_chunk_size] = {zero};
         
@@ -101,7 +87,7 @@ __kernel void BoundaryOperatorKernel_C(
                 {
                     const int j = block_size * j_block + j_loc;
 
-                    const float delta = (float)( (i == j) || (i >= n) || (j >= n) );
+                    const float delta = (float)( (i >= m) || (j >= n) );
 
                     const float3 z = y[j_loc] - x_i;
 
@@ -119,7 +105,7 @@ __kernel void BoundaryOperatorKernel_C(
                     if( Re_single_layer && Im_single_layer )
                     {
                         A_i[j_loc].x += (c[1].x * CosKappaR - c[1].y * SinKappaR) * r_inv;
-                        A_i[j_loc].y += (c[1].x * SinKappaR + c[1].y * CosKappaR) * r_inv;
+                        A_i[j_loc].y += (c[1].x * SinKappaR + c[1].y * CosKappaR) * r_inv ;
                     }
                     else if (Re_single_layer )
                     {
@@ -132,11 +118,7 @@ __kernel void BoundaryOperatorKernel_C(
                         A_i[j_loc].y += (+ c[1].y * CosKappaR) * r_inv;
                     }
 
-
-                    if( Re_double_layer || Im_double_layer
-                        ||
-                        Re_adjdbl_layer || Im_adjdbl_layer
-                    )
+                    if( Re_double_layer || Im_double_layer)
                     {
                         const float r3_inv = r_inv * r_inv * r_inv;
                         const float KappaRCosKappaR = KappaR * CosKappaR;
@@ -145,51 +127,24 @@ __kernel void BoundaryOperatorKernel_C(
                         const float a_0 = -(KappaRSinKappaR + CosKappaR) * r3_inv;
                         const float a_1 =  (KappaRCosKappaR - SinKappaR) * r3_inv;
 
+                        const float factor = (
+                                z.x * mu[j_loc].x
+                            + z.y * mu[j_loc].y
+                            + z.z * mu[j_loc].z
+                        );
 
-                        if( Re_double_layer || Im_double_layer )
+                        const float b_0 = factor * a_0;
+                        const float b_1 = factor * a_1;
+
+                        if( Re_double_layer )
                         {
-                            const float factor = (
-                                  z.x * mu[j_loc].x
-                                + z.y * mu[j_loc].y
-                                + z.z * mu[j_loc].z
-                            );
-
-                            const float b_0 = factor * a_0;
-                            const float b_1 = factor * a_1;
-
-                            if( Re_double_layer )
-                            {
-                                A_i[j_loc].x += b_0 * c[2].x;
-                                A_i[j_loc].y += b_1 * c[2].x;
-                            }
-                            if( Im_double_layer )
-                            {
-                                A_i[j_loc].x -= b_1 * c[2].y;
-                                A_i[j_loc].y += b_0 * c[2].y;
-                            }
+                            A_i[j_loc].x += b_0 * c[2].x;
+                            A_i[j_loc].y += b_1 * c[2].x;
                         }
-
-                        if( Re_adjdbl_layer || Im_adjdbl_layer )
+                        if( Im_double_layer )
                         {
-                            const float factor = - (
-                                  z.x * nu_i.x
-                                + z.y * nu_i.y
-                                + z.z * nu_i.z
-                            );
-
-                            const float b_0 = factor * a_0;
-                            const float b_1 = factor * a_1;
-
-                            if( Re_adjdbl_layer )
-                            {
-                                A_i[j_loc].x += b_0 * c[3].x;
-                                A_i[j_loc].y += b_1 * c[3].x;
-                            }
-                            if( Im_adjdbl_layer )
-                            {
-                                A_i[j_loc].x -= b_1 * c[3].y;
-                                A_i[j_loc].y += b_0 * c[3].y;
-                            }
+                            A_i[j_loc].x -= b_1 * c[2].y;
+                            A_i[j_loc].y += b_0 * c[2].y;
                         }
                     }                    
                 }

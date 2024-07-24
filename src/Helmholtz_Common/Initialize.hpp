@@ -4,6 +4,22 @@ public:
     {
         ptic(ClassName()+"::Initialize");
         
+        logprint(Tools::IntegerInfo());
+        
+        logprint(Tools::FloatingPointInfo());
+        
+        logprint("");
+        
+        logprint(DeviceInfo());
+        
+        logprint("");
+        
+        logdump( vertex_count );
+        logdump( simplex_count );
+        logdump( CPU_thread_count );
+        
+        logprint("");
+        
         SetBlockSize(64);
         
         // For assembling AvOp.
