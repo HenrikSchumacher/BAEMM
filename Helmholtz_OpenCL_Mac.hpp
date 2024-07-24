@@ -135,7 +135,7 @@ namespace BAEMM
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // Instead we can use this (deprecated) feature:
-            command_queue = clCreateCommandQueueWithProperties(context,device_id,0,&ret);
+            command_queue = clCreateCommandQueue(context,device_id,0,&ret);
             
             
             // initialize the Opencl buffers and host pointers
@@ -207,7 +207,7 @@ namespace BAEMM
             // command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
 
             // Instead we can use this (deprecated) feature:
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+            command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
             
             // Initialize the OpenCL buffers and host pointers.
             InitializeBuffers(simplex_count,meas_directions_);
