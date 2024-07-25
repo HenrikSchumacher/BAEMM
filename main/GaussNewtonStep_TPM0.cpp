@@ -141,7 +141,7 @@ int main()
         tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
     };
 
-    Real one_over_regpar = 1/regpar;
+    Real one_over_regpar = Inv<Real>(regpar);
 
     Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
@@ -150,11 +150,11 @@ int main()
     // The operator for the preconditioner.
     auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
-        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
+//        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
         
-//        M->H1Solve( X, Y, dim );
-//        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
-//        M->H1Solve( Z, Y, dim );
+        M->H1Solve( X, Y, dim );
+        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
+        M->H1Solve( Z, Y, dim );
     };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
