@@ -147,9 +147,9 @@ int main()
     {
 //        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
         
-        M->H1Solve( X, Y, dim );
+        M->H1Solver().template Solve<Sequential>(X, Y, dim);
         pseudo_lap.MultiplyMetric( *M, Scalar::One<Real>, Y, Scalar::Zero<Real>, Z, dim );
-        M->H1Solve( Z, Y, dim );
+        M->H1Solver().template Solve<Sequential>(Z, Y, dim);
     };
 
     ConjugateGradient<3,Real,Size_T,false,false> cg(vertex_count,500,3,thread_count);
