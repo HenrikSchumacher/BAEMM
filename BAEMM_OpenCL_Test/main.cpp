@@ -104,7 +104,7 @@ int main()
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
-    Tensor2<Complex,Int> C ( meas_count, wave_count );
+    Tensor2<Complex,Int> F ( meas_count, wave_count );
     
     Tensor1<Real,Int> kappa ( wave_chunk_count    );
     Tensor2<Real,Int> inc   ( wave_chunk_size, 3 );
@@ -191,16 +191,18 @@ int main()
     H.FarField<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        C.data(), 
+        F.data(),
         BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("FarField");
+    
+    std::ofstream((home_dir / "F_New.txt").string()) << ToString(F);
     
     print("");
     
     Real factor = Frac<Real>(2 * Scalar::Pi<Real>, meas_count * wave_count );
 
-    Real norm = std::sqrt(factor) * C.FrobeniusNorm();
+    Real norm = std::sqrt(factor) * F.FrobeniusNorm();
 
     std::cout << "L^2-norm of C = " << norm << std::endl;
     
@@ -223,6 +225,8 @@ int main()
     );
     toc("Derivative_FF");
     
+    std::ofstream((home_dir / "DF_New.txt").string()) << ToString(DFh);
+    
     print("");
 
     
@@ -234,29 +238,30 @@ int main()
     );
     toc("AdjointDerivative_FF");
     
-    print("");
-    
-    tic("Derivative_FF");
-    H.Derivative_FF<wave_count>(
-        kappa.data(), wave_chunk_count,
-        inc.data(),   wave_chunk_size,
-        h.data(), DFh.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
-    );
-    toc("Derivative_FF");
+    std::ofstream((home_dir / "DFT_New.txt").string()) << ToString(w);
     
     print("");
-    
-    tic("AdjointDerivative_FF");
-    H.AdjointDerivative_FF<wave_count>(
-        kappa.data(), wave_chunk_count,
-        inc.data(),   wave_chunk_size,
-        DFh.data(), w.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
-    );
-    toc("AdjointDerivative_FF");
-    
-    
+//    
+//    tic("Derivative_FF");
+//    H.Derivative_FF<wave_count>(
+//        kappa.data(), wave_chunk_count,
+//        inc.data(),   wave_chunk_size,
+//        h.data(), DFh.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+//    );
+//    toc("Derivative_FF");
+//    
+//    print("");
+//    
+//    tic("AdjointDerivative_FF");
+//    H.AdjointDerivative_FF<wave_count>(
+//        kappa.data(), wave_chunk_count,
+//        inc.data(),   wave_chunk_size,
+//        DFh.data(), w.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+//    );
+//    toc("AdjointDerivative_FF");
+//    
+//    
     toc("Starting measurement");
-
     
     if( du_dn != nullptr )
     {

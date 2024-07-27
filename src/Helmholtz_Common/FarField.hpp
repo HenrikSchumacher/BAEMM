@@ -217,8 +217,8 @@ public:
         );
         
         ApplyFarFieldOperators_PL(
-            C_ext(0), phi.data(), wc,
-            C_ext(1), Y_out,      wc,
+            C_ext(1), phi.data(), wc,
+            C_ext(0), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
         

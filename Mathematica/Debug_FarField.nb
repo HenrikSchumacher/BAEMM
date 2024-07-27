@@ -1,0 +1,182 @@
+Notebook[{
+Cell[BoxData["Exit"], "Input",
+ CellLabel->
+  "In[201]:=",ExpressionUUID->"d822afe2-a925-4cfe-9828-75927d5ce3be"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ReadComplexArray", "[", "file_String", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "S", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"S", "=", 
+        RowBox[{"StringReplace", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"StringTrim", "@", 
+           RowBox[{
+            RowBox[{"StringSplit", "[", 
+             RowBox[{
+              RowBox[{"Import", "[", 
+               RowBox[{"file", ",", "\"\<String\>\""}], "]"}], ",", 
+              "\"\<\\n\>\""}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"2", ";;", 
+              RowBox[{"-", "2"}]}], "]"}], "]"}]}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"\"\<{\>\"", "->", "\"\<\>\""}], ",", 
+            RowBox[{"\"\<I, \>\"", "->", "\"\<\\t\>\""}], ",", 
+            RowBox[{"\"\<},\>\"", "->", "\"\<\\n\>\""}], ",", 
+            RowBox[{"\"\<I \>\"", "->", "\"\<\>\""}], ",", 
+            RowBox[{"\"\< + \>\"", "->", "\"\<\\t\>\""}], ",", 
+            RowBox[{"\"\< - \>\"", "->", "\"\<\\t-\>\""}]}], "}"}]}], 
+         "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"S", "[", 
+         RowBox[{"[", 
+          RowBox[{"-", "1"}], "]"}], "]"}], "=", 
+        RowBox[{"StringReplace", "[", 
+         RowBox[{
+          RowBox[{"S", "[", 
+           RowBox[{"[", 
+            RowBox[{"-", "1"}], "]"}], "]"}], ",", 
+          RowBox[{"\"\< }\>\"", "->", "\"\<\>\""}]}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "\[IndentingNewLine]", 
+       RowBox[{"Developer`ToPackedArray", "[", 
+        RowBox[{"ImportString", "[", 
+         RowBox[{
+          RowBox[{"StringJoin", "[", "S", "]"}], ",", "\"\<TSV\>\""}], "]"}], 
+        "]"}]}]}], "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ReadRealArray", "[", "file_String", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "S", "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"S", "=", 
+       RowBox[{"StringReplace", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"StringTrim", "@", 
+          RowBox[{
+           RowBox[{"StringSplit", "[", 
+            RowBox[{
+             RowBox[{"Import", "[", 
+              RowBox[{"file", ",", "\"\<String\>\""}], "]"}], ",", 
+             "\"\<\\n\>\""}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "2"}]}], "]"}], "]"}]}], ",", "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"\"\<{ \>\"", "->", "\"\<\>\""}], ",", 
+           RowBox[{"\"\<, \>\"", "->", "\"\<\\t\>\""}], ",", 
+           RowBox[{"\"\< },\>\"", "->", "\"\<\\n\>\""}], ",", 
+           RowBox[{"\"\< + \>\"", "->", "\"\<\\t\>\""}], ",", 
+           RowBox[{"\"\< - \>\"", "->", "\"\<\\t-\>\""}]}], "}"}]}], 
+        "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"S", "[", 
+        RowBox[{"[", 
+         RowBox[{"-", "1"}], "]"}], "]"}], "=", 
+       RowBox[{"StringReplace", "[", 
+        RowBox[{
+         RowBox[{"S", "[", 
+          RowBox[{"[", 
+           RowBox[{"-", "1"}], "]"}], "]"}], ",", 
+         RowBox[{"\"\< }\>\"", "->", "\"\<\>\""}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"Developer`ToPackedArray", "[", 
+       RowBox[{"ImportString", "[", 
+        RowBox[{
+         RowBox[{"StringJoin", "[", "S", "]"}], ",", "\"\<TSV\>\""}], "]"}], 
+       "]"}]}]}], "\[IndentingNewLine]", "]"}]}], ";"}]}], "Input",
+ CellLabel->"In[1]:=",ExpressionUUID->"ce113c02-6350-4314-bc5a-3966978d9609"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"FTrue", "=", 
+   RowBox[{
+   "ReadComplexArray", "[", "\"\</Users/Henrik/F_True.txt\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"FNew", "=", 
+   RowBox[{
+   "ReadComplexArray", "[", "\"\</Users/Henrik/F_New.txt\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"FTrue", "-", "FNew"}], "]"}], "]"}], "/", 
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", "FTrue", "]"}], "]"}]}]}], "Input",
+ CellLabel->"In[3]:=",ExpressionUUID->"af77e30e-1546-411e-945c-e5015c2cb2a2"],
+
+Cell[BoxData["0.000021236452040727063`"], "Output",
+ CellLabel->"Out[5]=",ExpressionUUID->"cb735e19-e3da-4592-94de-96115c7058a5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"DFTrue", "=", 
+   RowBox[{
+   "ReadComplexArray", "[", "\"\</Users/Henrik/DF_True.txt\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DFNew", "=", 
+   RowBox[{
+   "ReadComplexArray", "[", "\"\</Users/Henrik/DF_New.txt\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"DFTrue", "-", "DFNew"}], "]"}], "]"}], "/", 
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", "DFTrue", "]"}], "]"}]}]}], "Input",
+ CellLabel->"In[6]:=",ExpressionUUID->"873024e8-709c-48da-b79e-7d3969c18c2b"],
+
+Cell[BoxData["0.000035026675034494556`"], "Output",
+ CellLabel->"Out[8]=",ExpressionUUID->"c4cc13aa-b416-456d-805a-a3cc9ed84028"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"DFTTrue", "=", 
+   RowBox[{
+   "ReadRealArray", "[", "\"\</Users/Henrik/DFT_True.txt\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"DFTNew", "=", 
+   RowBox[{"ReadRealArray", "[", "\"\</Users/Henrik/DFT_New.txt\>\"", "]"}]}],
+   ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"DFTTrue", "-", "DFTNew"}], "]"}], "]"}], "/", 
+  RowBox[{"Max", "[", 
+   RowBox[{"Abs", "[", "DFTTrue", "]"}], "]"}]}]}], "Input",
+ CellLabel->"In[9]:=",ExpressionUUID->"e76ef5a9-d806-467f-b83d-51850240e8d5"],
+
+Cell[BoxData["0.0007861220552996421`"], "Output",
+ CellLabel->
+  "Out[11]=",ExpressionUUID->"b6aef89a-48e0-4d3f-bb16-654f95fe07d1"]
+}, Open  ]]
+},
+WindowSize->{1496, 905},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"13.3 for Mac OS X ARM (64-bit) (July 24, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"5c903999-ab75-496f-a268-b5aae063351d"
+]
+
