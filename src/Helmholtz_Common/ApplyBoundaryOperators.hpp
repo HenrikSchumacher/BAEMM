@@ -10,9 +10,8 @@ public:
         const I_ext wave_chunk_size_
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         LoadBoundaryOperators_PL(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
@@ -71,14 +70,9 @@ public:
 //        //
 //        //
 //        
-//        ASSERT_INT(I_ext);
-//        static_assert(FloatQ<R_ext>,"");
-//        static_assert(FloatQ<C_ext>,"");
-//        static_assert(Scalar::ComplexQ<C_ext>,"");
-//        
-//        ASSERT_REAL(R_ext);
-//        ASSERT_COMPLEX(C_ext);
-//        
+//        CheckInteger<I_ext>();
+//        CheckScalars<R_ext,C_ext>();
+//
 //        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
 //        
 //        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -93,9 +87,9 @@ public:
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_COMPLEX(C_ext);
-
+        CheckInteger<I_ext>();
+        CheckComplex<C_ext>();
+        
         std::string tag = ClassName()+"::ApplyBoundaryOperators_PL";
         ptic(tag);
         

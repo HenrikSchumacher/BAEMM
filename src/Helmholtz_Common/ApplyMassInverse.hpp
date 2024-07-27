@@ -5,7 +5,7 @@ public:
         cptr<X_T> X, const Int ldX,
         mptr<Y_T> Y, const Int ldY,
         const R_ext cg_tol,
-        const Int nrhs = NRHS
+        const Int   nrhs = NRHS
     )
     {
         // Solves M.Y = X or Y = M^{-1}.X
@@ -14,7 +14,7 @@ public:
         // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
         // If NRHS == 0, then nrhs is used.
         
-        ASSERT_REAL(R_ext);
+        CheckReal<R_ext>();
         
         // Internally, the type `Real` is used, so `X_T` and `Y_T` must encode real types, too.
         
@@ -41,7 +41,7 @@ public:
         }
         
         ptic(tag);
-        
+                
         constexpr Int max_iter = 20;
         
         // Per default `ConjugateGradient` assumes that the initial guess is 0.
@@ -51,53 +51,73 @@ public:
         
         if constexpr ( Scalar::ComplexQ<X_T> )
         {
+            using CG_Scal = Complex;
+            using CG_Real = Real;
+            
             // The two boolean at the end of the template silence some messages.
-            ConjugateGradient<NRHS,Complex,Size_T,false,false> cg(
+            ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
                 vertex_count, max_iter, nrhs, CPU_thread_count
             );
 
-            auto A = [this,nrhs]( cptr<Complex> x, mptr<Complex> y )
+            auto A = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
                 Mass.Dot<2 * NRHS>(
-                    Scalar::One <Real>, reinterpret_cast<const Real *>(x), 2 * nrhs,
-                    Scalar::Zero<Real>, reinterpret_cast<      Real *>(y), 2 * nrhs,
+                    Scalar::One <CG_Real>, reinterpret_cast<const CG_Real *>(x), 2 * nrhs,
+                    Scalar::Zero<CG_Real>, reinterpret_cast<      CG_Real *>(y), 2 * nrhs,
                     2 * nrhs
                 );
             };
             
-            auto P = [this,nrhs]( cptr<Complex> x, mptr<Complex> y )
+            auto P = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
                 ApplyLumpedMassInverse<2 * NRHS>(
-                    reinterpret_cast<const Real *>(x), 2 * nrhs,
-                    reinterpret_cast<      Real *>(y), 2 * nrhs,
+                    reinterpret_cast<const CG_Real *>(x), 2 * nrhs,
+                    reinterpret_cast<      CG_Real *>(y), 2 * nrhs,
                     2 * nrhs
                 );
             };
             
-            succeeded = cg(A,P,X,ldX,Y,ldY,static_cast<Real>(cg_tol));
+            succeeded = cg(
+                A,P,
+                Y_T(1), X, ldX,
+                Y_T(0), Y, ldY,
+                static_cast<Real>(cg_tol)
+            );
         }
         else
         {
+            using CG_Scal = Real;
+            using CG_Real = Real;
+            
             // The two boolean at the end of the template silence some messages.
-            ConjugateGradient<NRHS,Real,Size_T,false,false> cg( 
+            ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
                 vertex_count, max_iter, nrhs, CPU_thread_count
             );
 
-            auto A = [this,nrhs]( cptr<Real> x, mptr<Real> y )
+            auto A = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
                 Mass.Dot<NRHS>(
-                    Scalar::One <Real>, x, nrhs,
-                    Scalar::Zero<Real>, y, nrhs,
+                    Scalar::One <CG_Scal>, x, nrhs,
+                    Scalar::Zero<CG_Scal>, y, nrhs,
                     nrhs
                 );
             };
             
-            auto P = [this,nrhs]( cptr<Real> x, mptr<Real> y )
+            auto P = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
-                ApplyLumpedMassInverse<NRHS>(x,nrhs,y,nrhs,nrhs);
+                ApplyLumpedMassInverse<NRHS>( 
+                    x, nrhs,
+                    y, nrhs,
+                    nrhs
+                );
             };
             
-            succeeded = cg(A,P,X,ldX,Y,ldY,static_cast<Real>(cg_tol));
+            succeeded = cg(
+                A,P,
+                R_ext(1), X, ldX,
+                R_ext(0), Y, ldY,
+                static_cast<CG_Real>(cg_tol)
+            );
         }
 
         if( !succeeded )
@@ -134,8 +154,8 @@ public:
                 // for j in [0, `(NRHS>0) ? NRHS : nrhs`[.
                 
                 combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,NRHS>(
-                    factor,            &X[ldX * i],
-                    Scalar::Zero<Y_T>, &Y[ldY * i],
+                    factor, &X[ldX * i],
+                    Y_T(0), &Y[ldY * i],
                     nrhs
                 );
             },

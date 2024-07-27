@@ -28,9 +28,8 @@ public:
         //
         //
         
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         R_ext factor = static_cast<R_ext>(four_pi / meas_count);
         LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_, factor);
@@ -50,9 +49,8 @@ public:
     {
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         R_ext factor = static_cast<R_ext>(four_pi / meas_count);
         LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_, factor);
@@ -69,8 +67,8 @@ public:
     )
     {
         // The same as above, but assumes that
-        ASSERT_INT(I_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckComplex<C_ext>();
 
         ptic(ClassName()+"::CreateHerglotzWave_PL");
         
@@ -80,15 +78,19 @@ public:
             return;
         }
         
+        const Int ldB_in  = int_cast<Int>(ldB_in_);
         const Int ldC_out = int_cast<Int>(ldC_out_);
         
         RequireBuffersHerglotzWave( wave_count );
         
-        if( Re_single_layer || Im_single_layer ||
-            Re_double_layer || Im_double_layer
-        )
-        {   
-            type_cast(B_ptr, B_in ,wave_count * meas_count, CPU_thread_count);
+        if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer )
+        {
+            copy_matrix<VarSize,VarSize,Parallel>
+            (
+                B_in,  ldB_in,
+                B_ptr, wave_count,
+                meas_count, wave_count, CPU_thread_count
+            );
 
             ModifiedB();
             C_loaded = true;    

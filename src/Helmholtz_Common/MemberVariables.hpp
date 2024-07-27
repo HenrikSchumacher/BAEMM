@@ -58,3 +58,10 @@ private:
     Int block_count        =  0;
     Int rows_rounded       =  0;
 
+
+public:
+
+//    Real cg_tol             = ?;
+//    Real gmres_tol          = ?;
+    Int  gmres_max_iter     = 30;
+    Int  gmres_max_restarts =  3;

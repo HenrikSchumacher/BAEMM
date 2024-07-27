@@ -28,9 +28,8 @@ public:
         //
         //
         
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
@@ -49,9 +48,8 @@ public:
     {
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
@@ -66,9 +64,8 @@ public:
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
     )
     {
-        // The same as above, but assumes that
-        ASSERT_INT(I_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckComplex<C_ext>();
 
         ptic(ClassName()+"::ApplyFarFieldOperators_PL");
         
@@ -83,8 +80,8 @@ public:
         
         RequireBuffersFarField( wave_count );
         
-        if( Re_single_layer || Im_single_layer ||
-            Re_double_layer || Im_double_layer
+        if(
+           Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer
         )
         {
             // use averaging operator to get from PL to PC boundary functions
@@ -102,8 +99,15 @@ public:
     
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
 
-            copy_matrix<VarSize,Parallel>(
-                C_ptr, ldC, C_out, ldC_out, wave_count, CPU_thread_count
+            // TODO: Are these dimensions correct?
+
+            combine_matrices<
+                Scalar::Flag::Generic,Scalar::Flag::Generic,
+                VarSize,VarSize,Parallel
+            >(
+                alpha, C_ptr, ldC,
+                beta , C_out, ldC_out,
+                meas_count, wave_count, CPU_thread_count
             );
         }
         ptoc(ClassName()+"::ApplyFarFieldOperators_PL");

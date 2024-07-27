@@ -32,10 +32,9 @@ public:
 //        //
 //        
 //        
-//        ASSERT_INT(I_ext);
-//        ASSERT_REAL(R_ext);
-//        ASSERT_COMPLEX(C_ext);
-//        
+//        CheckInteger<I_ext>();
+//        CheckScalars<R_ext,C_ext>();
+//
 //        
 //        if (inc_count != wave_chunk_size_)
 //        {
@@ -56,8 +55,8 @@ public:
 
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
-        const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
+        const C_ext alpha, cptr<R_ext> incident_directions, const I_ext inc_count,
+        const C_ext beta,  mptr<C_ext> C_out,               const I_ext ldC_out,
         const R_ext * kappa_list,
         const C_ext * coeff_list,
         const I_ext wave_count_,
@@ -65,19 +64,18 @@ public:
         WaveType type = WaveType::Plane
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         if (inc_count != wave_chunk_size_)
         {
             if (inc_count > wave_chunk_size_)
             {
-                print("number of inident waves has to match the size of the wave chunks. excess incident directions will be ignored");
+                wprint(ClassName() + "::CreateIncidentWave_PL : Number of incident waves has to match the size of the wave chunks. Excess incident directions will be ignored");
             }
             if (inc_count < wave_chunk_size_)
             {
-                eprint("error: number of inident waves has to match the size of the wave chunks");
+                eprint(ClassName() + "::CreateIncidentWave_PL : Number of incident waves has to match the size of the wave chunks");
             }
         }
 
@@ -108,9 +106,8 @@ public:
         //     + coeff_3 * AdjDblLayerOp[kappa]
         //
         
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
 
         std::string tag = ClassName() + "::CreateIncidentWave_PL"
             + "<" + TypeName<I_ext>
@@ -141,11 +138,11 @@ public:
 
             if (type == WaveType::Plane)
             {
-                IncidentWaveKernel_Plane_C( kappa, c, incident_directions.data(), C.data() );
+                IncidentWaveKernel_Plane( kappa, c, incident_directions.data(), C.data() );
             }
             else
             {
-                IncidentWaveKernel_Radial_C( kappa, c, incident_directions.data(), C.data() );
+                IncidentWaveKernel_Radial( kappa, c, incident_directions.data(), C.data() );
             }
 
             // Use transpose averaging operator to get from PC to PL boundary functions

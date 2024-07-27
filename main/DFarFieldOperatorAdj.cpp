@@ -78,43 +78,43 @@ int main()
         case 1:
         {
             H.AdjointDerivative_FF<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 2:
         {
             H.AdjointDerivative_FF<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 4:
         {
             H.AdjointDerivative_FF<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 8:
         {
             H.AdjointDerivative_FF<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 16:
         {
             H.AdjointDerivative_FF<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 32:
         {
             H.AdjointDerivative_FF<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         case 64:
         {
             H.AdjointDerivative_FF<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_in.data(), B_out.data(), &neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
+                        B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol);
             break;
         }
         default:

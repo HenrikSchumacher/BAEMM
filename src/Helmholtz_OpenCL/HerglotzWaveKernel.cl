@@ -97,7 +97,7 @@ __kernel void HerglotzWaveKernel(
 
                     if( Re_single_layer && Im_single_layer )
                     {
-                        A_i[j_loc].x += delta*(c[0].x * CosKappaR + c[0].y * SinKappaR);
+                        A_i[j_loc].x += delta*( c[0].x * CosKappaR + c[0].y * SinKappaR);
                         A_i[j_loc].y += delta*(-c[0].x * SinKappaR + c[0].y * CosKappaR);
                     }
                     else if (Re_single_layer )
@@ -140,7 +140,7 @@ __kernel void HerglotzWaveKernel(
                 #pragma unroll
                 for( int k = 0; k < k_chunk_size; ++k )
                 {
-                    B[j_loc][k].x = B_j_blk[k].x;
+                    B[j_loc][k].x =  B_j_blk[k].x;
                     B[j_loc][k].y = -B_j_blk[k].y;
                 }
             }

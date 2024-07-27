@@ -26,9 +26,8 @@ public:
         const R_ext factor
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
 
         SetWaveCount    ( int_cast<Int>(wave_count_)      );
         SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );
@@ -117,10 +116,9 @@ public:
 //        const R_ext factor
 //    )
 //    {
-//        ASSERT_INT(I_ext);
-//        ASSERT_REAL(R_ext);
-//        ASSERT_COMPLEX(C_ext);
-//        
+//        CheckInteger<I_ext>();
+//        CheckScalars<R_ext,C_ext>();
+//
 //        SetWaveCount    ( int_cast<Int>(wave_count_)      );
 //        SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );
 //        

@@ -20,11 +20,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::FarField<" + ToString(WC)
             + "," + TypeName<I_ext>
@@ -69,11 +66,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A \ wave is the bdry potential which will be mapped onto the far field
@@ -131,11 +125,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::Derivative_FF<"
             + "," + ToString(WC)
@@ -250,11 +241,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         // Implement the action of the adjoint to the derivative of the bdry to Farfield map.
         // `inc_wave` is a linear combination of the standard incident wave defined pointwise by exp(i*kappa*<x,d>) and its normal derivative
@@ -347,11 +335,8 @@ public:
         const R_ext gmres_tol_outer
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::GaussNewtonStep<"
             + "," + ToString(WC)
@@ -439,10 +424,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::BoundaryPotential<"
             + "," + ToString(WC)
@@ -483,11 +466,8 @@ private:
         const R_ext gmres_tol
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
@@ -554,12 +534,8 @@ public:
         const R_ext gmres_tol
     )
     {
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
-        
-        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::DirichletToNeumann<"
             + "," + ToString(WC)
@@ -642,8 +618,7 @@ private:
         const R_ext cg_tol
     )
     {
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckScalars<R_ext,C_ext>();
         
         static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
         
@@ -707,7 +682,7 @@ private:
         const R_ext cg_tol
     )
     {
-        ASSERT_REAL(R_ext);
+        CheckReal<R_ext>();
         
         std::string tag = ClassName()+"::DotWithNormals_PL<"
             + "," + TypeName<R_ext>

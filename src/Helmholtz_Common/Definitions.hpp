@@ -1,10 +1,10 @@
 public:
     
-    using Int        = int;
-    using LInt       = std::size_t;
-    using Real       = float;
-    using Complex    = std::complex<Real>;    
-    using UInt       = uint32_t;
+    using Int        = Int32;
+    using LInt       = Size_T;
+    using Real       = Real32;
+    using Complex    = std::complex<Real32>;
+    using UInt       = UInt32;
     
     using Sparse_T   = Sparse::MatrixCSR<Real,Int,LInt>;
 

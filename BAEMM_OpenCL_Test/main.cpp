@@ -204,7 +204,6 @@ int main()
 
     std::cout << "L^2-norm of C = " << norm << std::endl;
     
-    
     Tensor2<Real,Int> h ( vertex_count, 3 );
     Tensor2<Real,Int> w ( vertex_count, 3 );
     
@@ -212,53 +211,46 @@ int main()
     
     Tensor2<Complex,Int> DFh ( meas_count, wave_count );
     
-    Complex * pdu_dn = nullptr;
+    Complex * du_dn = nullptr;
     
     print("");
-    
-//    DFh.SetZero();
     
     tic("Derivative_FF");
     H.Derivative_FF<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        h.data(), DFh.data(), &pdu_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+        h.data(), DFh.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("Derivative_FF");
     
     print("");
-    
-//    w.SetZero();
+
     
     tic("AdjointDerivative_FF");
     H.AdjointDerivative_FF<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        DFh.data(), w.data(), &pdu_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+        DFh.data(), w.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("AdjointDerivative_FF");
     
     print("");
     
-//    DFh.SetZero();
-    
     tic("Derivative_FF");
     H.Derivative_FF<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        h.data(), DFh.data(), &pdu_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+        h.data(), DFh.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("Derivative_FF");
     
     print("");
     
-//    w.SetZero();
-    
     tic("AdjointDerivative_FF");
     H.AdjointDerivative_FF<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        DFh.data(), w.data(), &pdu_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+        DFh.data(), w.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
     );
     toc("AdjointDerivative_FF");
     
@@ -266,9 +258,9 @@ int main()
     toc("Starting measurement");
 
     
-    if( pdu_dn != nullptr )
+    if( du_dn != nullptr )
     {
-        free( pdu_dn );
+        free( du_dn );
     }
     
     return 0;

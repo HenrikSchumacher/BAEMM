@@ -9,7 +9,7 @@ void RequireBuffers( const Int wave_count_  )
     ldB = ldC        = wave_chunk_count * wave_chunk_size;
     
     const LInt new_size = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
-
+    
     if(
        (B_buf == nullptr) || (C_buf == nullptr)
        ||
@@ -52,7 +52,7 @@ void RequireBuffersFarField( const Int wave_count_  )
     Int rows = block_size * ((meas_count - 1)/block_size + 1);
 
     const LInt new_size_B = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldB) * sizeof(Complex);
-    const LInt new_size_C = int_cast<LInt>(rows) * int_cast<LInt>(ldC) * sizeof(Complex);
+    const LInt new_size_C = int_cast<LInt>(rows)         * int_cast<LInt>(ldC) * sizeof(Complex);
     
     if(
        (B_buf == nullptr) || (C_buf == nullptr)
@@ -95,7 +95,7 @@ void RequireBuffersHerglotzWave( const Int wave_count_  )
     Int rows = block_size * ((meas_count - 1)/block_size + 1);
 
     const LInt new_size_C = int_cast<LInt>(rows_rounded) * int_cast<LInt>(ldC) * sizeof(Complex);
-    const LInt new_size_B = int_cast<LInt>(rows) * int_cast<LInt>(ldB) * sizeof(Complex);
+    const LInt new_size_B = int_cast<LInt>(rows)         * int_cast<LInt>(ldB) * sizeof(Complex);
     
     if(
        (B_buf == nullptr) || (C_buf == nullptr)

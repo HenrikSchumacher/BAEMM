@@ -30,9 +30,8 @@ public:
         //
         //
         
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
@@ -54,14 +53,15 @@ public:
     {
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>;
         
-        LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
+        LoadParameters( kappa_list, coeff_list, wave_count_, wave_chunk_size_ );
         
-        ApplyNearFieldOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out, 
-                                    evaluation_points_, evaluation_count_ );
+        ApplyNearFieldOperators_PL( 
+            alpha, B_in, ldB_in,
+            beta , C_out, ldC_out,
+            evaluation_points_, evaluation_count_ );
     }
 
 
@@ -70,12 +70,12 @@ public:
     void ApplyNearFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_,
-        const R_ext* evaluation_points_, const I_ext evaluation_count_
+        const R_ext * evaluation_points_, const I_ext evaluation_count_
     )
     {
         // The same as above, but assumes that
-        ASSERT_INT(I_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckComplex<C_ext>();
 
         ptic(ClassName()+"::ApplyNearFieldOperators_PL");
         
@@ -98,7 +98,7 @@ public:
         {
             // use averaging operator to get from PL to PC boundary functions
             AvOp.Dot(
-                Scalar::One<Complex>,  B_in,  ldB_in,
+                Scalar::One <Complex>, B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 ldB
             );
@@ -106,31 +106,38 @@ public:
             ModifiedB();
             C_loaded = true;
 
+            // TODO: This file is in the Helmholtz_Common directory.
+            // TODO: No OpenCL code should show up here.
+            
             //initialize evaluation point buffers
 
-            cl_mem evaluation_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-                    4 * evaluation_count * sizeof(Real), nullptr, &ret);
+            // TODO: This is an allocation. Where is the corresponding deallocation?
+            // TODO: In principle, this can be allocated several times, no?
+            // TODO: So is there a memory leak?
+            cl_mem evaluation_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, 4 * evaluation_count * sizeof(Real), nullptr, &ret);
 
-            Real* evaluation_points_ptr = (Real*)clEnqueueMapBuffer(command_queue,
-                                        evaluation_points_pin, CL_TRUE,
-                                        CL_MAP_WRITE, 0, 4 * evaluation_count * sizeof(Real), 0,
-                                        nullptr, nullptr, nullptr);
+            Real * evaluation_points_ptr = (Real*)clEnqueueMapBuffer(command_queue, evaluation_points_pin, CL_TRUE, CL_MAP_WRITE, 0, 4 * evaluation_count * sizeof(Real), 0, nullptr, nullptr, nullptr);
 
             ParallelDo(
-                    [=]( const Int i )
-                    {
-                            evaluation_points_ptr[4*i+0] = static_cast<Real>(evaluation_points_[3*i+0]);
-                            evaluation_points_ptr[4*i+1] = static_cast<Real>(evaluation_points_[3*i+1]);
-                            evaluation_points_ptr[4*i+2] = static_cast<Real>(evaluation_points_[3*i+2]);
-                            evaluation_points_ptr[4*i+3] = zero;
-                    },
-                    evaluation_count, CPU_thread_count
-                    );
+                [=]( const Int i )
+                {
+                    evaluation_points_ptr[4*i+0] = static_cast<Real>(evaluation_points_[3*i+0]);
+                    evaluation_points_ptr[4*i+1] = static_cast<Real>(evaluation_points_[3*i+1]);
+                    evaluation_points_ptr[4*i+2] = static_cast<Real>(evaluation_points_[3*i+2]);
+                    evaluation_points_ptr[4*i+3] = zero;
+                },
+                evaluation_count, CPU_thread_count
+            );
                     
             // Apply off-diagonal part of integral operators.
-            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count , kappa, c );
+            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count, kappa, c );
 
-            type_cast(C_out, C_ptr,wave_count * evaluation_count , CPU_thread_count);
+            
+            combine_matrices<Scalar::Flag::Generic,Scalar::Flag::Generic,VarSize,VarSize,Parallel>(
+                alpha, C_ptr, wave_count,
+                beta,  C_out, ldC,
+                evaluation_count, wave_count, CPU_thread_count                                                                                     
+            );
         }
         
         ptoc(ClassName()+"::ApplyNearFieldOperators_PL");

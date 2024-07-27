@@ -27,8 +27,8 @@ public:
         Tensor2<Complex,Int> Coeff ( wave_chunk_count, 4 );
         c_.Write(Coeff.data());
 
-        int n = simplex_count;
         int m = meas_count;
+        int n = simplex_count;
 
         // Check for maximal size of work group.
         

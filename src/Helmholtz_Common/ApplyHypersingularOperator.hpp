@@ -21,10 +21,9 @@ public:
         // represent the vertex values of  wave_count_ piecewise-linear functions.
         // The operator A is the hypersingular operator.
         
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
-        
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>
+
         LoadParameters3(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
         ApplyHypersingularOperator_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
@@ -43,9 +42,8 @@ public:
     {
         //  The same as above, but with several wave numbers kappa_list and several coefficients.
 
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
         
         LoadParameters3(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
@@ -64,8 +62,8 @@ public:
         }
         
         // The same as above, but assumes that
-        ASSERT_INT(I_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckComplexcalars<C_ext>();
         
         ptic(ClassName()+"::ApplyHypersingularOperator");
 

@@ -8,9 +8,8 @@ public:
         const I_ext wave_chunk_size_
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
 
         SetWaveCount    ( int_cast<Int>(wave_count_)      );
         SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );
@@ -90,9 +89,8 @@ public:
         const Int wave_chunk_size_
     )
     {
-        ASSERT_INT(I_ext);
-        ASSERT_REAL(R_ext);
-        ASSERT_COMPLEX(C_ext);
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
 
         SetWaveCount    ( int_cast<Int>(wave_count_)      );
         SetWaveChunkSize( int_cast<Int>(wave_chunk_size_) );

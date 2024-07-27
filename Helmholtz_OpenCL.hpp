@@ -42,35 +42,35 @@ namespace BAEMM
         cl_command_queue command_queue;
         
         // OpenCL Device buffers
-        cl_mem areas = nullptr;           // buffer for the areas of the simplices
-        cl_mem mid_points = nullptr;      // buffer for the midpoints of the simplices
-        cl_mem normals = nullptr;         // buffer for the simplex-normals
-        cl_mem single_diag = nullptr;     // diagonal of the SL Operator
-        cl_mem tri_coords = nullptr;
-        cl_mem meas_directions = nullptr; // measurement directkons (m x 3 tensor)
+        cl_mem areas               = nullptr; // buffer for the areas of the simplices
+        cl_mem mid_points          = nullptr; // buffer for the midpoints of the simplices
+        cl_mem normals             = nullptr; // buffer for the simplex-normals
+        cl_mem single_diag         = nullptr; // diagonal of the SL Operator
+        cl_mem tri_coords          = nullptr;
+        cl_mem meas_directions     = nullptr; // measurement directkons (m x 3 tensor)
         
         // buffers for in- and output
-        cl_mem B_buf = nullptr;    
-        cl_mem C_buf = nullptr;
+        cl_mem B_buf               = nullptr;
+        cl_mem C_buf               = nullptr;
 
         LInt B_size = 0;
         LInt C_size = 0;
 
         // pin host memory (bigger bandwith with pinned memory)
-        cl_mem areas_pin = nullptr;
-        cl_mem mid_points_pin = nullptr;
-        cl_mem normals_pin = nullptr;
-        cl_mem single_diag_pin = nullptr;
-        cl_mem tri_coords_pin = nullptr;
+        cl_mem areas_pin           = nullptr;
+        cl_mem mid_points_pin      = nullptr;
+        cl_mem normals_pin         = nullptr;
+        cl_mem single_diag_pin     = nullptr;
+        cl_mem tri_coords_pin      = nullptr;
         cl_mem meas_directions_pin = nullptr;
         
-        cl_mem B_buf_pin = nullptr;
-        cl_mem C_buf_pin = nullptr;
+        cl_mem B_buf_pin           = nullptr;
+        cl_mem C_buf_pin           = nullptr;
         
-        cl_mem d_kappa      = nullptr;
-        cl_mem d_coeff      = nullptr;
-        cl_mem d_n          = nullptr;
-        cl_mem d_wave_count = nullptr;
+        cl_mem d_kappa             = nullptr;
+        cl_mem d_coeff             = nullptr;
+        cl_mem d_n                 = nullptr;
+        cl_mem d_wave_count        = nullptr;
         
 
 //        const char * clBuildOpts = nullptr;
@@ -287,6 +287,10 @@ namespace BAEMM
 #include "src/Helmholtz_Common/ApplySingleLayerDiagonal.hpp"
 
 #include "src/Helmholtz_Common/CreateIncidentWave.hpp"
+        
+#include "src/Helmholtz_Common/IncidentWaveKernel_Plane.hpp"
+
+#include "src/Helmholtz_Common/IncidentWaveKernel_Radial.hpp"
 
 #include "src/Helmholtz_Common/CreateHerglotzWave.hpp"
         
@@ -296,11 +300,7 @@ namespace BAEMM
 
 #include "src/Helmholtz_OpenCL/NearFieldOperatorKernel.hpp"
 
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Plane.hpp"
-
-#include "src/WaveFunctions_OpenCL/IncidentWaveKernel_Radial.hpp"
-
-#include "src/WaveFunctions_OpenCL/HerglotzWaveKernel.hpp"
+#include "src/Helmholtz_OpenCL/HerglotzWaveKernel.hpp"
 
 #include "src/LinearAlgebraUtilities/HadamardProduct.hpp"
 

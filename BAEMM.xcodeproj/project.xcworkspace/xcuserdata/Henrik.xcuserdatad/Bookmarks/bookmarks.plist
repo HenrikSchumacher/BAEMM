@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>315</string>
+					<string>286</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>314</string>
+					<string>285</string>
 					<key>Timestamp</key>
-					<string>743444208.080566</string>
+					<string>743768851.511007</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,7 +34,7 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        if( *pdu_dn == nullptr )
+				<string>        if( du_dn == nullptr )
 </string>
 				<key>leading</key>
 				<string>        }
@@ -42,12 +42,12 @@
 </string>
 				<key>trailing</key>
 				<string>        {
-            Tensor2&lt;C_ext,Int&gt; incident_wave ( n, wc );  //weak representation of the incident wave
+            Tensor2&lt;C_ext,Int&gt; inc_wave ( n, wc );  //weak representation of the incident wave
             
 </string>
 			</dict>
 			<key>title</key>
-			<string>Handle *pdu_dn == nullptr</string>
+			<string>Handle pdu_dn == nullptr</string>
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>
@@ -59,13 +59,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>175</string>
+					<string>160</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>174</string>
+					<string>159</string>
 					<key>Timestamp</key>
-					<string>743444208.080601</string>
+					<string>743768846.973675</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -81,20 +81,67 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        if( *pdu_dn == nullptr )
+				<string>        if( du_dn == nullptr )
 </string>
 				<key>leading</key>
-				<string>        // phi.SetZero( CPU_thread_count );
-
+				<string>        Tensor1&lt;R_ext,Int&gt;  X_n           ( n );
+        
 </string>
 				<key>trailing</key>
 				<string>        {
-            Tensor2&lt;C_ext,I_ext&gt;  inc_coeff     ( wcc, 4  );
-            Tensor2&lt;C_ext,I_ext&gt;  incident_wave ( n,   wc );  //weak representation of the incident wave
+            logprint( tag + ": du_dn == nullptr. Allocating and computing du_dn.");
+            
 </string>
 			</dict>
 			<key>title</key>
-			<string>Handle *pdu_dn == nullptr</string>
+			<string>Handle pdu_dn == nullptr</string>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>184</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>183</string>
+					<key>Timestamp</key>
+					<string>743768846.973703</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>src/Helmholtz_Common/FarField.hpp</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>            DirichletToNeumann&lt;WC&gt;( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
+</string>
+				<key>leading</key>
+				<string>            );
+            
+</string>
+				<key>trailing</key>
+				<string>            
+        }
+
+</string>
+			</dict>
+			<key>title</key>
+			<string>Hier kommt für du_dn nur 0 herraus.</string>
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>
