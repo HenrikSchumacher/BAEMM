@@ -2,9 +2,6 @@
 
 #include <CL/cl.h>
 
-#define TOOLS_ENABLE_PROFILER
-
-
 
 #ifdef __APPLE__
 /// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
@@ -87,10 +84,11 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
-            std::filesystem::path path {    std::filesystem::current_path()  };
-            std::string path_string{    path.string()    };
-            Profiler::Clear( path_string );
-//            tic(ClassName());        
+//            std::filesystem::path path {    std::filesystem::current_path()  };
+//            std::string path_string{    path.string()    };
+//            Profiler::Clear( path_string );
+            
+//            tic(ClassName());
 
              // Get platform and device information            
             cl_platform_id platform_id;  
@@ -147,10 +145,11 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   meas_count       ( int_cast<Int>(meas_count_)           )
         {
-            std::filesystem::path path {    std::filesystem::current_path()  };
-            std::string path_string{    path.string()    };
-            Profiler::Clear( path_string );
-//            tic(ClassName());        
+//            std::filesystem::path path {    std::filesystem::current_path()  };
+//            std::string path_string{    path.string()    };
+//            Profiler::Clear( path_string );
+            
+//            tic(ClassName());
 
              // Get platform and device information
             cl_platform_id platform_id;  
