@@ -241,26 +241,7 @@ int main()
     std::ofstream((home_dir / "DFT_New.txt").string()) << ToString(w);
     
     print("");
-//    
-//    tic("Derivative_FF");
-//    H.Derivative_FF<wave_count>(
-//        kappa.data(), wave_chunk_count,
-//        inc.data(),   wave_chunk_size,
-//        h.data(), DFh.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
-//    );
-//    toc("Derivative_FF");
-//    
-//    print("");
-//    
-//    tic("AdjointDerivative_FF");
-//    H.AdjointDerivative_FF<wave_count>(
-//        kappa.data(), wave_chunk_count,
-//        inc.data(),   wave_chunk_size,
-//        DFh.data(), w.data(), du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
-//    );
-//    toc("AdjointDerivative_FF");
-//    
-//    
+
     toc("Starting measurement");
     
     if( du_dn != nullptr )
