@@ -4,9 +4,18 @@
 
 #define TOOLS_ENABLE_PROFILER
 
-#include <complex>
-#include <cblas.h>
-#include <lapack.h>
+
+
+#ifdef __APPLE__
+/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
+///
+    #include "Accelerate/Accelerate.h"
+#else
+/// This should work for OpenBLAS.
+    #include <complex>
+    #include <cblas.h>
+    #include <lapack.h>
+#endif
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
@@ -99,7 +108,17 @@ namespace BAEMM
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            // Apple froze OpenCL support at version 1.2. Thus, the OpenCL 2.0
+            // feature clCreateCommandQueueWithProperties is not supported.
+            // Instead we can use this (deprecated) feature:
+            command_queue = clCreateCommandQueue(context,device_id,0,&ret);
+    #pragma clang diagnostic pop
+#else
+            command_queue = clCreateCommandQueueWithProperties(context,device_id,0,&ret);
+#endif
 
             // initialize the Opencl buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
@@ -158,7 +177,17 @@ namespace BAEMM
 
             context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
-            command_queue = clCreateCommandQueueWithProperties(context, device_id, 0, &ret);
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            // Apple froze OpenCL support at version 1.2. Thus, the OpenCL 2.0
+            // feature clCreateCommandQueueWithProperties is not supported.
+            // Instead we can use this (deprecated) feature:
+            command_queue = clCreateCommandQueue(context,device_id,0,&ret);
+    #pragma clang diagnostic pop
+#else
+            command_queue = clCreateCommandQueueWithProperties(context,device_id,0,&ret);
+#endif
 
             // initialize the Opencl buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);

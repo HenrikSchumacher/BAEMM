@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF23147A2C550E5C004B7EA2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF2314792C550E5C004B7EA2 /* main.cpp */; };
+		AF23147E2C550EBF004B7EA2 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
+		AF2314802C550EC7004B7EA2 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF23147F2C550EC7004B7EA2 /* OpenCL.framework */; };
 		AF73BBFB2997FE3A00526B7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
 		AF73BBFC2997FE4300526B7D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF14298E573500085994 /* Foundation.framework */; };
 		AF73BBFD2997FE4800526B7D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
@@ -17,6 +20,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		AF2314752C550E5C004B7EA2 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		AF73BBF22997FE3400526B7D /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -47,6 +59,10 @@
 		AF1A0AA72C4BA3AB008E55D5 /* ReadWrite */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ReadWrite; sourceTree = "<group>"; };
 		AF1A0AA82C4BA3AB008E55D5 /* submodules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = submodules; sourceTree = "<group>"; };
 		AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_CPU.hpp; sourceTree = "<group>"; };
+		AF2314772C550E5C004B7EA2 /* BAEMM_Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BAEMM_Debug; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF2314792C550E5C004B7EA2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		AF23147F2C550EC7004B7EA2 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		AF2314812C550F29004B7EA2 /* ReadMeshFromFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReadMeshFromFile.hpp; sourceTree = "<group>"; };
 		AF73BBF42997FE3400526B7D /* Metal_Experiments */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Metal_Experiments; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFA1CF0E298E56FF00085994 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		AFA1CF10298E56FF00085994 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -60,6 +76,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AF2314742C550E5C004B7EA2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF23147E2C550EBF004B7EA2 /* Accelerate.framework in Frameworks */,
+				AF2314802C550EC7004B7EA2 /* OpenCL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF73BBF12997FE3400526B7D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -83,6 +108,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF2314782C550E5C004B7EA2 /* BAEMM_Debug */ = {
+			isa = PBXGroup;
+			children = (
+				AF2314792C550E5C004B7EA2 /* main.cpp */,
+			);
+			path = BAEMM_Debug;
+			sourceTree = "<group>";
+		};
 		AFA1CEF2298E56D400085994 = {
 			isa = PBXGroup;
 			children = (
@@ -96,9 +129,11 @@
 				AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */,
 				AF1A0AAA2C4BA458008E55D5 /* Helmholtz_CPU.hpp */,
 				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
+				AF2314812C550F29004B7EA2 /* ReadMeshFromFile.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
+				AF2314782C550E5C004B7EA2 /* BAEMM_Debug */,
 				AFA1CEFC298E56D400085994 /* Products */,
 				AFA1CF11298E572A00085994 /* Frameworks */,
 			);
@@ -109,6 +144,7 @@
 			children = (
 				AFA1CF1C298E588D00085994 /* BAEMM_Test */,
 				AF73BBF42997FE3400526B7D /* Metal_Experiments */,
+				AF2314772C550E5C004B7EA2 /* BAEMM_Debug */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +152,7 @@
 		AFA1CF11298E572A00085994 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AF23147F2C550EC7004B7EA2 /* OpenCL.framework */,
 				AFA1CF16298E573E00085994 /* Metal.framework */,
 				AFA1CF14298E573500085994 /* Foundation.framework */,
 				AFA1CF12298E572A00085994 /* Accelerate.framework */,
@@ -135,6 +172,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AF2314762C550E5C004B7EA2 /* BAEMM_Debug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF23147D2C550E5C004B7EA2 /* Build configuration list for PBXNativeTarget "BAEMM_Debug" */;
+			buildPhases = (
+				AF2314732C550E5C004B7EA2 /* Sources */,
+				AF2314742C550E5C004B7EA2 /* Frameworks */,
+				AF2314752C550E5C004B7EA2 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BAEMM_Debug;
+			productName = BAEMM_Debug;
+			productReference = AF2314772C550E5C004B7EA2 /* BAEMM_Debug */;
+			productType = "com.apple.product-type.tool";
+		};
 		AF73BBF32997FE3400526B7D /* Metal_Experiments */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */;
@@ -178,6 +232,9 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
+					AF2314762C550E5C004B7EA2 = {
+						CreatedOnToolsVersion = 15.4;
+					};
 					AF73BBF32997FE3400526B7D = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -201,11 +258,20 @@
 			targets = (
 				AFA1CF1B298E588D00085994 /* BAEMM_Test */,
 				AF73BBF32997FE3400526B7D /* Metal_Experiments */,
+				AF2314762C550E5C004B7EA2 /* BAEMM_Debug */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AF2314732C550E5C004B7EA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF23147A2C550E5C004B7EA2 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF73BBF02997FE3400526B7D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -224,6 +290,38 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		AF23147B2C550E5C004B7EA2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
+			};
+			name = Debug;
+		};
+		AF23147C2C550E5C004B7EA2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "/opt/homebrew/Cellar/opencl-headers/2024.05.08/include";
+			};
+			name = Release;
+		};
 		AF73BBF82997FE3400526B7D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -426,6 +524,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AF23147D2C550E5C004B7EA2 /* Build configuration list for PBXNativeTarget "BAEMM_Debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF23147B2C550E5C004B7EA2 /* Debug */,
+				AF23147C2C550E5C004B7EA2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AF73BBFA2997FE3400526B7D /* Build configuration list for PBXNativeTarget "Metal_Experiments" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
