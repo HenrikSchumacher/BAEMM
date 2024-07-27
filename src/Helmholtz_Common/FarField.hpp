@@ -24,6 +24,8 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         std::string tag = ClassName()+"::FarField<" + ToString(WC)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
@@ -71,11 +73,10 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         // Implement the bdry to Farfield map. wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>). A = (1/2) * I - i * kappa * SL + DL
         // phi = A \ wave is the bdry potential which will be mapped onto the far field
-        
-        constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext Zero = Scalar::Zero<C_ext>;
         
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
@@ -86,22 +87,19 @@ public:
         Tensor2<C_ext,Int>  coeff     ( wcc, 4  );
         Tensor2<C_ext,Int>  wave      ( n,   wc );     //weak representation of the incident wave
         Tensor2<C_ext,Int>  phi       ( n,   wc );
-        
-        // Not needed with recent versions of GMRES.
-        // phi.SetZero( CPU_thread_count );
 
         // Create weak representation of the negative incident wave.
         for( Int i = 0 ; i < wcc ; i++ )
         {
-            inc_coeff(i,0) = Zero;
-            inc_coeff(i,1) = -One;
-            inc_coeff(i,2) = Zero;
-            inc_coeff(i,3) = Zero;
+            inc_coeff(i,0) =  C_ext(0);
+            inc_coeff(i,1) = -C_ext(1);
+            inc_coeff(i,2) =  C_ext(0);
+            inc_coeff(i,3) =  C_ext(0);
         }
 
         CreateIncidentWave_PL(
-            One,  inc_directions, wcs,
-            Zero, wave.data(),    wc,
+            C_ext(1), inc_directions, wcs,
+            C_ext(0), wave.data(),    wc,
             kappa_, inc_coeff.data(), wc, wcs, type
         );
         
@@ -111,8 +109,8 @@ public:
         );
 
         ApplyFarFieldOperators_PL( 
-            One,  phi.data(), wc,
-            Zero, Y_out,      wc,
+            C_ext(1), phi.data(), wc,
+            C_ext(0), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
     }
@@ -127,7 +125,7 @@ public:
         const I_ext wave_chunk_size_,
         cptr<R_ext> X_in,
         mptr<C_ext> Y_out,
-        C_ext * *   pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
+        C_ext * &   du_dn, //du_dn is the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol
@@ -136,6 +134,8 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
+        
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
         
         std::string tag = ClassName()+"::Derivative_FF<"
             + "," + ToString(WC)
@@ -147,101 +147,90 @@ public:
         ptic(tag);
         
         // Implement the action of the derivative of the bdry to Farfield map.
-        // inc_wave is a linear combination of the std incident wave defined pointwise by exp(i*kappa*<x,d>) and its normal derivative
+        // `inc_wave` is a linear combination of the std incident wave defined pointwise by exp(i*kappa*<x,d>) and its normal derivative
         // A := (1/2) * I - i * kappa * SL + DL' for the calculation of du/dn
         // B := (1/2) * I - i * kappa * SL + DL  for the calculation of the Farfield
-        // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
-        // phi is the bdry potential for the incident wave dudn *(<X_in , n>), the solution is the far field to this
+        // `du_dn` = A \ `inc_wave` is the normal derivative of the solution with inc wave `wave`
+        // `phi` is the bdry potential for the incident wave `du_dn` *(<X_in , n>), the solution is the far field to this
         // Formulas follow from Thorsten's book.
-
-        constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
-        Tensor2<C_ext,Int>  coeff                    ( wcc, 4  );
-        Tensor2<C_ext,Int>  boundary_conditions      ( n,   wc );
-        Tensor2<C_ext,Int>  boundary_conditions_weak ( n,   wc );
-        Tensor2<C_ext,Int>  phi                      ( n,   wc );
+        Tensor2<C_ext,Int>  coeff         ( wcc, 4  );
+        Tensor2<C_ext,Int>  bdr_cond_buf  ( n,   wc );
+        Tensor2<C_ext,Int>  bdr_cond_weak ( n,   wc );
+        Tensor2<C_ext,Int>  phi           ( n,   wc );
         
-        Tensor1<R_ext,Int>  X_n                      ( n );
+        Tensor1<R_ext,Int>  X_n           ( n );
         
-        // Not needed with recent versions of GMRES.
-        // phi.SetZero( CPU_thread_count );
-
-        if( *pdu_dn == nullptr )
+        if( du_dn == nullptr )
         {
-            Tensor2<C_ext,I_ext>  inc_coeff     ( wcc, 4  );
-            Tensor2<C_ext,I_ext>  incident_wave ( n,   wc );  //weak representation of the incident wave
+            logprint( tag + ": du_dn == nullptr. Allocating and computing du_dn.");
             
-            *pdu_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
+            Tensor2<C_ext,Int> inc_coeff ( wcc, 4  );
+            Tensor2<C_ext,Int> inc_wave  ( n,   wc );  //weak representation of the incident wave
+            
+            du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
 
             // create weak representation of the negative incident wave
-            for(I_ext i = 0 ; i < wcc ; i++)
+            for(Int i = 0 ; i < wcc ; i++)
             {
-                inc_coeff(i,0) = Zero;
+                inc_coeff(i,0) = C_ext(0);
                 inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
-                inc_coeff(i,2) = One;
-                inc_coeff(i,3) = Zero;
+                inc_coeff(i,2) = C_ext(1);
+                inc_coeff(i,3) = C_ext(0);
             }
 
             CreateIncidentWave_PL(
-                One,    inc_directions,       wcs,
-                Zero,   incident_wave.data(), wc,
-                kappa_, inc_coeff.data(),     wc, wcs, type
+                C_ext(1), inc_directions,  wcs,
+                C_ext(0), inc_wave.data(), wc,
+                kappa_, inc_coeff.data(),  wc, wcs, type
             );
             
-            DirichletToNeumann<WC>( kappa_, incident_wave.data(), *pdu_dn, wcc, wcs, cg_tol, gmres_tol );
+            DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
+            
         }
 
         DotWithNormals_PL( X_in, X_n.data(), cg_tol );
-            
-        mptr<C_ext> boundary_conditions_ptr = boundary_conditions.data();
+
+        mptr<C_ext> bdr_cond = bdr_cond_buf.data();
         
         // CheckThis
         ParallelDo(
-            [=,this,&X_n,&pdu_dn]( const Int i )
+            [=,this,&X_n]( const Int i )
             {
-//                cptr<C_ext> a = &(*pdu_dn)[wc * i];
-//                mptr<C_ext> c = &boundary_conditions_ptr[wc * i];
-//
-//                const R_ext b = -X_n[i];
-//
-//                for( Int j = 0; j < ((WC > VarSize) ? WC : wc ); ++j )
-//                {
-//                    c[j] = a[j] * b;
-//                }
+                // bdr_cond[wc * i] = -X_n[i] * du_dn[wc * i]
                 
                 combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,WC>(
-                    -X_n[i],             &(*pdu_dn)[wc * i],
-                    Scalar::Zero<C_ext>, &boundary_conditions_ptr[wc * i],
+                    -X_n[i],             &du_dn   [wc * i],
+                    Scalar::Zero<C_ext>, &bdr_cond[wc * i],
                     wc
                 );
             },
             n, CPU_thread_count
         );
-        
+
         // apply mass to the boundary conditions to get weak representation
         Mass.Dot<WC>(
-            One,  boundary_conditions.data(),      wc,
-            Zero, boundary_conditions_weak.data(), wc,
+            Scalar::One <C_ext>, bdr_cond_buf.data(),  wc,
+            Scalar::Zero<C_ext>, bdr_cond_weak.data(), wc,
             wc
         );
-
-        BoundaryPotential<WC>( 
-            kappa_, coeff.data(), boundary_conditions_weak.data(), phi.data(),
+        
+        BoundaryPotential<WC>(
+            kappa_, coeff.data(), bdr_cond_weak.data(), phi.data(),
             wcc, wcs, cg_tol, gmres_tol
         );
-
-        ApplyFarFieldOperators_PL( 
-            One,  phi.data(), wc,
-            Zero, Y_out,      wc,
+        
+        ApplyFarFieldOperators_PL(
+            C_ext(0), phi.data(), wc,
+            C_ext(1), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
-
+        
         ptoc(tag);
     }
 
@@ -255,7 +244,7 @@ public:
         const I_ext wave_chunk_size_,
         cptr<C_ext> g, 
         mptr<R_ext> Y_out,
-        C_ext * * pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
+        C_ext * & du_dn, //du_dn is the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol
@@ -265,12 +254,14 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         // Implement the action of the adjoint to the derivative of the bdry to Farfield map.
-        // incident_wave is a linear combination of the std incident wave defined pointwise by exp(i*kappa*<x,d>) and its normal derivative
-        // herglotz_wave is a linear combination the herglotz wave with kernel g and its normal derivative
+        // `inc_wave` is a linear combination of the standard incident wave defined pointwise by exp(i*kappa*<x,d>) and its normal derivative
+        // `herglotz_wave` is a linear combination the Herglotz wave with kernel `g` and its normal derivative
         // A := (1/2) * I - i * kappa * SL + DL'
-        // dudn = A\incident_wave is the normal derivative of the solution with inc wave wave
-        // anh phi_h = A\herglotz_wave is the normal derivative of the solution with inc wave herglotz_wave
+        // `du_dn` = A \ `inc_wave` is the normal derivative of the solution with incident wave `wave`
+        // `phi_h = A \ `herglotz_wave` is the normal derivative of the solution with inc wave `herglotz_wave`
 
         std::string tag = ClassName()+"::AdjointDerivative_FF<"
             + "," + ToString(WC)
@@ -281,65 +272,57 @@ public:
         
         ptic(tag);
 
-        constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext Zero = Scalar::Zero<C_ext>;
-
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
-        Tensor2<C_ext,Int>  herglotz_wave ( n, wc );     //weak representation of the herglotz wave
-        Tensor2<C_ext,Int>  dv_dn         ( n, wc );
+        Tensor2<C_ext,Int>  herglotz_wave ( n, wc ); //weak representation of the herglotz wave
+        Tensor2<C_ext,Int>  dv_dn_buf     ( n, wc );
         
-        // Not needed with recent version of GMRES.
-        // dv_dn.SetZero( CPU_thread_count );
-
+        mptr<C_ext> dv_dn = dv_dn_buf.data();
+        
         Tensor1<C_ext,Int> wave_product  ( n );
 
-        // Not needed with recent version of GMRES.
-        // wave_product.SetZero();
-        
         // Create weak representation of the negative incident wave.
-        
         Tensor2<C_ext,Int> inc_coeff ( wcc, 4 );
         
         for( Int i = 0 ; i < wcc ; i++)
         {
-            inc_coeff(i,0) = Zero;
+            inc_coeff(i,0) = C_ext(0);
             inc_coeff(i,1) = C_ext(R_ext(0),-kappa_[i]);
-            inc_coeff(i,2) = One;
-            inc_coeff(i,3) = Zero;
+            inc_coeff(i,2) = C_ext(1);
+            inc_coeff(i,3) = C_ext(0);
         }
 
-        if( *pdu_dn == nullptr )
+        if( du_dn == nullptr )
         {
-            Tensor2<C_ext,Int> incident_wave ( n, wc );  //weak representation of the incident wave
+            Tensor2<C_ext,Int> inc_wave ( n, wc );  //weak representation of the incident wave
             
-            *pdu_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
+            du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
             
             CreateIncidentWave_PL(
-                One,  inc_directions,       wcs,
-                Zero, incident_wave.data(), wc,
-                kappa_, inc_coeff.data(), wc, wcs, type
+                C_ext(1), inc_directions,  wcs,
+                C_ext(0), inc_wave.data(), wc,
+                kappa_, inc_coeff.data(),  wc, wcs, type
             );
             
-            DirichletToNeumann<WC>( kappa_, incident_wave.data(), *pdu_dn, wcc, wcs, cg_tol, gmres_tol );
+            DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
         }
 
         CreateHerglotzWave_PL(
-            One,  g,                    wc,
-            Zero, herglotz_wave.data(), wc,
+            C_ext(1), g,                    wc,
+            C_ext(0), herglotz_wave.data(), wc,
             kappa_, inc_coeff.data(), wc, wcs
         );
         
-        // solve for the normal derivatives of the near field solutions
-        DirichletToNeumann<WC>( kappa_, herglotz_wave.data(), dv_dn.data(), wcc, wcs, cg_tol, gmres_tol );
+        // Solve for the normal derivatives of the near field solutions.
+        DirichletToNeumann<WC>( kappa_, herglotz_wave.data(), dv_dn, wcc, wcs, cg_tol, gmres_tol );
         
-        // calculate du_dn .* dv_dn and sum over the leading dimension
-        HadamardProduct( *pdu_dn, dv_dn.data(), wave_product.data(), n, wc, true );
+        // Calculate du_dn .* dv_dn and sum over the leading dimension.
+        HadamardProduct( du_dn, dv_dn, wave_product.data(), n, wc, true );
 
-        // calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals
+        // Calculate (-1/wave_count)*Re(du_dn .* dv_dn).*normals.
         MultiplyWithNormals_PL( wave_product.data(), Y_out, -Inv<R_ext>(wc), cg_tol );
 
         ptoc(tag);
@@ -357,7 +340,7 @@ public:
         P_T & P,
         cptr<R_ext> X_in,
         mptr<R_ext> Y_out,
-        C_ext * * pdu_dn, //pdu_dn is the pointer to the Neumann data of the scattered wave
+        C_ext * & du_dn, //du_dn is the Neumann data of the scattered wave
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol_inner,
@@ -367,6 +350,8 @@ public:
         ASSERT_INT(I_ext);
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
+        
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
         
         std::string tag = ClassName()+"::GaussNewtonStep<"
             + "," + ToString(WC)
@@ -379,48 +364,59 @@ public:
 
         // Calculates a Gauss-Newton step. Note that the metric M has to _add_ the input to the result.
         
+        constexpr Int DIM = 3; // Dimension of the ambient space.
+        constexpr Int ldX = DIM;
+        constexpr Int ldY = DIM;
+        
         const Int n   = VertexCount();
         const Int m   = GetMeasCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
-
-        // The two optional booleans at the end of the template silence some messages.
-        //                                |     |
-        //                                v     v
-        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
-            n * Int(3), 30, 1, CPU_thread_count /*, true*/ );
-        //                  ^                        ^
-        //                  |                        |
-        //                 This argument is new.    This would activate use of initial guess.
         
-        Tensor2<C_ext,Int>  DF       ( m, wc     );
-        Tensor2<R_ext,Int>  y_strong ( n, Int(3) );
+        // The two optional booleans at the end of the template silence some messages.
+        //                                  |     |
+        //                                  v     v
+        GMRES<DIM,R_ext,Size_T,Side::Left,false,false> gmres(
+            n, gmres_max_iter, DIM, CPU_thread_count /*, true*/ );
+        //                      ^                          ^
+        //                      |                          |
+        //               This argument is new.    This would activate use of initial guess.
+
+        
+        // A, M and P are matrices of size n x n.
+        // They are applied to matrices of size n x DIM
+        
+        Tensor2<C_ext,Int>  DF       ( m, wc  );
+        Tensor2<R_ext,Int>  y_strong ( n, DIM );
 
         auto A = [&]( cptr<R_ext> x, mptr<R_ext> y )
         {
             Derivative_FF<WC>( 
                 kappa_, wcc, inc_directions, wcs,
-                x, DF.data(), pdu_dn, type, cg_tol, gmres_tol_inner
+                x, DF.data(), du_dn, type, cg_tol, gmres_tol_inner
             );
             
             AdjointDerivative_FF<WC>( 
                 kappa_, wcc, inc_directions, wcs,
-                DF.data(), y_strong.data(), pdu_dn, type, cg_tol, gmres_tol_inner
+                DF.data(), y_strong.data(), du_dn, type, cg_tol, gmres_tol_inner
             );
 
-            Mass.Dot<3>(
-                Tools::Scalar::One <R_ext>, y_strong.data(), 3,
-                Tools::Scalar::Zero<R_ext>, y,               3,
-                3
+            Mass.Dot<DIM>(
+                Tools::Scalar::One <R_ext>, y_strong.data(), DIM,
+                Tools::Scalar::Zero<R_ext>, y,               DIM,
+                DIM
             );
 
             M(x,y); // The metric m has to return y + M*x
         };
-
-        zerofy_buffer(Y_out, static_cast<Size_T>(n * 3), CPU_thread_count);
-
-        const Int succeeded = gmres(A,P,X_in,1,Y_out,1,gmres_tol_outer,3);
+        
+        // Evaluating Y_out = R_ext(1) * A^{-1} . X_in + R_ext(0) * Y_out
+        const Int succeeded = gmres(A,P,
+            Scalar::One <C_ext>, X_in,  ldX,
+            Scalar::Zero<C_ext>, Y_out, ldY,
+            gmres_tol_outer, gmres_max_restarts
+        );
 
         ptoc(tag);
         
@@ -445,6 +441,8 @@ public:
     {
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
+        
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
         
         std::string tag = ClassName()+"::BoundaryPotential<"
             + "," + ToString(WC)
@@ -488,52 +486,57 @@ private:
         ASSERT_INT(I_ext);
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
-        
-        constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext Zero = Scalar::Zero<C_ext>;
 
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
         // The two boolean at the end of the template silence some messages.
-        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(n,30,wc,CPU_thread_count);
-        
-        // Setup the mass matrix Preconditionier P:=M^-1.
-        
-        // P is also used for transf. into strong form.
-        // Henrik is it?
-        
-        auto P = [&]( cptr<C_ext> x, mptr<C_ext> y )
-        {
-            if constexpr ( lumped_mass_as_prec_for_intopsQ )
-            {
-                ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
-            }
-            else
-            {
-                ApplyMassInverse<WC>(x,wc,y,wc,cg_tol,wc);
-            }
-        };
+        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(
+            n, gmres_max_iter, wc, CPU_thread_count
+        );
 
         // set up the bdry operator and solve
         for( Int i = 0 ; i < wcc; i++ )
         {
-            coeff_[4 * i + 0] = C_ext(0.5f,0.0f);
+            coeff_[4 * i + 0] = C_ext(0.5,0.0);
             coeff_[4 * i + 1] = C_ext(R_ext(0),-eta[i]);
-            coeff_[4 * i + 2] = One;
-            coeff_[4 * i + 3] = Zero;
+            coeff_[4 * i + 2] = C_ext(1);
+            coeff_[4 * i + 3] = C_ext(0);
         }
 
         LoadBoundaryOperators_PL(kappa_,coeff_,wc,wcs);
         
-        auto A = [&]( cptr<C_ext> x, mptr<C_ext> y )
+        auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
         {
-            ApplyBoundaryOperators_PL( One, x, wc, Zero, y, wc );
+            ApplyBoundaryOperators_PL( C_ext(1), x, wc, C_ext(0), y, wc );
         };
-
-        (void)gmres(A,P,wave,wc,phi,wc,gmres_tol,10);
+        
+        
+        // Setup the mass matrix Preconditionier P:=M^-1.
+        // P is also used for transf. into strong form.
+        // Henrik is it?
+        
+        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
+        {
+            if constexpr ( lumped_mass_as_prec_for_intopsQ )
+            {
+                ApplyLumpedMassInverse<WC>( x, wc, y, wc,         wc );
+            }
+            else
+            {
+                ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
+            }
+        };
+        
+        (void)gmres(A,P,
+            Scalar::One <C_ext>, wave, wc,
+            Scalar::Zero<C_ext>, phi,  wc,
+            gmres_tol, gmres_max_restarts
+        );
 
         UnloadBoundaryOperators_PL();
     }
@@ -554,6 +557,10 @@ public:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         std::string tag = ClassName()+"::DirichletToNeumann<"
             + "," + ToString(WC)
             + "," + TypeName<I_ext>
@@ -563,9 +570,6 @@ public:
         
         ptic(tag);
         
-        constexpr C_ext One  = Scalar::One <C_ext>;
-        constexpr C_ext Zero = Scalar::Zero<C_ext>;
-
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
@@ -574,42 +578,48 @@ public:
         Tensor2<C_ext,Int> c_ ( wcc, 4);
 
         // The two boolean at the end of the template silence some messages.
-        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(n,30,wc,CPU_thread_count);
+        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(
+            n, gmres_max_iter, wc, CPU_thread_count
+        );
 
         // Setup the mass matrix Preconditionier P:=M^-1.
         // P is also used for transf. into strong form
         // Henrik: Is it?
 
-        auto P = [&]( cptr<C_ext> x, mptr<C_ext> y )
+        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
         {
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
-                ApplyLumpedMassInverse<WC>(x,wc,y,wc,wc);
+                ApplyLumpedMassInverse<WC>( x, wc, y, wc,         wc );
             }
             else
             {
-                ApplyMassInverse<WC>(x,wc,y,wc,cg_tol,wc);
+                ApplyMassInverse<WC>      ( x, wc, y, wc, cg_tol, wc );
             }
         };
 
         // set up the bdry operator and solve
         for( Int i = 0 ; i < wcc ; i++ )
         {
-            c_(i,0) = static_cast<C_ext>(Complex(0.5f,0.0f));
+            c_(i,0) = C_ext(0.5f,0.0f);
             c_(i,1) = C_ext( R_ext(0), -kappa_[i] );
-            c_(i,2) = Zero;
-            c_(i,3) = One;
+            c_(i,2) = C_ext(0);
+            c_(i,3) = C_ext(1);
         }
 
         LoadBoundaryOperators_PL(kappa_,c_.data(),wc,wcs);
 
-        auto A = [&]( const C_ext * x, C_ext *y )
-        {   
-            ApplyBoundaryOperators_PL( One, x, wc, Zero, y, wc );
+        auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
+        {
+            ApplyBoundaryOperators_PL( C_ext(1), x, wc, C_ext(0), y, wc );
         };
-
+        
         // solve for the normal derivatives of the near field solutions
-        (void)gmres(A,P,wave,wc,neumann_trace,wc,gmres_tol,10);
+        (void)gmres(A,P,
+            Scalar::One <C_ext>, wave,          wc,
+            Scalar::Zero<C_ext>, neumann_trace, wc,
+            gmres_tol, gmres_max_restarts
+        );
 
         UnloadBoundaryOperators_PL();
 
@@ -635,6 +645,8 @@ private:
         ASSERT_REAL(R_ext);
         ASSERT_COMPLEX(C_ext);
         
+        static_assert( std::is_same_v<Scalar::Real<C_ext>, R_ext>, "" );
+        
         std::string tag = ClassName()+"::DotWithNormals_PL<"
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -645,16 +657,16 @@ private:
         const Int n = VertexCount();
         const Int m = SimplexCount();
         
-        Tensor1<Complex,Int> X      (m);
-        Tensor2<Real   ,Int> Y      (m, 3);
-        Tensor2<Real   ,Int> Y_weak (n, 3);
+        Tensor1<Complex,Int> X      ( m         );
+        Tensor2<Real   ,Int> Y      ( m, Int(3) );
+        Tensor2<Real   ,Int> Y_weak ( n, Int(3) );
         
         // Convert the input from PL to a PC function.
         // Also change precision to internal one.
         AvOp.Dot<1>(
-            Scalar::One <Complex>, X_in,     1,
-            Scalar::Zero<Complex>, X.data(), 1,
-            1
+            Scalar::One <Complex>, X_in,     Int(1),
+            Scalar::Zero<Complex>, X.data(), Int(1),
+            Int(1)
         );
         
         // From here on we use internal precision (float).
@@ -662,7 +674,7 @@ private:
         // Pointwise multiplication of the STRONG FORM with the normals.
         // CheckThis
         ParallelDo(
-            [&]( const Int i )
+            [this,&Y,&X]( const Int i )
             {
                 const Real mul = Re(X[i]) / areas_ptr[i];
 
@@ -676,9 +688,9 @@ private:
         
         // Convert from PC function to PL function.
         AvOpTransp.Dot<3>(
-            static_cast<Real>(factor), Y.data()     , 3,
-            Scalar::Zero<Real>,        Y_weak.data(), 3,
-            3
+            static_cast<Real>(factor), Y.data()     , Int(3),
+            Scalar::Zero<Real>,        Y_weak.data(), Int(3),
+            Int(3)
         );
 
         ApplyMassInverse<3>( Y_weak.data(), 3, Y_out, 3, cg_tol, 3 );
@@ -706,16 +718,16 @@ private:
         const Int m = SimplexCount();
         const Int n = VertexCount();
 
-        Tensor2<Real,Int> X      ( m, 3 );
-        Tensor1<Real,Int> Y      ( m );
-        Tensor1<Real,Int> Y_weak ( n );
+        Tensor2<Real,Int> X      ( m, Int(3) );
+        Tensor1<Real,Int> Y      ( m         );
+        Tensor1<Real,Int> Y_weak ( n         );
         
         // Convert the input from PL to a PC function.
         // Also change precision to internal one.
         AvOp.Dot<3>(
-            Scalar::One <R_ext>, X_in,     3,
-            Scalar::Zero<R_ext>, X.data(), 3,
-            3
+            Scalar::One <R_ext>, X_in,     Int(3),
+            Scalar::Zero<R_ext>, X.data(), Int(3),
+            Int(3)
         );
         
         // From here on we use internal precision (float).
@@ -741,9 +753,9 @@ private:
         
         // Convert from PC function to PL function.
         AvOpTransp.Dot<1>(
-            Scalar::One <Real>, Y.data(),      1,
-            Scalar::Zero<Real>, Y_weak.data(), 1,
-            1
+            Scalar::One <Real>, Y.data(),      Int(1),
+            Scalar::Zero<Real>, Y_weak.data(), Int(1),
+            Int(1)
         );
         
         // Set the tolerance parameter for ApplyMassInverse.
