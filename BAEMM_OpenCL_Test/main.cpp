@@ -25,18 +25,10 @@ using LInt      = Int64;
 
 int main()
 {
-    const char * homedir = getenv("HOME");
-    
-    if( homedir == nullptr)
-    {
-        homedir = getpwuid(getuid())->pw_dir;
-    }
-    
     std::filesystem::path this_file { __FILE__ };
     std::filesystem::path repo_dir = this_file.parent_path().parent_path();
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
-    
-    std::filesystem::path home_dir  { homedir };
+    std::filesystem::path home_dir = HomeDirectory();
         
     Profiler::Clear( home_dir );
     
@@ -244,10 +236,13 @@ int main()
 
     toc("Starting measurement");
     
+    
+    
     if( du_dn != nullptr )
     {
         free( du_dn );
     }
+    
     
     return 0;
 }

@@ -347,7 +347,8 @@ public:
         
         ptic(tag);
 
-        // Calculates a Gauss-Newton step. Note that the metric M has to _add_ the input to the result.
+        // Calculates a Gauss-Newton step. 
+        // ATTENTION: Note that the metric M has to _ADD_ the input to the result.
         
         constexpr Int DIM = 3; // Dimension of the ambient space.
         constexpr Int ldX = DIM;
@@ -379,12 +380,14 @@ public:
         {
             Derivative_FF<WC>( 
                 kappa_, wcc, inc_directions, wcs,
-                x, DF.data(), du_dn, type, cg_tol, gmres_tol_inner
+                x, DF.data(), 
+                du_dn, type, cg_tol, gmres_tol_inner
             );
             
             AdjointDerivative_FF<WC>( 
                 kappa_, wcc, inc_directions, wcs,
-                DF.data(), y_strong.data(), du_dn, type, cg_tol, gmres_tol_inner
+                DF.data(), y_strong.data(), 
+                du_dn, type, cg_tol, gmres_tol_inner
             );
 
             Mass.Dot<DIM>(
