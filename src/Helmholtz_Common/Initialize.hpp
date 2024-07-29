@@ -314,7 +314,7 @@ public:
         CurlOpTransp = CurlOp.Transpose();
         
         
-        Mass = Sparse_T(
+        MassOp = Sparse_T(
             a_list.Size(),
             i_list.data(), j_list.data(), a_list.data(),
             vertex_count, vertex_count,

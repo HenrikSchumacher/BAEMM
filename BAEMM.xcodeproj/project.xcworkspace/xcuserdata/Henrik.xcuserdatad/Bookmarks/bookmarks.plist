@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>286</string>
+					<string>284</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>285</string>
+					<string>283</string>
 					<key>Timestamp</key>
-					<string>743776902.021437</string>
+					<string>743961371.352953</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -65,7 +65,7 @@
 					<key>StartingLineNumber</key>
 					<string>159</string>
 					<key>Timestamp</key>
-					<string>743768846.973675</string>
+					<string>743948656.84282</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -84,7 +84,7 @@
 				<string>        if( du_dn == nullptr )
 </string>
 				<key>leading</key>
-				<string>        Tensor1&lt;R_ext,Int&gt;  X_n           ( n );
+				<string>        Tensor1&lt;R_ext,Int&gt;  X_dot_normal  ( n );
         
 </string>
 				<key>trailing</key>
@@ -112,7 +112,7 @@
 					<key>StartingLineNumber</key>
 					<string>183</string>
 					<key>Timestamp</key>
-					<string>743768846.973703</string>
+					<string>743961269.357424</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -137,7 +137,7 @@
 				<key>trailing</key>
 				<string>            
         }
-
+        
 </string>
 			</dict>
 			<key>title</key>

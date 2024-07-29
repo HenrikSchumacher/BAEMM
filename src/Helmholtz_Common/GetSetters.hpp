@@ -15,9 +15,9 @@ public:
         return simplex_count;
     }
 
-    const Sparse_T & MassMatrix() const
+    cref<Sparse_T> MassMatrix() const
     {
-        return Mass;
+        return MassOp;
     }
 
 //    mref<Cholesky_T> InverseMassMatrix()

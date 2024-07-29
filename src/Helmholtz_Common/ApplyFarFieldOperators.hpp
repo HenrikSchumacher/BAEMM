@@ -101,10 +101,7 @@ public:
 
             // TODO: Are these dimensions correct?
 
-            combine_matrices<
-                Scalar::Flag::Generic,Scalar::Flag::Generic,
-                VarSize,VarSize,Parallel
-            >(
+            combine_matrices(
                 alpha, C_ptr, ldC,
                 beta , C_out, ldC_out,
                 meas_count, wave_count, CPU_thread_count

@@ -151,7 +151,7 @@ public:
                 const Scalar::Complex<C_ext> factor
                         = alpha * static_cast<C_ext>(c[chunk][0]);
                 
-                Mass.Dot(
+                MassOp.Dot(
                     factor, &B_in [wave_chunk_size * chunk], ldB_in,
                     addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
                     wave_chunk_size
@@ -162,7 +162,7 @@ public:
                 const Scalar::Complex<C_ext> factor
                         = alpha * static_cast<C_ext>(c[chunk][0]);
                 
-                Mass.Dot(
+                MassOp.Dot(
                     factor, &B_in [wave_chunk_size * chunk], ldB_in,
                     addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
                     wave_count - wave_chunk_size*chunk

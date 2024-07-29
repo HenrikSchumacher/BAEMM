@@ -151,11 +151,11 @@ public:
         const Int wc  = wcc * wcs;
         
         Tensor2<C_ext,Int>  coeff         ( wcc, 4  );
-        Tensor2<C_ext,Int>  bdr_cond_buf  ( n,   wc );
+        Tensor2<C_ext,Int>  bdr_cond      ( n,   wc );
         Tensor2<C_ext,Int>  bdr_cond_weak ( n,   wc );
         Tensor2<C_ext,Int>  phi           ( n,   wc );
         
-        Tensor1<R_ext,Int>  X_n           ( n );
+        Tensor1<R_ext,Int>  X_dot_normal  ( n );
         
         if( du_dn == nullptr )
         {
@@ -165,7 +165,7 @@ public:
             Tensor2<C_ext,Int> inc_wave  ( n,   wc );  //weak representation of the incident wave
             
             du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
-
+            
             // create weak representation of the negative incident wave
             for(Int i = 0 ; i < wcc ; i++)
             {
@@ -184,29 +184,27 @@ public:
             DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
             
         }
-
-        DotWithNormals_PL( X_in, X_n.data(), cg_tol );
-
-        mptr<C_ext> bdr_cond = bdr_cond_buf.data();
+        
+        DotWithNormals_PL( X_in, X_dot_normal.data(), cg_tol );
         
         // CheckThis
         ParallelDo(
-            [=,this,&X_n]( const Int i )
+            [this,&X_dot_normal,&bdr_cond,du_dn,wc]( const Int i )
             {
-                // bdr_cond[wc * i] = -X_n[i] * du_dn[wc * i]
+                // bdr_cond[wc * i] = -X_dot_normal[i] * du_dn[wc * i]
                 
                 combine_buffers<Scalar::Flag::Generic,Scalar::Flag::Zero,WC>(
-                    -X_n[i],             &du_dn   [wc * i],
-                    Scalar::Zero<C_ext>, &bdr_cond[wc * i],
+                    -X_dot_normal[i],    &du_dn[wc * i],
+                    Scalar::Zero<C_ext>, bdr_cond.data(i),
                     wc
                 );
             },
             n, CPU_thread_count
         );
-
+        
         // apply mass to the boundary conditions to get weak representation
-        Mass.Dot<WC>(
-            Scalar::One <C_ext>, bdr_cond_buf.data(),  wc,
+        MassOp.Dot<WC>(
+            Scalar::One <C_ext>, bdr_cond.data(),      wc,
             Scalar::Zero<C_ext>, bdr_cond_weak.data(), wc,
             wc
         );
@@ -318,17 +316,26 @@ public:
 
 public:
 
-    template<Int WC, typename I_ext, typename R_ext, typename C_ext, typename M_T, typename P_T>
-    I_ext GaussNewtonStep(
+
+    // Computes X = alpha (DF^T/DF + M)^{-1}.B + beta * X.
+
+    template<Int WC,
+        typename I_ext, typename R_ext, typename C_ext,
+        typename M_T, typename P_T
+    >
+    bool GaussNewtonSolve(
         cptr<R_ext> kappa_,
         const I_ext wave_chunk_count_,
         cptr<R_ext> inc_directions,
         const I_ext wave_chunk_size_,
         M_T & M,
         P_T & P,
-        cptr<R_ext> X_in,
-        mptr<R_ext> Y_out,
-        C_ext * & du_dn, //du_dn is the Neumann data of the scattered wave
+        // Supply the differential of the Tikonov functional here.
+        const R_ext alpha, cptr<R_ext> B_in,  const I_ext ldB,
+        // Write the seach direction here.
+        const R_ext beta , mptr<R_ext> X_out, const I_ext ldX,
+        //du_dn is the Neumann data of the scattered wave.
+        C_ext * & du_dn,
         const WaveType type,
         const R_ext cg_tol,
         const R_ext gmres_tol_inner,
@@ -338,7 +345,7 @@ public:
         CheckInteger<I_ext>();
         CheckScalars<R_ext,C_ext>();
         
-        std::string tag = ClassName()+"::GaussNewtonStep<"
+        std::string tag = ClassName()+"::GaussNewtonSolve<"
             + "," + ToString(WC)
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
@@ -351,8 +358,6 @@ public:
         // ATTENTION: Note that the metric M has to _ADD_ the input to the result.
         
         constexpr Int DIM = 3; // Dimension of the ambient space.
-        constexpr Int ldX = DIM;
-        constexpr Int ldY = DIM;
         
         const Int n   = VertexCount();
         const Int m   = GetMeasCount();
@@ -376,9 +381,13 @@ public:
         Tensor2<C_ext,Int>  DF       ( m, wc  );
         Tensor2<R_ext,Int>  y_strong ( n, DIM );
 
+        
+        // A computes A.x = M.x + DF^*.DF.x;
         auto A = [&]( cptr<R_ext> x, mptr<R_ext> y )
         {
-            Derivative_FF<WC>( 
+            M(x,y); // The metric m has to return M.x;
+            
+            Derivative_FF<WC>(
                 kappa_, wcc, inc_directions, wcs,
                 x, DF.data(), 
                 du_dn, type, cg_tol, gmres_tol_inner
@@ -390,25 +399,28 @@ public:
                 du_dn, type, cg_tol, gmres_tol_inner
             );
 
-            Mass.Dot<DIM>(
-                Tools::Scalar::One <R_ext>, y_strong.data(), DIM,
-                Tools::Scalar::Zero<R_ext>, y,               DIM,
+            MassOp.Dot<DIM>(
+                Tools::Scalar::One<R_ext>, y_strong.data(), DIM,
+                Tools::Scalar::One<R_ext>, y,               DIM,
                 DIM
             );
 
-            M(x,y); // The metric m has to return y + M*x
         };
         
-        // Evaluating Y_out = R_ext(1) * A^{-1} . X_in + R_ext(0) * Y_out
-        const Int succeeded = gmres(A,P,
-            Scalar::One <C_ext>, X_in,  ldX,
-            Scalar::Zero<C_ext>, Y_out, ldY,
+        // Computes X = alpha (DF^T/DF + M)^{-1}.B + beta * X.
+        bool succeeded = gmres(A,P,
+            alpha, B_in,  ldB,
+            beta , X_out, ldX,
             gmres_tol_outer, gmres_max_restarts
         );
 
+        // DEBUGING
+        
+        
+        
         ptoc(tag);
         
-        return static_cast<I_ext>(succeeded);
+        return succeeded;
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -476,6 +488,7 @@ private:
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
+        
 
         // The two boolean at the end of the template silence some messages.
         GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(
@@ -503,7 +516,7 @@ private:
         // P is also used for transf. into strong form.
         // Henrik is it?
         
-        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
+        auto P = [this,n,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
         {
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
@@ -513,6 +526,7 @@ private:
             {
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
+            
         };
         
         (void)gmres(A,P,
@@ -738,6 +752,6 @@ private:
         
         // Set the tolerance parameter for ApplyMassInverse.
         ApplyMassInverse<1>( Y_weak.data(), 1, Y_out, 1, cg_tol, 1 );
-
+        
         ptoc(tag);
     }

@@ -133,7 +133,7 @@ public:
             NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count, kappa, c );
 
             
-            combine_matrices<Scalar::Flag::Generic,Scalar::Flag::Generic,VarSize,VarSize,Parallel>(
+            combine_matrices(
                 alpha, C_ptr, wave_count,
                 beta,  C_out, ldC,
                 evaluation_count, wave_count, CPU_thread_count                                                                                     

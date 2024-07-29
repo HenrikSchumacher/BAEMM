@@ -32,7 +32,7 @@ private:
     Sparse_T CurlOp;
     Sparse_T CurlOpTransp;
 
-    Sparse_T Mass;
+    Sparse_T MassOp;
 
     bool B_loaded        = false;
     bool C_loaded        = false;

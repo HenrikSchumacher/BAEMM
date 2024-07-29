@@ -16,13 +16,15 @@ using namespace Tensors;
 using namespace BAEMM;
 
 using Helmholtz_T = BAEMM::Helmholtz_OpenCL;
+constexpr BAEMM::WaveType Plane  = BAEMM::WaveType::Plane;
+//constexpr BAEMM::WaveType Radial = BAEMM::WaveType::Radial;
 
 using Real      = Real64;
 using Complex   = std::complex<Real>;
 using Int       = Int64;
 using LInt      = Int64;
 
-constexpr Int dim = 3;
+constexpr Int DIM = 3;
 
 int main()
 {
@@ -39,8 +41,8 @@ int main()
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
-    std::string mesh_name { "Spot_00023424T" };
-//    std::string mesh_name { "Spot_00093696T_T" };
+//    std::string mesh_name { "Spot_00023424T" };
+    std::string mesh_name { "Spot_00093696T_T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
@@ -91,7 +93,7 @@ int main()
     Int thread_count = 8;
 //    Int thread_count = 1;
 
-    
+    logprint("Initialize Helmholtz object");
     Helmholtz_T H (
         coords.data(),          vertex_count,
         simplices.data(),       simplex_count,
@@ -106,7 +108,7 @@ int main()
     constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
     Tensor1<Real,Int> kappa ( wave_chunk_count     );
-    Tensor2<Real,Int> inc   ( wave_chunk_size, dim );
+    Tensor2<Real,Int> inc   ( wave_chunk_size, DIM );
     
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
@@ -178,21 +180,13 @@ int main()
     inc(15,2) = 0.675320779409617;
 
     H.UseDiagonal(true);
-    
-    Real cg_tol    = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0001);
-
-    Real regpar = 0.001;
-
-    Tensor2<Real,Int> B_out(  vertex_count, dim  );
-
-    gmres_tol = static_cast<Real>(0.005);
 //
 //    std::fstream file ("NeumannDataScat.bin");
     
     using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
+    logprint("Initialize mesh");
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
         coords.data(),    vertex_count,
         simplices.data(), simplex_count,
@@ -206,18 +200,28 @@ int main()
 
     const Real q = 6;
     const Real p = 12;
-    const Real s = (p - 2) / q;
 
+    logprint("Initialize energy");
+    TangentPointEnergy0<Mesh_T> tpe (q,p);
+    
+    logprint("Initialize metric");
     TangentPointMetric0<Mesh_T> tpm (q,p);
+    
+    
+    Real cg_tol          = 0.00001;
+    Real gmres_tol       = 0.005;
+    Real gmres_tol_outer = 0.01;
+    
+    Real regpar          = 0.001;
     
     // The operator for the metric.
     auto A = [regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
         // Y = 1 * Y + regpar * Metric.X
         tpm.MultiplyMetric( *M,
-            regpar,            X, dim,
-            Scalar::One<Real>, Y, dim,
-            dim
+            regpar,             X, DIM,
+            Scalar::Zero<Real>, Y, DIM,
+            DIM
         );
     };
 
@@ -229,29 +233,82 @@ int main()
     {
         // Y = 0 * Y + one_over_regpar * Prec.X
         tpm.MultiplyPreconditioner( *M,
-            one_over_regpar,    X, dim,
-            Scalar::Zero<Real>, Y, dim,
-            dim
+            one_over_regpar,    X, DIM,
+            Scalar::Zero<Real>, Y, DIM,
+            DIM
         );
     };
 
-    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    Real gmres_tol_outer = 0.01;
-    Int succeeded;
+    
+    // Far field
+    Tensor2<Complex,Int> F ( meas_count, wave_count );
+    
+    // Derivative ofr 1/2 |F|^2.
+    Tensor2<Real,Int> FDF  ( vertex_count, DIM );
+    
+    // Right-hand side for solver.
+    Tensor2<Real,Int> B    ( vertex_count, DIM );
+    
+    // Search direction.
+    Tensor2<Real,Int> X    ( vertex_count, DIM ); // search direction.
+    
     
     Complex * du_dn = nullptr;
-    Tensor2<Real,Int> w ( vertex_count, dim );
     
     
-    tic("GaussNewtonStep");
-    succeeded = H.GaussNewtonStep<wave_count>(
+    logprint("DE");
+    tpe.Differential( *M, regpar, Scalar::Zero<Real>, B.data(), B.Dimension(1) );
+    
+    
+    logprint("FDF");
+    H.FarField<wave_count>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
-        A, P, w.data(), B_out.data(), du_dn,
-        BAEMM::WaveType::Plane, cg_tol, gmres_tol, gmres_tol_outer
+        F.data(),
+        Plane, cg_tol, gmres_tol
     );
-    toc("GaussNewtonStep");
+
+    
+    H.AdjointDerivative_FF<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        F.data(), FDF.data(),
+        du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    
+    H.MassMatrix().Dot<DIM>(
+        Tools::Scalar::One<Real>, FDF.data(), FDF.Dimension(1),
+        Tools::Scalar::One<Real>, B.data(),   B.Dimension(1),
+        DIM
+    );
+    
+    bool succeeded;
+    
+    
+    
+//    print("");
+//    
+//    logprint("GaussNewtonSolve");
+//    
+//    tic("GaussNewtonSolve");
+//    succeeded = H.GaussNewtonSolve<wave_count>(
+//        kappa.data(), wave_chunk_count,
+//        inc.data(),   wave_chunk_size,
+//        A, P,
+//        Scalar::One <Real>, B.data(), B.Dimension(1),
+//        Scalar::Zero<Real>, X.data(), X.Dimension(1),
+//        du_dn,
+//        Plane, cg_tol, gmres_tol, gmres_tol_outer
+//    );
+//    toc("GaussNewtonSolve");
+//    
+//    dump(succeeded);
+    
+    
+    if( du_dn != nullptr )
+    {
+        free( du_dn );
+    }
     
     return 0;
 }

@@ -5,7 +5,7 @@ public:
         cptr<X_T> X, const Int ldX,
         mptr<Y_T> Y, const Int ldY,
         const R_ext cg_tol,
-        const Int   nrhs = NRHS
+        const Int nrhs = NRHS
     )
     {
         // Solves M.Y = X or Y = M^{-1}.X
@@ -49,7 +49,7 @@ public:
 
         bool succeeded;
         
-        if constexpr ( Scalar::ComplexQ<X_T> )
+        if constexpr ( Scalar::ComplexQ<Y_T> )
         {
             using CG_Scal = Complex;
             using CG_Real = Real;
@@ -58,10 +58,21 @@ public:
             ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
                 vertex_count, max_iter, nrhs, CPU_thread_count
             );
+            
+            // Here we use a dirty trick. std::complex<T> is implemented such
+            // that
+            //           reinterpret_cast<const T *>(x)[0] == x.real()
+            // and
+            //           reinterpret_cast<const T *>(x)[1] == x.imag()
+            //
+            // So, when we reinterpret_cast a pointer to an array of n std::complex<T> to
+            // a pointer of T, then we implicitly get an array of 2*n elements
+            // of type T, which contains the real and imaginary parts in interleaved
+            // form.
 
             auto A = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
-                Mass.Dot<2 * NRHS>(
+                MassOp.Dot<2 * NRHS>(
                     Scalar::One <CG_Real>, reinterpret_cast<const CG_Real *>(x), 2 * nrhs,
                     Scalar::Zero<CG_Real>, reinterpret_cast<      CG_Real *>(y), 2 * nrhs,
                     2 * nrhs
@@ -79,9 +90,9 @@ public:
             
             succeeded = cg(
                 A,P,
-                Y_T(1), X, ldX,
-                Y_T(0), Y, ldY,
-                static_cast<Real>(cg_tol)
+                Scalar::One <Y_T>, X, ldX,
+                Scalar::Zero<Y_T>, Y, ldY,
+                static_cast<Real>(cg_tol), false
             );
         }
         else
@@ -96,7 +107,7 @@ public:
 
             auto A = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
-                Mass.Dot<NRHS>(
+                MassOp.Dot<NRHS>(
                     Scalar::One <CG_Scal>, x, nrhs,
                     Scalar::Zero<CG_Scal>, y, nrhs,
                     nrhs
@@ -105,7 +116,7 @@ public:
             
             auto P = [this,nrhs]( cptr<CG_Scal> x, mptr<CG_Scal> y )
             {
-                ApplyLumpedMassInverse<NRHS>( 
+                ApplyLumpedMassInverse<NRHS>(
                     x, nrhs,
                     y, nrhs,
                     nrhs
@@ -114,9 +125,9 @@ public:
             
             succeeded = cg(
                 A,P,
-                R_ext(1), X, ldX,
-                R_ext(0), Y, ldY,
-                static_cast<CG_Real>(cg_tol)
+                Scalar::One <Y_T>, X, ldX,
+                Scalar::Zero<Y_T>, Y, ldY,
+                static_cast<CG_Real>(cg_tol), false
             );
         }
 
