@@ -79,6 +79,9 @@ int main()
     ReadRegpar(regpar);
 
     Profiler::Clear("/HOME1/users/guests/jannr/BEM");
+    
+//    // @Jannik: Also try this new feature for more portability:
+//    Profiler::Clear( HomeDirectory() / "BEM" );
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
@@ -97,7 +100,7 @@ int main()
 
     Tensor2<Real,Int>    B_out(  vertex_count, dim  );
 
-    Real cg_tol = static_cast<Real>(0.00001);
+    Real cg_tol    = static_cast<Real>(0.00001);
     Real gmres_tol = static_cast<Real>(0.005);
 
     Tensor2<Complex,Int> neumann_data_scat;
@@ -116,29 +119,34 @@ int main()
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
 
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
-        coords.data(),  vertex_count,
-        simplices.data(),  simplex_count,
+        coords.data(),    vertex_count,
+        simplices.data(), simplex_count,
         thread_count
         );
 
-    M->cluster_tree_settings.split_threshold                        =  2;
-    M->cluster_tree_settings.thread_count                           =  thread_count; // take as many threads as there are used by SimplicialMesh M
-    M->block_cluster_tree_settings.far_field_separation_parameter   =  static_cast<Real>(0.125);
+    M->cluster_tree_settings.split_threshold                        = 2;
+    M->cluster_tree_settings.thread_count                           = thread_count; // take as many threads as there are used by SimplicialMesh M
+    M->block_cluster_tree_settings.far_field_separation_parameter   = static_cast<Real>(0.125);
     M->adaptivity_settings.theta                                    = static_cast<Real>(10.0);
 
     const Real q  = 6;
-    const Real p  = 12;
+    const Real p = 12;
     const Real s = (p - 2) / q;
 
-    TangentPointMetric0<Mesh_T>       tpm        (q,p);
+    TangentPointMetric0<Mesh_T> tpm (q,p);
     
-    // TODO: Should be obsolete now because we may use tpm.MultiplyPreconditioner.
-    PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
+//    // Obsolete now because we may use tpm.MultiplyPreconditioner.
+//    PseudoLaplacian    <Mesh_T,false> pseudo_lap (2-s);
 
     // The operator for the metric.
     auto A = [&]( cptr<Real> X, mptr<Real> Y )
     {
-        tpm.MultiplyMetric( *M, regpar, X, Scalar::One<Real>, Y, dim );
+        // Y = 1 * Y + regpar * Metric.X
+        tpm.MultiplyMetric( *M,
+            regpar,            X, dim,
+            Scalar::One<Real>, Y, dim,
+            dim
+        );
     };
 
     Real one_over_regpar = Inv<Real>(regpar);
@@ -150,11 +158,12 @@ int main()
     // The operator for the preconditioner.
     auto P = [&]( cptr<Real> X, mptr<Real> Y )
     {
-//        tpm.MultiplyPreconditioner( *M, one_over_regpar, X, Scalar::Zero<Real>, Y, dim );
-        
-        M->H1Solver().template Solve<Sequential>(X, Y, dim);
-        pseudo_lap.MultiplyMetric( *M, one_over_regpar, Y, Scalar::Zero<Real>, Z, dim );
-        M->H1Solver().template Solve<Sequential>(Z, Y, dim);
+        // Y = 0 * Y + one_over_regpar Prec.X
+        tpm.MultiplyPreconditioner( *M,
+            one_over_regpar,    X, dim,
+            Scalar::Zero<Real>, Y, dim,
+            dim
+        );
     };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -164,48 +173,50 @@ int main()
     
     const Wave_T wt = (wave_type == "Radial") ? Wave_T::Radial : Wave_T::Plane;
 
+    // Declare a templated lambda.
+    auto job = [&]<Size_T WC>()
+    {
+        succeeded = H.GaussNewtonStep<WC>(
+            kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+            A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer
+        );
+    }
+    
     switch (wave_count)
     {
         case 1:
         {
-            succeeded = H.GaussNewtonStep<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<1>();
             break;
         }
         case 2:
         {
-            succeeded = H.GaussNewtonStep<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<2>();
             break;
         }
         case 4:
         {
-            succeeded = H.GaussNewtonStep<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<4>();
             break;
         }
         case 8:
         {
-            succeeded = H.GaussNewtonStep<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<8>();
             break;
         }
         case 16:
         {
-            succeeded = H.GaussNewtonStep<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<16>();
             break;
         }
         case 32:
         {
-            succeeded = H.GaussNewtonStep<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<32>();
             break;
         }
         case 64:
         {
-            succeeded = H.GaussNewtonStep<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer);
+            job.template operator()<64>();
             break;
         }
         default:
@@ -222,6 +233,17 @@ int main()
 
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
+    
+    
+//    // @Jannik: Also try this new feature for a bit more portability:
+//    std::filesystem::rename(
+//        Profiler::log_file , 
+//        HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
+//    );
+//    std::filesystem::rename( 
+//        Profiler::prof_file,
+//        HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
+//    );
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
