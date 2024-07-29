@@ -14,6 +14,9 @@
 		AFA1CF24298E59A100085994 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
 		AFA1CF25298E59A600085994 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF16298E573E00085994 /* Metal.framework */; };
 		AFA1CF26298E59AB00085994 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF14298E573500085994 /* Foundation.framework */; };
+		AFDE648D2C57B44100CA4669 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFDE648C2C57B44100CA4669 /* main.cpp */; };
+		AFDE64912C57B44500CA4669 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFA1CF12298E572A00085994 /* Accelerate.framework */; };
+		AFDE64922C57B44A00CA4669 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF1A0AB82C4BD72B008E55D5 /* OpenCL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +30,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		AFA1CF1A298E588D00085994 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		AFDE64882C57B44100CA4669 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -60,6 +72,8 @@
 		AFA1CF23298E58F500085994 /* BAEMM_Test.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BAEMM_Test.entitlements; sourceTree = "<group>"; };
 		AFBB95112998F3F3003C6D4B /* Helmholtz_Metal.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_Metal.hpp; sourceTree = "<group>"; };
 		AFC65BBD2C4E8EBF00F497D0 /* BAEMM_Common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BAEMM_Common.hpp; sourceTree = "<group>"; };
+		AFDE648A2C57B44100CA4669 /* Test_GaussNewton */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Test_GaussNewton; sourceTree = BUILT_PRODUCTS_DIR; };
+		AFDE648C2C57B44100CA4669 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +93,15 @@
 				AFA1CF25298E59A600085994 /* Metal.framework in Frameworks */,
 				AFA1CF26298E59AB00085994 /* Foundation.framework in Frameworks */,
 				AFA1CF24298E59A100085994 /* Accelerate.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AFDE64872C57B44100CA4669 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFDE64912C57B44500CA4669 /* Accelerate.framework in Frameworks */,
+				AFDE64922C57B44A00CA4669 /* OpenCL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +134,7 @@
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
 				AF1A0AB02C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
+				AFDE648B2C57B44100CA4669 /* Test_GaussNewton */,
 				AFA1CEFC298E56D400085994 /* Products */,
 				AFA1CF11298E572A00085994 /* Frameworks */,
 			);
@@ -121,6 +145,7 @@
 			children = (
 				AFA1CF1C298E588D00085994 /* BAEMM_Test */,
 				AF1A0AAF2C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
+				AFDE648A2C57B44100CA4669 /* Test_GaussNewton */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -143,6 +168,14 @@
 				AFA1CF1E298E588E00085994 /* main.cpp */,
 			);
 			path = BAEMM_Test;
+			sourceTree = "<group>";
+		};
+		AFDE648B2C57B44100CA4669 /* Test_GaussNewton */ = {
+			isa = PBXGroup;
+			children = (
+				AFDE648C2C57B44100CA4669 /* main.cpp */,
+			);
+			path = Test_GaussNewton;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +215,23 @@
 			productReference = AFA1CF1C298E588D00085994 /* BAEMM_Test */;
 			productType = "com.apple.product-type.tool";
 		};
+		AFDE64892C57B44100CA4669 /* Test_GaussNewton */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AFDE64902C57B44100CA4669 /* Build configuration list for PBXNativeTarget "Test_GaussNewton" */;
+			buildPhases = (
+				AFDE64862C57B44100CA4669 /* Sources */,
+				AFDE64872C57B44100CA4669 /* Frameworks */,
+				AFDE64882C57B44100CA4669 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Test_GaussNewton;
+			productName = Test_GaussNewton;
+			productReference = AFDE648A2C57B44100CA4669 /* Test_GaussNewton */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -196,6 +246,9 @@
 					};
 					AFA1CF1B298E588D00085994 = {
 						CreatedOnToolsVersion = 14.2;
+					};
+					AFDE64892C57B44100CA4669 = {
+						CreatedOnToolsVersion = 15.4;
 					};
 				};
 			};
@@ -214,6 +267,7 @@
 			targets = (
 				AFA1CF1B298E588D00085994 /* BAEMM_Test */,
 				AF1A0AAE2C4BD120008E55D5 /* BAEMM_OpenCL_Test */,
+				AFDE64892C57B44100CA4669 /* Test_GaussNewton */,
 			);
 		};
 /* End PBXProject section */
@@ -235,6 +289,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AFDE64862C57B44100CA4669 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFDE648D2C57B44100CA4669 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -245,7 +307,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				OTHER_LDFLAGS = (
@@ -254,10 +315,6 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
-					/opt/homebrew/opt/suitesparse/include/suitesparse,
-				);
 			};
 			name = Debug;
 		};
@@ -268,7 +325,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				OTHER_LDFLAGS = (
@@ -277,10 +333,6 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
-					/opt/homebrew/opt/suitesparse/include/suitesparse,
-				);
 			};
 			name = Release;
 		};
@@ -339,6 +391,7 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -356,6 +409,10 @@
 					"-ldl",
 				);
 				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Debug;
 		};
@@ -409,6 +466,7 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -426,6 +484,10 @@
 					"-ldl",
 				);
 				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Release;
 		};
@@ -438,7 +500,6 @@
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -451,7 +512,36 @@
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = "";
+			};
+			name = Release;
+		};
+		AFDE648E2C57B44100CA4669 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AFDE648F2C57B44100CA4669 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Y6DQ749ZRT;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -481,6 +571,15 @@
 			buildConfigurations = (
 				AFA1CF21298E588E00085994 /* Debug */,
 				AFA1CF22298E588E00085994 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AFDE64902C57B44100CA4669 /* Build configuration list for PBXNativeTarget "Test_GaussNewton" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AFDE648E2C57B44100CA4669 /* Debug */,
+				AFDE648F2C57B44100CA4669 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
