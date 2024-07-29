@@ -180,7 +180,7 @@ int main()
             kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
             A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer
         );
-    }
+    };
     
     switch (wave_count)
     {
