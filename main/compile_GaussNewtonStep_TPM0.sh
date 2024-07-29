@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -g -O3 -DNDEBUG -std=c++20 -fno-var-tracking-assignments -Wno-deprecated -pthread -I/HOME1/users/guests/jannr/github/BAEMM -I/HOME1/users/guests/jannr/anaconda3/envs/BEM/include -L/HOME1/users/guests/jannr/anaconda3/envs/BEM/lib -lOpenCL -lopenblas GaussNewtonStep_TPM0.cpp -o /HOME1/users/guests/jannr/BEM/GaussNewton_TPM0_test
+g++ -g -O3 -DNDEBUG -std=c++20 -fno-var-tracking-assignments -Wno-deprecated -pthread -I/HOME1/users/guests/jannr/github/BAEMM -I/HOME1/users/guests/jannr/anaconda3/envs/BEM/include -L/HOME1/users/guests/jannr/anaconda3/envs/BEM/lib -lOpenCL -lopenblas GaussNewtonStep_TPM0.cpp -o /HOME1/users/guests/jannr/BEM/GaussNewton_TPM0
