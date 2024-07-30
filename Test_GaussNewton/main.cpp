@@ -34,7 +34,7 @@ int main()
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
     std::filesystem::path home_dir = HomeDirectory();
         
-//    Profiler::Clear( home_dir );
+    Profiler::Clear( home_dir );
     
 
 //    std::string mesh_name { "Triceratops_00081920T" };
@@ -42,8 +42,8 @@ int main()
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
-    std::string mesh_name { "Spot_00023424T" };
-//    std::string mesh_name { "Spot_00093696T" };
+//    std::string mesh_name { "Spot_00023424T" };
+    std::string mesh_name { "Spot_00093696T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
