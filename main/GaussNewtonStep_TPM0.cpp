@@ -78,10 +78,10 @@ int main()
 
     ReadRegpar(regpar);
 
-    Profiler::Clear("/HOME1/users/guests/jannr/BEM");
+    // Profiler::Clear("/HOME1/users/guests/jannr/BEM");
     
 //    // @Jannik: Also try this new feature for more portability:
-//    Profiler::Clear( HomeDirectory() / "BEM" );
+   Profiler::Clear( HomeDirectory() / "BEM" );
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
@@ -144,16 +144,16 @@ int main()
         // Y = 1 * Y + regpar * Metric.X
         tpm.MultiplyMetric( *M,
             regpar,            X, dim,
-            Scalar::One<Real>, Y, dim,
+            Scalar::Zero<Real>, Y, dim,
             dim
         );
     };
 
     Real one_over_regpar = Inv<Real>(regpar);
 
-    Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
+    // Tensor2<Real,Int> Z_buffer  ( vertex_count, dim );
 
-    mptr<Real> Z  = Z_buffer.data();
+    // mptr<Real> Z  = Z_buffer.data();
 
     // The operator for the preconditioner.
     auto P = [&]( cptr<Real> X, mptr<Real> Y )
@@ -164,7 +164,6 @@ int main()
             Scalar::Zero<Real>, Y, dim,
             dim
         );
-    };
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +179,11 @@ int main()
         
         succeeded = H.GaussNewtonStep<WC>(
             kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-            A, P, B_in.data(), B_out.data(), neumann_data_scat_ptr, wt, cg_tol, gmres_tol, gmres_tol_outer
+            A, P, 
+            Scalar::One<Real>, B_in.data(), dim,
+            Scalar::Zero<Real>, B_out.data(), dim,
+            neumann_data_scat_ptr, wt, 
+            cg_tol, gmres_tol, gmres_tol_outer
         );
     };
     
@@ -228,24 +231,24 @@ int main()
         }
     }
 
-    std::string varAsString = std::to_string(1000000 * regpar);
+    // std::string varAsString = std::to_string(1000000 * regpar);
 
-    std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".txt";
-    std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".tsv";
+    // std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".txt";
+    // std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".tsv";
 
-    std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
-    std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
+    // std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
+    // std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
     
     
 //    // @Jannik: Also try this new feature for a bit more portability:
-//    std::filesystem::rename(
-//        Profiler::log_file , 
-//        HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
-//    );
-//    std::filesystem::rename( 
-//        Profiler::prof_file,
-//        HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
-//    );
+   std::filesystem::rename(
+       Profiler::log_file , 
+       HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
+   );
+   std::filesystem::rename( 
+       Profiler::prof_file,
+       HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
+   );
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
