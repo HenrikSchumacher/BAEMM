@@ -177,7 +177,7 @@ int main()
     {
         dump(WC);
         
-        succeeded = H.GaussNewtonStep<WC>(
+        succeeded = H.GaussNewtonSolve<WC>(
             kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
             A, P, 
             Scalar::One<Real>, B_in.data(), dim,
@@ -231,7 +231,7 @@ int main()
         }
     }
 
-    // std::string varAsString = std::to_string(1000000 * regpar);
+    std::string varAsString = std::to_string(1000000 * regpar);
 
     // std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".txt";
     // std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".tsv";
