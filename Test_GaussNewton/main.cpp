@@ -42,7 +42,7 @@ int main()
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
 //    std::string mesh_name { "Spot_00023424T" };
-    std::string mesh_name { "Spot_00093696T_T" };
+    std::string mesh_name { "Spot_00093696T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
@@ -72,7 +72,14 @@ int main()
     tic("Loading obstacle.");
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
-    ReadMeshFromFile<Real,Int>( mesh_file.string(), coords, simplices );
+    bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file.string(), coords, simplices );
+
+    if( !mesh_loadedQ )
+    {
+        eprint("Failed to load mesh. Aborting.");
+        
+        exit(-1);
+    }
     toc("Loading obstacle.");
     
     print("");
@@ -80,8 +87,16 @@ int main()
     tic("Loading far field sphere.");
     Tensor2<Real,Int> meas_directions;
     Tensor2<Int, Int> simplices_meas;
-    ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
+    bool meas_loadedQ = ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
+    
+    if( !meas_loadedQ )
+    {
+        eprint("Failed to load far field sphere. Aborting.");
+        
+        exit(-1);
+    }
     toc("Loading far field sphere.");
+    
     
     print("");
     
@@ -180,23 +195,21 @@ int main()
     inc(15,2) = 0.675320779409617;
 
     H.UseDiagonal(true);
-//
-//    std::fstream file ("NeumannDataScat.bin");
     
-    using Mesh_T     = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
+    using Mesh_T  = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
-
+    
     logprint("Initialize mesh");
     Mesh_Ptr_T M = std::make_shared<Mesh_T>(
         coords.data(),    vertex_count,
         simplices.data(), simplex_count,
         thread_count
-        );
-
-    M->cluster_tree_settings.split_threshold                        = 2;
-    M->cluster_tree_settings.thread_count                           = thread_count; // take as many threads as there are used by SimplicialMesh M
-    M->block_cluster_tree_settings.far_field_separation_parameter   = static_cast<Real>(0.125);
-    M->adaptivity_settings.theta                                    = static_cast<Real>(10.0);
+    );
+    
+    M->cluster_tree_settings.split_threshold                        =  2;
+    M->cluster_tree_settings.thread_count                           =  0; // take as many threads as there are used by SimplicialMesh M
+    M->block_cluster_tree_settings.far_field_separation_parameter   =  0.125;
+    M->adaptivity_settings.theta                                    = 10.0;
 
     const Real q = 6;
     const Real p = 12;
@@ -229,7 +242,7 @@ int main()
 
 
     // The operator for the preconditioner.
-    auto P = [one_over_regpar,M,&tpm]( cptr<Real> X, mptr<Real> Y )
+    auto P = [one_over_regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
         // Y = 0 * Y + one_over_regpar * Prec.X
         tpm.MultiplyPreconditioner( *M,
@@ -277,8 +290,8 @@ int main()
     );
     
     H.MassMatrix().Dot<DIM>(
-        Tools::Scalar::One<Real>, FDF.data(), FDF.Dimension(1),
-        Tools::Scalar::One<Real>, B.data(),   B.Dimension(1),
+        Tools::Scalar::One<Real>, FDF.data(), static_cast<Helmholtz_T::Int>(FDF.Dimension(1)),
+        Tools::Scalar::One<Real>, B.data(),   static_cast<Helmholtz_T::Int>(B.Dimension(1)),
         DIM
     );
     
@@ -286,23 +299,23 @@ int main()
     
     
     
-//    print("");
-//    
-//    logprint("GaussNewtonSolve");
-//    
-//    tic("GaussNewtonSolve");
-//    succeeded = H.GaussNewtonSolve<wave_count>(
-//        kappa.data(), wave_chunk_count,
-//        inc.data(),   wave_chunk_size,
-//        A, P,
-//        Scalar::One <Real>, B.data(), B.Dimension(1),
-//        Scalar::Zero<Real>, X.data(), X.Dimension(1),
-//        du_dn,
-//        Plane, cg_tol, gmres_tol, gmres_tol_outer
-//    );
-//    toc("GaussNewtonSolve");
-//    
-//    dump(succeeded);
+    print("");
+    
+    logprint("GaussNewtonSolve");
+    
+    tic("GaussNewtonSolve");
+    succeeded = H.GaussNewtonSolve<wave_count>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        A, P,
+        Scalar::One <Real>, B.data(), B.Dimension(1),
+        Scalar::Zero<Real>, X.data(), X.Dimension(1),
+        du_dn,
+        Plane, cg_tol, gmres_tol, gmres_tol_outer
+    );
+    toc("GaussNewtonSolve");
+    
+    dump(succeeded);
     
     
     if( du_dn != nullptr )
