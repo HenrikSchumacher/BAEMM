@@ -31,6 +31,7 @@ int main()
     std::filesystem::path this_file { __FILE__ };
     std::filesystem::path repo_dir = this_file.parent_path().parent_path();
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
+    std::cout << mesh_dir << std::endl;
     std::filesystem::path home_dir = HomeDirectory();
         
 //    Profiler::Clear( home_dir );
