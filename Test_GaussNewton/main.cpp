@@ -37,8 +37,8 @@ int main()
     Profiler::Clear( home_dir );
     
 
-//    std::string mesh_name { "Triceratops_00081920T" };
-    std::string mesh_name { "Triceratops_12_00081920T" };
+    std::string mesh_name { "Triceratops_00081920T" };
+//    std::string mesh_name { "Triceratops_12_00081920T" };
     std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
@@ -55,19 +55,29 @@ int main()
     
     
     {
-        std::ifstream f( mesh_file.string() );
+        std::ifstream f( mesh_file );
         if ( !f.good() )
         {
             eprint("File " + mesh_file.string() + " not found. Exiting.");
+            
+            dump( f.eof() );
+            dump( f.fail() );
+            dump( f.bad() );
+            
             exit(1);
         }
     }
     
     {
-        std::ifstream f( meas_file.string() );
+        std::ifstream f( meas_file );
         if ( !f.good() )
         {
             eprint("File " + mesh_file.string() + " not found. Exiting.");
+            
+            dump( f.eof() );
+            dump( f.fail() );
+            dump( f.bad() );
+            
             exit(1);
         }
     }
@@ -75,7 +85,7 @@ int main()
     tic("Loading obstacle.");
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
-    bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file.string(), coords, simplices );
+    bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file, coords, simplices );
 
     if( !mesh_loadedQ )
     {
@@ -90,7 +100,7 @@ int main()
     tic("Loading far field sphere.");
     Tensor2<Real,Int> meas_directions;
     Tensor2<Int, Int> simplices_meas;
-    bool meas_loadedQ = ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
+    bool meas_loadedQ = ReadMeshFromFile<Real,Int>( meas_file, meas_directions, simplices_meas );
     
     if( !meas_loadedQ )
     {
