@@ -244,11 +244,11 @@ int main()
     //    // @Jannik: Also try this new feature for a bit more portability:
    std::filesystem::rename(
        Profiler::log_file , 
-       HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
+       HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
    );
    std::filesystem::rename( 
        Profiler::prof_file,
-       HomeDirectory() / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
+       HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
    );
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
