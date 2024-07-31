@@ -413,8 +413,6 @@ public:
             beta , X_out, ldX,
             gmres_tol_outer, gmres_max_restarts
         );
-
-        // DEBUGING
         
         
         

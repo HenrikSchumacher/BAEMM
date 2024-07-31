@@ -120,8 +120,8 @@ int main()
         thread_count
     );
     
-    constexpr Int wave_count = 32;
-//    constexpr Int wave_count = 16;
+//    constexpr Int wave_count = 32;
+    constexpr Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
@@ -130,7 +130,8 @@ int main()
     
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = ( 1 + 2 * ( i + 2 ) ) * Scalar::Pi<Real>;
+//        kappa[i] = ( 1 + 2 * ( i + 2 ) ) * Scalar::Pi<Real>;
+        kappa[i] = 8 * Scalar::Pi<Real>;
     }
 
     inc( 0,0) = 0.22663516023574246;
