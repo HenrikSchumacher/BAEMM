@@ -73,7 +73,7 @@ namespace BAEMM
         cl_mem d_wave_count        = nullptr;
         
 
-//        const char * clBuildOpts = nullptr;
+        // const char * clBuildOpts = nullptr;
         const char * clBuildOpts = "-cl-fast-relaxed-math";
 //        const char * clBuildOpts = "-cl-finite-math-only -cl-mad-enable";
         
