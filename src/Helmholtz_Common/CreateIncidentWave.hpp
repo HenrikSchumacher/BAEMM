@@ -112,7 +112,7 @@ public:
         std::string tag = ClassName() + "::CreateIncidentWave_PL"
             + "<" + TypeName<I_ext>
             + "," + TypeName<R_ext>
-            + "m" + TypeName<C_ext>
+            + "," + TypeName<C_ext>
             + ">";
         
         ptic(tag);

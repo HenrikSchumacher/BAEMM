@@ -38,17 +38,18 @@ int main()
     
 
 //    std::string mesh_name { "Triceratops_00081920T" };
-//    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+    std::string mesh_name { "Triceratops_12_00081920T" };
+    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
 //    std::string mesh_name { "Spot_00023424T" };
-    std::string mesh_name { "Spot_00093696T" };
+//    std::string mesh_name { "Spot_00093696T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
 
-    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     
@@ -227,12 +228,14 @@ int main()
     Real gmres_tol       = 0.005;
     Real gmres_tol_outer = 0.01;
     
-    Real regpar          = 0.001;
+//    Real regpar          = 0.001;
+    
+    Real regpar = 0.000001 * 0.00687195;
     
     // The operator for the metric.
     auto A = [regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
-        // Y = 1 * Y + regpar * Metric.X
+        // Y = regpar * Metric.X
         tpm.MultiplyMetric( *M,
             regpar,             X, DIM,
             Scalar::Zero<Real>, Y, DIM,
@@ -242,11 +245,10 @@ int main()
 
     Real one_over_regpar = Inv<Real>(regpar);
 
-
     // The operator for the preconditioner.
     auto P = [one_over_regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
-        // Y = 0 * Y + one_over_regpar * Prec.X
+        // Y = one_over_regpar * Prec.X
         tpm.MultiplyPreconditioner( *M,
             one_over_regpar,    X, DIM,
             Scalar::Zero<Real>, Y, DIM,
@@ -298,8 +300,6 @@ int main()
     );
     
     bool succeeded;
-    
-    
     
     print("");
     
