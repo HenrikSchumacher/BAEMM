@@ -37,36 +37,47 @@ int main()
     Profiler::Clear( home_dir );
     
 
-//    std::string mesh_name { "Triceratops_00081920T" };
-//    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+    std::string mesh_name { "Triceratops_00081920T" };
+//    std::string mesh_name { "Triceratops_12_00081920T" };
+    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
 //    std::string mesh_name { "Spot_00023424T" };
-    std::string mesh_name { "Spot_00093696T" };
+//    std::string mesh_name { "Spot_00093696T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
 
-    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     
     
     {
-        std::ifstream f( mesh_file.string() );
+        std::ifstream f( mesh_file );
         if ( !f.good() )
         {
             eprint("File " + mesh_file.string() + " not found. Exiting.");
+            
+            dump( f.eof() );
+            dump( f.fail() );
+            dump( f.bad() );
+            
             exit(1);
         }
     }
     
     {
-        std::ifstream f( meas_file.string() );
+        std::ifstream f( meas_file );
         if ( !f.good() )
         {
             eprint("File " + mesh_file.string() + " not found. Exiting.");
+            
+            dump( f.eof() );
+            dump( f.fail() );
+            dump( f.bad() );
+            
             exit(1);
         }
     }
@@ -74,7 +85,7 @@ int main()
     tic("Loading obstacle.");
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
-    bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file.string(), coords, simplices );
+    bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file, coords, simplices );
 
     if( !mesh_loadedQ )
     {
@@ -89,7 +100,7 @@ int main()
     tic("Loading far field sphere.");
     Tensor2<Real,Int> meas_directions;
     Tensor2<Int, Int> simplices_meas;
-    bool meas_loadedQ = ReadMeshFromFile<Real,Int>( meas_file.string(), meas_directions, simplices_meas );
+    bool meas_loadedQ = ReadMeshFromFile<Real,Int>( meas_file, meas_directions, simplices_meas );
     
     if( !meas_loadedQ )
     {
@@ -119,8 +130,8 @@ int main()
         thread_count
     );
     
-    constexpr Int wave_count = 32;
-//    constexpr Int wave_count = 16;
+//    constexpr Int wave_count = 32;
+    constexpr Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
@@ -129,7 +140,8 @@ int main()
     
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = ( 1 + 2 * ( i + 2 ) ) * Scalar::Pi<Real>;
+//        kappa[i] = ( 1 + 2 * ( i + 2 ) ) * Scalar::Pi<Real>;
+        kappa[i] = 8 * Scalar::Pi<Real>;
     }
 
     inc( 0,0) = 0.22663516023574246;
@@ -227,12 +239,14 @@ int main()
     Real gmres_tol       = 0.005;
     Real gmres_tol_outer = 0.01;
     
-    Real regpar          = 0.001;
+//    Real regpar          = 0.001;
+    
+    Real regpar = 0.000001 * 0.00687195;
     
     // The operator for the metric.
     auto A = [regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
-        // Y = 1 * Y + regpar * Metric.X
+        // Y = regpar * Metric.X
         tpm.MultiplyMetric( *M,
             regpar,             X, DIM,
             Scalar::Zero<Real>, Y, DIM,
@@ -242,11 +256,10 @@ int main()
 
     Real one_over_regpar = Inv<Real>(regpar);
 
-
     // The operator for the preconditioner.
     auto P = [one_over_regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
     {
-        // Y = 0 * Y + one_over_regpar * Prec.X
+        // Y = one_over_regpar * Prec.X
         tpm.MultiplyPreconditioner( *M,
             one_over_regpar,    X, DIM,
             Scalar::Zero<Real>, Y, DIM,
@@ -298,8 +311,6 @@ int main()
     );
     
     bool succeeded;
-    
-    
     
     print("");
     
