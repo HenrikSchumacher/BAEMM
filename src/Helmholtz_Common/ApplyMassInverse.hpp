@@ -22,7 +22,7 @@ public:
         static_assert( Scalar::ComplexQ<X_T> == Scalar::ComplexQ<Y_T>, "" );
 
         std::string tag = ClassName()+"::ApplyMassInverse"
-            + "<" + ToString(NRHS)
+            + "<" + (NRHS <= VarSize ? std::string("VarSize") : ToString(NRHS) )
             + "," + TypeName<X_T>
             + "," + TypeName<Y_T>
             + "," + TypeName<R_ext>
@@ -51,8 +51,11 @@ public:
         
         if constexpr ( Scalar::ComplexQ<Y_T> )
         {
-            using CG_Scal = Complex;
-            using CG_Real = Real;
+//            using CG_Scal = Complex;
+//            using CG_Real = Scalar::Real<CG_Scal>;
+            
+            using CG_Scal = Y_T;
+            using CG_Real = Scalar::Real<CG_Scal>;
             
             // The two boolean at the end of the template silence some messages.
             ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
@@ -97,8 +100,11 @@ public:
         }
         else
         {
-            using CG_Scal = Real;
-            using CG_Real = Real;
+//            using CG_Scal = Real;
+//            using CG_Real = Real;
+            
+            using CG_Scal = Y_T;
+            using CG_Real = Y_T;
             
             // The two boolean at the end of the template silence some messages.
             ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
@@ -149,7 +155,8 @@ public:
         // If NRHS > 0, then nrhs will be ignored and loops are unrolled and vectorized at compile time.
         // If NRHS == 0, then nrhs is used.
         
-        std::string tag = ClassName()+"::ApplyLumpedMassInverse<"+ToString(NRHS)
+        std::string tag = ClassName()+"::ApplyLumpedMassInverse"
+            + "<" + (NRHS <= VarSize ? std::string("VarSize") : ToString(NRHS) )
             + "," + TypeName<X_T>
             + "," + TypeName<Y_T>
             + ">";
