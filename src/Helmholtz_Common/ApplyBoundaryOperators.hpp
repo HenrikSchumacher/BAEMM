@@ -1,6 +1,6 @@
 public:
 
-    template<typename R_ext, typename C_ext, typename I_ext>
+    template<Int WC = VarSize, typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
@@ -15,7 +15,7 @@ public:
         
         LoadBoundaryOperators_PL(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
-        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+        ApplyBoundaryOperators_PL<WC>( alpha, B_in, ldB_in, beta, C_out, ldC_out );
         
         UnloadBoundaryOperators_PL();
     }
@@ -81,7 +81,7 @@ public:
 
     // Applies the boundary operators in the WEAK FORM to the input pointer.
     // Assumes that `LoadBoundaryOperators_PL` has been called before.
-    template<typename C_ext, typename I_ext>
+    template<Int WC = VarSize, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
@@ -90,11 +90,24 @@ public:
         CheckInteger<I_ext>();
         CheckComplex<C_ext>();
         
-        std::string tag = ClassName()+"::ApplyBoundaryOperators_PL";
+        std::string tag = ClassName()+"::ApplyBoundaryOperators_PL" +
+            + "<" + ToString(VarSize)
+            + "," + TypeName<C_ext>
+            + "," + TypeName<I_ext>
+            + ">";
+        
         ptic(tag);
         
         if( wave_chunk_count < 1 )
         {
+            ptoc(tag);
+            return;
+        }
+        
+        
+        if( (WC > VarSize) && (WC != wave_count) )
+        {
+            eprint( tag + "WC != wave_count. Doing nothing." );
             ptoc(tag);
             return;
         }
@@ -112,7 +125,7 @@ public:
         )
         {
             // use averaging operator to get from PL to PC boundary functions
-            AvOp.Dot(
+            AvOp.Dot<WC>(
                 Scalar::One <Complex>, B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 wave_count
@@ -130,7 +143,7 @@ public:
             // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             // use transpose averaging operator to get from PC to PL boundary functions
-            AvOpTransp.Dot(
+            AvOpTransp.Dot<WC>(
                 alpha, C_ptr, ldC,
                 beta,  C_out, ldC_out,
                 wave_count
@@ -151,7 +164,7 @@ public:
                 const Scalar::Complex<C_ext> factor
                         = alpha * static_cast<C_ext>(c[chunk][0]);
                 
-                MassOp.Dot(
+                MassOp.Dot<WC>(
                     factor, &B_in [wave_chunk_size * chunk], ldB_in,
                     addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
                     wave_chunk_size
@@ -162,7 +175,7 @@ public:
                 const Scalar::Complex<C_ext> factor
                         = alpha * static_cast<C_ext>(c[chunk][0]);
                 
-                MassOp.Dot(
+                MassOp.Dot<WC>(
                     factor, &B_in [wave_chunk_size * chunk], ldB_in,
                     addTo,  &C_out[wave_chunk_size * chunk], ldC_out,
                     wave_count - wave_chunk_size*chunk
