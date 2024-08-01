@@ -26,7 +26,7 @@ public:
         std::size_t max_work_group_size;
         ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, nullptr);
 
-        if (block_size > max_work_group_size)
+        if (block_size > static_cast<Int>(max_work_group_size))
         {
             SetBlockSize(static_cast<Int>(max_work_group_size));
         }
@@ -35,7 +35,18 @@ public:
     #include "NearFieldOperatorKernel.cl"
             ,block_size,wave_chunk_size
         );
-            
+          
+        if constexpr( print_kernel_codeQ )
+        {
+            logprint("");
+            logprint("");
+            logprint("NearFieldOperatorKernel.cl");
+            logprint("");
+            logprint(source);
+            logprint("");
+            logprint("");
+        }
+        
         const char *      source_str  = source.c_str();
         const std::size_t source_size = source.size();
     

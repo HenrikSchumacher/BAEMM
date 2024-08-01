@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>284</string>
+					<string>154</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>283</string>
+					<string>153</string>
 					<key>Timestamp</key>
-					<string>743961371.352953</string>
+					<string>744223195.903757</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,20 +34,20 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        if( du_dn == nullptr )
+				<string>        for(Int i = 0 ; i &lt; wcc ; i++)
 </string>
 				<key>leading</key>
-				<string>        }
-
+				<string>        
+        // Create weak representation of the negative incident wave.
 </string>
 				<key>trailing</key>
 				<string>        {
-            Tensor2&lt;C_ext,Int&gt; inc_wave ( n, wc );  //weak representation of the incident wave
-            
+            inc_coeff(i,0) = C_ext(0);
+            inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
 </string>
 			</dict>
 			<key>title</key>
-			<string>Handle pdu_dn == nullptr</string>
+			<string>inc_coeff</string>
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>
@@ -59,13 +59,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>160</string>
+					<string>87</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>159</string>
+					<string>86</string>
 					<key>Timestamp</key>
-					<string>743948656.84282</string>
+					<string>744223195.9040149</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -81,67 +81,20 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        if( du_dn == nullptr )
+				<string>        for( Int i = 0 ; i &lt; wcc ; i++ )
 </string>
 				<key>leading</key>
-				<string>        Tensor1&lt;R_ext,Int&gt;  X_dot_normal  ( n );
-        
+				<string>
+        // Create weak representation of the negative incident wave.
 </string>
 				<key>trailing</key>
 				<string>        {
-            logprint( tag + ": du_dn == nullptr. Allocating and computing du_dn.");
-            
+            inc_coeff(i,0) =  C_ext(0);
+            inc_coeff(i,1) = -C_ext(1);
 </string>
 			</dict>
 			<key>title</key>
-			<string>Handle pdu_dn == nullptr</string>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>184</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>183</string>
-					<key>Timestamp</key>
-					<string>743961269.357424</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>src/Helmholtz_Common/FarField.hpp</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>            DirichletToNeumann&lt;WC&gt;( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
-</string>
-				<key>leading</key>
-				<string>            );
-            
-</string>
-				<key>trailing</key>
-				<string>            
-        }
-        
-</string>
-			</dict>
-			<key>title</key>
-			<string>Hier kommt für du_dn nur 0 herraus.</string>
+			<string>inc_coeff</string>
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>

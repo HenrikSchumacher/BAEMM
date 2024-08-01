@@ -10,6 +10,7 @@
 //#include "../submodules/Repulsor/submodules/Tensors/submodules/Tools/Tools.hpp"
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadMeshFromFile.hpp"
+#include "../ReadMeshFromSTL.hpp"
 
 using namespace Tools;
 using namespace Tensors;
@@ -21,24 +22,24 @@ constexpr BAEMM::WaveType Plane  = BAEMM::WaveType::Plane;
 
 using Real      = Real64;
 using Complex   = std::complex<Real>;
-using Int       = Int64;
+using Int       = Int32;
 using LInt      = Int64;
 
 constexpr Int DIM = 3;
 
 int main()
 {
-    //  std::filesystem::path this_file { __FILE__ };
-    //  std::filesystem::path repo_dir = this_file.parent_path().parent_path();
-    std::filesystem::path repo_dir = "/HOME1/users/guests/jannr/github/BAEMM_test";
+      std::filesystem::path this_file { __FILE__ };
+      std::filesystem::path repo_dir = this_file.parent_path().parent_path();
+//    std::filesystem::path repo_dir = "/HOME1/users/guests/jannr/github/BAEMM_test";
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
     std::filesystem::path home_dir = HomeDirectory();
         
     Profiler::Clear( home_dir );
     
 
-    std::string mesh_name { "Triceratops_00081920T" };
-//    std::string mesh_name { "Triceratops_12_00081920T" };
+//    std::string mesh_name { "Triceratops_00081920T" };
+    std::string mesh_name { "Triceratops_12_00081920T" };
     std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
@@ -86,10 +87,16 @@ int main()
     Tensor2<Real,Int> coords;
     Tensor2<Int, Int> simplices;
     bool mesh_loadedQ = ReadMeshFromFile<Real,Int>( mesh_file, coords, simplices );
+    
+//    bool mesh_loadedQ = ReadMeshFromSTL<Real,Int>(
+//        "/Users/Henrik/ownCloud/Timing/Triceratops/triceratops_16inc_8pi_tau_3_new/iteration_12.stl",
+//        coords,
+//        simplices
+//    );
 
     if( !mesh_loadedQ )
     {
-        eprint("Failed to load mesh. Aborting.");
+        eprint("Failed to load obstacle. Aborting.");
         
         exit(-1);
     }
@@ -130,10 +137,12 @@ int main()
         thread_count
     );
     
+    constexpr Int WC = 16;
+//    constexpr Int WC = 0;
 //    constexpr Int wave_count = 32;
-    constexpr Int wave_count = 16;
-    constexpr Int wave_chunk_size = 16;
-    constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
+    const Int wave_count = 16;
+    const Int wave_chunk_size = 16;
+    const Int wave_chunk_count = wave_count / wave_chunk_size;
     
     Tensor1<Real,Int> kappa ( wave_chunk_count     );
     Tensor2<Real,Int> inc   ( wave_chunk_size, DIM );
@@ -210,7 +219,7 @@ int main()
 
     H.UseDiagonal(true);
     
-    using Mesh_T  = SimplicialMesh<2,3,Real,Int,LInt,Real,Real>;
+    using Mesh_T  = SimplicialMesh<2,3,Real,Int,Size_T,Real,Real>;
     using Mesh_Ptr_T = std::shared_ptr<Mesh_T>;
     
     logprint("Initialize mesh");
@@ -237,11 +246,13 @@ int main()
     
     Real cg_tol          = 0.00001;
     Real gmres_tol       = 0.005;
-    Real gmres_tol_outer = 0.01;
+    Real gmres_tol_outer = 0.01/3;
     
-//    Real regpar          = 0.001;
+//    Real regpar          = 0.000001 * 0.001;
     
-    Real regpar = 0.000001 * 0.00687195;
+    Real regpar          = 0.000001 * 0.008590;
+    
+//    Real regpar = 0.000001 * 0.00687195;
     
     // The operator for the metric.
     auto A = [regpar,&M,&tpm]( cptr<Real> X, mptr<Real> Y )
@@ -269,27 +280,29 @@ int main()
 
     
     // Far field
-    Tensor2<Complex,Int> F ( meas_count, wave_count );
+    Tensor2<Complex,Size_T> F         ( meas_count,   wave_count );
+    
+    // Helper for far field derivative. Can be reused.
+    Tensor2<Complex,Size_T> du_dn_buf ( vertex_count, wave_count );
+    // Annoying, but necessary with the current implementation.
+    Complex * du_dn = du_dn_buf.data();
     
     // Derivative ofr 1/2 |F|^2.
-    Tensor2<Real,Int> FDF  ( vertex_count, DIM );
+    Tensor2<Real,Int> FDF ( vertex_count, DIM );
     
     // Right-hand side for solver.
-    Tensor2<Real,Int> B    ( vertex_count, DIM );
+    Tensor2<Real,Int> B   ( vertex_count, DIM );
     
     // Search direction.
-    Tensor2<Real,Int> X    ( vertex_count, DIM ); // search direction.
+    Tensor2<Real,Int> X   ( vertex_count, DIM ); // search direction.
     
-    
-    Complex * du_dn = nullptr;
-    
-    
+
     logprint("DE");
     tpe.Differential( *M, regpar, Scalar::Zero<Real>, B.data(), B.Dimension(1) );
     
-    
     logprint("FDF");
-    H.FarField<wave_count>(
+
+    H.FarField<WC>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
         F.data(),
@@ -297,7 +310,13 @@ int main()
     );
 
     
-    H.AdjointDerivative_FF<wave_count>(
+    H.Derivative_FF_Helper<WC>(
+        kappa.data(), wave_chunk_count,
+        inc.data(),   wave_chunk_size,
+        du_dn, BAEMM::WaveType::Plane, cg_tol, gmres_tol
+    );
+    
+    H.AdjointDerivative_FF<WC>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
         F.data(), FDF.data(),
@@ -317,7 +336,7 @@ int main()
     logprint("GaussNewtonSolve");
     
     tic("GaussNewtonSolve");
-    succeeded = H.GaussNewtonSolve<wave_count>(
+    succeeded = H.GaussNewtonSolve<WC>(
         kappa.data(), wave_chunk_count,
         inc.data(),   wave_chunk_size,
         A, P,
@@ -329,12 +348,6 @@ int main()
     toc("GaussNewtonSolve");
     
     dump(succeeded);
-    
-    
-    if( du_dn != nullptr )
-    {
-        free( du_dn );
-    }
-    
+
     return 0;
 }

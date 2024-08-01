@@ -50,6 +50,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF12A5E12C5BD2EC009ED3DF /* ReadMeshFromSTL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ReadMeshFromSTL.hpp; sourceTree = "<group>"; };
 		AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helmholtz_OpenCL.hpp; sourceTree = "<group>"; };
 		AF1A0AA02C4BA3AB008E55D5 /* Meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Meshes; sourceTree = "<group>"; };
 		AF1A0AA22C4BA3AB008E55D5 /* main */ = {isa = PBXFileReference; lastKnownFileType = folder; path = main; sourceTree = "<group>"; };
@@ -130,6 +131,7 @@
 				AF1A0A9F2C4BA3AB008E55D5 /* Helmholtz_OpenCL.hpp */,
 				AFC65BBD2C4E8EBF00F497D0 /* BAEMM_Common.hpp */,
 				AF1A0AB62C4BD37E008E55D5 /* ReadMeshFromFile.hpp */,
+				AF12A5E12C5BD2EC009ED3DF /* ReadMeshFromSTL.hpp */,
 				AFA1CF0E298E56FF00085994 /* LICENSE */,
 				AFA1CF10298E56FF00085994 /* README.md */,
 				AFA1CF1D298E588E00085994 /* BAEMM_Test */,
@@ -315,6 +317,7 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/include/suitesparse;
 			};
 			name = Debug;
 		};
@@ -333,6 +336,7 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/include/suitesparse;
 			};
 			name = Release;
 		};
@@ -398,9 +402,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-flto",
-					"-fno-math-errno",
-					"-ffast-math",
 					"-pthread",
 					"-fenable-matrix",
 				);
@@ -473,9 +474,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-flto",
-					"-fno-math-errno",
-					"-ffast-math",
 					"-pthread",
 					"-fenable-matrix",
 				);

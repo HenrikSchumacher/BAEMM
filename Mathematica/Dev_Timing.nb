@@ -1,11 +1,35 @@
 Notebook[{
 Cell[BoxData["Exit"], "Input",
- CellLabel->"In[14]:=",ExpressionUUID->"393f702c-d189-41db-ad39-397907748435"],
+ CellLabel->
+  "In[477]:=",ExpressionUUID->"393f702c-d189-41db-ad39-397907748435"],
 
 Cell[BoxData[{
  RowBox[{"Needs", "[", "\"\<PM`\>\"", "]"}], "\[IndentingNewLine]", 
  RowBox[{"LoadPackages", "[", "\"\<PMTools\>\"", "]"}]}], "Input",
- CellLabel->"In[26]:=",ExpressionUUID->"19f63c55-e1af-4e31-8663-058fa64a6723"],
+ CellLabel->
+  "In[269]:=",ExpressionUUID->"19f63c55-e1af-4e31-8663-058fa64a6723"],
+
+Cell[BoxData[
+ RowBox[{"208.", "/", "9"}]], "Input",
+ CellLabel->
+  "In[264]:=",ExpressionUUID->"f5ad988a-252a-4e7a-b9ce-37a08f53efe4"],
+
+Cell[BoxData[
+ RowBox[{"Dataset", "[", "\[IndentingNewLine]", 
+  RowBox[{"KeySelect", "[", 
+   RowBox[{
+    RowBox[{"Normal", "[", "tab", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"StringQ", "[", "#", "]"}], "&&", 
+      RowBox[{"StringContainsQ", "[", 
+       RowBox[{"#", ",", "\"\<SpMM\>\""}], "]"}]}], "&"}]}], "]"}], 
+  "\[IndentingNewLine]", "]"}]], "Input",
+ CellLabel->
+  "In[356]:=",ExpressionUUID->"b6056a74-74ef-4204-b076-3b30b51a28ab"],
+
+Cell[BoxData["\[IndentingNewLine]"], \
+"Input",ExpressionUUID->"6962ba04-7030-4d89-bfac-dbf237003015"],
 
 Cell[BoxData[{
  RowBox[{
@@ -19,12 +43,58 @@ Cell[BoxData[{
    RowBox[{"ImportProfile", "[", "pfile", "]"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
- RowBox[{"EigentimeTable", "[", 
-  RowBox[{"p", ",", "1."}], "]"}]}], "Input",
- CellLabel->"In[36]:=",ExpressionUUID->"f28acdde-2d9d-4129-b53b-a257df058bd6"],
+ RowBox[{"tab", "=", 
+  RowBox[{"EigentimeTable", "[", 
+   RowBox[{"p", ",", "0."}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"Dataset", "[", "\[IndentingNewLine]", 
+  RowBox[{"KeySelect", "[", 
+   RowBox[{
+    RowBox[{"Normal", "[", "tab", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"StringQ", "[", "#", "]"}], "&&", 
+      RowBox[{"StringContainsQ", "[", 
+       RowBox[{"#", ",", "\"\<SpMM\>\""}], "]"}]}], "&"}]}], "]"}], 
+  "\[IndentingNewLine]", "]"}]}], "Input",
+ CellLabel->
+  "In[362]:=",ExpressionUUID->"f28acdde-2d9d-4129-b53b-a257df058bd6"],
+
+Cell[BoxData["q"], "Input",
+ CellLabel->
+  "In[309]:=",ExpressionUUID->"ecf1422c-2420-4e6f-8b41-777c2e875a4d"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tabq", "=", 
+   RowBox[{"EigentimeTable", "[", 
+    RowBox[{"q", ",", "0."}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Dataset", "[", "\[IndentingNewLine]", 
+  RowBox[{"KeySelect", "[", 
+   RowBox[{
+    RowBox[{"Normal", "[", "tabq", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"StringQ", "[", "#", "]"}], "&&", 
+      RowBox[{"StringContainsQ", "[", 
+       RowBox[{"#", ",", "\"\<SpMM\>\""}], "]"}]}], "&"}]}], "]"}], 
+  "\[IndentingNewLine]", "]"}]}], "Input",
+ CellLabel->
+  "In[340]:=",ExpressionUUID->"1016bc7e-27e9-47a4-863f-164309882797"],
+
+Cell[BoxData[""], \
+"Input",ExpressionUUID->"7b5d2d12-18ce-4459-8043-a3819b971d9a"],
 
 Cell[BoxData["\[IndentingNewLine]"], \
-"Input",ExpressionUUID->"d0cc6c1b-9bb5-47fe-a244-f240df573b47"],
+"Input",ExpressionUUID->"1b6a3def-37fb-4bd5-8278-2b09d2a28451"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"0.03007", "/", "21"}], "\[IndentingNewLine]"}]], "Input",
+ CellLabel->"In[15]:=",ExpressionUUID->"d0cc6c1b-9bb5-47fe-a244-f240df573b47"],
+
+Cell[BoxData[
+ RowBox[{"7", "/", "56."}]], "Input",
+ CellLabel->"In[16]:=",ExpressionUUID->"7005e458-e3c8-435e-8102-e131ba031734"],
 
 Cell[BoxData["\[IndentingNewLine]"], \
 "Input",ExpressionUUID->"444f67a8-b702-464b-9d8e-d09f3b937c3a"],
@@ -379,28 +449,6 @@ Cell[BoxData[""], "Input",
 
 Cell[BoxData[""], \
 "Input",ExpressionUUID->"7ead0366-eeda-4e60-b5c0-44b4cf6cca44"],
-
-Cell[BoxData[
- RowBox[{" ", 
-  TemplateBox[<|"shortenedBoxes" -> TagBox[
-      RowBox[{"{", 
-        RowBox[{
-         "0.0002156225382350385`", ",", "0.0002922012936323881`", ",", 
-          "0.0001142116234404966`", ",", "0.0003498956211842597`", ",", 
-          "0.00001602348493179306`", ",", "0.00001959990186151117`", ",", 
-          "0.00003057251160498708`", ",", "0.00002755675814114511`", ",", 
-          "0.0002128594205714762`", ",", 
-          TemplateBox[{"28400"}, "OutputSizeLimit`Skeleton"], ",", 
-          "0.00006448388012358919`", ",", "0.0000709147279849276`", ",", 
-          "0.00007285508036147803`", ",", "0.00005989009878248908`", ",", 
-          "0.00006279171066125855`", ",", "0.00006109711102908477`", ",", 
-          "0.0000463208561995998`", ",", "0.00004522981544141658`", ",", 
-          "0.00005542878352571279`"}], "}"}], Short[#, 8]& ], "line" -> 142, 
-    "sessionID" -> 25244292384721439073, "byteCount" -> 227496, "size" -> 8, 
-    "stored" -> False, "expr" -> Missing["NotAvailable", "NewSessionID"], 
-    "wrap" -> OutputSizeLimit`Defer, "version" -> 1|>,
-   "OutputSizeLimitTemplate"]}]], \
-"Input",ExpressionUUID->"568dce1f-e919-490a-8d6a-9a0e998e274e"],
 
 Cell[BoxData[
  RowBox[{"ImportString", "[", 
@@ -1075,7 +1123,155 @@ Cell[BoxData[{
     RowBox[{"DFTTrue", "-", "DFTNew"}], "]"}], "]"}], "/", 
   RowBox[{"Max", "[", 
    RowBox[{"Abs", "[", "DFTTrue", "]"}], "]"}]}]}], "Input",
- CellLabel->"In[198]:=",ExpressionUUID->"ed1ede4f-a08e-4f79-8332-3c828c0eb7be"]
+ CellLabel->
+  "In[198]:=",ExpressionUUID->"ed1ede4f-a08e-4f79-8332-3c828c0eb7be"],
+
+Cell[BoxData[""], \
+"Input",ExpressionUUID->"73d88840-5594-4cb1-a134-e55a44dd2c51"],
+
+Cell[BoxData[""], \
+"Input",ExpressionUUID->"dbad2c03-5900-4a4e-b271-1a955e842b41"],
+
+Cell[BoxData[
+ RowBox[{"OpenSource", "@", "HausdorffDistance"}]], "Input",
+ CellLabel->
+  "In[272]:=",ExpressionUUID->"6bb917ba-4e79-4480-a9c5-51c7603c6f5b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"k", "=", "2"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"A", "=", 
+  RowBox[{"ToMesh", "@", 
+   RowBox[{
+   "Import", "[", 
+    "\"\</Users/Henrik/ownCloud/triceratops_BAEMM_16inc_TPM0_8pi_remeshed_new_\
+tau_3_rho_0.8/init.stl\>\"", "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{"B", "=", 
+  RowBox[{"ToMesh", "@", 
+   RowBox[{
+   "Import", "[", 
+    "\"\</Users/Henrik/ownCloud/Timing/Triceratops/triceratops_16inc_8pi_tau_\
+3_new/init.stl\>\"", "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{"HausdorffDistance", "[", 
+  RowBox[{"A", ",", "B"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsRow", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"MeshPlot", "[", "A", "]"}], ",", 
+     RowBox[{"MeshPlot", "[", "B", "]"}]}], "}"}], ",", 
+   RowBox[{"ImageSize", "->", "Full"}]}], "]"}]}], "Input",
+ CellLabel->
+  "In[401]:=",ExpressionUUID->"57b7dffb-cb54-403f-a04d-1bf02c3db74b"],
+
+Cell[BoxData["A"], "Input",
+ CellLabel->
+  "In[393]:=",ExpressionUUID->"9bb1ea19-a7b7-4cfd-93a4-15f7bd4e58da"],
+
+Cell[BoxData["B"], "Input",
+ CellLabel->
+  "In[395]:=",ExpressionUUID->"6b4f4545-897e-460d-87ee-5e5b387d7f12"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"k", "=", "13"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"A", "=", 
+   RowBox[{"ToMesh", "@", 
+    RowBox[{"Import", "[", 
+     RowBox[{
+     "\"\</Users/Henrik/ownCloud/triceratops_BAEMM_16inc_TPM0_8pi_remeshed_\
+new_tau_3_rho_0.8/iteration_\>\"", "<>", 
+      RowBox[{"ToString", "[", "k", "]"}], "<>", "\"\<.stl\>\""}], "]"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"B", "=", 
+    RowBox[{"ToMesh", "@", 
+     RowBox[{"Import", "[", 
+      RowBox[{
+      "\"\</Users/Henrik/ownCloud/Timing/Triceratops/triceratops_16inc_8pi_\
+tau_3_new/iteration_\>\"", "<>", 
+       RowBox[{"ToString", "[", "k", "]"}], "<>", "\"\<.stl\>\""}], "]"}]}]}],
+    ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{"HausdorffDistance", "[", 
+  RowBox[{"A", ",", "B"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsRow", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"MeshPlot", "[", "A", "]"}], ",", 
+     RowBox[{"MeshPlot", "[", "B", "]"}]}], "}"}], ",", 
+   RowBox[{"ImageSize", "->", "Full"}]}], "]"}]}], "Input",
+ CellLabel->
+  "In[387]:=",ExpressionUUID->"25e345c8-17e7-45da-ab4e-7bc5e9e17505"],
+
+Cell[BoxData[
+ RowBox[{"HausdorffDistance", "[", 
+  RowBox[{"A", ",", "B"}], 
+  "]"}]], "Input",ExpressionUUID->"f254e8e4-ed65-4cda-98d3-6aa90031574f"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"MeshPlot", "[", "A", "]"}], ",", 
+   RowBox[{"MeshPlot", "[", 
+    RowBox[{"B", ",", 
+     RowBox[{"PlotStyle", "->", "Orange"}]}], "]"}]}], "]"}]], "Input",
+ CellLabel->
+  "In[265]:=",ExpressionUUID->"284a94f3-82e0-41fa-b7eb-3c6fefe5a050"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{"/", "Users"}], "/", "Henrik"}], "/", "ownCloud"}], "/", 
+     "Timing"}], "/", "Triceratops"}], "/", "triceratops_"}], "16", "inc_", 
+  "8", "pi_tau", "_", "3", 
+  RowBox[{"_new", "/", "iteration_"}], "21.", 
+  "stl"}]], "Input",ExpressionUUID->"aeb1805c-3e05-4a48-9f5f-43d0ea1ef824"],
+
+Cell[BoxData[
+ RowBox[{"1.", "/", "1000000"}]], "Input",
+ CellLabel->"In[95]:=",ExpressionUUID->"e1b41c91-7add-4220-93a2-6a52c79ee5d8"],
+
+Cell[BoxData["0.000001"], "Input",
+ CellLabel->"In[96]:=",ExpressionUUID->"203db970-1ab4-49eb-ab32-f8d6adaf0c64"],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}]], \
+"Input",ExpressionUUID->"0dfd17a8-739a-493e-9a4a-75c6bfd60ef4"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"pfile", "=", 
+   RowBox[{"FileNameJoin", "[", 
+    RowBox[{
+    "{", "\"\</Users/Henrik/ownCloud/Timing/Triceratops/Timing/Tools_Log_GN_\
+iteration_0.006872.txt\>\"", "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p", "=", 
+   RowBox[{"ImportProfile", "[", "pfile", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Sunburst", "[", "p", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"tab", "=", 
+  RowBox[{"EigentimeTable", "[", 
+   RowBox[{"p", ",", "0."}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"Dataset", "[", "\[IndentingNewLine]", 
+  RowBox[{"KeySelect", "[", 
+   RowBox[{
+    RowBox[{"Normal", "[", "tab", "]"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"StringQ", "[", "#", "]"}], "&&", 
+      RowBox[{"StringContainsQ", "[", 
+       RowBox[{"#", ",", "\"\<SpMM\>\""}], "]"}]}], "&"}]}], "]"}], 
+  "\[IndentingNewLine]", "]"}]}], "Input",
+ CellLabel->"In[292]:=",ExpressionUUID->"33d2b98c-1943-4b5d-a48f-d5192f6463cc"]
 },
 WindowSize->{1496, 905},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},

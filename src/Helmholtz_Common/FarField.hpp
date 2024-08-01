@@ -23,7 +23,8 @@ public:
         CheckInteger<I_ext>();
         CheckScalars<R_ext,C_ext>();
         
-        std::string tag = ClassName()+"::FarField<" + ToString(WC)
+        std::string tag = ClassName()+"::FarField" 
+            + "<" + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -53,7 +54,7 @@ public:
 
 public:
 
-    template<Int WC, typename I_ext, typename R_ext, typename C_ext>
+    template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
     void FarField_parameters(
         cptr<R_ext> kappa_,
         const I_ext wave_chunk_count_,
@@ -101,8 +102,8 @@ public:
             kappa_, coeff.data(), wave.data(), phi.data(),
             eta, wcc, wcs, cg_tol, gmres_tol
         );
-
-        ApplyFarFieldOperators_PL( 
+        
+        ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
@@ -111,7 +112,68 @@ public:
 
 public:
 
-    template<Int WC, typename I_ext, typename R_ext, typename C_ext>
+    template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
+    void Derivative_FF_Helper(
+        cptr<R_ext> kappa_,
+        const I_ext wave_chunk_count_,
+        cptr<R_ext> inc_directions,
+        const I_ext wave_chunk_size_,
+        mptr<C_ext> du_dn, //du_dn is the Neumann data of the scattered wave
+        const WaveType type,
+        const R_ext cg_tol,
+        const R_ext gmres_tol
+    )
+    {
+        CheckInteger<I_ext>();
+        CheckScalars<R_ext,C_ext>();
+        
+        std::string tag = ClassName()+"::Derivative_FF_Helper<"
+            + "," + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
+            + "," + TypeName<I_ext>
+            + "," + TypeName<R_ext>
+            + "," + TypeName<C_ext>
+            + ">";
+        
+        ptic(tag);
+        
+        // `du_dn` = A \ `inc_wave` is the normal derivative of the solution with inc wave `wave`
+        // `phi` is the bdry potential for the incident wave `du_dn` *(<X_in , n>), the solution is the far field to this
+        // Formulas follow from Thorsten's book.
+        
+        // du_dn needs to be preallocated of size n x (wave_chunk_count_ * wave_chunk_size_).
+
+        const Int n   = VertexCount();
+        const Int wcc = int_cast<Int>(wave_chunk_count_);
+        const Int wcs = int_cast<Int>(wave_chunk_size_ );
+        const Int wc  = wcc * wcs;
+        
+        Tensor2<C_ext,Int> inc_coeff ( wcc, 4  );
+        Tensor2<C_ext,Int> inc_wave  ( n,   wc );  //weak representation of the incident wave
+        
+        // Create weak representation of the negative incident wave.
+        for(Int i = 0 ; i < wcc ; i++)
+        {
+            inc_coeff(i,0) = C_ext(0);
+            inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
+            inc_coeff(i,2) = C_ext(1);
+            inc_coeff(i,3) = C_ext(0);
+        }
+
+        CreateIncidentWave_PL(
+            C_ext(1), inc_directions,  wcs,
+            C_ext(0), inc_wave.data(), wc,
+            kappa_, inc_coeff.data(),  wc, wcs, type
+        );
+        
+        // `inc_wave` is the incoming wave in weak form, i.e.,
+        // multiplied by a mass-ish matrix.
+        
+        DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
+        
+        ptoc(tag);
+    }
+
+    template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
     void Derivative_FF(
         cptr<R_ext> kappa_,
         const I_ext wave_chunk_count_,
@@ -129,7 +191,7 @@ public:
         CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::Derivative_FF<"
-            + "," + ToString(WC)
+            + "," + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -159,37 +221,21 @@ public:
         
         if( du_dn == nullptr )
         {
-            logprint( tag + ": du_dn == nullptr. Allocating and computing du_dn.");
-            
-            Tensor2<C_ext,Int> inc_coeff ( wcc, 4  );
-            Tensor2<C_ext,Int> inc_wave  ( n,   wc );  //weak representation of the incident wave
-            
             du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
             
-            // create weak representation of the negative incident wave
-            for(Int i = 0 ; i < wcc ; i++)
-            {
-                inc_coeff(i,0) = C_ext(0);
-                inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
-                inc_coeff(i,2) = C_ext(1);
-                inc_coeff(i,3) = C_ext(0);
-            }
-
-            CreateIncidentWave_PL(
-                C_ext(1), inc_directions,  wcs,
-                C_ext(0), inc_wave.data(), wc,
-                kappa_, inc_coeff.data(),  wc, wcs, type
+            Derivative_FF_Helper<WC>(
+                kappa_,         wcc,
+                inc_directions, wcs,
+                du_dn,
+                type, cg_tol, gmres_tol
             );
-            
-            DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
-            
         }
         
         DotWithNormals_PL( X_in, X_dot_normal.data(), cg_tol );
         
         // CheckThis
         ParallelDo(
-            [this,&X_dot_normal,&bdr_cond,du_dn,wc]( const Int i )
+            [&X_dot_normal,&bdr_cond,du_dn,wc]( const Int i )
             {
                 // bdr_cond[wc * i] = -X_dot_normal[i] * du_dn[wc * i]
                 
@@ -214,7 +260,7 @@ public:
             wcc, wcs, cg_tol, gmres_tol
         );
         
-        ApplyFarFieldOperators_PL(
+        ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
@@ -250,7 +296,7 @@ public:
         // `phi_h = A \ `herglotz_wave` is the normal derivative of the solution with inc wave `herglotz_wave`
 
         std::string tag = ClassName()+"::AdjointDerivative_FF<"
-            + "," + ToString(WC)
+            + "," + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -262,6 +308,20 @@ public:
         const Int wcc = int_cast<Int>(wave_chunk_count_);
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
+
+        // Ensure presence of du_dn.
+        if( du_dn == nullptr )
+        {
+            du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
+            
+            Derivative_FF_Helper<WC>(
+                kappa_,         wcc,
+                inc_directions, wcs,
+                du_dn,
+                type, cg_tol, gmres_tol
+            );
+        }
+        
         
         Tensor2<C_ext,Int>  herglotz_wave ( n, wc ); //weak representation of the herglotz wave
         Tensor2<C_ext,Int>  dv_dn_buf     ( n, wc );
@@ -269,8 +329,8 @@ public:
         mptr<C_ext> dv_dn = dv_dn_buf.data();
         
         Tensor1<C_ext,Int> wave_product  ( n );
-
-        // Create weak representation of the negative incident wave.
+        
+        // Create Herglotz wave.
         Tensor2<C_ext,Int> inc_coeff ( wcc, 4 );
         
         for( Int i = 0 ; i < wcc ; i++)
@@ -279,21 +339,6 @@ public:
             inc_coeff(i,1) = C_ext(R_ext(0),-kappa_[i]);
             inc_coeff(i,2) = C_ext(1);
             inc_coeff(i,3) = C_ext(0);
-        }
-
-        if( du_dn == nullptr )
-        {
-            Tensor2<C_ext,Int> inc_wave ( n, wc );  //weak representation of the incident wave
-            
-            du_dn = (C_ext*)calloc(n * wc, sizeof(C_ext));
-            
-            CreateIncidentWave_PL(
-                C_ext(1), inc_directions,  wcs,
-                C_ext(0), inc_wave.data(), wc,
-                kappa_, inc_coeff.data(),  wc, wcs, type
-            );
-            
-            DirichletToNeumann<WC>( kappa_, inc_wave.data(), du_dn, wcc, wcs, cg_tol, gmres_tol );
         }
 
         CreateHerglotzWave_PL(
@@ -346,7 +391,7 @@ public:
         CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::GaussNewtonSolve<"
-            + "," + ToString(WC)
+            + "," + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -369,11 +414,11 @@ public:
         //                                  |     |
         //                                  v     v
         GMRES<DIM,R_ext,Size_T,Side::Left,false,false> gmres(
-            n, gmres_max_iter, DIM, CPU_thread_count /*, true*/ );
-        //                      ^                          ^
-        //                      |                          |
-        //               This argument is new.    This would activate use of initial guess.
-
+            n, gmres_max_iter, DIM, CPU_thread_count );
+        
+//        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
+//            DIM * n, gmres_max_iter, 1, CPU_thread_count );
+        
         
         // A, M and P are matrices of size n x n.
         // They are applied to matrices of size n x DIM
@@ -425,7 +470,7 @@ public:
 
 public:
 
-    template<Int WC, typename I_ext, typename R_ext, typename C_ext>
+    template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
     void BoundaryPotential(
         cptr<R_ext> kappa_,
         mptr<C_ext> coeff,
@@ -440,8 +485,8 @@ public:
         CheckInteger<I_ext>();
         CheckScalars<R_ext,C_ext>();
         
-        std::string tag = ClassName()+"::BoundaryPotential<"
-            + "," + ToString(WC)
+        std::string tag = ClassName()+"::BoundaryPotential"
+            + "<" + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
@@ -506,7 +551,7 @@ private:
         
         auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
         {
-            ApplyBoundaryOperators_PL( C_ext(1), x, wc, C_ext(0), y, wc );
+            ApplyBoundaryOperators_PL<WC>( C_ext(1), x, wc, C_ext(0), y, wc );
         };
         
         
@@ -514,7 +559,7 @@ private:
         // P is also used for transf. into strong form.
         // Henrik is it?
         
-        auto P = [this,n,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
+        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
         {
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
@@ -553,13 +598,16 @@ public:
         CheckScalars<R_ext,C_ext>();
         
         std::string tag = ClassName()+"::DirichletToNeumann<"
-            + "," + ToString(WC)
+            + "," + (WC <= VarSize ? std::string("VarSize") : ToString(WC) )
             + "," + TypeName<I_ext>
             + "," + TypeName<R_ext>
             + "," + TypeName<C_ext>
             + ">";
         
         ptic(tag);
+        
+        // Caution: `wave` is supposed to be in weak form!
+        // Caution: `neumann_trace` will be in strong form!
         
         const Int n   = VertexCount();
         const Int wcc = int_cast<Int>(wave_chunk_count_);
@@ -574,8 +622,6 @@ public:
         );
 
         // Setup the mass matrix Preconditionier P:=M^-1.
-        // P is also used for transf. into strong form
-        // Henrik: Is it?
 
         auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
         {
@@ -602,10 +648,10 @@ public:
 
         auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
         {
-            ApplyBoundaryOperators_PL( C_ext(1), x, wc, C_ext(0), y, wc );
+            ApplyBoundaryOperators_PL<WC>( C_ext(1), x, wc, C_ext(0), y, wc );
         };
         
-        // solve for the normal derivatives of the near field solutions
+        // Solve for the normal derivatives of the near field solutions.
         (void)gmres(A,P,
             Scalar::One <C_ext>, wave,          wc,
             Scalar::Zero<C_ext>, neumann_trace, wc,

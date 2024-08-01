@@ -34,7 +34,7 @@ public:
         std::size_t max_work_group_size; //check for maximal size of work group
         ret = clGetDeviceInfo( device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &max_work_group_size, nullptr);
 
-        if (block_size > max_work_group_size)
+        if (block_size > static_cast<Int>(max_work_group_size))
         {
             SetBlockSize(static_cast<Int>(max_work_group_size));
         }
@@ -44,6 +44,17 @@ public:
             ,block_size,wave_chunk_size
         );
             
+        if constexpr( print_kernel_codeQ )
+        {
+            logprint("");
+            logprint("");
+            logprint("HerglotzWaveKernel.cl");
+            logprint("");
+            logprint(source);
+            logprint("");
+            logprint("");
+        }
+        
         const char * source_str = source.c_str();
         std::size_t source_size = source.size();
 
