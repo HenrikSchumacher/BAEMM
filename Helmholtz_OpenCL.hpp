@@ -1,20 +1,22 @@
 #pragma once
 
-#include <CL/cl.h>
-
 #ifdef __APPLE__
 /// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
 ///
     #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+
+    #define CL_TARGET_OPENCL_VERSION 120
+    #include <OpenCL/OpenCL.h>
 #else
 /// This should work for OpenBLAS.
     #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+
+    #include <CL/cl.h>
 #endif
 
 #include "submodules/Repulsor/Repulsor.hpp"
 
 #include "submodules/Repulsor/submodules/Tensors/Sparse.hpp"
-#include "submodules/Repulsor/submodules/Tensors/src/Sparse/ApproximateMinimumDegree.hpp"
 #include "submodules/Repulsor/submodules/Tensors/GMRES.hpp"
 #include "submodules/Repulsor/submodules/Tensors/ConjugateGradient.hpp"
 
@@ -77,6 +79,8 @@ namespace BAEMM
         const char * clBuildOpts = "-cl-fast-relaxed-math";
 //        const char * clBuildOpts = "-cl-finite-math-only -cl-mad-enable";
         
+        static constexpr bool print_kernel_codeQ = false;
+        
     protected:
         
         void cl_check_ret(
@@ -101,9 +105,9 @@ namespace BAEMM
         :   CPU_thread_count ( int_cast<Int>(CPU_thread_count_)     )
         ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
         ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
+        ,   meas_count       ( int_cast<Int>(meas_count_)           )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
-        ,   meas_count       ( int_cast<Int>(meas_count_)           )
         ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
             
@@ -162,9 +166,9 @@ namespace BAEMM
         :   CPU_thread_count ( int_cast<Int>(CPU_thread_count_)     )
         ,   vertex_count     ( int_cast<Int>(vertex_count_)         )
         ,   simplex_count    ( int_cast<Int>(simplex_count_)        )
+        ,   meas_count       ( int_cast<Int>(meas_count_)           )
         ,   vertex_coords    ( vertex_coords_, vertex_count,  3     )
         ,   triangles        ( triangles_,     simplex_count, 3     )
-        ,   meas_count       ( int_cast<Int>(meas_count_)           )
         ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
             std::string tag = ClassName()+"(...)";
