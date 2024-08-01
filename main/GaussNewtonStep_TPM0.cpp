@@ -248,7 +248,7 @@ int main()
    );
    std::filesystem::rename( 
        Profiler::prof_file,
-       HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".tsv")
+       HomeDirectory() / "Timing" / ("Tools_Profile_GN_iteration_" + varAsString + ".tsv")
    );
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
