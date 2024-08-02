@@ -52,10 +52,13 @@ public:
         if constexpr ( Scalar::ComplexQ<Y_T> )
         {
 //            using CG_Scal = Complex;
-//            using CG_Real = Scalar::Real<CG_Scal>;
+//            using CG_Real = Real;
             
             using CG_Scal = Y_T;
             using CG_Real = Scalar::Real<CG_Scal>;
+            
+//            using CG_Scal = Complex64;
+//            using CG_Real = Real64;
             
             // The two boolean at the end of the template silence some messages.
             ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
@@ -92,10 +95,10 @@ public:
             };
             
             succeeded = cg(
-                A,P,
+                A, P,
                 Scalar::One <Y_T>, X, ldX,
                 Scalar::Zero<Y_T>, Y, ldY,
-                static_cast<Real>(cg_tol), false
+                static_cast<CG_Real>(cg_tol), false
             );
         }
         else
@@ -105,6 +108,10 @@ public:
             
             using CG_Scal = Y_T;
             using CG_Real = Y_T;
+            
+//            using CG_Scal = Real64;
+//            using CG_Real = Real64;
+            
             
             // The two boolean at the end of the template silence some messages.
             ConjugateGradient<NRHS,CG_Scal,Size_T,false,false> cg(
@@ -130,7 +137,7 @@ public:
             };
             
             succeeded = cg(
-                A,P,
+                A, P,
                 Scalar::One <Y_T>, X, ldX,
                 Scalar::Zero<Y_T>, Y, ldY,
                 static_cast<CG_Real>(cg_tol), false

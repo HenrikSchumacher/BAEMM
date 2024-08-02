@@ -410,14 +410,14 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
+        using GMRES_Scal = R_ext;
+        
         // The two optional booleans at the end of the template silence some messages.
         //                                  |     |
         //                                  v     v
         GMRES<DIM,R_ext,Size_T,Side::Left,false,false> gmres(
-            n, gmres_max_iter, DIM, CPU_thread_count );
-        
-//        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
-//            DIM * n, gmres_max_iter, 1, CPU_thread_count );
+            n, gmres_max_iter, DIM, CPU_thread_count
+        );
         
         
         // A, M and P are matrices of size n x n.
@@ -428,7 +428,7 @@ public:
 
         
         // A computes A.x = M.x + DF^*.DF.x;
-        auto A = [&]( cptr<R_ext> x, mptr<R_ext> y )
+        auto A = [&]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
             M(x,y); // The metric m has to return M.x;
             
@@ -445,8 +445,8 @@ public:
             );
 
             MassOp.Dot<DIM>(
-                Tools::Scalar::One<R_ext>, y_strong.data(), DIM,
-                Tools::Scalar::One<R_ext>, y,               DIM,
+                Tools::Scalar::One<GMRES_Scal>, y_strong.data(), DIM,
+                Tools::Scalar::One<GMRES_Scal>, y,               DIM,
                 DIM
             );
 
@@ -533,8 +533,12 @@ private:
         const Int wc  = wcc * wcs;
         
 
+        using GMRES_Scal = C_ext;
+        
+//        using GMRES_Scal = Complex;
+        
         // The two boolean at the end of the template silence some messages.
-        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(
+        GMRES<WC,GMRES_Scal,Size_T,Side::Left,false,false> gmres(
             n, gmres_max_iter, wc, CPU_thread_count
         );
 
@@ -549,17 +553,21 @@ private:
 
         LoadBoundaryOperators_PL(kappa_,coeff_,wc,wcs);
         
-        auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
+        auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-            ApplyBoundaryOperators_PL<WC>( C_ext(1), x, wc, C_ext(0), y, wc );
+            ApplyBoundaryOperators_PL<WC>(
+                GMRES_Scal(1), x, wc,
+                GMRES_Scal(0), y, wc
+            );
         };
+        
         
         
         // Setup the mass matrix Preconditionier P:=M^-1.
         // P is also used for transf. into strong form.
         // Henrik is it?
         
-        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
+        auto P = [this,wc,cg_tol]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
@@ -614,16 +622,18 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
-        Tensor2<C_ext,Int> c_ ( wcc, 4);
-
+        using GMRES_Scal = C_ext;
+                
+//        using GMRES_Scal = Complex;
+        
         // The two boolean at the end of the template silence some messages.
-        GMRES<WC,C_ext,Size_T,Side::Left,false,false> gmres(
+        GMRES<WC,GMRES_Scal,Size_T,Side::Left,false,false> gmres(
             n, gmres_max_iter, wc, CPU_thread_count
         );
 
         // Setup the mass matrix Preconditionier P:=M^-1.
 
-        auto P = [this,wc,cg_tol]( cptr<C_ext> x, mptr<C_ext> y )
+        auto P = [this,wc,cg_tol]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
@@ -635,6 +645,10 @@ public:
             }
         };
 
+        
+        
+        Tensor2<C_ext,Int> c_ ( wcc, 4);
+        
         // set up the bdry operator and solve
         for( Int i = 0 ; i < wcc ; i++ )
         {
@@ -646,9 +660,12 @@ public:
 
         LoadBoundaryOperators_PL(kappa_,c_.data(),wc,wcs);
 
-        auto A = [this,wc]( cptr<C_ext> x, mptr<C_ext> y )
+        auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-            ApplyBoundaryOperators_PL<WC>( C_ext(1), x, wc, C_ext(0), y, wc );
+            ApplyBoundaryOperators_PL<WC>( 
+                GMRES_Scal(1), x, wc,
+                GMRES_Scal(0), y, wc
+            );
         };
         
         // Solve for the normal derivatives of the near field solutions.
