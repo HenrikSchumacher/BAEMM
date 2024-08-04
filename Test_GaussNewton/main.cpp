@@ -246,7 +246,7 @@ int main()
     
     Real cg_tol          = 0.00001;
     Real gmres_tol       = 0.005;
-    Real gmres_tol_outer = 0.01/3;
+    Real gmres_tol_outer = 0.01;
     
 //    Real regpar          = 0.000001 * 0.001;
     

@@ -399,10 +399,14 @@ public:
         
         ptic(tag);
 
-        // Calculates a Gauss-Newton step. 
-        // ATTENTION: Note that the metric M has to _ADD_ the input to the result.
+        // Calculates a Gauss-Newton step.
         
-        constexpr Int DIM = 3; // Dimension of the ambient space.
+        using GMRES_Scal = R_ext;
+        
+        constexpr auto one  = Scalar::One <GMRES_Scal>;
+        constexpr auto zero = Scalar::Zero<GMRES_Scal>;
+        
+        constexpr Size_T DIM = 3; // Dimension of the ambient space.
         
         const Int n   = VertexCount();
         const Int m   = GetMeasCount();
@@ -410,21 +414,44 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
-        using GMRES_Scal = R_ext;
         
-        // The two optional booleans at the end of the template silence some messages.
-        //                                  |     |
-        //                                  v     v
+        // Since B_in and X_out may be in scattered format,
+        // we may need to copy the inputs and outputs.
+        
+        // Local buffers of contiguous memory.
+        // Will only be allocated if necessary.
+        Tensor2<GMRES_Scal,Size_T> B_loc;
+        Tensor2<GMRES_Scal,Size_T> X_loc;
+        
+        if( ldB != DIM )
+        {
+            // External buffer B_in is scattered.
+            // Allocate local, contiguous storage and copy input B_in into it.
+            B_loc = Tensor2<GMRES_Scal,Size_T>( n, DIM );
 
-        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
-            DIM * n, gmres_max_iter, 1, CPU_thread_count /*, true*/ );
-        //                           ^                          ^
-        //                           |                          |
-        //                  This argument is new.    This would activate use of initial guess.
+//                         +--- First dimension of matrix is unknown at compile time.
+//                         |      +--- Second dimension is known at compile time.
+//                         |      |     +--- Allow parallel execution.
+//                         v      v     v
+            copy_matrix<VarSize,DIM,Parallel>(
+                B_in, ldB, B_loc.data(), DIM, n, DIM, CPU_thread_count
+            );
+        }
+        
+        if( ldX != DIM )
+        {
+            // External buffer X_out is scattered.
+            // Allocate local, contiguous storage and let X point to it.
+            X_loc = Tensor2<GMRES_Scal,Size_T>( n, DIM );
+        }
+        
+        GMRES<1,GMRES_Scal,Size_T,Side::Left,false,false> gmres(
+            DIM * n, gmres_max_iter, 1, CPU_thread_count );
 
         
         // A, M and P are matrices of size n x n.
         // They are applied to matrices of size n x DIM
+        // However, DF operates on _vector_ of size (n * DIM).
         
         Tensor2<C_ext,Int>  DF       ( m, wc  );
         Tensor2<R_ext,Int>  y_strong ( n, DIM );
@@ -441,28 +468,45 @@ public:
                 du_dn, type, cg_tol, gmres_tol_inner
             );
             
-            AdjointDerivative_FF<WC>( 
+            AdjointDerivative_FF<WC>(
                 kappa_, wcc, inc_directions, wcs,
                 DF.data(), y_strong.data(), 
                 du_dn, type, cg_tol, gmres_tol_inner
             );
 
             MassOp.Dot<DIM>(
-                Tools::Scalar::One<GMRES_Scal>, y_strong.data(), DIM,
-                Tools::Scalar::One<GMRES_Scal>, y,               DIM,
+                one, y_strong.data(), DIM,
+                one, y,               DIM,
                 DIM
             );
-
         };
         
-        // Computes X = alpha (DF^T/DF + M)^{-1}.B + beta * X.
+        // Computes X = (DF^T/DF + M)^{-1}.B.
         bool succeeded = gmres(A,P,
-            alpha, B_in,  1,
-            beta , X_out, 1,
+            one , (ldB!=DIM) ? B_loc.data() : B_in , Size_T(1),
+            zero, (ldX!=DIM) ? X_loc.data() : X_out, Size_T(1),
             gmres_tol_outer, gmres_max_restarts
         );
         
-        
+        if( ldX != DIM )
+        {
+            // External buffer is scattered.
+            // We need to copy the results from the local storage to it.
+            
+            constexpr auto G = Scalar::Flag::Generic;
+            
+            // X_out = alpha * X_loc + beta * X_out;
+            //
+            //               +--- alpha is not known to have a special value like 0, 1, -1.
+            //               | +--- beta is not known to have a special value like 0, 1, -1.
+            //               | |   +--- First dimension of matrix is unknown at compile time.
+            //               | |   |      +--- Second dimension is known at compile time.
+            //               | |   |      |     +--- Activate parallel execution.
+            //               v v   v      v     v
+            combine_matrices<G,G,VarSize,DIM,Parallel>(
+                alpha, X_loc.data(), DIM, beta, X_out, ldX, n, DIM, CPU_thread_count
+            );
+        }
         
         ptoc(tag);
         
@@ -535,9 +579,10 @@ private:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
         
-
+        // Using the external precision in the solver.
         using GMRES_Scal = C_ext;
         
+//        // Using the internal precision in the solver.
 //        using GMRES_Scal = Complex;
         
         // The two boolean at the end of the template silence some messages.
@@ -625,8 +670,10 @@ public:
         const Int wcs = int_cast<Int>(wave_chunk_size_ );
         const Int wc  = wcc * wcs;
 
+        // Using the external precision in GMRES.
         using GMRES_Scal = C_ext;
-                
+        
+//        // Using the internal (lower) precision in GMRES.
 //        using GMRES_Scal = Complex;
         
         // The two boolean at the end of the template silence some messages.
@@ -749,7 +796,12 @@ private:
             Int(3)
         );
 
-        ApplyMassInverse<3>( Y_weak.data(), 3, Y_out, 3, cg_tol, 3 );
+        // Write to output and convert to external precision.
+        ApplyMassInverse<3>( 
+            Y_weak.data(), Int(3),
+            Y_out,         Int(3),
+            cg_tol, Int(3)
+        );
         
         ptoc(tag);
     }
@@ -815,7 +867,11 @@ private:
         );
         
         // Set the tolerance parameter for ApplyMassInverse.
-        ApplyMassInverse<1>( Y_weak.data(), 1, Y_out, 1, cg_tol, 1 );
+        ApplyMassInverse<1>( 
+            Y_weak.data(), Int(1),
+            Y_out,         Int(1),
+            cg_tol, Int(1)
+        );
         
         ptoc(tag);
     }
