@@ -422,7 +422,6 @@ public:
         //                           |                          |
         //                  This argument is new.    This would activate use of initial guess.
 
-
         
         // A, M and P are matrices of size n x n.
         // They are applied to matrices of size n x DIM
