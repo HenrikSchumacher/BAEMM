@@ -457,8 +457,8 @@ public:
         
         // Computes X = alpha (DF^T/DF + M)^{-1}.B + beta * X.
         bool succeeded = gmres(A,P,
-            alpha, B_in,  ldB,
-            beta , X_out, ldX,
+            alpha, B_in,  1,
+            beta , X_out, 1,
             gmres_tol_outer, gmres_max_restarts
         );
         
