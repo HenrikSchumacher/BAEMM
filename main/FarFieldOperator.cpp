@@ -59,8 +59,8 @@ int main()
     Real gmres_tol = static_cast<Real>(0.0001);
     
     const Wave_T wt = (wave_type == "Radial") ? Wave_T::Radial : Wave_T::Plane;
-    std::cout << wave_chunk_count << std:endl;
-    std::cout << wave_chunk_size << std:endl;
+    std::cout << wave_chunk_count << std::endl;
+    std::cout << wave_chunk_size << std::endl;
     switch (wave_count)
     {
         case 1:
