@@ -368,11 +368,11 @@ public:
         // The two optional booleans at the end of the template silence some messages.
         //                                  |     |
         //                                  v     v
-        GMRES<DIM,R_ext,Size_T,Side::Left,false,false> gmres(
-            n, gmres_max_iter, DIM, CPU_thread_count /*, true*/ );
-        //                      ^                          ^
-        //                      |                          |
-        //               This argument is new.    This would activate use of initial guess.
+        GMRES<1,R_ext,Size_T,Side::Left,false,false> gmres(
+            DIM * n, gmres_max_iter, 1, CPU_thread_count /*, true*/ );
+        //                           ^                          ^
+        //                           |                          |
+        //                  This argument is new.    This would activate use of initial guess.
 
         
         // A, M and P are matrices of size n x n.
