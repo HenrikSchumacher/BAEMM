@@ -6,3 +6,6 @@
 	url = git@github.com:HenrikSchumacher/Repulsor.git
 	branch = main
 	update = merge
+[submodule "submodules/STL_Reader"]
+	path = submodules/STL_Reader
+	url = git@github.com:sreiter/stl_reader.git

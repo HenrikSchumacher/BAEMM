@@ -145,12 +145,16 @@ public:
                 IncidentWaveKernel_Radial( kappa, c, incident_directions.data(), C.data() );
             }
 
-            // Use transpose averaging operator to get from PC to PL boundary functions
+            // Use transposed averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
                 alpha, C.data(), ldC,
                 beta,  C_out,    ldC_out,
                 wave_count
             );
+            
+            // TODO: Now each vertex i contains
+            // C_out[i] = \sum_{j face containing i } C[j] * a_[j] / 3.
+            // That is C_out
         }
         
         ptoc(tag);

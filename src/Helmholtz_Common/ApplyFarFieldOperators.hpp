@@ -1,6 +1,6 @@
 public:
 
-    template<typename R_ext, typename C_ext, typename I_ext>
+    template<Int WC = VarSize, typename R_ext, typename C_ext, typename I_ext>
     void ApplyFarFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
@@ -33,10 +33,10 @@ public:
         
         LoadParameters(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
         
-        ApplyFarFieldOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+        ApplyFarFieldOperators_PL<WC>( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
-    template<typename R_ext, typename C_ext, typename I_ext>
+    template<Int WC = VarSize, typename R_ext, typename C_ext, typename I_ext>
     void ApplyFarFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
@@ -53,12 +53,12 @@ public:
         
         LoadParameters(kappa_list, coeff_list, wave_count_, wave_chunk_size_);
         
-        ApplyFarFieldOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
+        ApplyFarFieldOperators_PL<WC>( alpha, B_in, ldB_in, beta, C_out, ldC_out );
     }
 
 
     // Applies the boundary to farfield operators to the input pointer
-    template<typename C_ext, typename I_ext>
+    template<Int WC = VarSize, typename C_ext, typename I_ext>
     void ApplyFarFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
         const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out_
@@ -67,11 +67,24 @@ public:
         CheckInteger<I_ext>();
         CheckComplex<C_ext>();
 
-        ptic(ClassName()+"::ApplyFarFieldOperators_PL");
+        std::string tag = ClassName()+"::ApplyFarFieldOperators_PL" +
+            + "<" + ToString(VarSize)
+            + "," + TypeName<C_ext>
+            + "," + TypeName<I_ext>
+            + ">";
+        
+        ptic(tag);
         
         if( wave_chunk_count < 1 )
         {
-            ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
+            ptoc(tag);
+            return;
+        }
+        
+        if( (WC > VarSize) && (WC != wave_count) )
+        {
+            eprint( tag + "WC != wave_count. Doing nothing." );
+            ptoc(tag);
             return;
         }
             
@@ -80,12 +93,10 @@ public:
         
         RequireBuffersFarField( wave_count );
         
-        if(
-           Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer
-        )
+        if( Re_single_layer || Im_single_layer || Re_double_layer || Im_double_layer )
         {
             // use averaging operator to get from PL to PC boundary functions
-            AvOp.Dot(
+            AvOp.Dot<WC>(
                 Scalar::One <Complex>, B_in,  ldB_in,
                 Scalar::Zero<Complex>, B_ptr, ldB,
                 wave_count
@@ -101,11 +112,17 @@ public:
 
             // TODO: Are these dimensions correct?
 
-            combine_matrices(
+//            combine_matrices(
+//                alpha, C_ptr, ldC,
+//                beta , C_out, ldC_out,
+//                meas_count, wave_count, CPU_thread_count
+//            );
+            
+            combine_matrices_auto<VarSize,WC,Parallel>(
                 alpha, C_ptr, ldC,
                 beta , C_out, ldC_out,
                 meas_count, wave_count, CPU_thread_count
             );
         }
-        ptoc(ClassName()+"::ApplyFarFieldOperators_PL");
+        ptoc(tag);
     }
