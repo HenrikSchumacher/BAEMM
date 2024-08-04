@@ -97,18 +97,17 @@ public:
             C_ext(0), wave.data(),    wc,
             kappa_, inc_coeff.data(), wc, wcs, type
         );
-        std::cout << "wave" << std::endl;
+
         BoundaryPotential_parameters<WC>(
             kappa_, coeff.data(), wave.data(), phi.data(),
             eta, wcc, wcs, cg_tol, gmres_tol
         );
-        std::cout << "pot" << std::endl;
+
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
             kappa_, coeff.data(), wc, wcs
         );
-        std::cout << "ff" << std::endl;
     }
 
 public:
