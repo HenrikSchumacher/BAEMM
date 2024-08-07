@@ -817,8 +817,8 @@ private:
     {
         CheckReal<R_ext>();
         
-        std::string tag = ClassName()+"::DotWithNormals_PL<"
-            + "," + TypeName<R_ext>
+        std::string tag = ClassName()+"::DotWithNormals_PL"
+            + "<" + TypeName<R_ext>
             + ">";
         
         ptic(tag);
@@ -833,8 +833,8 @@ private:
         // Convert the input from PL to a PC function.
         // Also change precision to internal one.
         AvOp.Dot<3>(
-            Scalar::One <R_ext>, X_in,     Int(3),
-            Scalar::Zero<R_ext>, X.data(), Int(3),
+            Scalar::One <Real>, X_in,     Int(3),
+            Scalar::Zero<Real>, X.data(), Int(3),
             Int(3)
         );
         

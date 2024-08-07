@@ -112,15 +112,9 @@ public:
 
             // TODO: Are these dimensions correct?
 
-//            combine_matrices(
-//                alpha, C_ptr, ldC,
-//                beta , C_out, ldC_out,
-//                meas_count, wave_count, CPU_thread_count
-//            );
-            
             combine_matrices_auto<VarSize,WC,Parallel>(
-                alpha, C_ptr, ldC,
-                beta , C_out, ldC_out,
+                static_cast<Complex>(alpha), C_ptr, ldC,
+                beta,                        C_out, ldC_out,
                 meas_count, wave_count, CPU_thread_count
             );
         }
