@@ -137,10 +137,10 @@ int main()
         thread_count
     );
     
-    constexpr Int WC = 16;
+    constexpr Int WC = 32;
 //    constexpr Int WC = 0;
-//    constexpr Int wave_count = 32;
-    const Int wave_count = 16;
+//    const Int wave_count = 32;
+    const Int wave_count = 32;
     const Int wave_chunk_size = 16;
     const Int wave_chunk_count = wave_count / wave_chunk_size;
     
