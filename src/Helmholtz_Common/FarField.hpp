@@ -103,7 +103,6 @@ public:
             eta, wcc, wcs, cg_tol, gmres_tol
         );
 
-        std::cout << "far field operators" << std::endl;
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
@@ -633,7 +632,6 @@ private:
             Scalar::Zero<C_ext>, phi,  wc,
             gmres_tol, gmres_max_restarts
         );
-        std::cout << "gmres ended" << std::endl;
 
         UnloadBoundaryOperators_PL();
     }
