@@ -103,6 +103,7 @@ public:
             eta, wcc, wcs, cg_tol, gmres_tol
         );
 
+        std::cout << "far field operators" << std::endl;
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
@@ -585,16 +586,6 @@ private:
 //        // Using the internal precision in the solver.
 //        using GMRES_Scal = Complex;
         
-        std::cout << "wcc:" << wcc << std::endl;
-        std::cout << "wcs:" << wcs << std::endl;
-        std::cout << "wc:" << wc << std::endl;
-        std::cout << "WC:" << WC << std::endl;
-
-        std::cout << "kappa1:" << kappa_[1] << std::endl;
-        std::cout << "kappa2:" << kappa_[2] << std::endl;
-        std::cout << "eta1:" << eta[1] << std::endl;
-        std::cout << "eta2:" << eta[2] << std::endl;
-
         // The two boolean at the end of the template silence some messages.
         GMRES<WC,GMRES_Scal,Size_T,Side::Left,false,false> gmres(
             n, gmres_max_iter, wc, CPU_thread_count
@@ -610,17 +601,13 @@ private:
         }
 
         LoadBoundaryOperators_PL(kappa_,coeff_,wc,wcs);
-        
-        std::cout << "loaded boundary operators" << std::endl;
 
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-            std::cout << "Op WC:" << WC << std::endl;
             ApplyBoundaryOperators_PL<WC>(
                 GMRES_Scal(1), x, wc,
                 GMRES_Scal(0), y, wc
             );
-            std::cout << "applied boundary operator" << std::endl;
         };
         
         
@@ -631,7 +618,6 @@ private:
         
         auto P = [this,wc,cg_tol]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-            std::cout << "Prec WC:" << WC << std::endl;
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
                 ApplyLumpedMassInverse<WC>( x, wc, y, wc,         wc );
@@ -640,7 +626,6 @@ private:
             {
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
-            std::cout << "applied preconditioner" << std::endl;
         };
         
         (void)gmres(A,P,
@@ -648,6 +633,7 @@ private:
             Scalar::Zero<C_ext>, phi,  wc,
             gmres_tol, gmres_max_restarts
         );
+        std::cout << "gmres ended" << std::endl;
 
         UnloadBoundaryOperators_PL();
     }
