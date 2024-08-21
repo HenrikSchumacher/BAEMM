@@ -29,8 +29,8 @@ constexpr Int DIM = 3;
 
 int main()
 {
-      std::filesystem::path this_file { __FILE__ };
-      std::filesystem::path repo_dir = this_file.parent_path().parent_path();
+    std::filesystem::path this_file { __FILE__ };
+    std::filesystem::path repo_dir = this_file.parent_path().parent_path();
 //    std::filesystem::path repo_dir = "/HOME1/users/guests/jannr/github/BAEMM_test";
     std::filesystem::path mesh_dir = repo_dir / "Meshes";
     std::filesystem::path home_dir = HomeDirectory();
