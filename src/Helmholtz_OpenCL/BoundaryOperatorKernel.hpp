@@ -168,7 +168,7 @@ private:
 
     void ReleaseParameters()
     {
-        ptic( ClassName() + "::ReleaseParameters" );
+        // ptic( ClassName() + "::ReleaseParameters" );
         
         if( d_kappa != nullptr )
         {
@@ -198,5 +198,5 @@ private:
             d_wave_count = nullptr;
         }
 
-        ptoc( ClassName() + "::ReleaseParameters" );
+        // ptoc( ClassName() + "::ReleaseParameters" );
     }
