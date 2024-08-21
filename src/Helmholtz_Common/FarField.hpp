@@ -36,14 +36,6 @@ public:
         // wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>).
         // A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field.
-
-        std::cout << "wave_chunk_count_:" << wave_chunk_count_ << std::endl;
-        std::cout << "wave_chunk_size_:" << wave_chunk_size_ << std::endl;
-        std::cout << "WC:" << WC << std::endl;
-
-
-        std::cout << "kappa_1:" << kappa_[0] << std::endl;
-        std::cout << "kappa_2:" << kappa_[1] << std::endl;
         
         FarField_parameters<WC>(
             kappa_, 
@@ -100,21 +92,11 @@ public:
             inc_coeff(i,3) =  C_ext(0);
         }
 
-        std::cout << "wcc:" << wcc << std::endl;
-        std::cout << "wcs:" << wcs << std::endl;
-        std::cout << "wc:" << wc << std::endl;
-        std::cout << "WC:" << WC << std::endl;
-
         CreateIncidentWave_PL(
             C_ext(1), inc_directions, wcs,
             C_ext(0), wave.data(),    wc,
             kappa_, inc_coeff.data(), wc, wcs, type
         );
-
-        std::cout << "wcc:" << wcc << std::endl;
-        std::cout << "wcs:" << wcs << std::endl;
-        std::cout << "wc:" << wc << std::endl;
-        std::cout << "WC:" << WC << std::endl;
 
         BoundaryPotential_parameters<WC>(
             kappa_, coeff.data(), wave.data(), phi.data(),
@@ -603,6 +585,16 @@ private:
 //        // Using the internal precision in the solver.
 //        using GMRES_Scal = Complex;
         
+        std::cout << "wcc:" << wcc << std::endl;
+        std::cout << "wcs:" << wcs << std::endl;
+        std::cout << "wc:" << wc << std::endl;
+        std::cout << "WC:" << WC << std::endl;
+
+        std::cout << "kappa1:" << kappa_[1] << std::endl;
+        std::cout << "kappa2:" << kappa_[2] << std::endl;
+        std::cout << "eta1:" << eta[1] << std::endl;
+        std::cout << "eta2:" << eta[2] << std::endl;
+
         // The two boolean at the end of the template silence some messages.
         GMRES<WC,GMRES_Scal,Size_T,Side::Left,false,false> gmres(
             n, gmres_max_iter, wc, CPU_thread_count

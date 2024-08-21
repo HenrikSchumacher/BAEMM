@@ -43,14 +43,6 @@ int main()
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
-    std::cout << "wave_chunk_count:" << wave_chunk_count << std::endl;
-    std::cout << "wave_chunk_size:" << wave_chunk_size << std::endl;
-    std::cout << "wave_count:" << wave_count << std::endl;
-
-
-    std::cout << "kappa_1:" << kappa(0) << std::endl;
-    std::cout << "kappa_2:" << kappa(1) << std::endl;
-
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
