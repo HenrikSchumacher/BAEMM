@@ -170,32 +170,32 @@ private:
     {
         // ptic( ClassName() + "::ReleaseParameters" );
         
-        if( d_kappa != nullptr )
+        if( d_kappa != NULL )
         {
             ret = clReleaseMemObject(d_kappa);
             
-            d_kappa = nullptr;
+            d_kappa = NULL;
         }
 
-        if( d_coeff != nullptr )
+        if( d_coeff != NULL )
         {
             ret = clReleaseMemObject(d_coeff);
             
-            d_coeff = nullptr;
+            d_coeff = NULL;
         }
 
-        if( d_n != nullptr )
+        if( d_n != NULL )
         {
             ret = clReleaseMemObject(d_n);
             
-            d_n = nullptr;
+            d_n = NULL;
         }
 
-        if( d_wave_count != nullptr )
+        if( d_wave_count != NULL )
         {
             ret = clReleaseMemObject(d_wave_count);
             
-            d_wave_count = nullptr;
+            d_wave_count = NULL;
         }
 
         // ptoc( ClassName() + "::ReleaseParameters" );
