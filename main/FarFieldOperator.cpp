@@ -80,12 +80,12 @@ int main()
         //                 B_out.data(), wt, cg_tol, gmres_tol);
         //     break;
         // }
-        // case 8:
-        // {
-        //     H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-        //                 B_out.data(), wt, cg_tol, gmres_tol);
-        //     break;
-        // }
+        case 8:
+        {
+            H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+                        B_out.data(), wt, cg_tol, gmres_tol);
+            break;
+        }
         case 16:
         {
             H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
