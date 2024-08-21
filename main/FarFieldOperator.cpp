@@ -43,6 +43,14 @@ int main()
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
+    std::cout << "wave_chunk_count:" << wave_chunk_count << std::endl;
+    std::cout << "wave_chunk_size:" << wave_chunk_size << std::endl;
+    std::cout << "wave_count:" << wave_count << std::endl;
+
+
+    std::cout << "kappa_1:" << kappa(0);
+    std::cout << "kappa_2:" << kappa(1);
+
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,
         simplices.data(), simplex_count, 
@@ -62,48 +70,48 @@ int main()
 
     switch (wave_count)
     {
-        case 1:
-        {
-            H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
-        case 2:
-        {
-            H.FarField<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
-        case 4:
-        {
-            H.FarField<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
-        case 8:
-        {
-            H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
+        // case 1:
+        // {
+        //     H.FarField<1>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
+        // case 2:
+        // {
+        //     H.FarField<2>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
+        // case 4:
+        // {
+        //     H.FarField<4>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
+        // case 8:
+        // {
+        //     H.FarField<8>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
         case 16:
         {
             H.FarField<16>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
                         B_out.data(), wt, cg_tol, gmres_tol);
             break;
         }
-        case 32:
-        {
-            H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
-        case 64:
-        {
-            H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
-                        B_out.data(), wt, cg_tol, gmres_tol);
-            break;
-        }
+        // case 32:
+        // {
+        //     H.FarField<32>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
+        // case 64:
+        // {
+        //     H.FarField<64>( kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
+        //                 B_out.data(), wt, cg_tol, gmres_tol);
+        //     break;
+        // }
         default:
         {
             eprint("Non valid wave count.");

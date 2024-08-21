@@ -36,6 +36,14 @@ public:
         // wave ist the std incident wave defined pointwise by exp(i*kappa*<x,d>).
         // A = (1/2) * I - i * kappa * SL + DL
         // phi = A\wave is the bdry potential which will be mapped onto the far field.
+
+        std::cout << "wave_chunk_count_:" << wave_chunk_count_ << std::endl;
+        std::cout << "wave_chunk_size_:" << wave_chunk_size_ << std::endl;
+        std::cout << "WC:" << WC << std::endl;
+
+
+        std::cout << "kappa_1:" << kappa[0];
+        std::cout << "kappa_2:" << kappa[1];
         
         FarField_parameters<WC>(
             kappa_, 
@@ -97,6 +105,11 @@ public:
             C_ext(0), wave.data(),    wc,
             kappa_, inc_coeff.data(), wc, wcs, type
         );
+
+        std::cout << "wcc:" << wcc << std::endl;
+        std::cout << "wcs:" << wcs << std::endl;
+        std::cout << "wc:" << wc << std::endl;
+        std::cout << "WC:" << WC << std::endl;
 
         BoundaryPotential_parameters<WC>(
             kappa_, coeff.data(), wave.data(), phi.data(),
