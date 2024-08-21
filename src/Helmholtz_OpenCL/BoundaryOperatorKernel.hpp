@@ -144,23 +144,22 @@ private:
         ptic(tag);
         
         // Clean up
-        std::cout << "finish" << std::endl;
+
         ptic(tag + ": clFinish");
         ret = clFinish(command_queue);
         cl_check_ret( tag, "clFinish" );
         ptoc(tag + ": clFinish");
-        std::cout << "flush" << std::endl;
+
         ptic(tag + ": clFlush");
         ret = clFlush(command_queue);
         cl_check_ret( tag, "clFlush" );
         ptoc(tag + ": clFlush");
-        std::cout << "release" << std::endl;
+
         ptic(tag + ": clReleaseKernel");
         ret = clReleaseKernel(bdr_kernel);
         cl_check_ret( tag, "clReleaseKernel" );
         ptoc(tag + ": clReleaseKernel");
         
-        std::cout << "release parameters" << std::endl;
         ReleaseParameters();
         
         ptoc(tag);
@@ -170,32 +169,34 @@ private:
     void ReleaseParameters()
     {
         ptic( ClassName() + "::ReleaseParameters" );
+        
         if( d_kappa != nullptr )
         {
             ret = clReleaseMemObject(d_kappa);
             
             d_kappa = nullptr;
         }
-        
+        std:cout << "parameters" << std::endl;
         if( d_coeff != nullptr )
         {
             ret = clReleaseMemObject(d_coeff);
             
             d_coeff = nullptr;
         }
-        
+        std:cout << "coeff" << std::endl;
         if( d_n != nullptr )
         {
             ret = clReleaseMemObject(d_n);
             
             d_n = nullptr;
         }
-        
+        std:cout<<"n" << std::endl;
         if( d_wave_count != nullptr )
         {
             ret = clReleaseMemObject(d_wave_count);
             
             d_wave_count = nullptr;
         }
+        std:cout<<"wc" << std::endl;
         ptoc( ClassName() + "::ReleaseParameters" );
     }
