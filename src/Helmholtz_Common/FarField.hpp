@@ -603,6 +603,7 @@ private:
 
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
+            std::cout << "op" << std::endl;
             ApplyBoundaryOperators_PL<WC>(
                 GMRES_Scal(1), x, wc,
                 GMRES_Scal(0), y, wc
