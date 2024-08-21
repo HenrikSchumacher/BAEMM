@@ -170,32 +170,32 @@ private:
     {
         // ptic( ClassName() + "::ReleaseParameters" );
         
-        if( d_kappa != NULL )
+        if( d_kappa != nullptr )
         {
             ret = clReleaseMemObject(d_kappa);
-            
-            d_kappa = NULL;
+            std::cout<< "A" << std::endl;
+            d_kappa = nullptr;
         }
 
-        if( d_coeff != NULL )
+        if( d_coeff != nullptr )
         {
             ret = clReleaseMemObject(d_coeff);
-            
-            d_coeff = NULL;
+            std::cout<< "B" << std::endl;
+            d_coeff = nullptr;
         }
 
-        if( d_n != NULL )
+        if( d_n != nullptr )
         {
             ret = clReleaseMemObject(d_n);
-            
-            d_n = NULL;
+            std::cout<< "C" << std::endl;
+            d_n = nullptr;
         }
 
-        if( d_wave_count != NULL )
+        if( d_wave_count != nullptr )
         {
             ret = clReleaseMemObject(d_wave_count);
-            
-            d_wave_count = NULL;
+            std::cout<< "D" << std::endl;
+            d_wave_count = nullptr;
         }
 
         // ptoc( ClassName() + "::ReleaseParameters" );
