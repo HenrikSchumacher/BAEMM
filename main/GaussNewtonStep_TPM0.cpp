@@ -176,8 +176,6 @@ int main()
     // Declare a templated lambda.
     auto job = [&]<Size_T WC>()
     {
-        dump(WC);
-        
         succeeded = H.GaussNewtonSolve<WC>(
             kappa.data(), wave_chunk_count, incident_directions.data(), wave_chunk_size,
             A, P, 
