@@ -611,12 +611,16 @@ private:
 
         LoadBoundaryOperators_PL(kappa_,coeff_,wc,wcs);
         
+        std::cout << "loaded boundary operators" << std::endl;
+
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
+            std::cout << "Op WC:" << WC << std::endl;
             ApplyBoundaryOperators_PL<WC>(
                 GMRES_Scal(1), x, wc,
                 GMRES_Scal(0), y, wc
             );
+            std::cout << "applied boundary operator" << std::endl;
         };
         
         
@@ -627,6 +631,7 @@ private:
         
         auto P = [this,wc,cg_tol]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
+            std::cout << "Prec WC:" << WC << std::endl;
             if constexpr ( lumped_mass_as_prec_for_intopsQ )
             {
                 ApplyLumpedMassInverse<WC>( x, wc, y, wc,         wc );
@@ -635,7 +640,7 @@ private:
             {
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
-            
+            std::cout << "applied preconditioner" << std::endl;
         };
         
         (void)gmres(A,P,
