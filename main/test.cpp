@@ -25,7 +25,7 @@ using LInt      = Int64;
 
 int main()
 {
-    std::filesystem::path mesh_dir = "/HOME1/users/guests/jannr/github/BAEMM_test/Meshes";
+    std::filesystem::path mesh_dir = "/HOME1/users/guests/jannr/github/BAEMM/Meshes";
     
 
     std::string mesh_name { "Triceratops_00090560T" };
