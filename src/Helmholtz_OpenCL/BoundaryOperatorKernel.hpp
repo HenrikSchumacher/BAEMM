@@ -51,17 +51,17 @@ private:
 
         ptic(tag + ": clCreateBuffer");
         // Create the rest of the memory buffers on the device for each vector
-        d_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY,     wave_chunk_count * sizeof(Real),    nullptr, &ret);
-        d_coeff      = clCreateBuffer(context, CL_MEM_READ_ONLY, 4 * wave_chunk_count * sizeof(Complex), nullptr, &ret);
-        d_n          = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
-        d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
+        m_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY,     wave_chunk_count * sizeof(Real),    nullptr, &ret);
+        m_coeff      = clCreateBuffer(context, CL_MEM_READ_ONLY, 4 * wave_chunk_count * sizeof(Complex), nullptr, &ret);
+        m_n          = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
+        m_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
         ptoc(tag + ": clCreateBuffer");
         
         ptic(tag + ": clEnqueueWriteBuffer");
-        clEnqueueWriteBuffer(command_queue, d_kappa,      CL_FALSE, 0,     wave_chunk_count * sizeof(Real),    kappa.data(), 0, nullptr, nullptr);
-        clEnqueueWriteBuffer(command_queue, d_coeff,      CL_FALSE, 0, 4 * wave_chunk_count * sizeof(Complex), c.data(),     0, nullptr, nullptr);
-        clEnqueueWriteBuffer(command_queue, d_n,          CL_FALSE, 0, sizeof(Int),                            &n,           0, nullptr, nullptr);
-        clEnqueueWriteBuffer(command_queue, d_wave_count, CL_FALSE, 0, sizeof(Int),                            &wave_count,  0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, m_kappa,      CL_FALSE, 0,     wave_chunk_count * sizeof(Real),    kappa.data(), 0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, m_coeff,      CL_FALSE, 0, 4 * wave_chunk_count * sizeof(Complex), c.data(),     0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, m_n,          CL_FALSE, 0, sizeof(Int),                            &n,           0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, m_wave_count, CL_FALSE, 0, sizeof(Int),                            &wave_count,  0, nullptr, nullptr);
         ptoc(tag + ": clEnqueueWriteBuffer");
         
         // Create kernel source
@@ -117,10 +117,10 @@ private:
         ret = clSetKernelArg(bdr_kernel, 1, sizeof(cl_mem), (void *)&normals);
         ret = clSetKernelArg(bdr_kernel, 2, sizeof(cl_mem), (void *)&B_buf);
         ret = clSetKernelArg(bdr_kernel, 3, sizeof(cl_mem), (void *)&C_buf);
-        ret = clSetKernelArg(bdr_kernel, 4, sizeof(cl_mem), (void *)&d_kappa);
-        ret = clSetKernelArg(bdr_kernel, 5, sizeof(cl_mem), (void *)&d_coeff);
-        ret = clSetKernelArg(bdr_kernel, 6, sizeof(cl_mem), (void *)&d_n);
-        ret = clSetKernelArg(bdr_kernel, 7, sizeof(cl_mem), (void *)&d_wave_count);
+        ret = clSetKernelArg(bdr_kernel, 4, sizeof(cl_mem), (void *)&m_kappa);
+        ret = clSetKernelArg(bdr_kernel, 5, sizeof(cl_mem), (void *)&m_coeff);
+        ret = clSetKernelArg(bdr_kernel, 6, sizeof(cl_mem), (void *)&m_n);
+        ret = clSetKernelArg(bdr_kernel, 7, sizeof(cl_mem), (void *)&m_wave_count);
         ptoc(tag + ": clSetKernelArg");
         
         ptic(tag + ": clFinish");
@@ -170,28 +170,28 @@ private:
     {
         ptic( ClassName() + "::ReleaseParameters" );
         
-        if( d_kappa != nullptr )
+        if( m_kappa != nullptr )
         {
-            ret = clReleaseMemObject(d_kappa);
-            d_kappa = nullptr;
+            ret = clReleaseMemObject(m_kappa);
+            m_kappa = nullptr;
         }
 
-        if( d_coeff != nullptr )
+        if( m_coeff != nullptr )
         {
-            ret = clReleaseMemObject(d_coeff);
-            d_coeff = nullptr;
+            ret = clReleaseMemObject(m_coeff);
+            m_coeff = nullptr;
         }
 
-        if( d_n != nullptr )
+        if( m_n != nullptr )
         {
-            ret = clReleaseMemObject(d_n);
-            d_n = nullptr;
+            ret = clReleaseMemObject(m_n);
+            m_n = nullptr;
         }
 
-        if( d_wave_count != nullptr )
+        if( m_wave_count != nullptr )
         {
-            ret = clReleaseMemObject(d_wave_count);
-            d_wave_count = nullptr;
+            ret = clReleaseMemObject(m_wave_count);
+            m_wave_count = nullptr;
         }
 
         ptoc( ClassName() + "::ReleaseParameters" );

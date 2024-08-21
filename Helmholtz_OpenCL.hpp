@@ -69,10 +69,10 @@ namespace BAEMM
         cl_mem B_buf_pin           = nullptr;
         cl_mem C_buf_pin           = nullptr;
         
-        cl_mem d_kappa             = nullptr;
-        cl_mem d_coeff             = nullptr;
-        cl_mem d_n                 = nullptr;
-        cl_mem d_wave_count        = nullptr;
+        cl_mem m_kappa             = nullptr;
+        cl_mem m_coeff             = nullptr;
+        cl_mem m_n                 = nullptr;
+        cl_mem m_wave_count        = nullptr;
         
 
         // const char * clBuildOpts = nullptr;
