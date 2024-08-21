@@ -100,6 +100,11 @@ public:
             inc_coeff(i,3) =  C_ext(0);
         }
 
+        std::cout << "wcc:" << wcc << std::endl;
+        std::cout << "wcs:" << wcs << std::endl;
+        std::cout << "wc:" << wc << std::endl;
+        std::cout << "WC:" << WC << std::endl;
+
         CreateIncidentWave_PL(
             C_ext(1), inc_directions, wcs,
             C_ext(0), wave.data(),    wc,
