@@ -234,6 +234,9 @@ namespace BAEMM
         ~Helmholtz_OpenCL()
         {
             //clean up
+            
+            ReleaseParameters();
+            
             ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,areas_pin,          (void*)areas_ptr,          0,nullptr,nullptr);

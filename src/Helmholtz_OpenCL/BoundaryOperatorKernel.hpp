@@ -97,11 +97,10 @@ private:
         {
             cl_check_ret( tag, "clBuildProgram" );
             
-            char result[16384];
-            std::size_t size;
-            ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(result), &result, &size);
-            
-            print(result);
+            std::vector<char> result (16384);
+            std::size_t size_result  = 0;
+            ret = clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, result.size(), &result[0], &size_result);
+            print( std::string( &result[0], &result[size_result] ) );
         }
         ptoc(tag + ": clBuildProgram");
                 
