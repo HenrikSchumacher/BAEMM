@@ -600,7 +600,7 @@ private:
         }
 
         LoadBoundaryOperators_PL(kappa_,coeff_,wc,wcs);
-        
+
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
             ApplyBoundaryOperators_PL<WC>(
@@ -625,7 +625,6 @@ private:
             {
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
-            
         };
         
         (void)gmres(A,P,
