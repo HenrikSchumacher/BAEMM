@@ -132,7 +132,7 @@ private:
         ret = clReleaseProgram(program);
         cl_check_ret( tag, "clReleaseProgram" );
         ptoc(tag + ": clReleaseProgram");
-        
+        std::cout << ret << std::endl;
         ptoc(tag);
         
     }
@@ -149,17 +149,17 @@ private:
         ret = clFinish(command_queue);
         cl_check_ret( tag, "clFinish" );
         ptoc(tag + ": clFinish");
-
+        std::cout << ret << std::endl;
         ptic(tag + ": clFlush");
         ret = clFlush(command_queue);
         cl_check_ret( tag, "clFlush" );
         ptoc(tag + ": clFlush");
-
+        std::cout << ret << std::endl;
         ptic(tag + ": clReleaseKernel");
         ret = clReleaseKernel(bdr_kernel);
         cl_check_ret( tag, "clReleaseKernel" );
         ptoc(tag + ": clReleaseKernel");
-        
+        std::cout << ret << std::endl;
         ReleaseParameters();
         
         ptoc(tag);
@@ -176,26 +176,27 @@ private:
             
             d_kappa = nullptr;
         }
-
+        std::cout << ret << std::endl;
         if( d_coeff != nullptr )
         {
             ret = clReleaseMemObject(d_coeff);
             
             d_coeff = nullptr;
         }
-
+        std::cout << ret << std::endl;
         if( d_n != nullptr )
         {
             ret = clReleaseMemObject(d_n);
             
             d_n = nullptr;
         }
-
+        std::cout << ret << std::endl;
         if( d_wave_count != nullptr )
         {
             ret = clReleaseMemObject(d_wave_count);
             
             d_wave_count = nullptr;
         }
+        std::cout << ret << std::endl;
         ptoc( ClassName() + "::ReleaseParameters" );
     }
