@@ -176,27 +176,27 @@ private:
             
             d_kappa = nullptr;
         }
-
+        std::cout << ClassName() + "::ReleaseParameters" << std::endl;
         if( d_coeff != nullptr )
         {
             ret = clReleaseMemObject(d_coeff);
             
             d_coeff = nullptr;
         }
-
+        std::cout << ClassName() + "::ReleaseParameters" << std::endl;
         if( d_n != nullptr )
         {
             ret = clReleaseMemObject(d_n);
             
             d_n = nullptr;
         }
-
+        std::cout << ClassName() + "::ReleaseParameters" << std::endl;
         if( d_wave_count != nullptr )
         {
             ret = clReleaseMemObject(d_wave_count);
             
             d_wave_count = nullptr;
         }
-
+        std::cout << ClassName() + "::ReleaseParameters" << std::endl;
         // ptoc( ClassName() + "::ReleaseParameters" );
     }
