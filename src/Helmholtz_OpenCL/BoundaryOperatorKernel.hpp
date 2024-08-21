@@ -49,6 +49,11 @@ private:
 
         ReleaseParameters();
         
+        Real* Kappa = (Real*)malloc(wave_chunk_count *  sizeof(Real));
+            kappa.Write(Kappa);
+        Complex* Coeff = (Complex*)malloc(wave_chunk_count * 4 * sizeof(Complex));
+            c.Write(Coeff);
+
         ptic(tag + ": clCreateBuffer");
         // Create the rest of the memory buffers on the device for each vector
         d_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY,     wave_chunk_count * sizeof(Real),    nullptr, &ret);
@@ -58,8 +63,8 @@ private:
         ptoc(tag + ": clCreateBuffer");
         
         ptic(tag + ": clEnqueueWriteBuffer");
-        clEnqueueWriteBuffer(command_queue, d_kappa,      CL_FALSE, 0,     wave_chunk_count * sizeof(Real),    kappa.data(), 0, nullptr, nullptr);
-        clEnqueueWriteBuffer(command_queue, d_coeff,      CL_FALSE, 0, 4 * wave_chunk_count * sizeof(Complex), c.data(),     0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_kappa,      CL_FALSE, 0,     wave_chunk_count * sizeof(Real),    Kappa, 0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_coeff,      CL_FALSE, 0, 4 * wave_chunk_count * sizeof(Complex), Coeff,     0, nullptr, nullptr);
         clEnqueueWriteBuffer(command_queue, d_n,          CL_FALSE, 0, sizeof(Int),                            &n,           0, nullptr, nullptr);
         clEnqueueWriteBuffer(command_queue, d_wave_count, CL_FALSE, 0, sizeof(Int),                            &wave_count,  0, nullptr, nullptr);
         ptoc(tag + ": clEnqueueWriteBuffer");
@@ -132,6 +137,9 @@ private:
         ret = clReleaseProgram(program);
         cl_check_ret( tag, "clReleaseProgram" );
         ptoc(tag + ": clReleaseProgram");
+
+        free(Kappa);
+        free(Coeff);
 
         ptoc(tag);
         
