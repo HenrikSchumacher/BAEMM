@@ -48,8 +48,8 @@ int main()
     std::cout << "wave_count:" << wave_count << std::endl;
 
 
-    std::cout << "kappa_1:" << kappa(0);
-    std::cout << "kappa_2:" << kappa(1);
+    std::cout << "kappa_1:" << kappa(0) << std::endl;
+    std::cout << "kappa_2:" << kappa(1) << std::endl;
 
     BAEMM::Helmholtz_OpenCL H (
         coords.data(),    vertex_count,

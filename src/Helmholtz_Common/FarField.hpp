@@ -42,8 +42,8 @@ public:
         std::cout << "WC:" << WC << std::endl;
 
 
-        std::cout << "kappa_1:" << kappa[0];
-        std::cout << "kappa_2:" << kappa[1];
+        std::cout << "kappa_1:" << kappa_[0] << std::endl;
+        std::cout << "kappa_2:" << kappa_[1] << std::endl;
         
         FarField_parameters<WC>(
             kappa_, 
