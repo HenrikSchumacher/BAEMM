@@ -141,7 +141,7 @@ private:
     {
         std::string tag = ClassName()+"::UnloadBoundaryOperatorKernel_PL";
         
-        // ptic(tag);
+        ptic(tag);
         
         // Clean up
 
@@ -162,13 +162,13 @@ private:
 
         ReleaseParameters();
         
-        // ptoc(tag);
+        ptoc(tag);
     }
 
 
     void ReleaseParameters()
     {
-        // ptic( ClassName() + "::ReleaseParameters" );
+        ptic( ClassName() + "::ReleaseParameters" );
         
         if( d_kappa != nullptr )
         {
@@ -194,5 +194,5 @@ private:
             d_wave_count = nullptr;
         }
 
-        // ptoc( ClassName() + "::ReleaseParameters" );
+        ptoc( ClassName() + "::ReleaseParameters" );
     }
