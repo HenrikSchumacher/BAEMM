@@ -2,8 +2,6 @@
 
 #include <CL/cl.h>
 
-#define TOOLS_ENABLE_PROFILER
-
 #include <complex>
 #include <cblas.h>
 #include <lapack.h>

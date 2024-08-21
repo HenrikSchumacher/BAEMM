@@ -236,7 +236,7 @@ int main()
     std::string varAsString = std::to_string(1000000 * regpar);
 
     std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".txt";
-    std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".tsv";
+    std::string path_profile = "/HOME1/users/guests/jannr/Tools_Profile_GN_iteration_" +  varAsString + ".tsv";
 
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
     std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
