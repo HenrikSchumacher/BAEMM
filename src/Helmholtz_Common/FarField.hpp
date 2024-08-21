@@ -102,7 +102,7 @@ public:
             kappa_, coeff.data(), wave.data(), phi.data(),
             eta, wcc, wcs, cg_tol, gmres_tol
         );
-        std::cout << "ff" << std::endl;
+//        print("ff");
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
@@ -603,7 +603,7 @@ private:
 
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-            std::cout << "op" << std::endl;
+//            print("op");
             ApplyBoundaryOperators_PL<WC>(
                 GMRES_Scal(1), x, wc,
                 GMRES_Scal(0), y, wc
