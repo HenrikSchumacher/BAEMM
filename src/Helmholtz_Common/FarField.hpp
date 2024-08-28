@@ -629,6 +629,7 @@ private:
         };
 
         A(wave,phi);
+        P(phi,phi);
         
         // (void)gmres(A,P,
         //     Scalar::One <C_ext>, wave, wc,
