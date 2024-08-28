@@ -603,7 +603,6 @@ private:
 
         auto A = [this,wc]( cptr<GMRES_Scal> x, mptr<GMRES_Scal> y )
         {
-//            print("op");
             ApplyBoundaryOperators_PL<WC>(
                 GMRES_Scal(1), x, wc,
                 GMRES_Scal(0), y, wc
@@ -627,6 +626,24 @@ private:
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
         };
+        
+        if( wave == nullptr )
+        {
+            eprint( ClassName() + "BoundaryPotential_parameters: wave == nullptr." );
+        }
+        
+        if( phi == nullptr )
+        {
+            eprint( ClassName() + "BoundaryPotential_parameters: phi == nullptr." );
+        }
+        
+        
+        if( (WC != VarSize) && ( wc != WC ) )
+        {
+            eprint( ClassName() + "BoundaryPotential_parameters: wc != WC." );
+            dump(WC);
+            dump(wc);
+        }
         
         (void)gmres(A,P,
             Scalar::One <C_ext>, wave, wc,
