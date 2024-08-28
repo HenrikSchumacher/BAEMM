@@ -141,7 +141,7 @@ private:
     {
         std::string tag = ClassName()+"::UnloadBoundaryOperatorKernel_PL";
         
-        // ptic(tag);
+        ptic(tag);
         
         // Clean up
 
@@ -162,7 +162,7 @@ private:
 
         ReleaseParameters();
         
-        // ptoc(tag);
+        ptoc(tag);
     }
 
 
@@ -195,8 +195,8 @@ private:
 
         if( m_wave_count != nullptr )
         {
-            // ret = clReleaseMemObject(m_wave_count);
-            // cl_check_ret( tag, "clReleaseMemObject(m_wave_count)" );
+            ret = clReleaseMemObject(m_wave_count);
+            cl_check_ret( tag, "clReleaseMemObject(m_wave_count)" );
             m_wave_count = nullptr;
         }
 
