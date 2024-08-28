@@ -102,9 +102,7 @@ public:
             kappa_, coeff.data(), wave.data(), phi.data(),
             eta, wcc, wcs, cg_tol, gmres_tol
         );
-        print("unload start");
         UnloadBoundaryOperators_PL();
-        print("ff");
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,
@@ -629,14 +627,15 @@ private:
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
         };
-        
-        (void)gmres(A,P,
-            Scalar::One <C_ext>, wave, wc,
-            Scalar::Zero<C_ext>, phi,  wc,
-            gmres_tol, gmres_max_restarts
-        );
 
-        print("bdry pot done");
+        memcpy(phi, wave, n * wc * sizeof(C_ext));
+        
+        // (void)gmres(A,P,
+        //     Scalar::One <C_ext>, wave, wc,
+        //     Scalar::Zero<C_ext>, phi,  wc,
+        //     gmres_tol, gmres_max_restarts
+        // );
+
     }
 
 public:
