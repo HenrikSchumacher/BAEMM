@@ -141,7 +141,7 @@ private:
     {
         std::string tag = ClassName()+"::UnloadBoundaryOperatorKernel_PL";
         
-        ptic(tag);
+        // ptic(tag);
         
         // Clean up
 
@@ -160,9 +160,9 @@ private:
         cl_check_ret( tag, "clReleaseKernel" );
         ptoc(tag + ": clReleaseKernel");
 
-        // ReleaseParameters();
+        ReleaseParameters();
         
-        ptoc(tag);
+        // ptoc(tag);
     }
 
 
