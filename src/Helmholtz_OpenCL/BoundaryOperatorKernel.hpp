@@ -172,33 +172,33 @@ private:
         
         ptic(tag);
         
-        if( m_kappa != nullptr )
-        {
-            // ret = clReleaseMemObject(m_kappa);
-            // cl_check_ret( tag, "clReleaseMemObject(m_kappa)" );
-            m_kappa = nullptr;
-        }
+        // if( m_kappa != nullptr )
+        // {
+        //     // ret = clReleaseMemObject(m_kappa);
+        //     // cl_check_ret( tag, "clReleaseMemObject(m_kappa)" );
+        //     m_kappa = nullptr;
+        // }
 
-        if( m_coeff != nullptr )
-        {
-            // ret = clReleaseMemObject(m_coeff);
-            // cl_check_ret( tag, "clReleaseMemObject(m_coeff)" );
-            m_coeff = nullptr;
-        }
+        // if( m_coeff != nullptr )
+        // {
+        //     // ret = clReleaseMemObject(m_coeff);
+        //     // cl_check_ret( tag, "clReleaseMemObject(m_coeff)" );
+        //     m_coeff = nullptr;
+        // }
 
-        if( m_n != nullptr )
-        {
-            // ret = clReleaseMemObject(m_n);
-            // cl_check_ret( tag, "clReleaseMemObject(m_n)" );
-            m_n = nullptr;
-        }
+        // if( m_n != nullptr )
+        // {
+        //     // ret = clReleaseMemObject(m_n);
+        //     // cl_check_ret( tag, "clReleaseMemObject(m_n)" );
+        //     m_n = nullptr;
+        // }
 
-        if( m_wave_count != nullptr )
-        {
-            // ret = clReleaseMemObject(m_wave_count);
-            // cl_check_ret( tag, "clReleaseMemObject(m_wave_count)" );
-            m_wave_count = nullptr;
-        }
+        // if( m_wave_count != nullptr )
+        // {
+        //     // ret = clReleaseMemObject(m_wave_count);
+        //     // cl_check_ret( tag, "clReleaseMemObject(m_wave_count)" );
+        //     m_wave_count = nullptr;
+        // }
 
         ptoc(tag);
     }
