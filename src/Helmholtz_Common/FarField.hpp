@@ -102,7 +102,7 @@ public:
             kappa_, coeff.data(), wave.data(), phi.data(),
             eta, wcc, wcs, cg_tol, gmres_tol
         );
-        std::cout << "ff" << std::endl;
+        // print("ff");
         ApplyFarFieldOperators_PL<WC>(
             C_ext(1), phi.data(), wc,
             C_ext(0), Y_out,      wc,

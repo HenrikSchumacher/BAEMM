@@ -112,7 +112,7 @@ private:
         ptoc(tag + ": clCreateKernel");
         
         // Set the arguments of the kernel
-        ptic(tag + ": clSetKernelArg");
+        // ptic(tag + ": clSetKernelArg");
         ret = clSetKernelArg(bdr_kernel, 0, sizeof(cl_mem), (void *)&mid_points);
         ret = clSetKernelArg(bdr_kernel, 1, sizeof(cl_mem), (void *)&normals);
         ret = clSetKernelArg(bdr_kernel, 2, sizeof(cl_mem), (void *)&B_buf);
@@ -121,19 +121,19 @@ private:
         ret = clSetKernelArg(bdr_kernel, 5, sizeof(cl_mem), (void *)&m_coeff);
         ret = clSetKernelArg(bdr_kernel, 6, sizeof(cl_mem), (void *)&m_n);
         ret = clSetKernelArg(bdr_kernel, 7, sizeof(cl_mem), (void *)&m_wave_count);
-        ptoc(tag + ": clSetKernelArg");
+        // ptoc(tag + ": clSetKernelArg");
         
-        ptic(tag + ": clFinish");
+        // ptic(tag + ": clFinish");
         clFinish(command_queue);
-        ptoc(tag + ": clFinish");
+        // ptoc(tag + ": clFinish");
         
-        // clean up
-        ptic(tag + ": clReleaseProgram");
+        // // clean up
+        // ptic(tag + ": clReleaseProgram");
         ret = clReleaseProgram(program);
         cl_check_ret( tag, "clReleaseProgram" );
-        ptoc(tag + ": clReleaseProgram");
+        // ptoc(tag + ": clReleaseProgram");
 
-        ptoc(tag);
+        // ptoc(tag);
         
     }
 
@@ -141,28 +141,28 @@ private:
     {
         std::string tag = ClassName()+"::UnloadBoundaryOperatorKernel_PL";
         
-        ptic(tag);
+        // ptic(tag);
         
         // Clean up
 
-        ptic(tag + ": clFinish");
+        // ptic(tag + ": clFinish");
         ret = clFinish(command_queue);
         cl_check_ret( tag, "clFinish" );
-        ptoc(tag + ": clFinish");
+        // ptoc(tag + ": clFinish");
 
-        ptic(tag + ": clFlush");
+        // ptic(tag + ": clFlush");
         ret = clFlush(command_queue);
         cl_check_ret( tag, "clFlush" );
-        ptoc(tag + ": clFlush");
+        // ptoc(tag + ": clFlush");
 
-        ptic(tag + ": clReleaseKernel");
+        // ptic(tag + ": clReleaseKernel");
         ret = clReleaseKernel(bdr_kernel);
         cl_check_ret( tag, "clReleaseKernel" );
-        ptoc(tag + ": clReleaseKernel");
+        // ptoc(tag + ": clReleaseKernel");
 
         ReleaseParameters();
         
-        ptoc(tag);
+        // ptoc(tag);
     }
 
 
