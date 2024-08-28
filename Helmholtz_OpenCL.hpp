@@ -89,7 +89,7 @@ namespace BAEMM
         {
             if( ret != 0 )
             {
-                print( tag + ": Call to " + cl_name + " failed. Error code = " + ToString(ret) + ".");
+                eprint( tag + ": Call to " + cl_name + " failed. Error code = " + ToString(ret) + ".");
             }
         }
         
