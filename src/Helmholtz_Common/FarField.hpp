@@ -627,7 +627,7 @@ private:
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
         };
-
+        P(wave,wave);
         A(wave,phi);
         P(phi,phi);
         
