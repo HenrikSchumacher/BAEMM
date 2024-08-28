@@ -174,22 +174,22 @@ private:
         
         if( m_kappa != nullptr )
         {
-            // ret = clReleaseMemObject(m_kappa);
-            // cl_check_ret( tag, "clReleaseMemObject(m_kappa)" );
+            ret = clReleaseMemObject(m_kappa);
+            cl_check_ret( tag, "clReleaseMemObject(m_kappa)" );
             m_kappa = nullptr;
         }
 
         if( m_coeff != nullptr )
         {
-            // ret = clReleaseMemObject(m_coeff);
-            // cl_check_ret( tag, "clReleaseMemObject(m_coeff)" );
+            ret = clReleaseMemObject(m_coeff);
+            cl_check_ret( tag, "clReleaseMemObject(m_coeff)" );
             m_coeff = nullptr;
         }
 
         if( m_n != nullptr )
         {
-            // ret = clReleaseMemObject(m_n);
-            // cl_check_ret( tag, "clReleaseMemObject(m_n)" );
+            ret = clReleaseMemObject(m_n);
+            cl_check_ret( tag, "clReleaseMemObject(m_n)" );
             m_n = nullptr;
         }
 
