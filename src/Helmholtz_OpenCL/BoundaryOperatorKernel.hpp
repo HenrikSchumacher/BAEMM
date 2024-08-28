@@ -143,7 +143,7 @@ private:
         
         ptic(tag);
         
-        Clean up
+        // Clean up
 
         ptic(tag + ": clFinish");
         ret = clFinish(command_queue);
