@@ -627,15 +627,12 @@ private:
                 ApplyMassInverse      <WC>( x, wc, y, wc, cg_tol, wc );
             }
         };
-        P(wave,wave);
-        A(wave,phi);
-        P(phi,phi);
         
-        // (void)gmres(A,P,
-        //     Scalar::One <C_ext>, wave, wc,
-        //     Scalar::Zero<C_ext>, phi,  wc,
-        //     gmres_tol, gmres_max_restarts
-        // );
+        (void)gmres(A,P,
+            Scalar::One <C_ext>, wave, wc,
+            Scalar::Zero<C_ext>, phi,  wc,
+            gmres_tol, gmres_max_restarts
+        );
 
         UnloadBoundaryOperators_PL();
     }
