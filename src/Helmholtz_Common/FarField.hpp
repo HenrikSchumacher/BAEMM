@@ -635,6 +635,8 @@ private:
             Scalar::Zero<C_ext>, phi,  wc,
             gmres_tol, gmres_max_restarts
         );
+
+        print("bdry pot done");
     }
 
 public:
