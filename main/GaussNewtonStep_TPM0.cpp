@@ -81,7 +81,7 @@ int main()
     // Profiler::Clear("/HOME1/users/guests/jannr/BEM");
     
     //    // @Jannik: Also try this new feature for more portability:
-   Profiler::Clear( HomeDirectory() / "BEM" );
+    Profiler::Clear( HomeDirectory() / "BEM" );
 
     Int wave_count = wave_chunk_count * wave_chunk_size;
 
@@ -235,19 +235,23 @@ int main()
     // std::string path_log = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".txt";
     // std::string path_profile = "/HOME1/users/guests/jannr/Tools_Log_GN_iteration_" +  varAsString + ".tsv";
 
-    // std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Log.txt",path_log);
-    // std::filesystem::rename("/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",path_profile);
+    std::filesystem::rename(
+        "/HOME1/users/guests/jannr/BEM/Tools_Log.txt",
+        HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".txt"));
+    std::filesystem::rename(
+        "/HOME1/users/guests/jannr/BEM/Tools_Profile.tsv",
+        HomeDirectory() / "Timing" / ("Tools_Profile_GN_iteration_" + varAsString + ".tsv"));
     
     
     //    // @Jannik: Also try this new feature for a bit more portability:
-   std::filesystem::rename(
-       Profiler::log_file , 
-       HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
-   );
-   std::filesystem::rename( 
-       Profiler::prof_file,
-       HomeDirectory() / "Timing" / ("Tools_Profile_GN_iteration_" + varAsString + ".tsv")
-   );
+//    std::filesystem::rename(
+//        Profiler::log_file , 
+//        HomeDirectory() / "Timing" / ("Tools_Log_GN_iteration_" + varAsString + ".txt")
+//    );
+//    std::filesystem::rename( 
+//        Profiler::prof_file,
+//        HomeDirectory() / "Timing" / ("Tools_Profile_GN_iteration_" + varAsString + ".tsv")
+//    );
     
     WriteInOut(vertex_count, dim, B_out, "B.bin");
 
