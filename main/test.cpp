@@ -28,7 +28,7 @@ int main()
     std::filesystem::path mesh_dir = "/HOME1/users/guests/jannr/github/BAEMM/Meshes";
     
     // std::string mesh_name { "Spot_00093696T" };  
-    std::string mesh_name { "Sphere_00040560T" };  
+    std::string mesh_name { "Sphere_00081920T" };  
     // std::string mesh_name { "Triceratops_00090560T" };
     std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
