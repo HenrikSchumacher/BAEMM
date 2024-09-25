@@ -166,8 +166,8 @@ int main()
 
     H.UseDiagonal(true);
 
-    Real cg_tol    = static_cast<Real>(0.00001);
-    Real gmres_tol = static_cast<Real>(0.0001);
+    Real cg_tol    = static_cast<Real>(0.000001);
+    Real gmres_tol = static_cast<Real>(0.00001);
     
     tic("Starting measurement");
 
