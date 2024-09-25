@@ -174,7 +174,7 @@ int main()
     print("");
     
     tic("FarField");
-    for(i = 0 ; i < 10 ; i++)
+    for(Int i = 0 ; i < 10 ; i++)
     {
         H.FarField<wave_count>(
             kappa.data(), wave_chunk_count,
