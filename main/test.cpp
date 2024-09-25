@@ -27,7 +27,8 @@ int main()
 {
     std::filesystem::path mesh_dir = "/HOME1/users/guests/jannr/github/BAEMM/Meshes";
     
-    std::string mesh_name { "Spot_00093696T" };  
+    // std::string mesh_name { "Spot_00093696T" };  
+    std::string mesh_name { "Sphere_00040560T" };  
     // std::string mesh_name { "Triceratops_00090560T" };
     std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
@@ -166,8 +167,8 @@ int main()
 
     H.UseDiagonal(true);
 
-    Real cg_tol    = static_cast<Real>(0.000001);
-    Real gmres_tol = static_cast<Real>(0.00001);
+    Real cg_tol    = static_cast<Real>(0.00001);
+    Real gmres_tol = static_cast<Real>(0.0001);
     
     tic("Starting measurement");
 
