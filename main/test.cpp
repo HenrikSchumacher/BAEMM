@@ -27,14 +27,13 @@ int main()
 {
     std::filesystem::path mesh_dir = "/HOME1/users/guests/jannr/github/BAEMM/Meshes";
     
-
-    std::string mesh_name { "Triceratops_00090560T" };
+    std::string mesh_name { "Spot_00093696T_T" };  
+    // std::string mesh_name { "Triceratops_00090560T" };
     std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
-//    std::string mesh_name { "Spot_00023424T" };
-//    std::string mesh_name { "Spot_00093696T_T" };    
+//    std::string mesh_name { "Spot_00023424T" };  
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
 //    std::string mesh_name { "TorusMesh_00038400T" };
@@ -86,8 +85,8 @@ int main()
         thread_count
     );
     
-   constexpr Int wave_count = 32;
-    // constexpr Int wave_count = 16;
+//    constexpr Int wave_count = 32;
+    constexpr Int wave_count = 16;
     constexpr Int wave_chunk_size = 16;
     constexpr Int wave_chunk_count = wave_count / wave_chunk_size;
     
@@ -98,7 +97,7 @@ int main()
     
     for (int i = 0 ; i < wave_chunk_count; i++)
     {
-        kappa[i] = ( 1 + 2 * ( i + 2 ) ) * Scalar::Pi<Real>;
+        kappa[i] = Scalar::Pi<Real>;
     }
 
     inc( 0,0) = 0.22663516023574246;
@@ -175,12 +174,15 @@ int main()
     print("");
     
     tic("FarField");
-    H.FarField<wave_count>(
-        kappa.data(), wave_chunk_count,
-        inc.data(),   wave_chunk_size,
-        F.data(),
-        BAEMM::WaveType::Plane, cg_tol, gmres_tol
-    );
+    for(i = 0 ; i < 10 ; i++)
+    {
+        H.FarField<wave_count>(
+            kappa.data(), wave_chunk_count,
+            inc.data(),   wave_chunk_size,
+            F.data(),
+            BAEMM::WaveType::Plane, cg_tol, gmres_tol
+        );
+    }
     toc("FarField");
     
     print("");
