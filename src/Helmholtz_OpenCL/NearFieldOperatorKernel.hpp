@@ -56,7 +56,6 @@ public:
         cl_mem d_n                = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &n,                &ret);
         cl_mem d_wave_count       = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,       &ret);
         cl_mem d_evaluation_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &evaluation_count, &ret);
-        cl_mem evaluation_points  = clCreateBuffer(context, CL_MEM_READ_ONLY,                       4 * evaluation_count * sizeof(Real),    nullptr,              &ret);
 
         // Write potential to buffers.
         clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);

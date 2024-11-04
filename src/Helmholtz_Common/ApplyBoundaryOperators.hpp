@@ -1,5 +1,27 @@
 public:
-
+    /**
+     * Applies the WEAK boundary operators SL, DL and DL' to some input piecewise linear, continuous function on the surface, 
+     * i.e. computes C_out = alpha * A * B_in + beta * C_out,
+    * where B_in and C_out out are matrices of size vertex_count x wave_count_ and
+     * represent the vertex values of  wave_count_ piecewise-linear functions.
+    * The operator A is a linear combination of several operators, depending on kappa:
+     *
+     * A = coeff_(-,0) * MassMatrix
+     *     + coeff_(-,1) * SingleLayerOperator
+     *     + coeff(-,2) * DoubleLayerOperator
+     *     + coeff(-,3) * AdjointDoubleLayerOperator
+     * 
+    * @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+    * @tparam I_ext: External integer type.
+    * @tparam R_ext: External Real type.
+    * @tparam C_ext: External Complex type.
+     * @param B_in: Input array of size vertex_count * wave_count_.
+     * @param ldB_in: Leading dimension of input. Usually wave_count_. 
+     * @param C_out: Output array of size vertex_count * wave_count_.
+     * @param ldC_out: Leading dimension of output. Usually wave_count_. 
+     * @param kappa_list: An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
+     * @param coeff_list: An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of boundary operators.
+     */
     template<Int WC = VarSize, typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
@@ -20,6 +42,9 @@ public:
         UnloadBoundaryOperators_PL();
     }
 
+    /**
+     * Loads boundary operators. Can be used ist they are called frequently with the same coeffeicients to reduce the just-in-time compilations of the OpenCL-code.
+     */
     template<typename R_ext, typename C_ext, typename I_ext>
     void LoadBoundaryOperators_PL(
         cptr<R_ext> kappa_list,
@@ -35,6 +60,9 @@ public:
         LoadBoundaryOperatorKernel_PL();
     }
 
+    /**
+     * Unloads boundary operators (cleans up OpenCL-allocations for new use of the boundary operators).
+     */
     void UnloadBoundaryOperators_PL()
     {
         // Every Helmholtz_* class has to implement this.
@@ -42,45 +70,9 @@ public:
         UnloadBoundaryOperatorKernel_PL();
     }
 
-//    template<typename R_ext, typename C_ext, typename I_ext>
-//    void ApplyBoundaryOperators_PL(
-//        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-//        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-//        const R_ext kappa_,
-//        const C_ext coeff_0,
-//        const C_ext coeff_1,
-//        const C_ext coeff_2,
-//        const C_ext coeff_3,
-//        const I_ext wave_count_,
-//        const I_ext wave_chunk_size_
-//    )
-//    {
-//        // Computes
-//        //
-//        //     C_out = alpha * A * B_in + beta * C_out,
-//        //
-//        // where B_in and C_out out are matrices of size vertex_count x wave_count_ and
-//        // represent the vertex values of  wave_count_ piecewise-linear functions.
-//        // The operator A is a linear combination of several operators, depending on kappa:
-//        //
-//        // A =   coeff_0 * MassMatrix
-//        //     + coeff_1 * SingleLayerOp[kappa]
-//        //     + coeff_2 * DoubleLayerOp[kappa]
-//        //     + coeff_3 * AdjDblLayerOp[kappa]
-//        //
-//        //
-//        
-//        CheckInteger<I_ext>();
-//        CheckScalars<R_ext,C_ext>();
-//
-//        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
-//        
-//        ApplyBoundaryOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out );
-//    }
-
-
-    // Applies the boundary operators in the WEAK FORM to the input pointer.
-    // Assumes that `LoadBoundaryOperators_PL` has been called before.
+    /** @brief Applies the boundary operators in the WEAK FORM to the input pointer.
+    * Assumes that `LoadBoundaryOperators_PL` has been called before.
+    */
     template<Int WC = VarSize, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -139,8 +131,6 @@ public:
 
             // Apply diagonal of single layer operator.
             ApplySingleLayerDiagonal( kappa, c );
-                        
-            // TODO: Is there some diagonal part of double layer and adjdbl boundary operator?
             
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot<WC>(

@@ -1,5 +1,8 @@
 private:
 
+    /**
+     * Applies the diagonal of the (singular!) single-layer boundary operator. Refer to Kirkups book for the formula.
+     */
     void ApplySingleLayerDiagonal(
         const WaveNumberContainer_T  & kappa_,
         const CoefficientContainer_T & c_
@@ -23,8 +26,6 @@ private:
                 I_kappa[chunk] = Complex( Scalar::Zero<Real>, kappa[chunk] );
             }
 
-            
-            //CheckThis
             ParallelDo(
                 [=]( const Int i )
                 {

@@ -33,46 +33,41 @@ namespace BAEMM
             
 #include "src/Helmholtz_Common/MemberVariables.hpp"
         // OpenCL utilities
-        cl_int ret; // return value of the OpenCL commands for bug identification
+        cl_int ret; /**< return value of the OpenCL commands for bug identification*/
         
-        cl_device_id device_id = nullptr;
-        cl_context context;
+        cl_device_id device_id = nullptr; /**< Parse the ID of desired GPU-device. Always an integer. For instance: if you have multiple Nvidia CUDA GPUs use the bash command 'nvidia-smi' to get the information. */
+        cl_context context; /**< Global context for command queues. */
         
-        cl_kernel bdr_kernel;    // Globally saved OpenCL Kernel for the boundary operator.
+        cl_kernel bdr_kernel;    /**< Globally saved OpenCL Kernel for the boundary operator.*/
 
         
         cl_command_queue command_queue;
         
         // OpenCL Device buffers
-        cl_mem areas               = nullptr; // buffer for the areas of the simplices
-        cl_mem mid_points          = nullptr; // buffer for the midpoints of the simplices
-        cl_mem normals             = nullptr; // buffer for the simplex-normals
-        cl_mem single_diag         = nullptr; // diagonal of the SL Operator
-        cl_mem tri_coords          = nullptr;
-        cl_mem meas_directions     = nullptr; // measurement directkons (m x 3 tensor)
+        cl_mem mid_points          = nullptr; /**< buffer for the midpoints of the simplices */
+        cl_mem normals             = nullptr; /**< buffer for the simplex-normals */
+        cl_mem meas_directions     = nullptr; /**< measurement directions (m x 3 tensor) */
         
         // buffers for in- and output
-        cl_mem B_buf               = nullptr;
-        cl_mem C_buf               = nullptr;
+        cl_mem B_buf               = nullptr; /**< Buffer on GPU for input */
+        cl_mem C_buf               = nullptr; /**< Buffer on GPU for output */
 
-        LInt B_size = 0;
-        LInt C_size = 0;
+        LInt B_size = 0; /**< Size of B_buf */
+        LInt C_size = 0; /**< Size of C_buf */
 
         // pin host memory (bigger bandwith with pinned memory)
-        cl_mem areas_pin           = nullptr;
-        cl_mem mid_points_pin      = nullptr;
-        cl_mem normals_pin         = nullptr;
-        cl_mem single_diag_pin     = nullptr;
-        cl_mem tri_coords_pin      = nullptr;
-        cl_mem meas_directions_pin = nullptr;
+        cl_mem mid_points_pin      = nullptr; /**< Pinned buffer for midpoints on host-device */
+        cl_mem normals_pin         = nullptr; /**< Pinned buffer for normals on host-device */
+        cl_mem meas_directions_pin = nullptr; /**< Pinned buffer for measurement directions on host-device */
+        cl_mem evaluation_points_pin = nullptr; /**< Pinned buffer for evaluation points on host-device */
         
-        cl_mem B_buf_pin           = nullptr;
-        cl_mem C_buf_pin           = nullptr;
+        cl_mem B_buf_pin           = nullptr; /**< Pinned buffer for input on host-device */
+        cl_mem C_buf_pin           = nullptr; /**< Pinned buffer for output on host-device */
         
-        cl_mem m_kappa             = nullptr;
-        cl_mem m_coeff             = nullptr;
-        cl_mem m_n                 = nullptr;
-        cl_mem m_wave_count        = nullptr;
+        cl_mem m_kappa             = nullptr; /**< Globally saved buffer for the array of wavenumbers. This is necessary for calling the same (pre-compiled) boundary operator kernel multiple times. */
+        cl_mem m_coeff             = nullptr; /**< Globally saved buffer for the array of coeffiients for boundary operators. This is necessary for calling the same (pre-compiled) boundary operator kernel multiple times. */
+        cl_mem m_n                 = nullptr; /**< Globally saved buffer for number of simplices. This is necessary for calling the same (pre-compiled) boundary operator kernel multiple times. */
+        cl_mem m_wave_count        = nullptr; /**< Globally saved buffer for total number of incident waves. This is necessary for calling the same (pre-compiled) boundary operator kernel multiple times. */
         
 
         // const char * clBuildOpts = nullptr;
@@ -94,7 +89,20 @@ namespace BAEMM
         }
         
     public:
-    
+
+        /**
+         * @brief Construct a new Helmholtz_OpenCL object.
+         * 
+         * @tparam ExtReal: External Real precision. We recommend double precision.
+         * @tparam ExtInt: External Int type.
+         * @param vertex_coords_: vertex_count_ x 3 real array containing the coordinates of the vertices. 
+         * @param vertex_count_: Number of vertices of the parsed mesh. 
+         * @param triangles_: simplex_count_ x 3 integer array representing the connectivity list of the mesh.
+         * @param simplex_count_: Number of simplices of the parsed mesh. 
+         * @param meas_directions_: meas_count_ x 3 real array storing the measurement directions on the S^2 for the far field.
+         * @param meas_count_: Number of measurement directions on the S^2 for the far field. 
+         * @param CPU_thread_count_: Number of threads the CPU shall use. 
+         */
         template<typename ExtReal,typename ExtInt>
         Helmholtz_OpenCL(
             cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
@@ -110,14 +118,6 @@ namespace BAEMM
         ,   triangles        ( triangles_,     simplex_count, 3     )
         ,   areas_lumped_inv ( vertex_count, Scalar::Zero<Real> )
         {
-            
-            // The profile should be reset by a user, not by the class Helmholtz_OpenCL.
-            // Mind: One might want to profile more than one class.
-            
-//            std::filesystem::path path { std::filesystem::current_path() };
-//            std::string path_string{ path.string() };
-//            Profiler::Clear( path_string );
-
              // Get platform and device information            
             cl_platform_id platform_id;  
             cl_uint ret_num_devices;
@@ -145,10 +145,11 @@ namespace BAEMM
             command_queue = clCreateCommandQueueWithProperties(context,device_id,0,&ret);
 #endif
             
-            // initialize the Opencl buffers and host pointers
+            // initialize the OpenCL buffers and host pointers
             InitializeBuffers(simplex_count,meas_directions_);
             Initialize();     
             
+            // Write the buffers needed by all GPU-kernels to the device buffer.
             clEnqueueWriteBuffer(command_queue,mid_points,     CL_FALSE,0,4 * simplex_count * sizeof(Real),mid_points_ptr,     0,nullptr,nullptr);
             clEnqueueWriteBuffer(command_queue,normals,        CL_FALSE,0,4 * simplex_count * sizeof(Real),normals_ptr,        0,nullptr,nullptr);
             clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,nullptr,nullptr);
@@ -239,9 +240,6 @@ namespace BAEMM
             
             ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,nullptr,nullptr);
-            ret = clEnqueueUnmapMemObject(command_queue,areas_pin,          (void*)areas_ptr,          0,nullptr,nullptr);
-            ret = clEnqueueUnmapMemObject(command_queue,single_diag_pin,    (void*)normals_ptr,        0,nullptr,nullptr);
-            ret = clEnqueueUnmapMemObject(command_queue,tri_coords_pin,     (void*)normals_ptr,        0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,meas_directions_pin,(void*)meas_directions_ptr,0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,B_buf_pin,          (void*)B_ptr,              0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,C_buf_pin,          (void*)C_ptr,              0,nullptr,nullptr);
@@ -250,9 +248,6 @@ namespace BAEMM
 
             ret = clReleaseMemObject(mid_points_pin);
             ret = clReleaseMemObject(normals_pin);
-            ret = clReleaseMemObject(areas_pin);
-            ret = clReleaseMemObject(single_diag_pin);
-            ret = clReleaseMemObject(tri_coords_pin);
             ret = clReleaseMemObject(meas_directions_pin);
             ret = clReleaseMemObject(B_buf_pin);
             ret = clReleaseMemObject(C_buf_pin);

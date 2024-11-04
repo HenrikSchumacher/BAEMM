@@ -1,5 +1,8 @@
 public:
 
+    /**
+     * Applies the inverse of the mass matrix.
+     */
     template<Int NRHS = VarSize, typename X_T, typename Y_T, typename R_ext>
     void ApplyMassInverse(
         cptr<X_T> X, const Int ldX,
@@ -152,6 +155,9 @@ public:
         ptoc(tag);
     }
 
+    /**
+     * Applies the inverse of the lumped mass matrix.
+     */
     template<Int NRHS = VarSize, typename X_T, typename Y_T>
     void ApplyLumpedMassInverse(
         cptr<X_T> X, const Int ldX,

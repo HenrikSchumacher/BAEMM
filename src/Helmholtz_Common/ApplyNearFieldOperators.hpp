@@ -1,44 +1,29 @@
 public:
 
-    template<typename R_ext, typename C_ext, typename I_ext>
-    void ApplyNearFieldOperators_PL(
-        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-        const R_ext kappa_,
-        const C_ext coeff_0,
-        const C_ext coeff_1,
-        const C_ext coeff_2,
-        const C_ext coeff_3,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_,
-        cptr<R_ext> evaluation_points_, 
-        const I_ext evaluation_count_
-    )
-    {
-        // Computes
-        //
-        //     C_out = alpha * A * B_in + beta * C_out,
-        //
-        // where B_in and C_out out are matrices of size vertex_count x wave_count_ and
-        // represent the vertex values of  wave_count_ piecewise-linear functions.
-        // The operator A is a linear combination of several operators, depending on kappa:
-        //
-        // A =   coeff_0 * MassMatrix
-        //     + coeff_1 * SingleLayerOp[kappa]
-        //     + coeff_2 * DoubleLayerOp[kappa]
-        //     + coeff_3 * AdjDblLayerOp[kappa]
-        //
-        //
-        
-        CheckInteger<I_ext>();
-        CheckScalars<R_ext,C_ext>();
-        
-        LoadCoefficients(kappa_,coeff_0,coeff_1,coeff_2,coeff_3,wave_count_,wave_chunk_size_);
-        
-        ApplyNearFieldOperators_PL( alpha, B_in, ldB_in, beta, C_out, ldC_out,
-                                    evaluation_points_, evaluation_count_ );
-    }
-
+    /**
+     * Applies the boundary POTENTIAL operators to the input B_in (representing a Ppiecewise linear continuous function on the mesh), i.e. 
+     * Computes C_out = alpha * A * B_in + beta * C_out, and evaluates the result on a set of points (evaluation_points_).
+     *
+     * where B_in and C_out out are matrices of size vertex_count x wave_count_ and
+     * represent the vertex values of  wave_count_ piecewise-linear functions.
+    * The operator A is a linear combination of several operators, depending on kappa:
+     *
+     * A = coeff_(-,1) * SingleLayerOperator
+     *     + coeff(-,2) * DoubleLayerOperator
+     * 
+     * The canonical choices would be alpha = 1 and beta = 0.
+     * 
+     * @tparam I_ext: External integer type.
+     * @tparam R_ext: External Real type.
+     * @tparam C_ext: External Complex type.
+     * @param B_in: Input array of size meas_count*wave_count_ - Herglotz wave kernel.
+     * @param ldB_in: Leading dimension of input. Usually wave_count_. 
+     * @param C_out: Output array.
+     * @param ldC_out: Leading dimension of output. Usually wave_count_. 
+     * @param kappa_list: An (wave_count_/wave_chunk_size_) x 1 complex array representing the wavenumbers.
+     * @param coeff_list: An (wave_count_/wave_chunk_size_) x 4 complex array representing the used combination of operators (by the second and third columns).
+     * @param evaluation_points_: An evaluation_count_ x 3 real array for parsing the evaluation points.
+     */
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
@@ -65,7 +50,8 @@ public:
     }
 
 
-    // Applies the boundary operators in the WEAK FORM to the input pointer
+    /** @brief Applies the boundary potential operators. Assumes that Assumes that 'LoadParameters' has been called before.
+     */ 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,
@@ -106,33 +92,15 @@ public:
             ModifiedB();
             C_loaded = true;
 
-            // TODO: This file is in the Helmholtz_Common directory.
-            // TODO: No OpenCL code should show up here.
+            // initialize evaluation point buffers
+            Real * & evaluation_points_ptr;
+            InitializeEvaluationPointBuffer(evaluation_count, evaluation_points_ptr, evaluation_points_);
+ 
+            // Apply integral operators.
+            NearFieldOperatorKernel( evaluation_points_, evaluation_count, kappa, c );
             
-            //initialize evaluation point buffers
+            UnmapEvaluationPointBuffer(evaluation_points_ptr);
 
-            // TODO: This is an allocation. Where is the corresponding deallocation?
-            // TODO: In principle, this can be allocated several times, no?
-            // TODO: So is there a memory leak?
-            cl_mem evaluation_points_pin = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, 4 * evaluation_count * sizeof(Real), nullptr, &ret);
-
-            Real * evaluation_points_ptr = (Real*)clEnqueueMapBuffer(command_queue, evaluation_points_pin, CL_TRUE, CL_MAP_WRITE, 0, 4 * evaluation_count * sizeof(Real), 0, nullptr, nullptr, nullptr);
-
-            ParallelDo(
-                [=]( const Int i )
-                {
-                    evaluation_points_ptr[4*i+0] = static_cast<Real>(evaluation_points_[3*i+0]);
-                    evaluation_points_ptr[4*i+1] = static_cast<Real>(evaluation_points_[3*i+1]);
-                    evaluation_points_ptr[4*i+2] = static_cast<Real>(evaluation_points_[3*i+2]);
-                    evaluation_points_ptr[4*i+3] = zero;
-                },
-                evaluation_count, CPU_thread_count
-            );
-                    
-            // Apply off-diagonal part of integral operators.
-            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count, kappa, c );
-
-            
             combine_matrices(
                 alpha, C_ptr, wave_count,
                 beta,  C_out, ldC,

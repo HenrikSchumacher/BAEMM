@@ -10,7 +10,6 @@ namespace BAEMM
         Radial = 202
     };
     
-    
     template<typename I>
     inline void CheckInteger()
     {
