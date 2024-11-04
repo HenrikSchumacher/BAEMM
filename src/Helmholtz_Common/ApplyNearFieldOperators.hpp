@@ -50,7 +50,7 @@ public:
     }
 
 
-    /** @brief Applies the boundary potential operators. Assumes that Assumes that 'LoadParameters' has been called before.
+    /** Applies the boundary potential operators. Assumes that Assumes that 'LoadParameters' has been called before.
      */ 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
