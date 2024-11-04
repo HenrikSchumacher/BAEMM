@@ -7,8 +7,8 @@ public:
      * represent the vertex values of  wave_count_ piecewise-linear functions.
     * The operator A is a linear combination of several operators, depending on kappa:
      *
-     * A = coeff_(-,1) * HerglotzWave
-     *     + coeff(-,2) * dHerglotzWave/dn
+     * A = coeff_list(.,1) * HerglotzWave
+     *     + coeff_list(.,2) * dHerglotzWave/dn
      * 
      * The canonical choices would be alpha = 1 and beta = 0.
      * 
@@ -45,7 +45,7 @@ public:
 
 
     /**
-     * @brief Creates wave_count herglotz waves with some parsed kernel in the WEAK FORM (in the sense of piecewise linear continuous functions) under the assumption that Assumes that 'LoadParameters' has been called before.
+     * Creates wave_count herglotz waves with some parsed kernel in the WEAK FORM (in the sense of piecewise linear continuous functions) under the assumption that Assumes that 'LoadParameters' has been called before.
      */
     template<typename C_ext, typename I_ext>
     void CreateHerglotzWave_PL(

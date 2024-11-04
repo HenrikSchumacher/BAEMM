@@ -50,7 +50,7 @@ public:
     }
 
     /**
-     *  @brief Creates wave_count incident waves (either planar or radial) for the scattering problem in the WEAK FORM. Assumes that Assumes that 'LoadParameters' has been called before. */
+     *  Creates wave_count incident waves (either planar or radial) for the scattering problem in the WEAK FORM. Assumes that Assumes that 'LoadParameters' has been called before. */
     template<typename R_ext,typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
         const C_ext alpha, cptr<R_ext> incident_directions_,

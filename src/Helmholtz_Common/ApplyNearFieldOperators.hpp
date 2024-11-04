@@ -8,8 +8,8 @@ public:
      * represent the vertex values of  wave_count_ piecewise-linear functions.
     * The operator A is a linear combination of several operators, depending on kappa:
      *
-     * A = coeff_(-,1) * SingleLayerOperator
-     *     + coeff(-,2) * DoubleLayerOperator
+     * A = coeff_list(.,1) * SingleLayerOperator
+     *     + coeff_list(.,2) * DoubleLayerOperator
      * 
      * The canonical choices would be alpha = 1 and beta = 0.
      * 

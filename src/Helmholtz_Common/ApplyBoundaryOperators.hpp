@@ -6,10 +6,10 @@ public:
      * represent the vertex values of  wave_count_ piecewise-linear functions.
     * The operator A is a linear combination of several operators, depending on kappa:
      *
-     * A = coeff_(-,0) * MassMatrix
-     *     + coeff_(-,1) * SingleLayerOperator
-     *     + coeff(-,2) * DoubleLayerOperator
-     *     + coeff(-,3) * AdjointDoubleLayerOperator
+     * A = coeff_list(.,0) * MassMatrix
+     *     + coeff_list(.,1) * SingleLayerOperator
+     *     + coeff_list(.,2) * DoubleLayerOperator
+     *     + coeff_list(.,3) * AdjointDoubleLayerOperator
      * 
     * @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
     * @tparam I_ext: External integer type.
@@ -70,7 +70,7 @@ public:
         UnloadBoundaryOperatorKernel_PL();
     }
 
-    /** @brief Applies the boundary operators in the WEAK FORM to the input pointer.
+    /** Applies the boundary operators in the WEAK FORM to the input pointer.
     * Assumes that `LoadBoundaryOperators_PL` has been called before.
     */
     template<Int WC = VarSize, typename C_ext, typename I_ext>

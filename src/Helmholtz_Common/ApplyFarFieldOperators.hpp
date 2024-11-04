@@ -8,8 +8,8 @@ public:
      * represent the vertex values of  wave_count_ piecewise-linear functions.
     * The operator A is a linear combination of several operators, depending on kappa:
      *
-     * A = coeff_(-,1) * SingleLayerFarFieldMap
-     *     + coeff(-,2) * DoubleLayerFarFieldMap
+     * A = coeff_list(.,1) * SingleLayerFarFieldMap
+     *     + coeff_list(.,2) * DoubleLayerFarFieldMap
      * 
      * The canonical choices would be alpha = 1 and beta = 0.
      * 
@@ -44,7 +44,7 @@ public:
     }
 
 
-    /** @brief Applies the boundary to farfield operators to the input pointer. Assumes that 'LoadParameters' has been called before. */
+    /** pplies the boundary to farfield operators to the input pointer. Assumes that 'LoadParameters' has been called before. */
     template<Int WC = VarSize, typename C_ext, typename I_ext>
     void ApplyFarFieldOperators_PL(
         const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in_,

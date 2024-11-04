@@ -12,7 +12,7 @@ public:
     /** 
 * The function FarField gives back an array representing the far field induced by a set of incident plane waves, wavenumbers and evaluated at the measuremnt points specified when created the class Helmholtz_OpenCL.
 * 
-* @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+* @tparam WC: Number of right hand sides for the used GMRES and CG algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
 * @tparam I_ext: External integer type.
 * @tparam R_ext: External Real type.
 * @tparam C_ext: External Complex type.
@@ -73,7 +73,7 @@ public:
     /**
      * Same as FarField, but with free coice of coupling parameter
      * 
-     * @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+     * @tparam WC: Number of right hand sides for the used GMRES and CG algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
      * @tparam I_ext: External integer type.
      * @tparam R_ext: External Real type.
      * @tparam C_ext: External Complex type.
@@ -84,8 +84,8 @@ public:
      * @param Y_out: Complex output array of size  (meas_count) x (wave_chunk_count_ * wave_chunk_size_).
      * @param type: Flag specifying if the incoming wave is radial or planar.
      * @param eta: Coupling parameter for integral equations.
-     * @param cg_tol:  Tolerance for the CG-solver to invert the mass matrix.
-     * @param gmres_tol: Tolerance for the GMRES-solver to solve the boundary integral equations.
+     * @param cg_tol:  Tolerance for the CG solver to invert the mass matrix.
+     * @param gmres_tol: Tolerance for the GMRES solver to solve the boundary integral equations.
      */
     template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
     void FarField_parameters(
@@ -209,7 +209,7 @@ public:
     /** 
 * The function Derivative_FF calculates the directional derivative of the boundary-to-far field map. Again with a fixed set of incident plane waves, wavenumbers and evaluated at the measuremnt points specified when created the class Helmholtz_OpenCL.
 * 
-* @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+* @tparam WC: Number of right hand sides for the used GMRES and CG algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
 * @tparam I_ext: External integer type.
 * @tparam R_ext: External Real type.
 * @tparam C_ext: External Complex type.
@@ -221,8 +221,8 @@ public:
 * @param Y_out: Complex output array of size  (meas_count) x (wave_chunk_count_ * wave_chunk_size_).
 * @param du_dn: The Neumann-data of the total solution to the Helmholtz equation. If not available, pass as du_dn=nullptr. The function will then save the correct Neumann data in du_dn.
 * @param type: Flag specifying if the incoming wave is radial or planar.
-* @param cg_tol:  Tolerance for the CG-solver to invert the mass matrix.
-* @param gmres_tol: Tolerance for the GMRES-solver to solve the boundary integral equations.
+* @param cg_tol:  Tolerance for the CG solver to invert the mass matrix.
+* @param gmres_tol: Tolerance for the GMRES solver to solve the boundary integral equations.
 */
     template<Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext>
     void Derivative_FF(
@@ -324,7 +324,7 @@ public:
     /** 
 * The function AdjointDerivative_FF calculates the action of L^2-adjoint map to the directional derivative of the boundary-to-far field map. Again with a set of incident plane waves and wavenumbers. The input array (X_in) represents an element in L^2(S^2), evaluated at the measuremnt points specified when created the class Helmholtz_OpenCL.
 *
-* @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+* @tparam WC: Number of right hand sides for the used GMRES and CG algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
 * @tparam I_ext: External integer type.
 * @tparam R_ext: External Real type.
 * @tparam C_ext: External Complex type.
@@ -336,8 +336,8 @@ public:
 * @param Y_out: Complex output array of size  (vertex_count) x 3.
 * @param du_dn: The Neumann-data of the total solution to the Helmholtz equation. If not available, pass as du_dn=nullptr. The function will then save the correct Neumann data in du_dn.
 * @param type: Flag specifying if the incoming wave is radial or planar.
-* @param cg_tol:  Tolerance for the CG-solver to invert the mass matrix.
-* @param gmres_tol: Tolerance for the GMRES-solver to solve the boundary integral equations.
+* @param cg_tol:  Tolerance for the CG solver to invert the mass matrix.
+* @param gmres_tol: Tolerance for the GMRES solver to solve the boundary integral equations.
 */
     template<Int WC, typename I_ext, typename R_ext, typename C_ext>
     void AdjointDerivative_FF(
@@ -434,7 +434,7 @@ public:
      * X = alpha (DF^T/DF + M)^{-1}.B + beta * X 
      * for some input B. Thus ^the function can be used to compute Gauss-Newton Steps. Note that the M is supposed to be implemented representing a bilinear map with respect to the Frobenius inner product. 
      * 
-     * * @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+     * @tparam WC: Number of right hand sides for the used GMRES and CG algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
     * @tparam I_ext: External integer type.
     * @tparam R_ext: External Real type.
     * @tparam C_ext: External Complex type.
@@ -450,9 +450,9 @@ public:
     * @param X_out: Complex output array of size  (vertex_count) x 3.
     * @param du_dn: The Neumann-data of the total solution to the Helmholtz equation. If not available, pass as du_dn=nullptr. The function will then save the correct Neumann data in du_dn.
     * @param type: Flag specifying if the incoming wave is radial or planar.
-    * @param cg_tol:  Tolerance for the CG-solver to invert the mass matrix.
-    * @param gmres_tol_inner: Tolerance for the GMRES-solver to solve the boundary integral equations.
-    * @param gmres_tol_outer: Tolerance for the GMRES-solver to solve (DF^T/DF + M)^{-1}.B.
+    * @param cg_tol:  Tolerance for the CG solver to invert the mass matrix.
+    * @param gmres_tol_inner: Tolerance for the GMRES solver to solve the boundary integral equations.
+    * @param gmres_tol_outer: Tolerance for the GMRES solver to solve (DF^T/DF + M)^{-1}.B.
      */
     template<Int WC,
         typename I_ext, typename R_ext, typename C_ext,

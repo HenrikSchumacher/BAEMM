@@ -35,7 +35,7 @@ namespace BAEMM
         // OpenCL utilities
         cl_int ret; /**< return value of the OpenCL commands for bug identification*/
         
-        cl_device_id device_id = nullptr; /**< Parse the ID of desired GPU-device. Always an integer. For instance: if you have multiple Nvidia CUDA GPUs use the bash command 'nvidia-smi' to get the information. */
+        cl_device_id device_id = nullptr; /**< Parse the ID of desired GPU-device. */
         cl_context context; /**< Global context for command queues. */
         
         cl_kernel bdr_kernel;    /**< Globally saved OpenCL Kernel for the boundary operator.*/
@@ -155,8 +155,21 @@ namespace BAEMM
             clEnqueueWriteBuffer(command_queue,meas_directions,CL_FALSE,0,4 * meas_count    * sizeof(Real),meas_directions_ptr,0,nullptr,nullptr);
         }
         
+        /**
+         * @brief Construct a new Helmholtz_OpenCL object.
+         * 
+         * @tparam ExtReal: External Real precision. We recommend double precision.
+         * @tparam ExtInt: External Int type.
+         * @param vertex_coords_: vertex_count_ x 3 real array containing the coordinates of the vertices. 
+         * @param vertex_count_: Number of vertices of the parsed mesh. 
+         * @param triangles_: simplex_count_ x 3 integer array representing the connectivity list of the mesh.
+         * @param simplex_count_: Number of simplices of the parsed mesh. 
+         * @param meas_directions_: meas_count_ x 3 real array storing the measurement directions on the S^2 for the far field.
+         * @param meas_count_: Number of measurement directions on the S^2 for the far field. 
+         * @param device_num: The ID of desired GPU-device. Always an integer. For instance: if you have multiple Nvidia CUDA GPUs use the bash command 'nvidia-smi' to get the information.
+         * @param CPU_thread_count_: Number of threads the CPU shall use. 
+         */
         template<typename ExtReal,typename ExtInt>
-
         Helmholtz_OpenCL(
             cptr<ExtReal> vertex_coords_, ExtInt vertex_count_,
             cptr<ExtInt>  triangles_    , ExtInt simplex_count_,
