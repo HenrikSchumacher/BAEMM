@@ -1,102 +1,33 @@
 # BÄMM!
 BÄMM! - a brute force approach for the boundary element method
 
-Operator application:
-In the following we use the following typename aliases:
-    C_ext: user defined complex type
-    R_ext: user defined real type
-    I_ext: user defined int type
+This is a first-order boundary-element solver for the three-dimensional acoustic Helmholtz problem. In the sake of simplicity, the library only features piecewise linear, continuous boundary functions.
 
-Boundary operators:
-    For single uses of the operator, you apply the boundary operators normally on a PL-function by calling
+Helmholtz_OpenCL, Helmholtz_Metal and Helmholtz_CPU allow to apply the mass matrix, the single-layer boundary operator, the double-layer boundary operator and its adjoint to a piecewise linear, continuous function on a mesh, i.e. a function defined by its valuces at the vertices. For examples look into the respective Example*-folders.
 
-    ApplyBoundaryOperators_PL(
-        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_
-    )
+Additionally, in Helmholtz_OpenCL the far field map, the near field map and the herglotz wave function are implemented. This can be adapted to the other libraries as needed.
+The far field operator, its directional derivative and the $L^2$-adjoint of its directional derivative are implemented in FarField.hpp (as pointed out above, at this stage only available for Helmholtz_OpenCL). To solve the Helmholtz problem, we use the mixed indirect potential approach. The routine GaussNewton calculates (M + DF*DF)^{-1} for M to be a scaled metric operator.
 
-    Here, kappa_list has length 
-    wave_chunk_count = wave_count_/wave_chunk_size
-    and coeff list is a 2D-array of size wave_chunk_count x 4 (where the coulumns represent the factors of M,SL,DL,adjDL). M denotes the PL mass matrix.
-    This function loads the latter parameters into global scope, compiles the kernel, applies the resulting operator to B_in and copies the result into C_out.
-    Note that this is the weak form, hence for the strong form one has to apply M^(-1) to the result.
+For a detailed documentation open documentation/annotated in your browser.
 
-    (Only OpenCL)
-    For multiple uses of the SAME operator (as for instance in a linear solver) there is another way to apply the kernel:
+# Download/Installation
 
-    kernel_list LoadBoundaryOperators_PL(
-        const R_ext * kappa_,
-        const C_ext * c_,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_  
-    ) 
+Either clone with
 
-    Loads the kernel, compiles, uploads the constant buffers and returns a struct with the buffer information.
+    git clone --recurse-submodules
 
-    Then,
+or clone as usual and then run the following to connect all submodules to their repos.
 
-    void ApplyBoundaryOperators_PL(
-        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out
-    )
-    
-    is the reduced application of the boundary operators to this fixed environment.
-    IMPORTANT: after being finished with the kernel one also has to "destroy it to release the device buffers by calling:
+    git submodule update --init --recursive
 
-    void UnoadBoundaryOperators_PL(
-        kernel_list* list
-    )
+_BAEMM_ is header-only, so you do not have to precompile anything and thus you also find no makefile here. Just include
 
+    #include "Helmholtz_OpenCL.hpp"
+or
+    #include "Helmholtz_Metal.hpp"
+or
+    #include "Helmholtz_CPU.hpp"
 
-Boundary to Farfield map:
+and tell your compiler where to find it. For the former ones you also need to link the respective libraries to use OpenCL or Metal.
 
-    The application works quite exactly as for the boundary operators:
-
-    ApplyFarFieldOperators_PL(
-        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_
-    )
-
-    Note that as there are only single- and double layer far field operators, the coefficients in the "mass" and the "adjoint DL" rows of coeff_list will be ignored.
-
-Wave function assembly:
-
-    For the (CPU) assembly of the standard incident waves with entries (c[1] + i*k*c[2]*<d,n>)*e^(i*k*<d,x>) one uses
-
-    template<typename R_ext, typename C_ext, typename I_ext>
-    void CreateIncidentWave_PL(
-        const C_ext alpha, cptr<R_ext> incident_directions,  const I_ext inc_count,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_
-    )
-
-    where inc_count = wave chunk_count is necessary and excess wave vectors will be ignored.
-
-    To assemble a Herglotz wave function with kernel B_in via the GPU one needs to call
-
-    template<typename R_ext, typename C_ext, typename I_ext>
-    void CreateHerglotzWave_PL(
-        const C_ext alpha, cptr<C_ext> B_in,  const I_ext ldB_in,
-        const C_ext beta,  mptr<C_ext> C_out, const I_ext ldC_out,
-        const R_ext * kappa_list,
-        const C_ext * coeff_list,
-        const I_ext wave_count_,
-        const I_ext wave_chunk_size_
-    )
-
-    coeff[:][0] and coeff[:][3] will again be ignored for all wave assemblies.
-
-Far Field Operators:
-The far field operator, its directional derivative and the $L^2$-adjoint of its directional derivative are implemented in FarField.hpp. The routine GaussNewton calculates (M + DF*DF)^{-1} for M to be a scaled metric operator.
-Also there are executables in the "main" folder for the direct application from "ouside". They read their data from data.txt (which contains data as specified in WriteFiles), simplices.bin, meas_direction.bin and coords.bin and the differential operators read their input from B.bin. The result is again written to B.bin. GaussNewtonStep calculates (regpar*M + DF*DF)^{-1}(-1)(DF*(res) + regpar * DE) for the Tangent-Point-Energy and a proper metric.
+As the Lirary depends on the _Repulsor_ library (https://github.com/HenrikSchumacher/Repulsor.git), we refer to its documentation for further linkages and compiler options needed.
