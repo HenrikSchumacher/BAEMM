@@ -16,7 +16,10 @@ public:
         mid_points_ptr      = (Real*)clEnqueueMapBuffer(command_queue, mid_points_pin,      CL_TRUE, CL_MAP_WRITE, 0, size4,   0, nullptr, nullptr, nullptr);
         normals_ptr         = (Real*)clEnqueueMapBuffer(command_queue, normals_pin,         CL_TRUE, CL_MAP_WRITE, 0, size4,   0, nullptr, nullptr, nullptr);
         meas_directions_ptr = (Real*)clEnqueueMapBuffer(command_queue, meas_directions_pin, CL_TRUE, CL_MAP_WRITE, 0, msize4,  0, nullptr, nullptr, nullptr);
-                                            
+        areas_ptr           = (Real*)malloc(size);
+        single_diag_ptr     = (Real*)malloc(size);
+        tri_coords_ptr      = (Real*)malloc(3 * size4);
+        
         // copy measurement directions
         
         ParallelDo(
