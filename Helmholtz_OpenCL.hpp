@@ -237,6 +237,10 @@ namespace BAEMM
             //clean up
             
             ReleaseParameters();
+
+            free(areas_ptr);
+            free(single_diag_ptr);
+            free(tri_coords_ptr);
             
             ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,nullptr,nullptr);
