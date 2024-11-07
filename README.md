@@ -1,7 +1,7 @@
 # BÄMM!
 BÄMM! - a brute force approach for the boundary element method
 
-This is a first-order boundary-element solver for the three-dimensional acoustic Helmholtz problem. In the sake of simplicity, the library only features piecewise linear, continuous boundary functions.
+This is a GPU-accelerated first-order boundary-element solver for the three-dimensional acoustic Helmholtz problem. In the sake of simplicity, the library only features piecewise linear, continuous boundary functions.
 
 Helmholtz_OpenCL, Helmholtz_Metal and Helmholtz_CPU allow to apply the mass matrix, the single-layer boundary operator, the double-layer boundary operator and its adjoint to a piecewise linear, continuous function on a mesh, i.e. a function defined by its valuces at the vertices. For examples look into the respective Example*-folders.
 
