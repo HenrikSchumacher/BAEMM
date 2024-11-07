@@ -30,4 +30,4 @@ or
 
 and tell your compiler where to find it. For the former ones you also need to link the respective libraries to use OpenCL or Metal.
 
-As the Lirary depends on the _Repulsor_ library (https://github.com/HenrikSchumacher/Repulsor.git), we refer to its documentation for further linkages and compiler options needed.
+As _BÄMM_ depends on the _Repulsor_ library (https://github.com/HenrikSchumacher/Repulsor.git), we refer to its documentation for further linkages and compiler options needed.
