@@ -23,9 +23,13 @@ or clone as usual and then run the following to connect all submodules to their 
 _BAEMM_ is header-only, so you do not have to precompile anything and thus you also find no makefile here. Just include
 
     #include "Helmholtz_OpenCL.hpp"
+
 or
+
     #include "Helmholtz_Metal.hpp"
+
 or
+
     #include "Helmholtz_CPU.hpp"
 
 and tell your compiler where to find it. For the former ones you also need to link the respective libraries to use OpenCL or Metal.
