@@ -144,14 +144,6 @@ template&lt;typename S , typename T , typename I &gt; </td></tr>
 template&lt;typename R_ext &gt; </td></tr>
 <tr class="memitem:a231f543f160822183874052c7947b5bf"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InitializeBuffers</b> (Int simplex_count, cptr&lt; R_ext &gt; meas_directions_)</td></tr>
 <tr class="separator:a231f543f160822183874052c7947b5bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c4dd9a67736c95efaef9850ac481ed6" id="r_a3c4dd9a67736c95efaef9850ac481ed6"><td class="memTemplParams" colspan="2"><a id="a3c4dd9a67736c95efaef9850ac481ed6" name="a3c4dd9a67736c95efaef9850ac481ed6"></a>
-template&lt;typename R_ext &gt; </td></tr>
-<tr class="memitem:a3c4dd9a67736c95efaef9850ac481ed6"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InitializeEvaluationPointBuffer</b> (Int evaluation_count, Real *&amp;evaluation_points_ptr, cptr&lt; R_ext &gt; evaluation_points_)</td></tr>
-<tr class="separator:a3c4dd9a67736c95efaef9850ac481ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45640f5b85c5b6a448a9664bcbd176f8" id="r_a45640f5b85c5b6a448a9664bcbd176f8"><td class="memTemplParams" colspan="2"><a id="a45640f5b85c5b6a448a9664bcbd176f8" name="a45640f5b85c5b6a448a9664bcbd176f8"></a>
-template&lt;typename R_ext &gt; </td></tr>
-<tr class="memitem:a45640f5b85c5b6a448a9664bcbd176f8"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>UnmapEvaluationPointBuffer</b> (Real *&amp;evaluation_points_ptr)</td></tr>
-<tr class="separator:a45640f5b85c5b6a448a9664bcbd176f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31fb202d59407ef533397c3abe2cde21" id="r_a31fb202d59407ef533397c3abe2cde21"><td class="memItemLeft" align="right" valign="top"><a id="a31fb202d59407ef533397c3abe2cde21" name="a31fb202d59407ef533397c3abe2cde21"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> ()</td></tr>
 <tr class="separator:a31fb202d59407ef533397c3abe2cde21"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -324,15 +316,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>IncidentWaveKernel_Ra
 <tr class="memitem:a677e505bc253ece24edd6f3f47f43b20" id="r_a677e505bc253ece24edd6f3f47f43b20"><td class="memTemplParams" colspan="2">template&lt;typename C_ext , typename I_ext &gt; </td></tr>
 <tr class="memitem:a677e505bc253ece24edd6f3f47f43b20"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a677e505bc253ece24edd6f3f47f43b20">CreateHerglotzWave_PL</a> (const C_ext alpha, cptr&lt; C_ext &gt; B_in, const I_ext ldB_in_, const C_ext beta, mptr&lt; C_ext &gt; C_out, const I_ext ldC_out_)</td></tr>
 <tr class="separator:a677e505bc253ece24edd6f3f47f43b20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a916f6ac9989b580ca4432e429a1cdc6c" id="r_a916f6ac9989b580ca4432e429a1cdc6c"><td class="memItemLeft" align="right" valign="top"><a id="a916f6ac9989b580ca4432e429a1cdc6c" name="a916f6ac9989b580ca4432e429a1cdc6c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>FarFieldOperatorKernel</b> (const WaveNumberContainer_T &amp;kappa_, const CoefficientContainer_T &amp;c_)</td></tr>
-<tr class="separator:a916f6ac9989b580ca4432e429a1cdc6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af86ca151920f573a5db91d82d5a07309" id="r_af86ca151920f573a5db91d82d5a07309"><td class="memItemLeft" align="right" valign="top"><a id="af86ca151920f573a5db91d82d5a07309" name="af86ca151920f573a5db91d82d5a07309"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>NearFieldOperatorKernel</b> (cptr&lt; Real &gt; evaluation_points_ptr, const Int evaluation_count_, const WaveNumberContainer_T &amp;kappa_, const CoefficientContainer_T &amp;c_)</td></tr>
-<tr class="separator:af86ca151920f573a5db91d82d5a07309"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a116d8fe5e756e737c78f25b9f6746f37" id="r_a116d8fe5e756e737c78f25b9f6746f37"><td class="memItemLeft" align="right" valign="top"><a id="a116d8fe5e756e737c78f25b9f6746f37" name="a116d8fe5e756e737c78f25b9f6746f37"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>HerglotzWaveKernel</b> (const WaveNumberContainer_T &amp;kappa_, const CoefficientContainer_T &amp;c_)</td></tr>
-<tr class="separator:a116d8fe5e756e737c78f25b9f6746f37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a989322177d9154b156436e864f571600" id="r_a989322177d9154b156436e864f571600"><td class="memItemLeft" align="right" valign="top"><a id="a989322177d9154b156436e864f571600" name="a989322177d9154b156436e864f571600"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>FarFieldOperatorKernel</b> ()</td></tr>
+<tr class="separator:a989322177d9154b156436e864f571600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbc208fe42a630168ad3b9d866b4c2ae" id="r_afbc208fe42a630168ad3b9d866b4c2ae"><td class="memItemLeft" align="right" valign="top"><a id="afbc208fe42a630168ad3b9d866b4c2ae" name="afbc208fe42a630168ad3b9d866b4c2ae"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>NearFieldOperatorKernel</b> (Real *evaluation_points_ptr, const Int evaluation_count_)</td></tr>
+<tr class="separator:afbc208fe42a630168ad3b9d866b4c2ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fad50b6f1ece45b9f628c22d182a8ad" id="r_a5fad50b6f1ece45b9f628c22d182a8ad"><td class="memItemLeft" align="right" valign="top"><a id="a5fad50b6f1ece45b9f628c22d182a8ad" name="a5fad50b6f1ece45b9f628c22d182a8ad"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>HerglotzWaveKernel</b> ()</td></tr>
+<tr class="separator:a5fad50b6f1ece45b9f628c22d182a8ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a559c20a74346a83d7eb1ff1dce7ab74b" id="r_a559c20a74346a83d7eb1ff1dce7ab74b"><td class="memTemplParams" colspan="2"><a id="a559c20a74346a83d7eb1ff1dce7ab74b" name="a559c20a74346a83d7eb1ff1dce7ab74b"></a>
 template&lt;typename T , typename I &gt; </td></tr>
 <tr class="memitem:a559c20a74346a83d7eb1ff1dce7ab74b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>HadamardProduct</b> (cptr&lt; T &gt; A, cptr&lt; T &gt; B, mptr&lt; T &gt; C, I rows, I columns, bool ld_sum)</td></tr>
@@ -414,8 +406,6 @@ cl_command_queue&#160;</td><td class="memItemRight" valign="bottom"><b>command_q
 <tr class="separator:a571080e1501a7e381252553df2fd42c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cc482250d2b5ee8c433752ed5f97634" id="r_a7cc482250d2b5ee8c433752ed5f97634"><td class="memItemLeft" align="right" valign="top">cl_mem&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7cc482250d2b5ee8c433752ed5f97634">meas_directions_pin</a> = nullptr</td></tr>
 <tr class="separator:a7cc482250d2b5ee8c433752ed5f97634"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab97d38addb33593bd69272f2c22ecac" id="r_aab97d38addb33593bd69272f2c22ecac"><td class="memItemLeft" align="right" valign="top">cl_mem&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab97d38addb33593bd69272f2c22ecac">evaluation_points_pin</a> = nullptr</td></tr>
-<tr class="separator:aab97d38addb33593bd69272f2c22ecac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a903b9cbbc2c41b567cfa3f0863e23465" id="r_a903b9cbbc2c41b567cfa3f0863e23465"><td class="memItemLeft" align="right" valign="top">cl_mem&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a903b9cbbc2c41b567cfa3f0863e23465">B_buf_pin</a> = nullptr</td></tr>
 <tr class="separator:a903b9cbbc2c41b567cfa3f0863e23465"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ab9b1de7dc7c32027d3f74313808606" id="r_a2ab9b1de7dc7c32027d3f74313808606"><td class="memItemLeft" align="right" valign="top">cl_mem&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2ab9b1de7dc7c32027d3f74313808606">C_buf_pin</a> = nullptr</td></tr>
@@ -2374,21 +2364,6 @@ template&lt;typename R_ext , typename C_ext , typename I_ext &gt; </div>
       </table>
 </div><div class="memdoc">
 <p>Parse the ID of desired GPU-device. </p>
-
-</div>
-</div>
-<a id="aab97d38addb33593bd69272f2c22ecac" name="aab97d38addb33593bd69272f2c22ecac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aab97d38addb33593bd69272f2c22ecac">&#9670;&#160;</a></span>evaluation_points_pin</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">cl_mem BAEMM::Helmholtz_OpenCL::evaluation_points_pin = nullptr</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Pinned buffer for evaluation points on host-device </p>
 
 </div>
 </div>
