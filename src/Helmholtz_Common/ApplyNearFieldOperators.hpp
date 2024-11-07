@@ -93,19 +93,29 @@ public:
             C_loaded = true;
 
             // initialize evaluation point buffers
-            Real * & evaluation_points_ptr;
-            InitializeEvaluationPointBuffer(evaluation_count, evaluation_points_ptr, evaluation_points_);
+            Real * evaluation_points_ptr = (Real*)malloc(4 * evaluation_count * sizeof(Real));
+
+            ParallelDo(
+                [=]( const Int i )
+                {
+                    evaluation_points_ptr[4*i+0] = static_cast<Real>(evaluation_points_[3*i+0]);
+                    evaluation_points_ptr[4*i+1] = static_cast<Real>(evaluation_points_[3*i+1]);
+                    evaluation_points_ptr[4*i+2] = static_cast<Real>(evaluation_points_[3*i+2]);
+                    evaluation_points_ptr[4*i+3] = zero;
+                },
+                evaluation_count, CPU_thread_count
+            );
  
             // Apply integral operators.
-            NearFieldOperatorKernel( evaluation_points_, evaluation_count, kappa, c );
-            
-            UnmapEvaluationPointBuffer(evaluation_points_ptr);
+            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count );
 
             combine_matrices(
                 alpha, C_ptr, wave_count,
                 beta,  C_out, ldC,
                 evaluation_count, wave_count, CPU_thread_count                                                                                     
             );
+
+            free(evaluation_points_ptr);
         }
         
         ptoc(ClassName()+"::ApplyNearFieldOperators_PL");

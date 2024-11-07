@@ -11,10 +11,8 @@ private:
     Tensor1<Real,Int> areas_lumped_inv;
 
     WaveNumberContainer_T kappa;
-    WaveNumberContainer_T kappa3;
     
     CoefficientContainer_T c;
-    CoefficientContainer_T c3;
 
     Real * restrict areas_ptr           = nullptr;
     Real * restrict mid_points_ptr      = nullptr;

@@ -40,7 +40,7 @@ int main()
 
 //    std::string mesh_name { "Triceratops_00081920T" };
     std::string mesh_name { "Triceratops_12_00081920T" };
-    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };

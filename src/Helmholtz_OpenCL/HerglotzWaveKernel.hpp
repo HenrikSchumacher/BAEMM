@@ -1,32 +1,21 @@
 public:
 
     // kernel host code for the Herglotz wave function with kernel conj(g) (which is saved in B_ptr) evaluated on the triangle midpoints
-    int HerglotzWaveKernel(
-        const WaveNumberContainer_T  & kappa_,
-        const CoefficientContainer_T & c_
-    )
+    int HerglotzWaveKernel()
     {
         std::string tag = ClassName() +"::HerglotzWaveKernel";
         
         ptic(tag);
         
-        if( kappa_.Dimension(0) != wave_chunk_count )
+        if( kappa.Dimension(0) != wave_chunk_count )
         {
             eprint(tag + ": kappa_.Dimension(0) != wave_chunk_count.");
         }
         
-        if( c_.Dimension(0) != wave_chunk_count )
+        if( c.Dimension(0) != wave_chunk_count )
         {
             eprint(tag + ": c_.Dimension(0) != wave_chunk_count.");
         }
-        
-        // Allocate local host pointers for the device buffers to use.
-        // Henrik: I am not sure whether this is necessary.
-        Tensor1<Real,Int> Kappa ( wave_chunk_count );
-        kappa_.Write(Kappa.data());
-        
-        Tensor2<Complex,Int> Coeff ( wave_chunk_count, 4 );
-        c_.Write(Coeff.data());
 
         int n = simplex_count;
         int m = meas_count;
@@ -59,15 +48,25 @@ public:
         std::size_t source_size = source.size();
 
         // Create the rest of the memory buffers on the device for each vector
-        cl_mem d_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,     wave_chunk_count * sizeof(Real),    Kappa.data(), &ret );
-        cl_mem d_coeff      = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 4 * wave_chunk_count * sizeof(Complex), Coeff.data(), &ret );
-        cl_mem d_n          = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &n,           &ret );
-        cl_mem d_m          = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &m,           &ret );
-        cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(int),                            &wave_count,  &ret );
+        ptic(tag + ": clCreateBuffer");
+        cl_mem d_kappa      = clCreateBuffer(context, CL_MEM_READ_ONLY, wave_chunk_count * sizeof(Real),        nullptr, &ret);
+        cl_mem d_coeff      = clCreateBuffer(context, CL_MEM_READ_ONLY, 4 * wave_chunk_count * sizeof(Complex), nullptr, &ret);
+        cl_mem d_n          = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
+        cl_mem d_m          = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
+        cl_mem d_wave_count = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Int),                            nullptr, &ret);
+        ptoc(tag + ": clCreateBuffer");
 
         // write to buffers
+        ptic(tag + ": clEnqueueWriteBuffer");
+        clEnqueueWriteBuffer(command_queue, d_kappa,            CL_FALSE, 0, wave_chunk_count * sizeof(Real),        kappa.data(),          0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_coeff,            CL_FALSE, 0, 4 * wave_chunk_count * sizeof(Complex), c.data(),              0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_n,                CL_FALSE, 0, sizeof(Int),                            &n,                    0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_m,                CL_FALSE, 0, sizeof(Int),                            &m,                    0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, d_wave_count,       CL_FALSE, 0, sizeof(Int),                            &wave_count,           0, nullptr, nullptr);
+
         clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, m * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);
-            
+        ptoc(tag + ": clEnqueueWriteBuffer");
+
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
 

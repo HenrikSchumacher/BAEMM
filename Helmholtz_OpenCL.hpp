@@ -59,7 +59,6 @@ namespace BAEMM
         cl_mem mid_points_pin      = nullptr; /**< Pinned buffer for midpoints on host-device */
         cl_mem normals_pin         = nullptr; /**< Pinned buffer for normals on host-device */
         cl_mem meas_directions_pin = nullptr; /**< Pinned buffer for measurement directions on host-device */
-        cl_mem evaluation_points_pin = nullptr; /**< Pinned buffer for evaluation points on host-device */
         
         cl_mem B_buf_pin           = nullptr; /**< Pinned buffer for input on host-device */
         cl_mem C_buf_pin           = nullptr; /**< Pinned buffer for output on host-device */
@@ -250,6 +249,10 @@ namespace BAEMM
             //clean up
             
             ReleaseParameters();
+
+            free(areas_ptr);
+            free(single_diag_ptr);
+            free(tri_coords_ptr);
             
             ret = clEnqueueUnmapMemObject(command_queue,mid_points_pin,     (void*)mid_points_ptr,     0,nullptr,nullptr);
             ret = clEnqueueUnmapMemObject(command_queue,normals_pin,        (void*)normals_ptr,        0,nullptr,nullptr);

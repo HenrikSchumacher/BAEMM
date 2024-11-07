@@ -92,7 +92,7 @@ public:
             ModifiedB();
             C_loaded = true;
             
-            FarFieldOperatorKernel( kappa, c );
+            FarFieldOperatorKernel();
 
             combine_matrices_auto<VarSize,WC,Parallel>(
                 static_cast<Complex>(alpha), C_ptr, ldC,

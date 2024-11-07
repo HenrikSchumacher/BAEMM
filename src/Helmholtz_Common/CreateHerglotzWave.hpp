@@ -82,7 +82,7 @@ public:
             ModifiedB();
             C_loaded = true;    
 
-            HerglotzWaveKernel( kappa, c );
+            HerglotzWaveKernel();
         
             // use transpose averaging operator to get from PC to PL boundary functions
             AvOpTransp.Dot(
