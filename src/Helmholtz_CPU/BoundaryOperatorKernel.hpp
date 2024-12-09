@@ -82,7 +82,7 @@ public:
         {
             //CheckThis
             ParallelDo(
-                [=,&job_ptr]( const Int thread)
+                [=,&job_ptr,this]( const Int thread)
                 {
                     Tiny::Matrix<i_blk_size,4,Real,Int> x;
                     Tiny::Matrix<i_blk_size,4,Real,Int> nu;

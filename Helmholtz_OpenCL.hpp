@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef __APPLE__
-/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
+/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate -framework OpenCL`.
 ///
     #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
 

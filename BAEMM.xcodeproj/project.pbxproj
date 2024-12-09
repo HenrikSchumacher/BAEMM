@@ -524,6 +524,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				OTHER_LDFLAGS = (
+					"-lm",
+					"-ldl",
+					"-lamd",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",
@@ -543,6 +548,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				OTHER_LDFLAGS = (
+					"-lm",
+					"-ldl",
+					"-lamd",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",

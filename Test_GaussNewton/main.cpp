@@ -6,6 +6,7 @@
 
 
 #define TOOLS_ENABLE_PROFILER
+#define REPULSOR_USE_AMD
 
 //#include "../submodules/Repulsor/submodules/Tensors/submodules/Tools/Tools.hpp"
 #include "../Helmholtz_OpenCL.hpp"
