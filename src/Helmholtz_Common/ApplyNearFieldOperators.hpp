@@ -93,7 +93,7 @@ public:
             C_loaded = true;
 
             // initialize evaluation point buffers
-            Real * evaluation_points_ptr;
+            Real * evaluation_points_ptr = nullptr;
             InitializeEvaluationPointBuffer(evaluation_count, evaluation_points_ptr, evaluation_points_);
  
             // Apply integral operators.
