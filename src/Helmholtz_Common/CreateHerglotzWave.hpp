@@ -12,15 +12,15 @@ public:
      * 
      * The canonical choices would be alpha = 1 and beta = 0.
      * 
-     * @tparam I_ext: External integer type.
-     * @tparam R_ext: External Real type.
-     * @tparam C_ext: External Complex type.
-     * @param B_in: Input array of size meas_count*wave_count_ - Herglotz wave kernel.
-     * @param ldB_in: Leading dimension of input. Usually wave_count_. 
-     * @param C_out: Output array.
-     * @param ldC_out: Leading dimension of output. Usually wave_count_. 
-     * @param kappa_list: An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
-     * @param coeff_list: An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
+     * @tparam I_ext External integer type.
+     * @tparam R_ext External Real type.
+     * @tparam C_ext External Complex type.
+     * @param B_in Input array of size meas_count*wave_count_ - Herglotz wave kernel.
+     * @param ldB_in Leading dimension of input. Usually wave_count_.
+     * @param C_out Output array.
+     * @param ldC_out Leading dimension of output. Usually wave_count_.
+     * @param kappa_list An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
+     * @param coeff_list An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
      */
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateHerglotzWave_PL(

@@ -11,16 +11,16 @@ public:
      *     + coeff(-,2) * DoubleLayerOperator
      *     + coeff(-,3) * AdjointDoubleLayerOperator
      * 
-    * @tparam WC: Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
-    * @tparam I_ext: External integer type.
-    * @tparam R_ext: External Real type.
-    * @tparam C_ext: External Complex type.
-     * @param B_in: Input array of size vertex_count * wave_count_.
-     * @param ldB_in: Leading dimension of input. Usually wave_count_. 
-     * @param C_out: Output array of size vertex_count * wave_count_.
-     * @param ldC_out: Leading dimension of output. Usually wave_count_. 
-     * @param kappa_list: An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
-     * @param coeff_list: An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of boundary operators.
+    * @tparam WC Number of right hand sides for the used GMRES- and CG-algorithms, shall either be =0 or =wave_chunk_count_ * wave_chunk_size_.
+    * @tparam I_ext External integer type.
+    * @tparam R_ext External Real type.
+    * @tparam C_ext External Complex type.
+     * @param B_in Input array of size vertex_count * wave_count_.
+     * @param ldB_in Leading dimension of input. Usually wave_count_.
+     * @param C_out Output array of size vertex_count * wave_count_.
+     * @param ldC_out Leading dimension of output. Usually wave_count_.
+     * @param kappa_list An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
+     * @param coeff_list An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of boundary operators.
      */
     template<Int WC = VarSize, typename R_ext, typename C_ext, typename I_ext>
     void ApplyBoundaryOperators_PL(

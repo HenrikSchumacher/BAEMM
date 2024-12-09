@@ -195,7 +195,7 @@ private:
     )
     {
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 for( Int chunk = 0; chunk < wave_chunk_count; ++chunk )
                 {

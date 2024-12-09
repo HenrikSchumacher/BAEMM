@@ -28,7 +28,7 @@ public:
         
         //CheckThis
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 copy_buffer( &input[ld_input * i], &B_ptr[ldB * i], wave_count );
             },
@@ -47,7 +47,7 @@ public:
     {
         //CheckThis
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 copy_buffer( &B_ptr[ldB * i], &output[ld_output * i], wave_count );
             },
@@ -61,7 +61,7 @@ public:
         
         //CheckThis
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 copy_buffer( &input[ld_input * i], &C_ptr[ldC * i], wave_count );
             },
@@ -80,7 +80,7 @@ public:
     {
         //CheckThis
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 copy_buffer( &C_ptr[ldC * i], &output[ld_output * i], wave_count );
             },

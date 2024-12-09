@@ -23,7 +23,7 @@ public:
         // copy measurement directions
         
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 meas_directions_ptr[4*i+0] = static_cast<Real>(meas_directions_[3*i+0]);
                 meas_directions_ptr[4*i+1] = static_cast<Real>(meas_directions_[3*i+1]);
@@ -59,7 +59,6 @@ public:
         );
     }
 
-    template<typename R_ext>
     void UnmapEvaluationPointBuffer(Real * & evaluation_points_ptr)
     {
         clFlush(command_queue);
@@ -67,5 +66,6 @@ public:
         clEnqueueUnmapMemObject(command_queue,evaluation_points_pin,(void*)evaluation_points_ptr,0,nullptr,nullptr);
         clReleaseMemObject(evaluation_points_pin);
 
-        dealloc(evaluation_points_ptr);
+        // TODO: Do we have to deallocate the pointer evaluation_points_ptr?
+        evaluation_points_ptr = nullptr;
     }

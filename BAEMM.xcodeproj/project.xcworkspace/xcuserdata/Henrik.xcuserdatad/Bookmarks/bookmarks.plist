@@ -34,16 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        for(Int i = 0 ; i &lt; wcc ; i++)
+				<string>        mptr&lt;C_ext&gt; du_dn, //du_dn is the Neumann data of the scattered wave
 </string>
 				<key>leading</key>
-				<string>        
-        // Create weak representation of the negative incident wave.
+				<string>        cptr&lt;R_ext&gt; inc_directions,
+        const I_ext wave_chunk_size_,
 </string>
 				<key>trailing</key>
-				<string>        {
-            inc_coeff(i,0) = C_ext(0);
-            inc_coeff(i,1) = C_ext( R_ext(0), -kappa_[i] );
+				<string>        const WaveType type,
+        const R_ext cg_tol,
+        const R_ext gmres_tol
 </string>
 			</dict>
 			<key>title</key>
@@ -81,16 +81,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        for( Int i = 0 ; i &lt; wcc ; i++ )
+				<string>     * @param cg_tol  Tolerance for the CG-solver to invert the mass matrix.
 </string>
 				<key>leading</key>
-				<string>
-        // Create weak representation of the negative incident wave.
+				<string>     * @param type Flag specifying if the incoming wave is radial or planar.
+     * @param eta Coupling parameter for integral equations.
 </string>
 				<key>trailing</key>
-				<string>        {
-            inc_coeff(i,0) =  C_ext(0);
-            inc_coeff(i,1) = -C_ext(1);
+				<string>     * @param gmres_tol Tolerance for the GMRES-solver to solve the boundary integral equations.
+     */
+    template&lt;Int WC = VarSize, typename I_ext, typename R_ext, typename C_ext&gt;
 </string>
 			</dict>
 			<key>title</key>

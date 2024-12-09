@@ -241,7 +241,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					AF1A0AAE2C4BD120008E55D5 = {
 						CreatedOnToolsVersion = 15.4;
@@ -525,6 +525,10 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Debug;
 		};
@@ -540,6 +544,10 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",
+					/opt/homebrew/opt/suitesparse/include/suitesparse,
+				);
 			};
 			name = Release;
 		};

@@ -60,7 +60,7 @@ public:
         // Write potential to buffers.
         clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, rows_rounded * wave_count * sizeof(Complex), B_ptr, 0, nullptr, nullptr);
 
-        clEnqueueWriteBuffer(command_queue, evaluation_points, CL_FALSE, 0, 4 * evaluation_count * sizeof(Real), evaluation_points_ptr, 0, nullptr, nullptr);
+        clEnqueueWriteBuffer(command_queue, evaluation_points_pin, CL_FALSE, 0, 4 * evaluation_count * sizeof(Real), evaluation_points_ptr, 0, nullptr, nullptr);
 
         // Create a program from the kernel source
         cl_program program = clCreateProgramWithSource(context, 1, &source_str, &source_size, &ret);
@@ -86,7 +86,7 @@ public:
         ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&mid_points);
         ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&normals);
         ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&B_buf);
-        ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&evaluation_points);
+        ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&evaluation_points_pin);
         ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&C_buf);
         ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&d_kappa);
         ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&d_coeff);
@@ -110,7 +110,7 @@ public:
         ret = clFlush(command_queue);
         ret = clReleaseKernel(kernel);
         ret = clReleaseProgram(program);
-        ret = clReleaseMemObject(evaluation_points);
+        ret = clReleaseMemObject(evaluation_points_pin);
         ret = clReleaseMemObject(d_kappa);
         ret = clReleaseMemObject(d_coeff);
         ret = clReleaseMemObject(d_n);
