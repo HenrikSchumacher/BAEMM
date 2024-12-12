@@ -1,25 +1,25 @@
 public:
 
     /**
-     * Applies the boundary POTENTIAL operators to the input B_in (representing a Ppiecewise linear continuous function on the mesh), i.e. 
+     * Applies the boundary POTENTIAL operators to the input B_in (representing a piecewise linear continuous function on the mesh), i.e. 
      * Computes C_out = alpha * A * B_in + beta * C_out, and evaluates the result on a set of points (evaluation_points_).
      *
      * where B_in and C_out out are matrices of size vertex_count x wave_count_ and
      * represent the vertex values of  wave_count_ piecewise-linear functions.
-    * The operator A is a linear combination of several operators, depending on kappa:
+     * The operator A is a linear combination of several operators, depending on kappa:
      *
-     * A = coeff_(-,1) * SingleLayerOperator
-     *     + coeff(-,2) * DoubleLayerOperator
+     * A = coeff_list(.,1) * SingleLayerOperator
+     *     + coeff_list(.,2) * DoubleLayerOperator
      * 
      * The canonical choices would be alpha = 1 and beta = 0.
      * 
      * @tparam I_ext External integer type.
      * @tparam R_ext External Real type.
      * @tparam C_ext External Complex type.
-     * @param B_in Input array of size meas_count*wave_count_ - Herglotz wave kernel.
-     * @param ldB_in Leading dimension of input. Usually wave_count_.
+     * @param B_in Input array of size meas_count*wave_count_ (Herglotz wave kernel).
+     * @param ldB_in Leading dimension of input. Usually wave_count_. 
      * @param C_out Output array.
-     * @param ldC_out Leading dimension of output. Usually wave_count_.
+     * @param ldC_out Leading dimension of output. Usually wave_count_. 
      * @param kappa_list An (wave_count_/wave_chunk_size_) x 1 complex array representing the wavenumbers.
      * @param coeff_list An (wave_count_/wave_chunk_size_) x 4 complex array representing the used combination of operators (by the second and third columns).
      * @param evaluation_points_ An evaluation_count_ x 3 real array for parsing the evaluation points.
@@ -50,7 +50,7 @@ public:
     }
 
 
-    /** @brief Applies the boundary potential operators. Assumes that Assumes that 'LoadParameters' has been called before.
+    /** Applies the boundary potential operators. Assumes that Assumes that 'LoadParameters' has been called before.
      */ 
     template<typename R_ext, typename C_ext, typename I_ext>
     void ApplyNearFieldOperators_PL(
@@ -93,19 +93,29 @@ public:
             C_loaded = true;
 
             // initialize evaluation point buffers
-            Real * evaluation_points_ptr = nullptr;
-            InitializeEvaluationPointBuffer(evaluation_count, evaluation_points_ptr, evaluation_points_);
+            Real * evaluation_points_ptr = (Real*)malloc(4 * evaluation_count * sizeof(Real));
+
+            ParallelDo(
+                [=]( const Int i )
+                {
+                    evaluation_points_ptr[4*i+0] = static_cast<Real>(evaluation_points_[3*i+0]);
+                    evaluation_points_ptr[4*i+1] = static_cast<Real>(evaluation_points_[3*i+1]);
+                    evaluation_points_ptr[4*i+2] = static_cast<Real>(evaluation_points_[3*i+2]);
+                    evaluation_points_ptr[4*i+3] = zero;
+                },
+                evaluation_count, CPU_thread_count
+            );
  
             // Apply integral operators.
-            NearFieldOperatorKernel( evaluation_points_, evaluation_count, kappa, c );
-            
-            UnmapEvaluationPointBuffer(evaluation_points_ptr);
+            NearFieldOperatorKernel( evaluation_points_ptr, evaluation_count );
 
             combine_matrices(
                 alpha, C_ptr, wave_count,
                 beta,  C_out, ldC,
                 evaluation_count, wave_count, CPU_thread_count                                                                                     
             );
+
+            free(evaluation_points_ptr);
         }
         
         ptoc(ClassName()+"::ApplyNearFieldOperators_PL");
