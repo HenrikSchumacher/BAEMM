@@ -1,11 +1,11 @@
 # BÄMM!
 BÄMM! - a brute force approach for the boundary element method
 
-This is a GPU-accelerated first-order boundary-element solver for the three-dimensional acoustic Helmholtz problem. In the sake of simplicity, the library only features piecewise linear, continuous boundary functions.
+This is a GPU-accelerated (by OpenCL) first-order boundary-element solver for the three-dimensional acoustic Helmholtz problem. In the sake of simplicity, the library only features piecewise linear, continuous boundary functions.
 
-Helmholtz_OpenCL, Helmholtz_Metal and Helmholtz_CPU allow to apply the mass matrix, the single-layer boundary operator, the double-layer boundary operator and its adjoint to a piecewise linear, continuous function on a mesh, i.e. a function defined by its valuces at the vertices. For examples look into the respective Example*-folders.
+Helmholtz_OpenCL allows to apply the mass matrix, the single-layer boundary operator, the double-layer boundary operator and its adjoint to a piecewise linear, continuous function on a mesh, i.e. a function defined by its valuces at the vertices. For examples look into the respective Example*-folders.
 
-Additionally, in Helmholtz_OpenCL the far field map, the near field map and the herglotz wave function are implemented. This can be adapted to the other libraries as needed.
+Additionally, the far field map, the near field map and the herglotz wave function are implemented.
 The far field operator, its directional derivative and the $L^2$-adjoint of its directional derivative are implemented in FarField.hpp (as pointed out above, at this stage only available for Helmholtz_OpenCL). To solve the Helmholtz problem, we use the mixed indirect potential approach. The routine GaussNewton calculates (M + DF*DF)^{-1} for M to be a scaled metric operator.
 
 For a detailed documentation open documentation/annotated in your browser.
@@ -24,14 +24,6 @@ _BAEMM_ is header-only, so you do not have to precompile anything and thus you a
 
     #include "Helmholtz_OpenCL.hpp"
 
-or
-
-    #include "Helmholtz_Metal.hpp"
-
-or
-
-    #include "Helmholtz_CPU.hpp"
-
-and tell your compiler where to find it. For the former ones you also need to link the respective libraries to use OpenCL or Metal.
+and tell your compiler where to find it. You also need to link the respective libraries to use OpenCL.
 
 As _BÄMM_ depends on the _Repulsor_ library (https://github.com/HenrikSchumacher/Repulsor.git), we refer to its documentation for further linkages and compiler options needed.
