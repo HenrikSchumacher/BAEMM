@@ -5,18 +5,18 @@ public:
      *  C_out = alpha * wave + beta * C_out
      *  Here, 'wave' is the combined Dirichlet- and Neumann-data of the wave onthe vertices. The canonical choices would be alpha = 1 and beta = 0.
      * 
-     * @tparam I_ext: External integer type.
-     * @tparam R_ext: External Real type.
-     * @tparam C_ext: External Complex type.
-     * @param incident_directions: Array representing incident directions of plane waves (resp. point sources for radial waves). 
-     * @param inc_count: Number of incident directions. Needs to be >= wave_chunk_size_.
-     * @param C_out: Output array.
-     * @param ldC_out: Leading dimension of output. Usually wave_count_. 
-     * @param kappa_list: An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
-     * @param coeff_list: An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
+     * @tparam I_ext External integer type.
+     * @tparam R_ext External Real type.
+     * @tparam C_ext External Complex type.
+     * @param incident_directions Array representing incident directions of plane waves (resp. point sources for radial waves). 
+     * @param inc_count Number of incident directions. Needs to be >= wave_chunk_size_.
+     * @param C_out Output array.
+     * @param ldC_out Leading dimension of output. Usually wave_count_. 
+     * @param kappa_list An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
+     * @param coeff_list An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
      * @param wave_count_ 
      * @param wave_chunk_size_ 
-     * @param type: A flag for eiter using radial or planar waves.
+     * @param type A flag for eiter using radial or planar waves.
      */
     template<typename R_ext, typename C_ext, typename I_ext>
     void CreateIncidentWave_PL(
