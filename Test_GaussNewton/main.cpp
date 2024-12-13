@@ -4,11 +4,22 @@
 #include <pwd.h>
 #include <filesystem>
 
-
+/// Define this if some profiling information shall be gathered.
 #define TOOLS_ENABLE_PROFILER
+
+/// Define this if you want BLAS and LAPACK routines to use 64 bit integers.
+#define TENSORS_ILP64
+
+/// You may use SuiteSparse's Approximate Minimum Degree ordering. That might speed up certain sparse linear soves. But it is not strictly necessary, and it makes here only a small difference.
 #define REPULSOR_USE_AMD
 
-//#include "../submodules/Repulsor/submodules/Tensors/submodules/Tools/Tools.hpp"
+//// Define this if you need to use the old LAPACK interface of Apple Accelerate.
+//#define TENSORS_USE_ACCELERATE_OLD_LAPACK
+
+//// Define this to enforce that OpenBLAS will be used instead of Apple Accelerate.
+#define BAEMM_USE_OPENBLAS
+
+
 #include "../Helmholtz_OpenCL.hpp"
 #include "../ReadMeshFromFile.hpp"
 #include "../ReadMeshFromSTL.hpp"
@@ -39,9 +50,8 @@ int main()
     Profiler::Clear( home_dir );
     
 
-//    std::string mesh_name { "Triceratops_00081920T" };
-    std::string mesh_name { "Triceratops_12_00081920T" };
-    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
+//    std::string mesh_name { "Triceratops_12_00081920T" };
+//    std::filesystem::path mesh_file = home_dir / (mesh_name + ".txt");
     
 //    std::string mesh_name { "Bunny_00086632T" };
 //    std::string mesh_name { "Spot_00005856T" };
@@ -49,9 +59,9 @@ int main()
 //    std::string mesh_name { "Spot_00093696T" };
 //    std::string mesh_name { "Bob_00042752T" };
 //    std::string mesh_name { "Blub_00056832T" };
-//    std::string mesh_name { "TorusMesh_00038400T" };
+    std::string mesh_name { "TorusMesh_00038400T" };
 
-//    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
+    std::filesystem::path mesh_file = mesh_dir / (mesh_name + ".txt");
     
     std::filesystem::path meas_file = mesh_dir / ("Sphere_00005120T.txt");
     

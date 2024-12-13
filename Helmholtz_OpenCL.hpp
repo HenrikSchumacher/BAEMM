@@ -1,14 +1,18 @@
 #pragma once
 
 #ifdef __APPLE__
-/// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
-///
-    #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+/// Use these while on a mac. Don't forget to issue the compiler flags `-framework Accelerate -framework OpenCL`.
+
+    #ifdef BAEMM_USE_OPENBLAS
+        #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+    #else
+        #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+    #endif
 
     #define CL_TARGET_OPENCL_VERSION 120
     #include <OpenCL/OpenCL.h>
 #else
-/// This should work for OpenBLAS.
+/// Use these while on any other system. Don't forget to issue the linker flag `-lopenblas -lOpenCL`.
     #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
 
     #include <CL/cl.h>
@@ -218,8 +222,6 @@ namespace BAEMM
             {
                 device_id = device_id_list[0];
             }
-            
-            logprint(DeviceInfo());
             
             context = clCreateContext( nullptr, 1, &device_id, nullptr, nullptr, &ret);
 

@@ -241,7 +241,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					AF1A0AAE2C4BD120008E55D5 = {
 						CreatedOnToolsVersion = 15.4;
@@ -317,7 +317,6 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/include/suitesparse;
 			};
 			name = Debug;
 		};
@@ -336,14 +335,12 @@
 					"-ldl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/include/suitesparse;
 			};
 			name = Release;
 		};
 		AFA1CF00298E56D400085994 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
@@ -395,7 +392,10 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/opt/homebrew/opt/suitesparse/lib,
+					/opt/homebrew/Cellar/openblas/0.3.28/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -413,6 +413,7 @@
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
 					/opt/homebrew/opt/suitesparse/include/suitesparse,
+					/opt/homebrew/Cellar/openblas/0.3.28/include,
 				);
 			};
 			name = Debug;
@@ -420,7 +421,6 @@
 		AFA1CF01298E56D400085994 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
@@ -467,7 +467,10 @@
 					/Users/Henrik/github/Repulsor,
 					"submodules/metal-cpp",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/homebrew/opt/suitesparse/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/opt/homebrew/opt/suitesparse/lib,
+					/opt/homebrew/Cellar/openblas/0.3.28/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -485,6 +488,7 @@
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					"/opt/homebrew/Cellar/opencl-headers/2024.05.08/include",
 					/opt/homebrew/opt/suitesparse/include/suitesparse,
+					/opt/homebrew/Cellar/openblas/0.3.28/include,
 				);
 			};
 			name = Release;
@@ -517,23 +521,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				OTHER_LDFLAGS = (
 					"-lm",
 					"-ldl",
 					"-lamd",
+					"-lopenblas",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",
-					/opt/homebrew/opt/suitesparse/include/suitesparse,
-				);
 			};
 			name = Debug;
 		};
@@ -541,23 +540,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y6DQ749ZRT;
 				ENABLE_HARDENED_RUNTIME = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				OTHER_LDFLAGS = (
 					"-lm",
 					"-ldl",
 					"-lamd",
+					"-lopenblas",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/Cellar/opencl-headers/2024.10.24/include",
-					/opt/homebrew/opt/suitesparse/include/suitesparse,
-				);
 			};
 			name = Release;
 		};
