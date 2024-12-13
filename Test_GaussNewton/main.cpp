@@ -8,16 +8,16 @@
 #define TOOLS_ENABLE_PROFILER
 
 /// Define this if you want BLAS and LAPACK routines to use 64 bit integers.
-#define TENSORS_ILP64
+//#define TENSORS_ILP64
 
-/// You may use SuiteSparse's Approximate Minimum Degree ordering. That might speed up certain sparse linear soves. But it is not strictly necessary, and it makes here only a small difference.
+/// You may use SuiteSparse's Approximate Minimum Degree ordering. That might speed up certain sparse linear soves. But it is not strictly necessary, and it makes here only a small difference. You habe to install the SuiteSparse package (e.g., with homebrew) and to link `-lamd` in order to make this work.
 #define REPULSOR_USE_AMD
 
 //// Define this if you need to use the old LAPACK interface of Apple Accelerate.
 //#define TENSORS_USE_ACCELERATE_OLD_LAPACK
 
 //// Define this to enforce that OpenBLAS will be used instead of Apple Accelerate.
-#define BAEMM_USE_OPENBLAS
+//#define BAEMM_USE_OPENBLAS
 
 
 #include "../Helmholtz_OpenCL.hpp"
