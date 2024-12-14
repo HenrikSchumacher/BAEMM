@@ -36,6 +36,6 @@ when using gcc, or
 
     -framework OpenCL
     
-on MacOS.
+when using clang.
 
 As _BÄMM_ depends on the _Repulsor_ library (https://github.com/HenrikSchumacher/Repulsor.git), we refer to its documentation for further linkages and compiler options needed.
