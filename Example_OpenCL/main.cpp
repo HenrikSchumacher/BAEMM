@@ -237,7 +237,6 @@ int main()
     toc("Starting measurement");
     
     
-    
     if( du_dn != nullptr )
     {
         free( du_dn );

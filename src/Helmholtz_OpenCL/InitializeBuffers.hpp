@@ -23,7 +23,7 @@ public:
         // copy measurement directions
         
         ParallelDo(
-            [=]( const Int i )
+            [=,this]( const Int i )
             {
                 meas_directions_ptr[4*i+0] = static_cast<Real>(meas_directions_[3*i+0]);
                 meas_directions_ptr[4*i+1] = static_cast<Real>(meas_directions_[3*i+1]);

@@ -4,9 +4,21 @@ public:
     {
         ptic(ClassName()+"::Initialize");
         
-        logprint(Tools::IntegerInfo());
-        
         logprint(Tools::FloatingPointInfo());
+        
+        logprint("");
+
+        logprint(Tensors::BLAS::Info());
+        
+        logprint("");
+        
+        logprint(Tensors::LAPACK::Info());
+        
+        logprint("");
+        
+        logprint(DeviceInfo());
+
+        logprint(Tools::IntegerInfo());
         
         logprint("");
         

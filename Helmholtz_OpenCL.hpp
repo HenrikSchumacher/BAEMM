@@ -3,7 +3,11 @@
 #ifdef __APPLE__
 /// Use these while on a mac. Don't forget to issue the compiler flag `-framework Accelerate`.
 ///
-    #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+    #ifdef BAEMM_USE_OPENBLAS
+        #include "submodules/Repulsor/submodules/Tensors/OpenBLAS.hpp"
+    #else
+        #include "submodules/Repulsor/submodules/Tensors/Accelerate.hpp"
+    #endif
 
     #define CL_TARGET_OPENCL_VERSION 120
     #include <OpenCL/OpenCL.h>
