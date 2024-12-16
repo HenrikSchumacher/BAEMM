@@ -615,7 +615,7 @@ public:
 * @tparam R_ext External Real type.
 * @tparam C_ext External Complex type.
 * @param kappa_ An 1 x 'wave_chunk_count_' Complex array 'kappa_' representing the wavenumbers.
-* @param coeff_ An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
+* @param coeff An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
 * @param wave An vertex_count x (wave_chunk_count_*wave_chunk_size_) Complex array holding the Dirirchlet data of (-1)*incident_wave.
 * @param phi An vertex_count x (wave_chunk_count_*wave_chunk_size_) Complex output array for the boundary potential.
 * @param wave_chunk_count_ Number of chunks of waves. Ususally number of used wavenumbers.
