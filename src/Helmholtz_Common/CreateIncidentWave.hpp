@@ -14,8 +14,8 @@ public:
      * @param ldC_out Leading dimension of output. Usually wave_count_. 
      * @param kappa_list An (wave_count_/wave_chunk_size_) x 1 Complex array representing the wavenumbers.
      * @param coeff_list An (wave_count_/wave_chunk_size_) x 4 Complex array representing the used combination of Dirichlet- and Neumann-data (by the second and third columns).
-     * @param wave_count_ 
-     * @param wave_chunk_size_ 
+     * @param wave_count_ The total number of waves.
+     * @param wave_chunk_size_ The number of waves per chunk.
      * @param type A flag for eiter using radial or planar waves.
      */
     template<typename R_ext, typename C_ext, typename I_ext>
